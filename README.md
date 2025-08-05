@@ -41,11 +41,8 @@ npm run dev
 
 4. **Open http://localhost:3000 to view your app**
 
+```
 📁 Folder Structure
-csharp
-Copy
-Edit
-.
 ├── public/           # Static assets
 ├── styles/           # Global styles (Tailwind config)
 ├── pages/            # Next.js pages
@@ -53,6 +50,7 @@ Edit
 ├── utils/            # Utility functions (optional)
 ├── README.md
 └── tailwind.config.js
+```
 
 🧾 License
 This project is licensed under the MIT License.
