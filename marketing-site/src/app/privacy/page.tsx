@@ -1,19 +1,9 @@
-import Link from "next/link";
-import { Metadata } from "next";
-import { PageWrapper } from "@/components/PageWrapper";
-import { SEO } from "@/seo/SEO";
-import { generateMetadata as generateSEOMetadata, generateCanonicalUrl } from "@/seo/seo-utils";
-import { pageMetadata } from "@/seo/seo.config";
+'use client';
 
-// Generate metadata for this page
-export const metadata: Metadata = generateSEOMetadata({
-  title: pageMetadata.privacy.title,
-  description: pageMetadata.privacy.description,
-  keywords: pageMetadata.privacy.keywords,
-  alternates: {
-    canonical: generateCanonicalUrl('/privacy'),
-  },
-});
+import Link from "next/link";
+import { PageWrapper } from "@/components/PageWrapper";
+import { SEO } from "@/seo";
+import { pageMetadata } from "@/seo/seo.config";
 
 export default function PrivacyPolicy() {
   return (

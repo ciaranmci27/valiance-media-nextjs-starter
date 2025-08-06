@@ -1,30 +1,14 @@
-/**
- * SEO Module Index
- * 
- * Central export point for all SEO-related functionality.
- * This makes imports cleaner and more maintainable.
- */
+// SEO module exports
+export * from './seo-utils';
+export * from './seo.config';
+export * from './SEO';
+export * from './StructuredData';
 
-// Configuration
-export { seoConfig, pageMetadata } from './seo.config';
+// Sitemap Functions
+export * from './sitemap-pages';
+export * from './sitemap-blog-posts';
+export * from './sitemap-blog-categories';
+export * from './sitemap-utils';
 
-// Utilities
-export {
-  generateMetadata,
-  generateCanonicalUrl,
-  generateOrganizationSchema,
-  generateWebsiteSchema,
-  generateProductSchema,
-  generateFAQSchema,
-  generateBreadcrumbSchema,
-  generateWebPageSchema,
-  generateAlternateLinks,
-} from './seo-utils';
-
-// Components
-export { SEO } from './SEO';
-export { StructuredData } from './StructuredData';
-
-// Next.js special exports (these are re-exported from app directory)
-export { default as sitemap } from './sitemap';
-export { default as robots } from './robots';
+// Sitemap Route Handlers
+export * from './routes/sitemap-handlers';

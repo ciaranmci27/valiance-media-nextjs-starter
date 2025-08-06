@@ -1,0 +1,110 @@
+import fs from 'fs';
+import path from 'path';
+import { PageSeoConfig, PageSeoConfigRaw } from './page-seo-types';
+
+/**
+ * Page SEO Configuration Utilities
+ * 
+ * These utilities help load and manage SEO configurations for individual pages
+ */
+
+/**
+ * Load SEO configuration for a specific page
+ * Looks for seo-config.json in the page's directory
+ */
+export function loadPageSeoConfig(pagePath: string): PageSeoConfig | null {
+  try {
+    // Convert route path to file system path
+    // e.g., '/privacy' -> 'src/app/privacy/seo-config.json'
+    const normalizedPath = pagePath === '/' ? '' : pagePath;
+    const configPath = path.join(process.cwd(), 'src', 'app', normalizedPath, 'seo-config.json');
+    
+    if (!fs.existsSync(configPath)) {
+      return null;
+    }
+    
+    const configContent = fs.readFileSync(configPath, 'utf-8');
+    const rawConfig: PageSeoConfigRaw = JSON.parse(configContent);
+    
+    // Create a complete config with defaults
+    const config: PageSeoConfig = {
+      slug: rawConfig.slug || path.basename(pagePath) || 'home',
+      seo: rawConfig.seo,
+      sitemap: rawConfig.sitemap,
+      metadata: rawConfig.metadata,
+    };
+    
+    return config;
+  } catch (error) {
+    console.warn(`Error loading SEO config for page ${pagePath}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Load all page SEO configurations
+ * Scans the app directory for pages with seo-config.json files
+ */
+export function loadAllPageSeoConfigs(): PageSeoConfig[] {
+  const configs: PageSeoConfig[] = [];
+  
+  try {
+    const appDir = path.join(process.cwd(), 'src', 'app');
+    
+    // Define known page directories to scan
+    const pagePaths = [
+      '', // Root/home page
+      'privacy',
+      'terms-of-service',
+      'home',
+      'admin', // Example admin page (excluded from search/sitemap)
+      // Add more page paths as your site grows
+    ];
+    
+    for (const pagePath of pagePaths) {
+      const fullPath = pagePath === '' ? '/' : `/${pagePath}`;
+      const config = loadPageSeoConfig(fullPath);
+      
+      if (config) {
+        configs.push(config);
+      }
+    }
+    
+    return configs;
+  } catch (error) {
+    console.warn('Error loading page SEO configs:', error);
+    return [];
+  }
+}
+
+/**
+ * Check if a page should be excluded from sitemaps
+ */
+export function isPageExcludedFromSitemap(pagePath: string): boolean {
+  const config = loadPageSeoConfig(pagePath);
+  return config?.sitemap?.exclude === true;
+}
+
+/**
+ * Check if a page should have noindex robots directive
+ */
+export function isPageNoIndex(pagePath: string): boolean {
+  const config = loadPageSeoConfig(pagePath);
+  return config?.seo?.noIndex === true;
+}
+
+/**
+ * Get custom sitemap priority for a page
+ */
+export function getPageSitemapPriority(pagePath: string): number | undefined {
+  const config = loadPageSeoConfig(pagePath);
+  return config?.sitemap?.priority;
+}
+
+/**
+ * Get custom change frequency for a page
+ */
+export function getPageChangeFrequency(pagePath: string): string | undefined {
+  const config = loadPageSeoConfig(pagePath);
+  return config?.sitemap?.changeFrequency;
+}

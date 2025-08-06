@@ -1,0 +1,18 @@
+{
+  "slug": "terms-of-service",
+  "seo": {
+    "title": "Terms of Service - Valiance Media",
+    "description": "Read our terms of service to understand the rules and guidelines for using Valiance Media's website and services.",
+    "keywords": ["terms of service", "terms and conditions", "legal agreement", "user agreement", "service terms"],
+    "noIndex": false
+  },
+  "sitemap": {
+    "exclude": false,
+    "priority": 0.6,
+    "changeFrequency": "yearly"
+  },
+  "metadata": {
+    "category": "legal",
+    "lastModified": "2024-01-01"
+  }
+}

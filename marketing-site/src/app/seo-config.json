@@ -1,0 +1,19 @@
+{
+  "slug": "home",
+  "seo": {
+    "title": "Valiance Media - Modern Marketing Website Solutions",
+    "description": "Build high-converting marketing websites with our Next.js boilerplate. Professional templates, SEO optimization, and modern design patterns included.",
+    "keywords": ["marketing website", "nextjs boilerplate", "web development", "conversion optimization", "landing pages", "SEO"],
+    "noIndex": false
+  },
+  "sitemap": {
+    "exclude": false,
+    "priority": 1.0,
+    "changeFrequency": "weekly"
+  },
+  "metadata": {
+    "category": "homepage",
+    "author": "Valiance Media",
+    "lastModified": "2024-01-01"
+  }
+}

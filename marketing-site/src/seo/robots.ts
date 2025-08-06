@@ -1,14 +1,12 @@
 import { MetadataRoute } from 'next';
-import { seoConfig } from './seo.config';
 
 /**
  * Generate robots.txt for the website
  * This file automatically generates a robots.txt at /robots.txt
  * 
- * Customize the rules based on your SEO strategy.
+ * Uses relative sitemap URL so it works on any domain automatically.
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = seoConfig.siteUrl;
 
   return {
     rules: [
@@ -36,7 +34,6 @@ export default function robots(): MetadataRoute.Robots {
         // Google can handle URL parameters better
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
+    sitemap: '/sitemap',
   };
 }

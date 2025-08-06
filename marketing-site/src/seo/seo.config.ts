@@ -108,6 +108,40 @@ export const seoConfig = {
       // 'es-ES': 'https://es.valiancemedia.com',
     },
   },
+
+  // Sitemap Configuration
+  sitemap: {
+    // Pages to exclude from sitemap
+    excludedPages: [
+      '/admin',
+      '/dashboard',
+      '/api',
+      '/test',
+      '/dev',
+      // Add any internal or development pages here
+    ],
+    // Blog posts with these patterns in filename will be excluded
+    excludedBlogPatterns: [
+      'example',
+      'test',
+      'demo',
+      'sample',
+    ],
+    // Change frequencies for different content types
+    changeFrequency: {
+      homepage: 'weekly',
+      pages: 'monthly',
+      blog: 'weekly',
+      categories: 'monthly',
+    },
+    // Priorities for different content types
+    priority: {
+      homepage: 1.0,
+      mainPages: 0.8,
+      blog: 0.6,
+      categories: 0.7,
+    },
+  },
 };
 
 // Page-specific metadata templates

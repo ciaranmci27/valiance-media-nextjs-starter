@@ -1,0 +1,91 @@
+import { Metadata } from 'next';
+import { loadPageSeoConfig } from '@/lib/page-seo-utils';
+import { seoConfig } from '@/seo/seo.config';
+
+/**
+ * Page SEO Component and Utilities
+ * 
+ * Provides easy integration of page-level SEO configurations
+ * with fallbacks to global SEO settings
+ */
+
+interface PageSEOProps {
+  pagePath: string;
+  fallbackTitle?: string;
+  fallbackDescription?: string;
+}
+
+/**
+ * Generate metadata for a page using its seo-config.json
+ * Use this in your page.tsx files to automatically apply SEO settings
+ */
+export function generatePageMetadata({
+  pagePath,
+  fallbackTitle,
+  fallbackDescription,
+}: PageSEOProps): Metadata {
+  const pageConfig = loadPageSeoConfig(pagePath);
+  
+  // Build title with fallback chain
+  const title = pageConfig?.seo?.title || 
+    fallbackTitle || 
+    `${seoConfig.siteName}`;
+  
+  // Build description with fallback chain
+  const description = pageConfig?.seo?.description || 
+    fallbackDescription || 
+    seoConfig.description;
+  
+  // Build keywords
+  const keywords = pageConfig?.seo?.keywords?.join(', ') || 
+    seoConfig.keywords?.join(', ');
+  
+  // Determine robots directive
+  const robots = pageConfig?.seo?.noIndex === true 
+    ? 'noindex, nofollow' 
+    : 'index, follow';
+  
+  // Build image URL
+  const imageUrl = pageConfig?.seo?.image || seoConfig.image;
+  
+  return {
+    title,
+    description,
+    keywords,
+    robots,
+    authors: [{ name: pageConfig?.metadata?.author || seoConfig.company.name }],
+    openGraph: {
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : undefined,
+      type: 'website',
+      siteName: seoConfig.siteName,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : undefined,
+    },
+    other: {
+      'page-category': pageConfig?.metadata?.category,
+      'page-tags': pageConfig?.metadata?.tags?.join(', '),
+      'last-modified': pageConfig?.metadata?.lastModified,
+    },
+  };
+}
+
+/**
+ * Check if a page should be excluded from search engines
+ */
+export function isPageNoIndex(pagePath: string): boolean {
+  const pageConfig = loadPageSeoConfig(pagePath);
+  return pageConfig?.seo?.noIndex === true;
+}
+
+/**
+ * Get page configuration for debugging/development
+ */
+export function getPageConfig(pagePath: string) {
+  return loadPageSeoConfig(pagePath);
+}

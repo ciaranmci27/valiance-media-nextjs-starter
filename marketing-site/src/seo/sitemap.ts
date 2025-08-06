@@ -1,52 +1,14 @@
-import { MetadataRoute } from 'next';
-import { seoConfig } from './seo.config';
-
 /**
- * Generate sitemap for the website
- * This file automatically generates a sitemap.xml at /sitemap.xml
+ * Legacy Sitemap - Redirects to new sitemap index structure
  * 
- * Add your dynamic routes here as your site grows.
+ * This file has been replaced by the new sitemap index system:
+ * - /sitemap.xml (main index)
+ * - /sitemap-pages.xml (static pages)
+ * - /sitemap-blog.xml (blog posts)
+ * - /sitemap-categories.xml (blog categories)
+ * 
+ * The new structure follows SEO best practices and is similar to Yoast SEO.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = seoConfig.siteUrl;
-  
-  // Static routes - add your pages here
-  const staticRoutes = [
-    '',
-    '/about',
-    '/services',
-    '/contact',
-    '/privacy',
-    '/terms-of-service',
-  ];
 
-  const staticPages = staticRoutes.map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: route === '' ? 1 : 0.8,
-  }));
-
-  // Dynamic routes example (uncomment and modify as needed)
-  // const products = await getProducts(); // Your data fetching function
-  // const productPages = products.map((product) => ({
-  //   url: `${baseUrl}/products/${product.slug}`,
-  //   lastModified: product.updatedAt,
-  //   changeFrequency: 'weekly' as const,
-  //   priority: 0.6,
-  // }));
-
-  // const blogPosts = await getBlogPosts(); // Your data fetching function
-  // const blogPages = blogPosts.map((post) => ({
-  //   url: `${baseUrl}/blog/${post.slug}`,
-  //   lastModified: post.updatedAt,
-  //   changeFrequency: 'weekly' as const,
-  //   priority: 0.6,
-  // }));
-
-  return [
-    ...staticPages,
-    // ...productPages,
-    // ...blogPages,
-  ];
-}
+// Re-export the sitemap index as the default sitemap
+export { default } from './sitemap-index';
