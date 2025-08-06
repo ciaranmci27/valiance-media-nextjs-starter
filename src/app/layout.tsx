@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/styles/ThemeProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Analytics } from "@/components/Analytics";
 import { generateMetadata } from "@/seo/seo-utils";
 import { seoConfig } from "@/seo/seo.config";
 import "@/styles/globals.css";
@@ -50,6 +51,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
+          <Analytics />
           <div className="min-h-screen flex flex-col transition-colors duration-300">
             <Header />
             <main className="flex-1 pt-20 w-full relative z-10">

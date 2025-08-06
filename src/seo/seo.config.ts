@@ -70,18 +70,18 @@ export const seoConfig = {
 
   // Additional SEO Settings
   verification: {
-    google: '', // Add your Google Search Console verification code
-    bing: '', // Add your Bing Webmaster verification code
-    yandex: '', // Add your Yandex verification code
-    pinterest: '', // Add your Pinterest verification code
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+    bing: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || '',
+    yandex: process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION || '',
+    pinterest: process.env.NEXT_PUBLIC_PINTEREST_SITE_VERIFICATION || '',
   },
 
   // Analytics
   analytics: {
-    googleAnalyticsId: '', // Add your GA4 Measurement ID (G-XXXXXXXXXX)
-    facebookPixelId: '', // Add your Facebook Pixel ID
-    hotjarId: '', // Add your Hotjar ID
-    clarityId: '', // Add your Microsoft Clarity ID
+    googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID || '',
+    facebookPixelId: process.env.NEXT_PUBLIC_FB_PIXEL_ID || '',
+    hotjarId: process.env.NEXT_PUBLIC_HOTJAR_ID || '',
+    clarityId: process.env.NEXT_PUBLIC_CLARITY_ID || '',
   },
 
   // Robots Configuration
