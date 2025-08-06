@@ -37,11 +37,11 @@ export function generatePageMetadata({
   // Build description with fallback chain
   const description = pageConfig?.seo?.description || 
     fallbackDescription || 
-    seoConfig.description;
+    seoConfig.defaultDescription;
   
   // Build keywords
   const keywords = pageConfig?.seo?.keywords?.join(', ') || 
-    seoConfig.keywords?.join(', ');
+    seoConfig.defaultKeywords?.join(', ');
   
   // Determine robots directive
   const robots = pageConfig?.seo?.noIndex === true 
@@ -49,7 +49,7 @@ export function generatePageMetadata({
     : 'index, follow';
   
   // Build image URL
-  const imageUrl = pageConfig?.seo?.image || seoConfig.image;
+  const imageUrl = pageConfig?.seo?.image || seoConfig.openGraph.defaultImage;
   
   return {
     title,
@@ -71,9 +71,9 @@ export function generatePageMetadata({
       images: imageUrl ? [imageUrl] : undefined,
     },
     other: {
-      'page-category': pageConfig?.metadata?.category,
-      'page-tags': pageConfig?.metadata?.tags?.join(', '),
-      'last-modified': pageConfig?.metadata?.lastModified,
+      'page-category': pageConfig?.metadata?.category || '',
+      'page-tags': pageConfig?.metadata?.tags?.join(', ') || '',
+      'last-modified': pageConfig?.metadata?.lastModified || '',
     },
   };
 }

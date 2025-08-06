@@ -115,6 +115,19 @@ ${Array.from(blogRoutes).map(route => `  '${route}'`).join(',\n')}
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
+  // Handle sitemap redirects BEFORE allowing static files
+  const sitemapRedirects: { [key: string]: string } = {
+    '/sitemap.xml': '/sitemap',
+    '/sitemap-pages.xml': '/sitemap/pages',
+    '/sitemap-blog-posts.xml': '/sitemap/blog-posts',
+    '/sitemap-blog-categories.xml': '/sitemap/blog-categories',
+  };
+
+  // Check for sitemap redirects first
+  if (sitemapRedirects[path]) {
+    return NextResponse.redirect(new URL(sitemapRedirects[path], request.url));
+  }
+
   // Allow static files and API routes
   if (
     path.startsWith('/_next') ||

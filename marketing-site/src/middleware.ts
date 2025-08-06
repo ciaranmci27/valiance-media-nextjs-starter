@@ -15,18 +15,10 @@ const validRoutes = new Set([
 // Valid blog routes generated at build time
 const validBlogRoutes = new Set([
   '/blog',
-  '/blog/announcements',
-  '/blog/announcements/company-update-2024',
-  '/blog/case-stdies',
-  '/blog/case-stdies/client-success-story',
-  '/blog/design',
-  '/blog/design/ui-design-principles',
-  '/blog/insights',
-  '/blog/insights/future-of-ecommerce',
-  '/blog/tutorials',
-  '/blog/tutorials/nextjs-getting-started',
-  '/blog/tutorials/react-hooks-guide',
-  '/blog/welcome-to-our-blog'
+  '/blog/guides',
+  '/blog/guides/blog-post-example',
+  '/blog/guides/seo-config',
+  '/blog/blog-post-no-category-example'
 ]);
 
 export function middleware(request: NextRequest) {
