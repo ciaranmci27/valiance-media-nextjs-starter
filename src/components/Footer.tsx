@@ -157,9 +157,9 @@ export function Footer({
           <div className="grid grid-cols-2 sm:grid-cols-2 gap-6 sm:gap-8">
             {sections.map((section) => (
               <div key={section.title} className="min-w-0">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
+                <p className="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
                   {section.title}
-                </h3>
+                </p>
                 <ul className="space-y-2 sm:space-y-3">
                   {section.links.map((link) => (
                     <li key={link.label}>
@@ -226,9 +226,9 @@ export function Footer({
           {/* Links Sections - Takes 4 columns (1 each) */}
           {sections.map((section) => (
             <div key={section.title} className="min-w-0">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+              <p className="font-semibold text-gray-900 dark:text-white mb-4">
                 {section.title}
-              </h3>
+              </p>
               <ul className="space-y-3">
                 {section.links.map((link) => (
                   <li key={link.label}>
