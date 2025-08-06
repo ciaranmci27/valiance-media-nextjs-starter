@@ -231,17 +231,14 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 [Valiance Media LLC](https://valiancemedia.com) creates innovative in-house software solutions and e-commerce brands. We build digital products that drive growth and deliver exceptional user experiences.
 
-### Our Services
-- Custom Software Development
+### Our Portfolio
 - E-commerce Solutions
 - Digital Product Innovation
 - SaaS Development
 
 ### Contact
 - Website: [valiancemedia.com](https://valiancemedia.com)
-- Email: hello@valiancemedia.com
-- Twitter: [@valiancemedia](https://twitter.com/valiancemedia)
-- LinkedIn: [Valiance Media](https://linkedin.com/company/valiance-media)
+- Email: contact@valiancemedia.com
 
 ## 🎯 Roadmap
 
