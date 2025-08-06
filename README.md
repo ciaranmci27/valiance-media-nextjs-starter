@@ -18,6 +18,7 @@ A production-ready Next.js boilerplate with built-in SEO optimization, theme sup
 - **Component Library**: Reusable UI components with consistent naming
 - **ESLint & Prettier**: Code quality and formatting
 - **File Organization**: Clean, logical structure with centralized exports
+- **Design System**: Comprehensive typography and spacing system with CSS variables
 
 ### Production Ready
 - **Favicon Setup**: Complete favicon package with easy generation
@@ -25,6 +26,7 @@ A production-ready Next.js boilerplate with built-in SEO optimization, theme sup
 - **Analytics Ready**: Pre-configured for Google Analytics, Facebook Pixel, and more
 - **Mobile Optimized**: Responsive design with mobile-first approach
 - **Layout Architecture**: Optimized layout system with global components
+- **Comprehensive .gitignore**: Properly configured to exclude build artifacts and cache files
 
 ## 📦 Quick Start
 
@@ -42,7 +44,6 @@ cd my-project
 
 2. **Install dependencies:**
 ```bash
-cd marketing-site
 npm install
 ```
 
@@ -78,18 +79,26 @@ All SEO settings are centralized in `src/seo/seo.config.ts`. Update this file wi
 - Analytics IDs
 - Verification codes
 
-See the [SEO Guide](marketing-site/SEO_GUIDE.md) for detailed instructions.
+See the [SEO Guide](src/seo/README.md) for detailed instructions.
 
 ### Favicon Generation
 1. Go to [favicon.io/favicon-converter/](https://favicon.io/favicon-converter/)
 2. Upload your logo (512x512px or larger recommended)
 3. Download the generated package
-4. Extract and upload all files to `marketing-site/public/favicon/`
+4. Extract and upload all files to `public/favicon/`
 
 ### Theme Customization
 - Edit `src/styles/themes.ts` for color schemes
 - Modify `tailwind.config.js` for design tokens
 - Update `src/styles/` for typography and spacing
+- Use CSS variables for consistent theming across components
+
+### Typography System
+The boilerplate includes a comprehensive typography system:
+- **CSS Variables**: All typography values are defined as CSS variables in `src/styles/globals.css`
+- **Base Styles**: HTML elements (`h1`, `h2`, `p`, etc.) automatically inherit design system typography
+- **Utility Classes**: Custom typography classes (`.text-h1`, `.text-body1`, etc.) for specific styling
+- **Responsive Design**: Typography scales appropriately across different screen sizes
 
 ### Adding Pages
 Create new pages in `src/app/` following Next.js App Router conventions:
@@ -117,7 +126,6 @@ export default function AboutPage() {
 ## 📁 Project Structure
 
 ```
-marketing-site/
 ├── public/
 │   ├── favicon/          # Favicon assets
 │   ├── images/           # Static images
@@ -125,9 +133,7 @@ marketing-site/
 ├── src/
 │   ├── app/              # Next.js app router pages
 │   │   ├── layout.tsx    # Root layout with global Header/Footer
-│   │   ├── page.tsx      # Homepage (empty template)
-│   │   ├── home/         # /home route
-│   │   │   └── page.tsx  # Home page content
+│   │   ├── page.tsx      # Homepage (example template)
 │   │   ├── privacy/      # Privacy policy page
 │   │   │   └── page.tsx
 │   │   ├── terms-of-service/ # Terms page
@@ -136,8 +142,8 @@ marketing-site/
 │   │   └── robots.ts     # Robots.txt configuration (re-export)
 │   ├── components/       # Reusable components
 │   │   ├── ui/          # UI components
-│   │   ├── Header.tsx   # Site header (renamed from UniversalHeader)
-│   │   ├── Footer.tsx   # Site footer (renamed from UniversalFooter)
+│   │   ├── Header.tsx   # Site header
+│   │   ├── Footer.tsx   # Site footer
 │   │   └── PageWrapper.tsx # Page content wrapper
 │   ├── seo/             # SEO utilities and configuration
 │   │   ├── index.ts     # Centralized SEO exports
@@ -160,9 +166,11 @@ marketing-site/
 │   ├── lib/             # Utility functions
 │   └── theme/           # Theme provider
 │       └── ThemeProvider.tsx
-├── SEO_GUIDE.md         # SEO documentation
-├── STYLE_GUIDE.md       # Style guidelines
-└── LAYOUT_ARCHITECTURE.md # Layout system documentation
+├── .gitignore           # Comprehensive ignore rules
+├── next.config.ts       # Next.js configuration
+├── tailwind.config.js   # Tailwind CSS configuration
+├── tsconfig.json        # TypeScript configuration
+└── package.json         # Dependencies and scripts
 ```
 
 ## 🔧 Configuration Files
@@ -171,13 +179,13 @@ marketing-site/
 - `tailwind.config.js` - Tailwind CSS configuration with blue theme
 - `tsconfig.json` - TypeScript configuration
 - `package.json` - Dependencies and scripts
+- `.gitignore` - Comprehensive ignore rules for build artifacts, cache files, and development tools
 
 ## 📝 Documentation
 
-- [SEO Guide](marketing-site/SEO_GUIDE.md) - Complete SEO setup and best practices
-- [Style Guide](marketing-site/STYLE_GUIDE.md) - Design system and component guidelines
-- [Layout Architecture](marketing-site/LAYOUT_ARCHITECTURE.md) - Layout system explanation
-- [Favicon Guide](marketing-site/public/favicon/readme.md) - Favicon generation instructions
+- [SEO Guide](src/seo/GUIDE_FOR_SEO.md) - Complete SEO setup and best practices
+- [Style Guide](src/styles/STYLE_GUIDE.md) - Design system and component guidelines
+- [Favicon Guide](public/favicon/create-favicon-readme.md) - Favicon generation instructions
 
 ## 🚢 Deployment
 
@@ -268,6 +276,8 @@ This boilerplate is actively maintained and updated with:
 - Security updates and dependency upgrades
 - New SEO strategies and optimizations
 - Community feedback and contributions
+- Improved design system with CSS variables
+- Enhanced typography and spacing system
 
 ## 🎨 Design System
 
@@ -276,6 +286,12 @@ This boilerplate is actively maintained and updated with:
 - **Secondary**: Complementary blue shades
 - **Accent**: Cyan highlights
 - **Dark/Light**: Full theme support with CSS variables
+
+### Typography System
+- **CSS Variables**: All typography values centralized in CSS variables
+- **Base Elements**: HTML elements automatically inherit design system typography
+- **Utility Classes**: Custom classes for specific styling needs
+- **Responsive**: Scales appropriately across all screen sizes
 
 ### Component Naming
 - `Header.tsx` - Site navigation (industry standard)
