@@ -1,0 +1,454 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Valiance Media Design System CSS Variables */
+:root {
+  /* Light theme colors */
+  --color-primary: #2563EB;
+  --color-primary-light: #60A5FA;
+  --color-primary-dark: #1E40AF;
+  --color-secondary: #60A5FA;
+  
+  /* Blue palette (Valiance Media) */
+  --color-blue-50: #EFF6FF;
+  --color-blue-100: #DBEAFE;
+  --color-blue-200: #BFDBFE;
+  --color-blue-300: #93C5FD;
+  --color-blue-400: #60A5FA;
+  --color-blue-500: #3B82F6;
+  --color-blue-600: #2563EB;
+  --color-blue-700: #1D4ED8;
+  --color-blue-800: #1E40AF;
+  --color-blue-900: #1E3A8A;
+  
+  /* Secondary colors */
+  --color-secondary-main: #60A5FA;
+  --color-secondary-light: #93C5FD;
+  --color-secondary-dark: #3B82F6;
+  
+  /* Premium colors (cyan accent) */
+  --color-premium: #06B6D4;
+  --color-premium-light: #67E8F9;
+  --color-premium-dark: #0891B2;
+  
+  /* Base colors - Updated to match mobile app */
+  --color-background: #FAFBFC; /* Ultra-light with hint of blue */
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFFFFF;
+  
+  /* Text colors */
+  --color-text-primary: #0F172A; /* Deep slate */
+  --color-text-secondary: #475569; /* Medium slate */
+  --color-text-tertiary: #94A3B8; /* Light slate */
+  --color-text-inverse: #FFFFFF;
+  
+  /* Border colors */
+  --color-border-light: #F1F5F9;
+  --color-border-medium: #E2E8F0;
+  --color-border-heavy: #CBD5E1;
+  --color-border-accent: #3B82F6;
+  
+  /* Semantic colors */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  
+  /* Shadow colors */
+  --shadow-light: rgba(0, 0, 0, 0.05);
+  --shadow-medium: rgba(0, 0, 0, 0.1);
+  --shadow-dark: rgba(0, 0, 0, 0.2);
+  
+  /* Background gradient colors */
+  --gradient-primary-rgb: 59, 130, 246; /* Blue-500 RGB */
+  --gradient-secondary-rgb: 96, 165, 250; /* Blue-400 RGB */
+  --gradient-accent-rgb: 6, 182, 212; /* Cyan-500 RGB */
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  --spacing-xxxl: 64px;
+  
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+/* Dark theme overrides */
+[data-theme="dark"],
+.dark {
+  --color-primary: #3B82F6;
+  --color-primary-light: #60A5FA;
+  --color-primary-dark: #1D4ED8;
+  
+  /* Base colors - Updated to match mobile app dark theme */
+  --color-background: #0F172A; /* Deep dark slate */
+  --color-surface: #1E293B; /* Elevated dark surface */
+  --color-surface-elevated: #334155; /* Higher elevation */
+  
+  /* Text colors */
+  --color-text-primary: #F8FAFC; /* Light text for dark background */
+  --color-text-secondary: #CBD5E1; /* Medium light text */
+  --color-text-tertiary: #64748B; /* Muted text */
+  --color-text-inverse: #0F172A; /* Dark text for light surfaces */
+  
+  /* Border colors */
+  --color-border-light: rgba(255, 255, 255, 0.1);
+  --color-border-medium: rgba(255, 255, 255, 0.2);
+  --color-border-heavy: rgba(255, 255, 255, 0.3);
+  --color-border-accent: #60A5FA;
+  
+  /* Shadow colors */
+  --shadow-light: rgba(0, 0, 0, 0.2);
+  --shadow-medium: rgba(0, 0, 0, 0.4);
+  --shadow-dark: rgba(0, 0, 0, 0.6);
+  
+  /* Dark theme gradient colors (slightly adjusted for dark mode) */
+  --gradient-primary-rgb: 59, 130, 246; /* Blue-500 RGB */
+  --gradient-secondary-rgb: 96, 165, 250; /* Blue-400 RGB */
+  --gradient-accent-rgb: 6, 182, 212; /* Cyan-500 RGB */
+}
+
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  /* Base background color - exactly like mobile app */
+  background-color: #FAFBFC; /* Light theme default */
+  color: var(--color-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  line-height: 1.5;
+  transition: background-color var(--transition-base), color var(--transition-base);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Dark theme background color */
+[data-theme="dark"] body,
+.dark body {
+  background-color: #0F172A; /* Dark theme background */
+}
+
+/* Multi-layer background gradient - exactly matching mobile app LinearGradient */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  /* Light theme gradient - using blue theme */
+  background: linear-gradient(
+    135deg,
+    rgba(var(--gradient-primary-rgb), 0.05) 0%,
+    rgba(var(--gradient-secondary-rgb), 0.03) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Dark theme gradient overlay - matching mobile app exactly */
+[data-theme="dark"] body::before,
+.dark body::before {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--gradient-primary-rgb), 0.1) 0%,
+    rgba(var(--gradient-secondary-rgb), 0.05) 50%,
+    transparent 100%
+  );
+}
+
+/* Ensure all content is above the gradient */
+body > * {
+  position: relative;
+  z-index: 10;
+}
+
+/* Utility class for multi-layer background on specific containers */
+.multi-layer-bg {
+  position: relative;
+  background: var(--color-background);
+}
+
+.multi-layer-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--gradient-primary-rgb), 0.15) 0%,
+    rgba(var(--gradient-secondary-rgb), 0.08) 50%,
+    rgba(var(--gradient-primary-rgb), 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+[data-theme="dark"] .multi-layer-bg::before,
+.dark .multi-layer-bg::before {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--gradient-primary-rgb), 0.25) 0%,
+    rgba(var(--gradient-secondary-rgb), 0.12) 50%,
+    rgba(var(--gradient-primary-rgb), 0.08) 100%
+  );
+}
+
+/* Additional fallback for older browsers */
+@supports not (background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(96, 165, 250, 0.08) 50%, rgba(59, 130, 246, 0.05) 100%)) {
+  body::before {
+    background: rgba(var(--gradient-primary-rgb), 0.08);
+  }
+  
+  [data-theme="dark"] body::before,
+  .dark body::before {
+    background: rgba(var(--gradient-primary-rgb), 0.15);
+  }
+  
+  .multi-layer-bg::before {
+    background: rgba(var(--gradient-primary-rgb), 0.08);
+  }
+  
+  [data-theme="dark"] .multi-layer-bg::before,
+  .dark .multi-layer-bg::before {
+    background: rgba(var(--gradient-primary-rgb), 0.15);
+  }
+}
+
+/* Ensure proper viewport handling */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Typography classes matching mobile app */
+.text-display1 {
+  font-size: 72px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.text-display2 {
+  font-size: 60px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.text-h1 {
+  font-size: 48px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.text-h2 {
+  font-size: 36px;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.text-h3 {
+  font-size: 30px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.text-h4 {
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.text-h5 {
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.text-h6 {
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.text-body1 {
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.text-body2 {
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.text-body3 {
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Utility classes for shadows */
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 var(--shadow-light);
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px var(--shadow-medium), 0 2px 4px -1px var(--shadow-light);
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px var(--shadow-medium), 0 4px 6px -2px var(--shadow-light);
+}
+
+.shadow-xl {
+  box-shadow: 0 20px 25px -5px var(--shadow-medium), 0 10px 10px -5px var(--shadow-light);
+}
+
+/* Responsive design utilities */
+@media (max-width: 640px) {
+  .text-display1 {
+    font-size: 48px;
+  }
+  
+  .text-display2 {
+    font-size: 40px;
+  }
+  
+  .text-h1 {
+    font-size: 36px;
+  }
+  
+  .text-h2 {
+    font-size: 30px;
+  }
+  
+  .text-h3 {
+    font-size: 24px;
+  }
+}
+
+/* Transitions for theme switching */
+* {
+  transition: background-color var(--transition-base), 
+              color var(--transition-base),
+              border-color var(--transition-base);
+}
+
+/* Smooth transitions for theme switching */
+body,
+body::before {
+  transition: background-color var(--transition-base), 
+              color var(--transition-base);
+}
+
+/* Button base styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-medium);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-surface-elevated);
+}
+
+/* Card styles */
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border-light);
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* Gradients */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+}
+
+.gradient-premium {
+  background: linear-gradient(135deg, var(--color-premium) 0%, var(--color-premium-dark) 100%);
+}
+
+/* Specific styles */
+.text-score {
+  font-size: 48px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.text-handicap {
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 600;
+}
