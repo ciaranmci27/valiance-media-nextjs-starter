@@ -13,16 +13,18 @@ A production-ready Next.js boilerplate with built-in SEO optimization, theme sup
 
 ### Developer Experience
 - **TypeScript**: Full type safety across the application
-- **Tailwind CSS**: Utility-first CSS framework
-- **Theme System**: Built-in dark/light mode support
-- **Component Library**: Reusable UI components
+- **Tailwind CSS**: Utility-first CSS framework with blue-based theme
+- **Theme System**: Built-in dark/light mode support with Valiance Media branding
+- **Component Library**: Reusable UI components with consistent naming
 - **ESLint & Prettier**: Code quality and formatting
+- **File Organization**: Clean, logical structure with centralized exports
 
 ### Production Ready
 - **Favicon Setup**: Complete favicon package with easy generation
 - **Legal Pages**: Privacy Policy and Terms of Service templates
 - **Analytics Ready**: Pre-configured for Google Analytics, Facebook Pixel, and more
 - **Mobile Optimized**: Responsive design with mobile-first approach
+- **Layout Architecture**: Optimized layout system with global components
 
 ## 📦 Quick Start
 
@@ -51,10 +53,15 @@ echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000" > .env.local
 ```
 
 4. **Update the SEO configuration:**
-- Edit `src/config/seo.config.ts` with your company information
+- Edit `src/seo/seo.config.ts` with your company information
 - Update site URL, social media links, and verification codes
 
-5. **Run the development server:**
+5. **Generate favicon assets:**
+- Go to [favicon.io/favicon-converter/](https://favicon.io/favicon-converter/)
+- Upload your logo (512x512px or larger recommended)
+- Download and extract files to `public/favicon/`
+
+6. **Run the development server:**
 ```bash
 npm run dev
 ```
@@ -64,7 +71,7 @@ Open [http://localhost:3000](http://localhost:3000) to see your site.
 ## 🎨 Customization
 
 ### SEO Configuration
-All SEO settings are centralized in `src/config/seo.config.ts`. Update this file with:
+All SEO settings are centralized in `src/seo/seo.config.ts`. Update this file with:
 - Your company name and details
 - Default meta descriptions and keywords
 - Social media handles
@@ -79,10 +86,8 @@ See the [SEO Guide](marketing-site/SEO_GUIDE.md) for detailed instructions.
 3. Download the generated package
 4. Extract and upload all files to `marketing-site/public/favicon/`
 
-See the [Favicon README](marketing-site/public/favicon/readme.md) for details.
-
 ### Theme Customization
-- Edit `src/theme/themes.ts` for color schemes
+- Edit `src/styles/themes.ts` for color schemes
 - Modify `tailwind.config.js` for design tokens
 - Update `src/styles/` for typography and spacing
 
@@ -92,7 +97,8 @@ Create new pages in `src/app/` following Next.js App Router conventions:
 ```typescript
 // src/app/about/page.tsx
 import { Metadata } from 'next';
-import { generateMetadata } from '@/lib/seo';
+import { generateMetadata } from '@/seo/seo-utils';
+import { PageWrapper } from '@/components/PageWrapper';
 
 export const metadata: Metadata = generateMetadata({
   title: 'About Us',
@@ -101,7 +107,9 @@ export const metadata: Metadata = generateMetadata({
 
 export default function AboutPage() {
   return (
-    // Your page content
+    <PageWrapper>
+      {/* Your page content */}
+    </PageWrapper>
   );
 }
 ```
@@ -116,30 +124,51 @@ marketing-site/
 │   └── logos/            # Company logos
 ├── src/
 │   ├── app/              # Next.js app router pages
-│   │   ├── layout.tsx    # Root layout with SEO
-│   │   ├── page.tsx      # Homepage
-│   │   ├── sitemap.ts    # Auto-generated sitemap
-│   │   ├── robots.ts     # Robots.txt configuration
+│   │   ├── layout.tsx    # Root layout with global Header/Footer
+│   │   ├── page.tsx      # Homepage (empty template)
+│   │   ├── home/         # /home route
+│   │   │   └── page.tsx  # Home page content
 │   │   ├── privacy/      # Privacy policy page
-│   │   └── terms-of-service/ # Terms page
+│   │   │   └── page.tsx
+│   │   ├── terms-of-service/ # Terms page
+│   │   │   └── page.tsx
+│   │   ├── sitemap.ts    # Auto-generated sitemap (re-export)
+│   │   └── robots.ts     # Robots.txt configuration (re-export)
 │   ├── components/       # Reusable components
 │   │   ├── ui/          # UI components
+│   │   ├── Header.tsx   # Site header (renamed from UniversalHeader)
+│   │   ├── Footer.tsx   # Site footer (renamed from UniversalFooter)
+│   │   └── PageWrapper.tsx # Page content wrapper
+│   ├── seo/             # SEO utilities and configuration
+│   │   ├── index.ts     # Centralized SEO exports
+│   │   ├── README.md    # SEO documentation
+│   │   ├── seo.config.ts # SEO settings
+│   │   ├── seo-utils.ts # SEO utility functions
 │   │   ├── SEO.tsx      # SEO component
-│   │   └── StructuredData.tsx # JSON-LD component
-│   ├── config/          # Configuration files
-│   │   └── seo.config.ts # SEO settings
+│   │   ├── StructuredData.tsx # JSON-LD component
+│   │   ├── sitemap.ts   # Sitemap generation
+│   │   └── robots.ts    # Robots.txt generation
+│   ├── styles/          # Global styles and design system
+│   │   ├── index.ts     # Centralized style exports
+│   │   ├── README.md    # Style documentation
+│   │   ├── globals.css  # Global CSS with CSS variables
+│   │   ├── themes.ts    # Theme definitions
+│   │   ├── typography.ts # Typography utilities
+│   │   ├── spacing.ts   # Spacing utilities
+│   │   └── shadows.ts   # Shadow utilities
+│   ├── hooks/           # Custom React hooks
 │   ├── lib/             # Utility functions
-│   │   └── seo.ts       # SEO utilities
-│   ├── styles/          # Global styles
-│   └── theme/           # Theme configuration
+│   └── theme/           # Theme provider
+│       └── ThemeProvider.tsx
 ├── SEO_GUIDE.md         # SEO documentation
-└── STYLE_GUIDE.md       # Style guidelines
+├── STYLE_GUIDE.md       # Style guidelines
+└── LAYOUT_ARCHITECTURE.md # Layout system documentation
 ```
 
 ## 🔧 Configuration Files
 
 - `next.config.ts` - Next.js configuration
-- `tailwind.config.js` - Tailwind CSS configuration
+- `tailwind.config.js` - Tailwind CSS configuration with blue theme
 - `tsconfig.json` - TypeScript configuration
 - `package.json` - Dependencies and scripts
 
@@ -147,6 +176,7 @@ marketing-site/
 
 - [SEO Guide](marketing-site/SEO_GUIDE.md) - Complete SEO setup and best practices
 - [Style Guide](marketing-site/STYLE_GUIDE.md) - Design system and component guidelines
+- [Layout Architecture](marketing-site/LAYOUT_ARCHITECTURE.md) - Layout system explanation
 - [Favicon Guide](marketing-site/public/favicon/readme.md) - Favicon generation instructions
 
 ## 🚢 Deployment
@@ -181,9 +211,9 @@ This boilerplate works with any platform that supports Next.js:
 
 ## 🛠️ Built With
 
-- [Next.js 15](https://nextjs.org/) - React framework
+- [Next.js 15](https://nextjs.org/) - React framework with App Router
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS with custom theme
 - [React 19](https://react.dev/) - UI library
 
 ## 📄 License
@@ -241,6 +271,24 @@ This boilerplate is actively maintained and updated with:
 - Security updates and dependency upgrades
 - New SEO strategies and optimizations
 - Community feedback and contributions
+
+## 🎨 Design System
+
+### Color Palette
+- **Primary**: Blue-based theme matching Valiance Media branding
+- **Secondary**: Complementary blue shades
+- **Accent**: Cyan highlights
+- **Dark/Light**: Full theme support with CSS variables
+
+### Component Naming
+- `Header.tsx` - Site navigation (industry standard)
+- `Footer.tsx` - Site footer (industry standard)
+- `PageWrapper.tsx` - Consistent page content wrapper
+
+### File Organization
+- **Centralized Exports**: Index files for clean imports
+- **Logical Grouping**: Related files in dedicated directories
+- **Documentation**: README files for each major directory
 
 ---
 
