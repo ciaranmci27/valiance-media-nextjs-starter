@@ -3,10 +3,13 @@ import { loadPageSeoConfig } from '@/lib/page-seo-utils';
 import { seoConfig } from '@/seo/seo.config';
 
 /**
- * Page SEO Component and Utilities
+ * Page SEO Utilities (Server-Only)
  * 
  * Provides easy integration of page-level SEO configurations
- * with fallbacks to global SEO settings
+ * with fallbacks to global SEO settings.
+ * 
+ * ⚠️ SERVER-ONLY: Uses Node.js 'fs' module. Import directly from this file,
+ * not from '@/seo' index. Use only in server components and generateMetadata.
  */
 
 interface PageSEOProps {

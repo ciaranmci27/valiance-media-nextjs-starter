@@ -69,17 +69,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const resolvedParams = await params;
   const post = await loadPost(resolvedParams.slug, resolvedParams.category);
   
-  // If post doesn't exist, check if the category exists
+  // If post doesn't exist, let 404 page handle the smart redirect
   if (!post) {
-    const categories = await loadCategories();
-    const category = categories.find(cat => cat.slug === resolvedParams.category);
-    if (category) {
-      // Category exists but post doesn't - redirect to category page
-      redirect(`/blog/${resolvedParams.category}`);
-    } else {
-      // Neither exists - let 404 page handle it
-      notFound();
-    }
+    notFound();
   }
   
   // Verify the category matches
