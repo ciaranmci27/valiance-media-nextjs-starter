@@ -22,6 +22,15 @@ A production-ready Next.js boilerplate with built-in SEO optimization, theme sup
 - **File Organization**: Clean, logical structure with centralized exports
 - **Design System**: Comprehensive typography and spacing system with CSS variables
 
+### Content Management
+- **Admin Dashboard**: Built-in CMS dashboard at `/admin` with statistics and overview
+- **Blog Editor**: Rich text editor for creating and editing blog posts
+- **Authentication**: Environment-based admin authentication system
+- **Content API**: RESTful API endpoints for content management
+- **Rich Text Editor**: Custom contentEditable editor with formatting tools
+- **Draft System**: Support for draft and published states
+- **Categories & Tags**: Organize content with categories and tags
+
 ### Production Ready
 - **Favicon Setup**: Complete favicon package with easy generation
 - **Legal Pages**: Privacy Policy and Terms of Service templates
@@ -125,17 +134,94 @@ export default function AboutPage() {
 }
 ```
 
+## 🎨 Content Management System (CMS)
+
+### Admin Dashboard
+Access the admin dashboard at `/admin` (requires authentication):
+- **Statistics Overview**: Total posts, published, drafts, and featured content
+- **Recent Posts**: Quick access to latest blog posts with inline editing
+- **Categories & Tags**: Visual breakdown of content organization
+- **Quick Actions**: Create new posts, manage existing content, view live blog
+
+### Blog Editor Features
+- **Rich Text Editor**: Custom contentEditable implementation with formatting tools
+  - Headings (H1, H2, H3)
+  - Text formatting (bold, italic, underline, strikethrough)
+  - Lists (ordered and unordered)
+  - Links and images
+  - Code blocks and quotes
+- **SEO Fields**: Meta title, description, keywords
+- **Post Management**: Save as draft, publish, feature posts
+- **Categories & Tags**: Organize content effectively
+- **Author Information**: Track post authors
+- **Reading Time**: Automatic calculation
+
+### Setting Up Admin Access
+1. Set environment variables in `.env.local`:
+```env
+ADMIN_USERNAME=your-admin-username
+ADMIN_PASSWORD=your-secure-password
+ADMIN_TOKEN=your-secret-token
+```
+
+2. Access the admin panel at `/admin/login`
+3. Use your credentials to authenticate
+
+### Content Storage
+- Blog posts are stored as JSON files in `/public/blog-content/`
+- Images are stored in `/public/blog-content/images/`
+- Automatic slug generation from post titles
+- Support for draft and published states
+
+### API Endpoints
+- `POST /api/admin/blog-post` - Create new blog post
+- `PUT /api/admin/blog-post` - Update existing post
+- `DELETE /api/admin/blog-post` - Delete post
+- `GET /api/admin/dashboard` - Dashboard statistics
+- `POST /api/admin/auth/login` - Admin authentication
+- `POST /api/admin/auth/logout` - Admin logout
+- `GET /api/blog` - Public blog posts API
+
+### Important Notes for Production
+⚠️ **Local Development Only**: The current file-based CMS works perfectly in local development but has limitations in production environments like Vercel due to the read-only file system in serverless functions.
+
+**For production use, consider:**
+1. **GitHub API Integration**: Commit blog posts directly to your repository
+2. **Database Integration**: Use PostgreSQL, MySQL, or MongoDB
+3. **Headless CMS**: Integrate with Strapi, Contentful, or Sanity
+4. **Static Generation**: Pre-build all blog posts at build time
+
 ## 📁 Project Structure
 
 ```
 ├── public/
 │   ├── favicon/          # Favicon assets
 │   ├── images/           # Static images
-│   └── logos/            # Company logos
+│   ├── logos/            # Company logos
+│   └── blog-content/     # Blog post content (JSON files)
+│       └── images/       # Blog post images
 ├── src/
 │   ├── app/              # Next.js app router pages
 │   │   ├── layout.tsx    # Root layout with global Header/Footer
 │   │   ├── page.tsx      # Homepage (example template)
+│   │   ├── admin/        # Admin CMS pages
+│   │   │   ├── page.tsx  # Admin dashboard
+│   │   │   ├── blog/     # Blog management
+│   │   │   │   └── page.tsx
+│   │   │   └── blog-post/ # Blog post editor
+│   │   │       ├── [slug]/
+│   │   │       │   └── page.tsx
+│   │   │       └── page.tsx
+│   │   ├── api/          # API routes
+│   │   │   ├── admin/     # Admin API endpoints
+│   │   │   │   ├── auth/  # Authentication
+│   │   │   │   ├── blog-post/ # Blog CRUD operations
+│   │   │   │   └── dashboard/ # Dashboard data
+│   │   │   └── blog/      # Public blog API
+│   │   ├── blog/         # Blog pages
+│   │   │   ├── page.tsx  # Blog listing
+│   │   │   └── [slug]/   # Individual blog posts
+│   │   │       └── page.tsx
 │   │   ├── privacy/      # Privacy policy page
 │   │   │   └── page.tsx
 │   │   ├── terms-of-service/ # Terms page
@@ -146,7 +232,9 @@ export default function AboutPage() {
 │   │   ├── ui/          # UI components
 │   │   ├── Header.tsx   # Site header
 │   │   ├── Footer.tsx   # Site footer
-│   │   └── PageWrapper.tsx # Page content wrapper
+│   │   ├── PageWrapper.tsx # Page content wrapper
+│   │   ├── RichTextEditor.tsx # Custom rich text editor
+│   │   └── BlogCard.tsx # Blog post card component
 │   ├── seo/             # SEO utilities and configuration
 │   │   ├── index.ts     # Centralized SEO exports
 │   │   ├── README.md    # SEO documentation
@@ -166,8 +254,12 @@ export default function AboutPage() {
 │   │   └── shadows.ts   # Shadow utilities
 │   ├── hooks/           # Custom React hooks
 │   ├── lib/             # Utility functions
-│   └── theme/           # Theme provider
-│       └── ThemeProvider.tsx
+│   │   ├── auth.ts      # Authentication utilities
+│   │   ├── auth-edge.ts # Edge-compatible auth
+│   │   └── blog-utils.ts # Blog post utilities
+│   ├── theme/           # Theme provider
+│   │   └── ThemeProvider.tsx
+│   └── middleware.ts    # Next.js middleware for auth
 ├── .gitignore           # Comprehensive ignore rules
 ├── next.config.ts       # Next.js configuration
 ├── tailwind.config.js   # Tailwind CSS configuration
@@ -202,6 +294,11 @@ export default function AboutPage() {
 ```env
 # Required
 NEXT_PUBLIC_SITE_URL=https://yoursite.com
+
+# Admin Authentication
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your-secure-password
+ADMIN_TOKEN=your-secret-token
 
 # Optional - Analytics
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX

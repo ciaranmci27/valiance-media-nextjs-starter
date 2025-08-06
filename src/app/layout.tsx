@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/styles/ThemeProvider";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { ConditionalLayout } from "@/components/ConditionalLayout";
 import { Analytics } from "@/components/Analytics";
 import { generateMetadata } from "@/seo/seo-utils";
 import { seoConfig } from "@/seo/seo.config";
@@ -37,28 +36,32 @@ export const metadata: Metadata = {
   manifest: "/favicon/site.webmanifest",
 };
 
+// Export viewport configuration separately (Next.js 13+ pattern)
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <ThemeProvider>
           <Analytics />
-          <div className="min-h-screen flex flex-col transition-colors duration-300">
-            <Header />
-            <main className="flex-1 pt-20 w-full relative z-10">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
         </ThemeProvider>
       </body>
     </html>

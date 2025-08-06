@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifyAuthEdge } from '@/lib/auth-edge';
 
 // Valid routes generated at build time
 const validRoutes = new Set([
@@ -20,8 +21,87 @@ const validBlogRoutes = new Set([
   '/blog/blog-post-no-category-example'
 ]);
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  
+  // Handle admin authentication
+  if (path.startsWith('/admin')) {
+    // Handle login page
+    if (path === '/admin/login') {
+      // If already logged in, redirect to admin dashboard
+      const token = request.cookies.get('admin-token')?.value;
+      if (token) {
+        const isValid = await verifyAuthEdge(token);
+        if (isValid) {
+          return NextResponse.redirect(new URL('/admin', request.url));
+        }
+      }
+      return NextResponse.next();
+    }
+
+    // Check if authentication is disabled (for development)
+    if (process.env.DISABLE_ADMIN_AUTH === 'true') {
+      console.warn('⚠️ Admin authentication is disabled. Enable it in production!');
+      return NextResponse.next();
+    }
+
+    // Verify authentication
+    const token = request.cookies.get('admin-token')?.value;
+    
+    if (!token) {
+      // Redirect to login with return URL
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('from', path);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    const isValid = await verifyAuthEdge(token);
+    
+    if (!isValid) {
+      // Clear invalid token and redirect to login with return URL
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('from', path);
+      const response = NextResponse.redirect(loginUrl);
+      response.cookies.delete('admin-token');
+      return response;
+    }
+
+    return NextResponse.next();
+  }
+
+  // Handle admin API authentication
+  if (path.startsWith('/api/admin')) {
+    // Skip auth for login endpoint
+    if (path === '/api/admin/login') {
+      return NextResponse.next();
+    }
+
+    // Check if authentication is disabled
+    if (process.env.DISABLE_ADMIN_AUTH === 'true') {
+      return NextResponse.next();
+    }
+
+    // Verify authentication for API routes
+    const token = request.cookies.get('admin-token')?.value;
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const isValid = await verifyAuthEdge(token);
+    
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    return NextResponse.next();
+  }
   
   // Handle sitemap redirects BEFORE allowing static files
   const sitemapRedirects: { [key: string]: string } = {
