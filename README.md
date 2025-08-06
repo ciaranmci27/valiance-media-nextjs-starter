@@ -248,19 +248,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - Website: [valiancemedia.com](https://valiancemedia.com)
 - Email: contact@valiancemedia.com
 
-## 🎯 Roadmap
-
-- [ ] Add more page templates (Blog, Portfolio, Landing)
-- [ ] Implement authentication boilerplate
-- [ ] Add email integration templates
-- [ ] Create component documentation with Storybook
-- [ ] Add testing setup (Jest, React Testing Library)
-- [ ] Implement CI/CD pipeline templates
-- [ ] Add internationalization (i18n) support
-- [ ] Create admin dashboard template
-- [ ] Add CMS integration examples (Sanity, Contentful)
-- [ ] Implement Progressive Web App (PWA) features
-
 ## ⚡ Performance
 
 This boilerplate is optimized for:
