@@ -98,13 +98,21 @@ export default function SettingsPage() {
         [field]: value,
       }));
     } else {
-      setSettings(prev => ({
-        ...prev,
-        [section]: {
-          ...prev[section as keyof SiteSettings],
-          [field]: value,
-        },
-      }));
+      setSettings(prev => {
+        const sectionKey = section as keyof SiteSettings;
+        const currentSection = prev[sectionKey];
+        
+        if (typeof currentSection === 'object' && currentSection !== null) {
+          return {
+            ...prev,
+            [section]: {
+              ...currentSection,
+              [field]: value,
+            },
+          };
+        }
+        return prev;
+      });
     }
   };
 

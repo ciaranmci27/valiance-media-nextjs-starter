@@ -9,7 +9,7 @@ export function AdminFooter() {
   const { mode, toggleTheme } = useTheme();
   const currentYear = new Date().getFullYear();
   
-  const bottomLinks = [
+  const bottomLinks: { label: string; href: string; external?: boolean }[] = [
     { label: 'Privacy', href: '/privacy' },
     { label: 'Terms', href: '/terms-of-service' },
     { label: 'Cookies', href: '#' },
