@@ -208,8 +208,23 @@ export default function EditBlogPost() {
         router.push('/admin/blog');
         router.refresh();
       } else {
-        const error = await response.json();
-        alert(error.message || 'Failed to save blog post');
+        const result = await response.json();
+        
+        // Display detailed error information
+        let errorMessage = result.error || result.message || 'Failed to save blog post';
+        
+        if (result.hint) {
+          errorMessage += `\n\n${result.hint}`;
+        }
+        
+        if (result.details) {
+          console.error('Blog post save error details:', result.details);
+          if (result.details.environment === 'production' && !result.details.gitHubConfigured) {
+            errorMessage += '\n\nNote: You are in production but GitHub is not configured. Please add GITHUB_TOKEN, GITHUB_OWNER, and GITHUB_REPO to your Vercel environment variables.';
+          }
+        }
+        
+        alert(errorMessage);
       }
     } catch (error) {
       console.error('Error saving blog post:', error);

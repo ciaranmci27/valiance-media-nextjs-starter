@@ -355,7 +355,9 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
         .editor-content {
           padding: var(--spacing-lg);
-          min-height: 300px;
+          min-height: 500px;
+          max-height: 500px;
+          overflow-y: auto;
           outline: none;
           color: var(--color-text-primary);
           font-size: 16px;

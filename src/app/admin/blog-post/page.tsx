@@ -165,7 +165,21 @@ export default function BlogPostEditor() {
         alert(message);
         router.push(`/blog/${formData.category ? formData.category + '/' : ''}${slug}`);
       } else {
-        alert(`Error: ${result.error || 'Failed to create blog post'}`);
+        // Display detailed error information
+        let errorMessage = result.error || 'Failed to create blog post';
+        
+        if (result.hint) {
+          errorMessage += `\n\n${result.hint}`;
+        }
+        
+        if (result.details) {
+          console.error('Blog post creation error details:', result.details);
+          if (result.details.environment === 'production' && !result.details.gitHubConfigured) {
+            errorMessage += '\n\nNote: You are in production but GitHub is not configured. Please add GITHUB_TOKEN, GITHUB_OWNER, and GITHUB_REPO to your Vercel environment variables.';
+          }
+        }
+        
+        alert(errorMessage);
       }
     } catch (error) {
       console.error('Error submitting form:', error);

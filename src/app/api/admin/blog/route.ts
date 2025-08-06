@@ -72,14 +72,22 @@ async function handleLocalStorage(method: string, data: any) {
 
 // Helper function to handle GitHub API operations
 async function handleGitHubStorage(method: string, data: any) {
-  if (!process.env.GITHUB_TOKEN || !process.env.GITHUB_OWNER || !process.env.GITHUB_REPO) {
-    throw new Error('GitHub integration not configured');
+  const missingVars = [];
+  if (!process.env.GITHUB_TOKEN) missingVars.push('GITHUB_TOKEN');
+  if (!process.env.GITHUB_OWNER) missingVars.push('GITHUB_OWNER');
+  if (!process.env.GITHUB_REPO) missingVars.push('GITHUB_REPO');
+  
+  if (missingVars.length > 0) {
+    throw new Error(
+      `GitHub integration error: Missing environment variables: ${missingVars.join(', ')}. ` +
+      `Please add these to your Vercel environment variables in the project settings.`
+    );
   }
   
   const githubCMS = new GitHubCMS({
-    token: process.env.GITHUB_TOKEN,
-    owner: process.env.GITHUB_OWNER,
-    repo: process.env.GITHUB_REPO,
+    token: process.env.GITHUB_TOKEN!,
+    owner: process.env.GITHUB_OWNER!,
+    repo: process.env.GITHUB_REPO!,
     branch: process.env.GITHUB_BRANCH || 'main'
   });
   
@@ -141,8 +149,31 @@ export async function POST(request: NextRequest) {
     
   } catch (error) {
     console.error('Error creating blog post:', error);
+    
+    // Provide more detailed error messages
+    let errorMessage = 'Failed to create blog post';
+    let errorDetails = {};
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      
+      // Add context about the environment
+      const config = getServerCMSConfig();
+      errorDetails = {
+        environment: config.environment.isProduction ? 'production' : 'development',
+        storageMethod: config.storageMethod,
+        gitHubConfigured: config.environment.gitHubConfigured
+      };
+    }
+    
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to create blog post' },
+      { 
+        error: errorMessage,
+        details: errorDetails,
+        hint: errorMessage.includes('GitHub') 
+          ? 'Check your environment variables in Vercel project settings'
+          : undefined
+      },
       { status: 500 }
     );
   }
@@ -183,8 +214,31 @@ export async function PUT(request: NextRequest) {
     
   } catch (error) {
     console.error('Error updating blog post:', error);
+    
+    // Provide more detailed error messages
+    let errorMessage = 'Failed to update blog post';
+    let errorDetails = {};
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      
+      // Add context about the environment
+      const config = getServerCMSConfig();
+      errorDetails = {
+        environment: config.environment.isProduction ? 'production' : 'development',
+        storageMethod: config.storageMethod,
+        gitHubConfigured: config.environment.gitHubConfigured
+      };
+    }
+    
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to update blog post' },
+      { 
+        error: errorMessage,
+        details: errorDetails,
+        hint: errorMessage.includes('GitHub') 
+          ? 'Check your environment variables in Vercel project settings'
+          : undefined
+      },
       { status: 500 }
     );
   }
@@ -214,8 +268,31 @@ export async function DELETE(request: NextRequest) {
     
   } catch (error) {
     console.error('Error deleting blog post:', error);
+    
+    // Provide more detailed error messages
+    let errorMessage = 'Failed to delete blog post';
+    let errorDetails = {};
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      
+      // Add context about the environment
+      const config = getServerCMSConfig();
+      errorDetails = {
+        environment: config.environment.isProduction ? 'production' : 'development',
+        storageMethod: config.storageMethod,
+        gitHubConfigured: config.environment.gitHubConfigured
+      };
+    }
+    
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to delete blog post' },
+      { 
+        error: errorMessage,
+        details: errorDetails,
+        hint: errorMessage.includes('GitHub') 
+          ? 'Check your environment variables in Vercel project settings'
+          : undefined
+      },
       { status: 500 }
     );
   }

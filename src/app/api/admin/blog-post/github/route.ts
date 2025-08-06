@@ -7,17 +7,30 @@ import { GitHubCMS } from '@/lib/github-api';
 export async function POST(request: NextRequest) {
   try {
     // Check if GitHub integration is configured
-    if (!process.env.GITHUB_TOKEN || !process.env.GITHUB_OWNER || !process.env.GITHUB_REPO) {
+    const missingVars = [];
+    if (!process.env.GITHUB_TOKEN) missingVars.push('GITHUB_TOKEN');
+    if (!process.env.GITHUB_OWNER) missingVars.push('GITHUB_OWNER');
+    if (!process.env.GITHUB_REPO) missingVars.push('GITHUB_REPO');
+    
+    if (missingVars.length > 0) {
       return NextResponse.json(
-        { error: 'GitHub integration not configured' },
+        { 
+          error: `GitHub integration error: Missing environment variables: ${missingVars.join(', ')}`,
+          hint: 'Please add these to your Vercel environment variables in the project settings.',
+          details: {
+            missingVariables: missingVars,
+            environment: process.env.NODE_ENV,
+            vercelEnv: process.env.VERCEL_ENV
+          }
+        },
         { status: 500 }
       );
     }
 
     const githubCMS = new GitHubCMS({
-      token: process.env.GITHUB_TOKEN,
-      owner: process.env.GITHUB_OWNER,
-      repo: process.env.GITHUB_REPO,
+      token: process.env.GITHUB_TOKEN!,
+      owner: process.env.GITHUB_OWNER!,
+      repo: process.env.GITHUB_REPO!,
       branch: process.env.GITHUB_BRANCH || 'main'
     });
 
@@ -62,9 +75,9 @@ export async function PUT(request: NextRequest) {
     }
 
     const githubCMS = new GitHubCMS({
-      token: process.env.GITHUB_TOKEN,
-      owner: process.env.GITHUB_OWNER,
-      repo: process.env.GITHUB_REPO,
+      token: process.env.GITHUB_TOKEN!,
+      owner: process.env.GITHUB_OWNER!,
+      repo: process.env.GITHUB_REPO!,
       branch: process.env.GITHUB_BRANCH || 'main'
     });
 
@@ -107,9 +120,9 @@ export async function DELETE(request: NextRequest) {
     }
 
     const githubCMS = new GitHubCMS({
-      token: process.env.GITHUB_TOKEN,
-      owner: process.env.GITHUB_OWNER,
-      repo: process.env.GITHUB_REPO,
+      token: process.env.GITHUB_TOKEN!,
+      owner: process.env.GITHUB_OWNER!,
+      repo: process.env.GITHUB_REPO!,
       branch: process.env.GITHUB_BRANCH || 'main'
     });
 
