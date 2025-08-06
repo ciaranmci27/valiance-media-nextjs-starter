@@ -4,7 +4,6 @@ import type { NextRequest } from 'next/server';
 // Valid routes generated at build time
 const validRoutes = new Set([
   '/blog',
-  '/home',
   '/',
   '/privacy',
   '/terms-of-service',

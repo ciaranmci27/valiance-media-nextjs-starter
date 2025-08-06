@@ -88,7 +88,6 @@ function generateRoutes() {
   
   // Add known static routes
   staticRoutes.add('/');
-  staticRoutes.add('/home');
   staticRoutes.add('/blog');
   staticRoutes.add('/privacy');
   staticRoutes.add('/terms-of-service');
