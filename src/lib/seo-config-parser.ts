@@ -29,7 +29,7 @@ export interface SEOConfigData {
     imageWidth: number;
     imageHeight: number;
   };
-  twitter: {
+  twitter?: {
     handle: string;
     site: string;
     cardType: string;
@@ -91,8 +91,17 @@ export interface SEOConfigData {
 
 export function getCurrentConfig(): { config: SEOConfigData } {
   // Return the current configuration from the imported module
+  // Add default twitter config for backward compatibility
+  const configWithDefaults = {
+    ...seoConfig,
+    twitter: {
+      handle: '',
+      site: '',
+      cardType: 'summary_large_image'
+    }
+  };
   return {
-    config: seoConfig as SEOConfigData
+    config: configWithDefaults as SEOConfigData
   };
 }
 
@@ -160,6 +169,8 @@ export function formatConfigForFile(config: SEOConfigData): string {
     for (const [key, value] of Object.entries(filteredObj)) {
       // Skip empty values
       if (isEmpty(value)) continue;
+      // Skip twitter config as it's now in Social Media
+      if (key === 'twitter' && indent === 1) continue;
       let formattedValue: string;
       
       // Handle special cases with environment variables

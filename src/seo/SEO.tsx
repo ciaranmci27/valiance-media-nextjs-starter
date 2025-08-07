@@ -93,9 +93,12 @@ export function SEO({
     }
   }
 
-  // Add organization schema
+  // Add organization schema (only if company data exists)
   if (includeOrganization) {
-    allStructuredData.push(generateOrganizationSchema());
+    const orgSchema = generateOrganizationSchema();
+    if (orgSchema) {
+      allStructuredData.push(orgSchema);
+    }
   }
 
   // Add website schema

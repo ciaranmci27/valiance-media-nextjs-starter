@@ -46,13 +46,6 @@ export const seoConfig = {
     imageHeight: 630,
   },
 
-  // Twitter/X Configuration
-  twitter: {
-    handle: '', // Optional: Add your Twitter/X handle
-    site: '', // Optional: Add your Twitter/X site handle
-    cardType: 'summary_large_image',
-  },
-
   // Social Media Links (Optional - leave empty if not applicable)
   social: {
     twitter: '',

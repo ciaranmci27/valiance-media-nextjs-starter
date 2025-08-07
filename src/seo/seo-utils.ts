@@ -21,14 +21,22 @@ export function generateMetadata({
   const metaDescription = description || seoConfig.defaultDescription;
   const metaKeywords = keywords || seoConfig.defaultKeywords;
 
-  return {
+  const metadata: any = {
     metadataBase: new URL(seoConfig.siteUrl),
     title: metaTitle,
     description: metaDescription,
     keywords: metaKeywords,
-    authors: [{ name: seoConfig.company.name }],
-    creator: seoConfig.company.name,
-    publisher: seoConfig.company.name,
+  };
+
+  // Add company-related metadata only if company data exists
+  if (seoConfig.company?.name) {
+    metadata.authors = [{ name: seoConfig.company.name }];
+    metadata.creator = seoConfig.company.name;
+    metadata.publisher = seoConfig.company.name;
+  }
+
+  return {
+    ...metadata,
     formatDetection: {
       email: false,
       address: false,
@@ -52,11 +60,9 @@ export function generateMetadata({
       ...openGraph,
     },
     twitter: {
-      card: (twitter as any)?.card || seoConfig.twitter.cardType as any,
+      card: (twitter as any)?.card || 'summary_large_image' as any,
       title: twitter?.title || metaTitle,
       description: twitter?.description || metaDescription,
-      site: seoConfig.twitter.site,
-      creator: seoConfig.twitter.handle,
       images: twitter?.images || [seoConfig.openGraph.defaultImage],
       ...twitter,
     },
@@ -76,61 +82,119 @@ export function generateMetadata({
 
 /**
  * Generate JSON-LD structured data for organization
+ * Returns null if company data is not configured
  */
 export function generateOrganizationSchema() {
-  return {
+  // Check if company data exists and has required fields
+  if (!seoConfig.company?.name || !seoConfig.company?.email) {
+    return null;
+  }
+
+  const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: seoConfig.company.name,
-    legalName: seoConfig.company.legalName,
     url: seoConfig.siteUrl,
-    logo: `${seoConfig.siteUrl}/logos/square-logo.png`,
-    foundingDate: seoConfig.company.foundingDate,
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: seoConfig.company.phone,
-      contactType: 'customer service',
-      email: seoConfig.company.email,
-    },
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: seoConfig.company.address.streetAddress,
-      addressLocality: seoConfig.company.address.addressLocality,
-      addressRegion: seoConfig.company.address.addressRegion,
-      postalCode: seoConfig.company.address.postalCode,
-      addressCountry: seoConfig.company.address.addressCountry,
-    },
-    sameAs: Object.values(seoConfig.social).filter(Boolean),
   };
+
+  // Add optional fields only if they exist
+  if (seoConfig.company.legalName) {
+    schema.legalName = seoConfig.company.legalName;
+  }
+
+  // Add logo if it exists
+  const logoPath = `${seoConfig.siteUrl}/logos/square-logo.png`;
+  schema.logo = logoPath;
+
+  if (seoConfig.company.foundingDate) {
+    schema.foundingDate = seoConfig.company.foundingDate;
+  }
+
+  // Add contact point if phone or email exists
+  if (seoConfig.company.phone || seoConfig.company.email) {
+    schema.contactPoint = {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+    };
+    if (seoConfig.company.phone) {
+      schema.contactPoint.telephone = seoConfig.company.phone;
+    }
+    if (seoConfig.company.email) {
+      schema.contactPoint.email = seoConfig.company.email;
+    }
+  }
+
+  // Add address if any address fields exist
+  if (seoConfig.company.address) {
+    const addressFields = Object.entries(seoConfig.company.address).filter(
+      ([_, value]) => value
+    );
+    if (addressFields.length > 0) {
+      schema.address = {
+        '@type': 'PostalAddress',
+      };
+      if (seoConfig.company.address.streetAddress) {
+        schema.address.streetAddress = seoConfig.company.address.streetAddress;
+      }
+      if (seoConfig.company.address.addressLocality) {
+        schema.address.addressLocality = seoConfig.company.address.addressLocality;
+      }
+      if (seoConfig.company.address.addressRegion) {
+        schema.address.addressRegion = seoConfig.company.address.addressRegion;
+      }
+      if (seoConfig.company.address.postalCode) {
+        schema.address.postalCode = seoConfig.company.address.postalCode;
+      }
+      if (seoConfig.company.address.addressCountry) {
+        schema.address.addressCountry = seoConfig.company.address.addressCountry;
+      }
+    }
+  }
+
+  // Add social media links if they exist
+  const socialLinks = Object.values(seoConfig.social || {}).filter(Boolean);
+  if (socialLinks.length > 0) {
+    schema.sameAs = socialLinks;
+  }
+
+  return schema;
 }
 
 /**
  * Generate JSON-LD structured data for website
  */
 export function generateWebsiteSchema() {
-  return {
+  const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: seoConfig.siteName,
     url: seoConfig.siteUrl,
     description: seoConfig.defaultDescription,
-    publisher: {
+  };
+
+  // Only add publisher if company name exists
+  if (seoConfig.company?.name) {
+    schema.publisher = {
       '@type': 'Organization',
       name: seoConfig.company.name,
       logo: {
         '@type': 'ImageObject',
         url: `${seoConfig.siteUrl}/logos/square-logo.png`,
       },
+    };
+  }
+
+  // Add search action
+  schema.potentialAction = {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${seoConfig.siteUrl}/search?q={search_term_string}`,
     },
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${seoConfig.siteUrl}/search?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
+    'query-input': 'required name=search_term_string',
   };
+
+  return schema;
 }
 
 /**
@@ -151,7 +215,7 @@ export function generateWebPageSchema({
   author?: string;
   image?: string;
 }) {
-  return {
+  const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: title,
@@ -159,24 +223,35 @@ export function generateWebPageSchema({
     url: typeof window !== 'undefined' ? window.location.href : seoConfig.siteUrl,
     datePublished: datePublished || new Date().toISOString(),
     dateModified: dateModified || new Date().toISOString(),
-    author: {
+  };
+
+  // Add author - use provided author or company name if available
+  if (author || seoConfig.company?.name) {
+    schema.author = {
       '@type': 'Organization',
       name: author || seoConfig.company.name,
-    },
-    publisher: {
+    };
+  }
+
+  // Add publisher if company name exists
+  if (seoConfig.company?.name) {
+    schema.publisher = {
       '@type': 'Organization',
       name: seoConfig.company.name,
       logo: {
         '@type': 'ImageObject',
         url: `${seoConfig.siteUrl}/logos/square-logo.png`,
       },
-    },
-    image: image || seoConfig.openGraph.defaultImage,
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': typeof window !== 'undefined' ? window.location.href : seoConfig.siteUrl,
-    },
+    };
+  }
+
+  schema.image = image || seoConfig.openGraph.defaultImage;
+  schema.mainEntityOfPage = {
+    '@type': 'WebPage',
+    '@id': typeof window !== 'undefined' ? window.location.href : seoConfig.siteUrl,
   };
+
+  return schema;
 }
 
 /**
@@ -211,22 +286,30 @@ export function generateProductSchema({
     name,
     description,
     image: Array.isArray(image) ? image : [image],
-    brand: {
-      '@type': 'Brand',
-      name: brand || seoConfig.company.name,
-    },
     offers: {
       '@type': 'Offer',
       url: typeof window !== 'undefined' ? window.location.href : seoConfig.siteUrl,
       priceCurrency: currency,
       price: price,
       availability: availability,
-      seller: {
-        '@type': 'Organization',
-        name: seoConfig.company.name,
-      },
     },
   };
+
+  // Add brand - use provided brand or company name if available
+  if (brand || seoConfig.company?.name) {
+    schema.brand = {
+      '@type': 'Brand',
+      name: brand || seoConfig.company.name,
+    };
+  }
+
+  // Add seller if company name exists
+  if (seoConfig.company?.name) {
+    schema.offers.seller = {
+      '@type': 'Organization',
+      name: seoConfig.company.name,
+    };
+  }
 
   if (sku) schema.sku = sku;
 

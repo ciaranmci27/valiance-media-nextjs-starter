@@ -33,11 +33,6 @@ interface SEOConfigData {
     imageWidth: number;
     imageHeight: number;
   };
-  twitter: {
-    handle: string;
-    site: string;
-    cardType: string;
-  };
   social: {
     twitter: string;
     linkedin: string;
@@ -153,9 +148,8 @@ export default function SEOConfigEditor() {
   const sections = [
     { id: 'basic', label: 'Basic Information', icon: '🏢' },
     { id: 'company', label: 'Company Details', icon: '📍' },
-    { id: 'defaults', label: 'Default SEO', icon: '📝' },
+    { id: 'defaults', label: 'SEO Templates', icon: '📝' },
     { id: 'opengraph', label: 'Open Graph', icon: '🔗' },
-    { id: 'twitter', label: 'Twitter/X', icon: '🐦' },
     { id: 'social', label: 'Social Media', icon: '📱' },
     { id: 'robots', label: 'Robots & Crawling', icon: '🤖' },
     { id: 'languages', label: 'Languages', icon: '🌍' },
@@ -257,9 +251,12 @@ export default function SEOConfigEditor() {
             {activeSection === 'company' && (
               <div className="space-y-6">
                 <h3 className="text-h3 mb-4">Company Details</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  All company fields are optional. Leave empty if not applicable.
+                </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-label block mb-2">Company Name</label>
+                    <label className="text-label block mb-2">Company Name (Optional)</label>
                     <input
                       type="text"
                       value={config.company.name}
@@ -270,7 +267,7 @@ export default function SEOConfigEditor() {
                   </div>
                   
                   <div>
-                    <label className="text-label block mb-2">Legal Name</label>
+                    <label className="text-label block mb-2">Legal Name (Optional)</label>
                     <input
                       type="text"
                       value={config.company.legalName}
@@ -281,7 +278,7 @@ export default function SEOConfigEditor() {
                   </div>
 
                   <div>
-                    <label className="text-label block mb-2">Email</label>
+                    <label className="text-label block mb-2">Email (Optional)</label>
                     <input
                       type="email"
                       value={config.company.email}
@@ -314,12 +311,12 @@ export default function SEOConfigEditor() {
                   </div>
                 </div>
 
-                <div className="border-t pt-4">
-                  <h4 className="font-semibold mb-3">Address (Optional)</h4>
+                <div>
+                  <h4 className="font-semibold mb-3">Address</h4>
                   <p className="text-xs text-gray-500 mb-3">Leave blank if you don't want to include address in schema</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <label className="text-label block mb-2">Street Address</label>
+                      <label className="text-label block mb-2">Street Address (Optional)</label>
                       <input
                         type="text"
                         value={config.company.address.streetAddress}
@@ -330,7 +327,7 @@ export default function SEOConfigEditor() {
                     </div>
                     
                     <div>
-                      <label className="text-label block mb-2">City</label>
+                      <label className="text-label block mb-2">City (Optional)</label>
                       <input
                         type="text"
                         value={config.company.address.addressLocality}
@@ -341,7 +338,7 @@ export default function SEOConfigEditor() {
                     </div>
 
                     <div>
-                      <label className="text-label block mb-2">State/Region</label>
+                      <label className="text-label block mb-2">State/Region (Optional)</label>
                       <input
                         type="text"
                         value={config.company.address.addressRegion}
@@ -352,7 +349,7 @@ export default function SEOConfigEditor() {
                     </div>
 
                     <div>
-                      <label className="text-label block mb-2">Postal Code</label>
+                      <label className="text-label block mb-2">Postal Code (Optional)</label>
                       <input
                         type="text"
                         value={config.company.address.postalCode}
@@ -363,7 +360,7 @@ export default function SEOConfigEditor() {
                     </div>
 
                     <div>
-                      <label className="text-label block mb-2">Country Code</label>
+                      <label className="text-label block mb-2">Country Code (Optional)</label>
                       <input
                         type="text"
                         value={config.company.address.addressCountry}
@@ -380,38 +377,79 @@ export default function SEOConfigEditor() {
             {/* Default SEO */}
             {activeSection === 'defaults' && (
               <div className="space-y-6">
-                <h3 className="text-h3 mb-4">Default SEO Settings</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-label block mb-2">Default Title</label>
-                    <input
-                      type="text"
-                      value={config.defaultTitle}
-                      onChange={(e) => setConfig({...config, defaultTitle: e.target.value})}
-                      className="input-field"
-                      placeholder="Welcome to My Company - Your Solution Provider"
-                      maxLength={60}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {config.defaultTitle.length}/60 characters
-                    </p>
+                <h3 className="text-h3 mb-4">SEO Templates</h3>
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    These templates automatically generate SEO metadata for new content. Use placeholders like {'{title}'}, {'{siteName}'}, and {'{description}'} to create dynamic content.
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Homepage */}
+                  <div className="border rounded-lg p-4">
+                    <h4 className="font-semibold mb-3">Homepage</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-label block mb-2">Title</label>
+                        <input
+                          type="text"
+                          value={config.defaultTitle}
+                          onChange={(e) => setConfig({...config, defaultTitle: e.target.value})}
+                          className="input-field"
+                          placeholder="Welcome to {siteName} - Your Tagline Here"
+                          maxLength={60}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          {config.defaultTitle.length}/60 characters
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-label block mb-2">Description</label>
+                        <textarea
+                          value={config.defaultDescription}
+                          onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
+                          className="input-field"
+                          rows={2}
+                          placeholder="Brief description of your website and services"
+                          maxLength={160}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          {config.defaultDescription.length}/160 characters
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="text-label block mb-2">Default Description</label>
-                    <textarea
-                      value={config.defaultDescription}
-                      onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
-                      className="input-field"
-                      rows={3}
-                      placeholder="We provide innovative solutions and exceptional service to help your business grow."
-                      maxLength={160}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {config.defaultDescription.length}/160 characters
-                    </p>
+                  {/* Page Template */}
+                  <div className="border rounded-lg p-4">
+                    <h4 className="font-semibold mb-3">Page Template</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-label block mb-2">Title Template</label>
+                        <input
+                          type="text"
+                          value={config.titleTemplate}
+                          onChange={(e) => setConfig({...config, titleTemplate: e.target.value})}
+                          className="input-field"
+                          placeholder="%s | {siteName}"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">%s will be replaced with the page title</p>
+                      </div>
+                      <div>
+                        <label className="text-label block mb-2">Description Template</label>
+                        <input
+                          type="text"
+                          value={config.defaultDescription}
+                          onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
+                          className="input-field"
+                          placeholder="Learn about %s at {siteName}"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Falls back to page-specific description if available</p>
+                      </div>
+                    </div>
                   </div>
 
+                  {/* Keywords */}
                   <div>
                     <label className="text-label block mb-2">Default Keywords</label>
                     <input
@@ -421,7 +459,7 @@ export default function SEOConfigEditor() {
                       className="input-field"
                       placeholder="keyword1, keyword2, keyword3"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Separate keywords with commas</p>
+                    <p className="text-xs text-gray-500 mt-1">Base keywords applied to all pages (comma-separated)</p>
                   </div>
                 </div>
               </div>
@@ -517,54 +555,10 @@ export default function SEOConfigEditor() {
                           : ''}
                       url={config.siteUrl}
                       siteName={config.siteName}
-                      twitterCard={config.twitter.cardType as any}
+                      twitterCard={'summary_large_image' as any}
                     />
                   </div>
                 )}
-              </div>
-            )}
-
-            {/* Twitter/X */}
-            {activeSection === 'twitter' && (
-              <div className="space-y-6">
-                <h3 className="text-h3 mb-4">Twitter/X Configuration</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="text-label block mb-2">Handle (Optional)</label>
-                    <input
-                      type="text"
-                      value={config.twitter.handle}
-                      onChange={(e) => setConfig({...config, twitter: {...config.twitter, handle: e.target.value}})}
-                      className="input-field"
-                      placeholder="@yourhandle"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-label block mb-2">Site (Optional)</label>
-                    <input
-                      type="text"
-                      value={config.twitter.site}
-                      onChange={(e) => setConfig({...config, twitter: {...config.twitter, site: e.target.value}})}
-                      className="input-field"
-                      placeholder="@yoursite"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-label block mb-2">Card Type</label>
-                    <select
-                      value={config.twitter.cardType}
-                      onChange={(e) => setConfig({...config, twitter: {...config.twitter, cardType: e.target.value}})}
-                      className="input-field"
-                    >
-                      <option value="summary">Summary</option>
-                      <option value="summary_large_image">Summary Large Image</option>
-                      <option value="app">App</option>
-                      <option value="player">Player</option>
-                    </select>
-                  </div>
-                </div>
               </div>
             )}
 
@@ -576,18 +570,31 @@ export default function SEOConfigEditor() {
                   Optional: Add links to your social media profiles. Leave empty if not applicable.
                 </p>
                 <div className="grid grid-cols-1 gap-4">
-                  {Object.entries(config.social).map(([platform, url]) => (
-                    <div key={platform}>
-                      <label className="text-label block mb-2 capitalize">{platform}</label>
-                      <input
-                        type="url"
-                        value={url}
-                        onChange={(e) => setConfig({...config, social: {...config.social, [platform]: e.target.value}})}
-                        className="input-field"
-                        placeholder={`https://${platform}.com/yourprofile`}
-                      />
-                    </div>
-                  ))}
+                  {Object.entries(config.social).map(([platform, url]) => {
+                    // Format platform names for display
+                    const platformLabels: Record<string, string> = {
+                      twitter: 'Twitter/X',
+                      linkedin: 'LinkedIn',
+                      github: 'GitHub',
+                      instagram: 'Instagram',
+                      facebook: 'Facebook',
+                      youtube: 'YouTube'
+                    };
+                    const label = platformLabels[platform] || platform;
+                    
+                    return (
+                      <div key={platform}>
+                        <label className="text-label block mb-2">{label}</label>
+                        <input
+                          type="url"
+                          value={url}
+                          onChange={(e) => setConfig({...config, social: {...config.social, [platform]: e.target.value}})}
+                          className="input-field"
+                          placeholder={`https://${platform === 'twitter' ? 'x' : platform}.com/yourprofile`}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
