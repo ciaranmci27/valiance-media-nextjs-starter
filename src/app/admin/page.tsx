@@ -136,7 +136,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8 flex justify-between items-start">
+        <div className="mb-8">
           <div>
             <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
               Content Management Dashboard
@@ -145,23 +145,6 @@ export default function AdminDashboard() {
               Welcome back! Here's an overview of your content.
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="btn btn-secondary"
-            style={{ 
-              padding: '8px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-              <polyline points="16 17 21 12 16 7"/>
-              <line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-            Logout
-          </button>
         </div>
 
         {/* Quick Actions */}
