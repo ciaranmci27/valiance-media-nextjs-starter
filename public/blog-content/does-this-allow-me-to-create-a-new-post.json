@@ -1,0 +1,27 @@
+{
+  "title": "Does this allow me to create a new post?",
+  "excerpt": "Testing",
+  "content": "Testing if this works",
+  "author": {
+    "name": "",
+    "image": "/logos/square-logo.png",
+    "bio": ""
+  },
+  "category": "",
+  "tags": [],
+  "image": "/logos/horizontal-logo.png",
+  "imageAlt": "",
+  "featured": false,
+  "draft": false,
+  "excludeFromSearch": false,
+  "seo": {
+    "title": "",
+    "description": "",
+    "keywords": [],
+    "image": "/logos/horizontal-logo.png"
+  },
+  "slug": "does-this-allow-me-to-create-a-new-post",
+  "publishedAt": "2025-08-07T01:33:43.791Z",
+  "readingTime": 1,
+  "updatedAt": "2025-08-07T01:33:44.077Z"
+}
