@@ -1,0 +1,27 @@
+{
+  "title": "Testing again",
+  "excerpt": "Will this work?",
+  "content": "pls work",
+  "author": {
+    "name": "",
+    "image": "/logos/square-logo.png",
+    "bio": ""
+  },
+  "category": "",
+  "tags": [],
+  "image": "/logos/horizontal-logo.png",
+  "imageAlt": "",
+  "featured": false,
+  "draft": false,
+  "excludeFromSearch": false,
+  "seo": {
+    "title": "",
+    "description": "",
+    "keywords": [],
+    "image": "/logos/horizontal-logo.png"
+  },
+  "slug": "testing-again",
+  "publishedAt": "2025-08-07T02:43:50.865Z",
+  "readingTime": 1,
+  "updatedAt": "2025-08-07T02:43:51.126Z"
+}
