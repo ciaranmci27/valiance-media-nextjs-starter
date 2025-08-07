@@ -25,7 +25,8 @@ const validBlogRoutes = new Set([
   '/blog',
   '/blog/guides',
   '/blog/guides/blog-post-example',
-  '/blog/blog-post-no-category-example'
+  '/blog/blog-post-no-category-example',
+  '/blog/does-this-work'
 ]);
 
 export async function middleware(request: NextRequest) {

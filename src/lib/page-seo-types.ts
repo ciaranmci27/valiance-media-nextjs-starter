@@ -32,6 +32,35 @@ export interface PageSeoConfig {
     tags?: string[];
     lastModified?: string;
   };
+  
+  // Open Graph metadata
+  openGraph?: {
+    title?: string;
+    description?: string;
+    images?: Array<{
+      url: string;
+      width?: number;
+      height?: number;
+      alt?: string;
+    }>;
+  };
+  
+  // Twitter card metadata
+  twitter?: {
+    card?: string;
+    title?: string;
+    description?: string;
+    images?: string[];
+  };
+  
+  // Robots directives
+  robots?: string;
+  
+  // Alternate language versions
+  alternates?: {
+    canonical?: string;
+    languages?: Record<string, string>;
+  };
 }
 
 export interface PageSeoConfigRaw {

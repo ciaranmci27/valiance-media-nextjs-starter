@@ -211,7 +211,7 @@ export function formatConfigForFile(config: SEOConfigData): string {
         }
       } else if (key === 'company' && indent === 1) {
         // Special handling for company to exclude empty address
-        const companyData = { ...value } as any;
+        const companyData = { ...(value as any) } as any;
         if (companyData.address && isEmpty(filterEmptyFields(companyData.address))) {
           delete companyData.address;
         }

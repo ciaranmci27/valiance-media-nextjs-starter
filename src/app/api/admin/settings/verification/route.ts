@@ -11,7 +11,7 @@ export async function GET() {
   try {
     const configContent = await fs.readFile(SEO_CONFIG_PATH, 'utf-8');
     
-    const verificationMatch = configContent.match(/verification:\s*{([^}]+)}/s);
+    const verificationMatch = configContent.match(/verification:\s*{([^}]+)}/m);
     if (!verificationMatch) {
       return NextResponse.json({
         verification: {
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     let configContent = await fs.readFile(SEO_CONFIG_PATH, 'utf-8');
     
     // Update verification section
-    const verificationRegex = /verification:\s*{[^}]+}/s;
+    const verificationRegex = /verification:\s*{[^}]+}/m;
     const newVerificationSection = `verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '${verification.google || ''}',
     bing: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || '${verification.bing || ''}',

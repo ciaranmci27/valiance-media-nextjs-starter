@@ -49,19 +49,22 @@ export async function GET(request: NextRequest) {
         const metaKey = route.path === '/' ? 'home' : route.path.replace('/', '').replace(/-/g, '');
         
         // Check if page has custom metadata
-        const hasCustomMeta = !!(pageConfig?.metadata?.title || pageConfig?.metadata?.description);
+        const hasCustomMeta = !!(pageConfig?.seo?.title || pageConfig?.seo?.description);
         
         // Determine if page is in sitemap (not excluded)
         const isInSitemap = !seoConfig.sitemap.excludedPages.includes(route.path);
         
+        // Get metadata from pageMetadata object if key exists
+        const pageMeta = (pageMetadata as any)[metaKey];
+        
         return {
           path: route.path,
-          title: pageConfig?.metadata?.title || pageMetadata[metaKey]?.title || route.title || seoConfig.defaultTitle,
-          description: pageConfig?.metadata?.description || pageMetadata[metaKey]?.description || seoConfig.defaultDescription,
-          keywords: pageConfig?.metadata?.keywords || pageMetadata[metaKey]?.keywords || seoConfig.defaultKeywords,
+          title: pageConfig?.seo?.title || pageMeta?.title || route.title || seoConfig.defaultTitle,
+          description: pageConfig?.seo?.description || pageMeta?.description || seoConfig.defaultDescription,
+          keywords: pageConfig?.seo?.keywords || pageMeta?.keywords || seoConfig.defaultKeywords,
           ogImage: pageConfig?.openGraph?.images?.[0]?.url || seoConfig.openGraph.defaultImage,
-          ogTitle: pageConfig?.openGraph?.title || pageConfig?.metadata?.title || pageMetadata[metaKey]?.title || route.title,
-          ogDescription: pageConfig?.openGraph?.description || pageConfig?.metadata?.description || pageMetadata[metaKey]?.description,
+          ogTitle: pageConfig?.openGraph?.title || pageConfig?.seo?.title || pageMeta?.title || route.title,
+          ogDescription: pageConfig?.openGraph?.description || pageConfig?.seo?.description || pageMeta?.description,
           lastModified: pageConfig?.metadata?.lastModified || new Date().toISOString().split('T')[0],
           priority: route.priority,
           changefreq: route.changefreq,

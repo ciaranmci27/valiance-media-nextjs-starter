@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages.map(page => `  <url>
     <loc>${page.url}</loc>
-    <lastmod>${page.lastModified?.toISOString() || new Date().toISOString()}</lastmod>
+    <lastmod>${page.lastModified ? (typeof page.lastModified === 'string' ? page.lastModified : page.lastModified.toISOString()) : new Date().toISOString()}</lastmod>
     <changefreq>${page.changeFrequency || 'monthly'}</changefreq>
     <priority>${page.priority || 0.5}</priority>
   </url>`).join('\n')}
@@ -67,7 +67,7 @@ ${pages.map(page => `  <url>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${posts.map(post => `  <url>
     <loc>${post.url}</loc>
-    <lastmod>${post.lastModified?.toISOString() || new Date().toISOString()}</lastmod>
+    <lastmod>${post.lastModified ? (typeof post.lastModified === 'string' ? post.lastModified : post.lastModified.toISOString()) : new Date().toISOString()}</lastmod>
     <changefreq>${post.changeFrequency || 'weekly'}</changefreq>
     <priority>${post.priority || 0.6}</priority>
   </url>`).join('\n')}
@@ -92,7 +92,7 @@ ${posts.map(post => `  <url>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${categories.map(cat => `  <url>
     <loc>${cat.url}</loc>
-    <lastmod>${cat.lastModified?.toISOString() || new Date().toISOString()}</lastmod>
+    <lastmod>${cat.lastModified ? (typeof cat.lastModified === 'string' ? cat.lastModified : cat.lastModified.toISOString()) : new Date().toISOString()}</lastmod>
     <changefreq>${cat.changeFrequency || 'monthly'}</changefreq>
     <priority>${cat.priority || 0.7}</priority>
   </url>`).join('\n')}
