@@ -97,9 +97,26 @@ function generateRoutes() {
   // Get blog routes
   const blogRoutes = scanBlogDirectory();
   
-  // Generate the middleware content
-  const middlewareContent = `import { NextResponse } from 'next/server';
+  // Read the middleware template
+  const templatePath = path.join(__dirname, 'middleware-template.txt');
+  let middlewareContent;
+  
+  if (fs.existsSync(templatePath)) {
+    // Use the template if it exists
+    middlewareContent = fs.readFileSync(templatePath, 'utf8');
+    
+    // Replace placeholders with actual routes
+    const routesPlaceholder = Array.from(staticRoutes).map(route => `  '${route}'`).join(',\n');
+    const blogRoutesPlaceholder = Array.from(blogRoutes).map(route => `  '${route}'`).join(',\n');
+    
+    middlewareContent = middlewareContent
+      .replace('  // ROUTES_PLACEHOLDER', routesPlaceholder)
+      .replace('  // BLOG_ROUTES_PLACEHOLDER', blogRoutesPlaceholder);
+  } else {
+    // Fallback to inline template with authentication
+    middlewareContent = `import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifyAuthEdge } from '@/lib/auth-edge';
 
 // Valid routes generated at build time
 const validRoutes = new Set([
@@ -111,7 +128,7 @@ const validBlogRoutes = new Set([
 ${Array.from(blogRoutes).map(route => `  '${route}'`).join(',\n')}
 ]);
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
   // Handle sitemap redirects BEFORE allowing static files
@@ -127,15 +144,59 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(sitemapRedirects[path], request.url));
   }
 
-  // Allow static files and API routes
+  // Allow static files and API routes (except admin API routes)
   if (
     path.startsWith('/_next') ||
-    path.startsWith('/api') ||
+    (path.startsWith('/api') && !path.startsWith('/api/admin')) ||
     path.includes('.') || // Files with extensions
     path.startsWith('/favicon') ||
     path.startsWith('/images') ||
     path.startsWith('/logos')
   ) {
+    return NextResponse.next();
+  }
+
+  // Check authentication for admin routes
+  if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
+    // Skip auth check if auth is disabled (development only)
+    if (process.env.DISABLE_ADMIN_AUTH === 'true') {
+      return NextResponse.next();
+    }
+
+    // Allow access to login page and login API without auth
+    if (path === '/admin/login' || path === '/api/admin/login') {
+      return NextResponse.next();
+    }
+
+    // Check for admin token
+    const token = request.cookies.get('admin-token')?.value;
+
+    if (!token) {
+      // Redirect to login page for admin UI routes
+      if (path.startsWith('/admin') && !path.startsWith('/api/admin')) {
+        return NextResponse.redirect(new URL('/admin/login', request.url));
+      }
+      // Return 401 for API routes
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Verify the token
+    const isValid = await verifyAuthEdge(token);
+
+    if (!isValid) {
+      // Clear invalid token
+      const response = path.startsWith('/admin') && !path.startsWith('/api/admin')
+        ? NextResponse.redirect(new URL('/admin/login', request.url))
+        : NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      
+      response.cookies.delete('admin-token');
+      return response;
+    }
+
+    // Token is valid, allow access
     return NextResponse.next();
   }
 
@@ -199,6 +260,7 @@ export const config = {
   ],
 };
 `;
+  }
 
   // Write the generated middleware
   const middlewarePath = path.join(process.cwd(), 'src', 'middleware.ts');

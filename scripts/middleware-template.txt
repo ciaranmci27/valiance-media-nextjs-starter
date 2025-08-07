@@ -4,28 +4,12 @@ import { verifyAuthEdge } from '@/lib/auth-edge';
 
 // Valid routes generated at build time
 const validRoutes = new Set([
-  '/admin/blog',
-  '/admin/blog-post',
-  '/admin/categories',
-  '/admin/login',
-  '/admin',
-  '/admin/seo',
-  '/admin/settings',
-  '/blog',
-  '/',
-  '/privacy',
-  '/terms-of-service',
-  '/robots.txt',
-  '/sitemap.xml'
+  // ROUTES_PLACEHOLDER
 ]);
 
 // Valid blog routes generated at build time
 const validBlogRoutes = new Set([
-  '/blog',
-  '/blog/guides',
-  '/blog/guides/blog-post-example',
-  '/blog/new-category',
-  '/blog/blog-post-no-category-example'
+  // BLOG_ROUTES_PLACEHOLDER
 ]);
 
 export async function middleware(request: NextRequest) {

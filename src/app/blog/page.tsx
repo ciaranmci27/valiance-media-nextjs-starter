@@ -55,9 +55,6 @@ export default async function BlogPage() {
       {/* All Posts Grid */}
       {allPosts.length > 0 ? (
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            All Articles
-          </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {allPosts.map((post) => (
               <BlogCard key={post.slug} post={post} categories={categories} />

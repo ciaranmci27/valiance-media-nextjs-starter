@@ -49,10 +49,23 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     try {
       const response = await fetch('/api/admin/dashboard');
+      
+      // Check if user is authenticated
+      if (response.status === 401) {
+        router.push('/admin/login');
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard data');
+      }
+      
       const data = await response.json();
       setStats(data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      // Redirect to login on auth errors
+      router.push('/admin/login');
     } finally {
       setLoading(false);
     }
@@ -105,17 +118,50 @@ export default function AdminDashboard() {
     );
   }
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/admin/auth/logout', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        router.push('/admin/login');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
-            Content Management Dashboard
-          </h1>
-          <p className="text-body-lg" style={{ color: 'var(--color-text-secondary)' }}>
-            Welcome back! Here's an overview of your content.
-          </p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
+              Content Management Dashboard
+            </h1>
+            <p className="text-body-lg" style={{ color: 'var(--color-text-secondary)' }}>
+              Welcome back! Here's an overview of your content.
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="btn btn-secondary"
+            style={{ 
+              padding: '8px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Logout
+          </button>
         </div>
 
         {/* Quick Actions */}
