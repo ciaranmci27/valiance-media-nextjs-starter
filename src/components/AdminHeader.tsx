@@ -15,6 +15,7 @@ export function AdminHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   const navLinks = [
+    { label: 'Dashboard', href: '/admin' },
     { label: 'New Post', href: '/admin/blog-post/new' },
     { label: 'Posts', href: '/admin/blog' },
     { label: 'Categories', href: '/admin/categories' },
