@@ -1,9 +1,17 @@
 {
   "name": "Guides",
+  "slug": "guides",
   "description": "Step-by-step guides and tutorials for building successful marketing websites",
+  "createdAt": "2025-08-06T23:30:07.328Z",
   "seo": {
     "title": "Marketing Guides - Next.js Boilerplate Tutorials",
     "description": "Learn how to build high-converting marketing websites with our comprehensive guides and tutorials for Next.js development.",
-    "keywords": ["marketing guides", "nextjs tutorials", "web development", "conversion optimization", "landing pages"]
+    "keywords": [
+      "marketing guides",
+      "nextjs tutorials",
+      "web development",
+      "conversion optimization",
+      "landing pages"
+    ]
   }
-} 
+}

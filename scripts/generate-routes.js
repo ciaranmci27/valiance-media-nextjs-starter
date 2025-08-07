@@ -55,10 +55,10 @@ function scanBlogDirectory() {
         // Add category route
         blogRoutes.add(`/blog/${category}`);
         
-        // Scan for posts in this category (excluding category-config.json)
+        // Scan for posts in this category (excluding config files)
         const posts = fs.readdirSync(categoryPath);
         for (const post of posts) {
-          if (post.endsWith('.json') && post !== 'category-config.json') {
+          if (post.endsWith('.json') && !post.startsWith('.')) {
             const slug = post.replace('.json', '');
             blogRoutes.add(`/blog/${category}/${slug}`);
           }

@@ -4,9 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import { BlogPost, BlogCategory } from './blog-types';
 
-// Load category metadata from seo-config.json file
+// Load category metadata from .config.json file
 function loadCategoryMetadata(categoryPath: string, slug: string): BlogCategory {
-  const configPath = path.join(categoryPath, 'seo-config.json');
+  const configPath = path.join(categoryPath, '.config.json');
   
   if (fs.existsSync(configPath)) {
     try {
@@ -29,7 +29,7 @@ function loadCategoryMetadata(categoryPath: string, slug: string): BlogCategory 
   };
 }
 
-// Load categories from individual seo-config.json files
+// Load categories from individual .config.json files
 export function loadCategories(): BlogCategory[] {
   const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
   const categoriesDir = path.join(blogContentDir, 'categories');
@@ -46,15 +46,39 @@ export function loadCategories(): BlogCategory[] {
     const stat = fs.statSync(categoryPath);
     
     if (stat.isDirectory()) {
-      // Count posts in this category (excluding seo-config.json)
+      // Count posts in this category (excluding .config.json)
       const posts = fs.readdirSync(categoryPath).filter(file => 
-        file.endsWith('.json') && file !== 'seo-config.json'
+        file.endsWith('.json') && !file.startsWith('.')
       );
       const postCount = posts.length;
       
       if (postCount > 0) {
         categories.push(loadCategoryMetadata(categoryPath, folder));
       }
+    }
+  }
+
+  return categories.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// Load ALL categories (including empty ones) - useful for admin dashboard
+export function loadAllCategories(): BlogCategory[] {
+  const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
+  const categoriesDir = path.join(blogContentDir, 'categories');
+  
+  if (!fs.existsSync(categoriesDir)) {
+    return [];
+  }
+
+  const categories: BlogCategory[] = [];
+  const categoryFolders = fs.readdirSync(categoriesDir);
+
+  for (const folder of categoryFolders) {
+    const categoryPath = path.join(categoriesDir, folder);
+    const stat = fs.statSync(categoryPath);
+    
+    if (stat.isDirectory()) {
+      categories.push(loadCategoryMetadata(categoryPath, folder));
     }
   }
 
@@ -83,8 +107,8 @@ export function loadBlogPosts(): BlogPost[] {
         const postFiles = fs.readdirSync(categoryPath).filter(file => file.endsWith('.json'));
         
         for (const postFile of postFiles) {
-          // Skip SEO config files
-          if (postFile === 'seo-config.json') continue;
+          // Skip config files
+          if (postFile.startsWith('.')) continue;
           
           try {
             const postPath = path.join(categoryPath, postFile);

@@ -232,8 +232,20 @@ export default function CategoriesPage() {
                   <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
                     {category.description || '-'}
                   </td>
-                  <td style={{ padding: 'var(--spacing-md)', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-                    {category.postCount}
+                  <td style={{ padding: 'var(--spacing-md)', textAlign: 'center' }}>
+                    <span className="text-body-sm" style={{ 
+                      color: 'var(--color-text-primary)',
+                      background: 'var(--color-blue-100)',
+                      padding: '4px 10px',
+                      borderRadius: 'var(--radius-full)',
+                      fontWeight: '600',
+                      fontSize: '12px',
+                      minWidth: '24px',
+                      textAlign: 'center',
+                      border: '1px solid var(--color-blue-200)'
+                    }}>
+                      {category.postCount}
+                    </span>
                   </td>
                   <td style={{ padding: 'var(--spacing-md)', textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
@@ -255,15 +267,16 @@ export default function CategoriesPage() {
                         onClick={() => handleDeleteCategory(category)}
                         style={{
                           padding: '6px 12px',
-                          background: category.postCount > 0 ? 'var(--color-text-disabled)' : 'var(--color-danger)',
+                          background: category.postCount > 0 ? '#9CA3AF' : 'var(--color-danger)',
                           color: 'white',
                           border: 'none',
                           borderRadius: 'var(--radius-sm)',
                           fontSize: '14px',
                           cursor: category.postCount > 0 ? 'not-allowed' : 'pointer',
-                          opacity: category.postCount > 0 ? 0.5 : 1
+                          opacity: category.postCount > 0 ? 0.7 : 1,
+                          transition: 'all 0.2s'
                         }}
-                        disabled={category.postCount > 0}
+                        title={category.postCount > 0 ? `Contains ${category.postCount} post${category.postCount > 1 ? 's' : ''}` : 'Delete category'}
                       >
                         Delete
                       </button>

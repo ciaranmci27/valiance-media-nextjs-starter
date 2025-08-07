@@ -24,8 +24,11 @@
 # environment variables
 .env
 .env.local
+.env.production
 .env.production.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
 
 # misc

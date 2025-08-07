@@ -31,34 +31,27 @@ export async function POST(request: Request) {
     // Create the category directory
     await fs.mkdir(categoryPath, { recursive: true });
     
-    // Create category metadata file
-    const metadata = {
+    // Create unified config file
+    const config = {
       name,
       slug,
       description: description || '',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      seo: {
+        title: `${name} Blog Posts | Your Site Name`,
+        description: description || `Browse our latest ${name.toLowerCase()} blog posts and articles.`,
+        keywords: [name.toLowerCase(), 'blog', 'articles']
+      }
     };
     
     await fs.writeFile(
-      path.join(categoryPath, 'category-meta.json'),
-      JSON.stringify(metadata, null, 2)
-    );
-    
-    // Create SEO config for the category
-    const seoConfig = {
-      title: `${name} Blog Posts | Your Site Name`,
-      description: description || `Browse our latest ${name.toLowerCase()} blog posts and articles.`,
-      keywords: [name.toLowerCase(), 'blog', 'articles']
-    };
-    
-    await fs.writeFile(
-      path.join(categoryPath, 'seo-config.json'),
-      JSON.stringify(seoConfig, null, 2)
+      path.join(categoryPath, '.config.json'),
+      JSON.stringify(config, null, 2)
     );
     
     return NextResponse.json({ 
       message: 'Category created successfully',
-      category: metadata 
+      category: config 
     });
   } catch (error) {
     console.error('Error creating category:', error);

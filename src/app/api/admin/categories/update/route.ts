@@ -33,39 +33,35 @@ export async function PUT(request: Request) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
     
-    // Update category metadata
-    const metadata = {
+    // Read existing config or create new one
+    const configPath = path.join(oldCategoryPath, '.config.json');
+    let config: any = {
       name,
       slug: newSlug,
       description: description || '',
-      updatedAt: new Date().toISOString()
-    };
-    
-    await fs.writeFile(
-      path.join(oldCategoryPath, 'category-meta.json'),
-      JSON.stringify(metadata, null, 2)
-    );
-    
-    // Update SEO config
-    const seoConfigPath = path.join(oldCategoryPath, 'seo-config.json');
-    try {
-      const seoContent = await fs.readFile(seoConfigPath, 'utf-8');
-      const seoConfig = JSON.parse(seoContent);
-      
-      seoConfig.title = `${name} Blog Posts | Your Site Name`;
-      seoConfig.description = description || `Browse our latest ${name.toLowerCase()} blog posts and articles.`;
-      
-      await fs.writeFile(seoConfigPath, JSON.stringify(seoConfig, null, 2));
-    } catch {
-      // SEO config doesn't exist, create it
-      const seoConfig = {
+      createdAt: new Date().toISOString(),
+      seo: {
         title: `${name} Blog Posts | Your Site Name`,
         description: description || `Browse our latest ${name.toLowerCase()} blog posts and articles.`,
         keywords: [name.toLowerCase(), 'blog', 'articles']
-      };
-      
-      await fs.writeFile(seoConfigPath, JSON.stringify(seoConfig, null, 2));
+      }
+    };
+    
+    try {
+      const existingConfig = await fs.readFile(configPath, 'utf-8');
+      const existing = JSON.parse(existingConfig);
+      config.createdAt = existing.createdAt || config.createdAt;
+      config.seo.keywords = existing.seo?.keywords || config.seo.keywords;
+    } catch {
+      // Config doesn't exist yet, use defaults
     }
+    
+    config.updatedAt = new Date().toISOString();
+    
+    await fs.writeFile(
+      configPath,
+      JSON.stringify(config, null, 2)
+    );
     
     // If slug has changed, rename the directory
     if (oldSlug !== newSlug) {
@@ -88,7 +84,7 @@ export async function PUT(request: Request) {
       // Update all blog posts in this category to reflect the new category slug
       const files = await fs.readdir(newCategoryPath);
       for (const file of files) {
-        if (file.endsWith('.json') && !file.includes('seo-config') && !file.includes('category-meta')) {
+        if (file.endsWith('.json') && !file.startsWith('.')) {
           const filePath = path.join(newCategoryPath, file);
           const content = await fs.readFile(filePath, 'utf-8');
           const postData = JSON.parse(content);
@@ -100,7 +96,7 @@ export async function PUT(request: Request) {
     
     return NextResponse.json({ 
       message: 'Category updated successfully',
-      category: metadata 
+      category: config 
     });
   } catch (error) {
     console.error('Error updating category:', error);

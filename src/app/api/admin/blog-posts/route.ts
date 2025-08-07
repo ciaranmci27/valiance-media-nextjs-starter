@@ -13,7 +13,10 @@ export async function GET() {
         category: post.category,
         publishedAt: post.publishedAt,
         draft: post.draft,
-        featured: post.featured
+        featured: post.featured,
+        tags: post.tags || [],
+        author: post.author,
+        readingTime: post.readingTime
       }))
     });
     

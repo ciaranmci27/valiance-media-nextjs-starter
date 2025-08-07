@@ -362,15 +362,28 @@ export default function AdminDashboard() {
               ) : (
                 <div className="space-y-3">
                   {Object.entries(stats.categories).map(([category, count]) => (
-                    <div key={category} className="flex justify-between items-center">
+                    <div 
+                      key={category} 
+                      className="flex justify-between items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded-lg transition-colors"
+                      onClick={() => {
+                        // Find the category slug from the category name
+                        const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
+                        router.push(`/admin/blog?category=${categorySlug}`);
+                      }}
+                    >
                       <span className="text-body" style={{ color: 'var(--color-text-primary)' }}>
                         {category}
                       </span>
                       <span className="text-body-sm" style={{ 
-                        color: 'var(--color-text-secondary)',
-                        background: 'var(--color-blue-50)',
-                        padding: '2px 8px',
-                        borderRadius: 'var(--radius-full)'
+                        color: 'var(--color-text-primary)',
+                        background: 'var(--color-blue-100)',
+                        padding: '4px 10px',
+                        borderRadius: 'var(--radius-full)',
+                        fontWeight: '600',
+                        fontSize: '12px',
+                        minWidth: '24px',
+                        textAlign: 'center',
+                        border: '1px solid var(--color-blue-200)'
                       }}>
                         {count}
                       </span>
@@ -394,13 +407,15 @@ export default function AdminDashboard() {
                   {stats.popularTags.slice(0, 10).map((tag) => (
                     <span 
                       key={tag.tag}
-                      className="text-body-sm"
+                      className="text-body-sm cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => router.push(`/admin/blog?tag=${encodeURIComponent(tag.tag)}`)}
                       style={{ 
                         background: 'rgba(59, 130, 246, 0.1)',
                         color: 'var(--color-primary)',
                         padding: '4px 12px',
                         borderRadius: 'var(--radius-full)',
-                        border: '1px solid rgba(59, 130, 246, 0.2)'
+                        border: '1px solid rgba(59, 130, 246, 0.2)',
+                        display: 'inline-block'
                       }}
                     >
                       {tag.tag} ({tag.count})

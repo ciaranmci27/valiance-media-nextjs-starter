@@ -23,20 +23,25 @@ function BlogListContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const filter = searchParams.get('filter') || 'all';
+  const categoryFilter = searchParams.get('category');
+  const tagFilter = searchParams.get('tag');
   
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState(filter);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
     fetchPosts();
+    fetchCategories();
   }, []);
   
   useEffect(() => {
-    // Apply filter when posts or filter changes
+    // Apply filter when posts or filters change
     applyFilter();
-  }, [posts, filter]);
+  }, [posts, filter, categoryFilter, tagFilter]);
   
   useEffect(() => {
     // Update active filter when URL changes
@@ -48,6 +53,13 @@ function BlogListContent() {
       const response = await fetch('/api/admin/blog-posts');
       const data = await response.json();
       setPosts(data.posts || []);
+      
+      // Extract unique tags from posts
+      const allTags = new Set<string>();
+      data.posts?.forEach((post: BlogPost) => {
+        post.tags?.forEach(tag => allTags.add(tag));
+      });
+      setTags(Array.from(allTags).sort());
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
@@ -55,9 +67,49 @@ function BlogListContent() {
     }
   };
   
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/admin/categories/list');
+      const data = await response.json();
+      setCategories(data.categories?.map((cat: any) => cat.slug) || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+  
+  // Helper function to get filtered counts
+  const getFilteredCount = (filterType: string) => {
+    let filtered = [...posts];
+    
+    // Apply category filter if active
+    if (categoryFilter) {
+      filtered = filtered.filter(post => post.category === categoryFilter);
+    }
+    
+    // Apply tag filter if active
+    if (tagFilter) {
+      filtered = filtered.filter(post => post.tags && post.tags.includes(tagFilter));
+    }
+    
+    // Apply status filter
+    switch (filterType) {
+      case 'all':
+        return filtered.length;
+      case 'published':
+        return filtered.filter(p => !p.draft).length;
+      case 'drafts':
+        return filtered.filter(p => p.draft === true).length;
+      case 'featured':
+        return filtered.filter(p => p.featured === true).length;
+      default:
+        return 0;
+    }
+  };
+  
   const applyFilter = () => {
     let filtered = [...posts];
     
+    // Apply status filter
     switch (filter) {
       case 'published':
         filtered = posts.filter(post => !post.draft);
@@ -72,6 +124,20 @@ function BlogListContent() {
       default:
         // Show all posts
         break;
+    }
+    
+    // Apply category filter
+    if (categoryFilter) {
+      filtered = filtered.filter(post => 
+        post.category === categoryFilter
+      );
+    }
+    
+    // Apply tag filter
+    if (tagFilter) {
+      filtered = filtered.filter(post => 
+        post.tags && post.tags.includes(tagFilter)
+      );
     }
     
     setFilteredPosts(filtered);
@@ -147,78 +213,255 @@ function BlogListContent() {
         </button>
       </div>
 
-      {/* Filter Tabs */}
+      {/* Combined Filter Bar */}
       <div style={{ 
         display: 'flex', 
-        gap: '24px', 
+        alignItems: 'center',
+        gap: '16px', 
         marginBottom: 'var(--spacing-md)',
         borderBottom: '1px solid var(--color-border-light)',
-        paddingBottom: '2px'
+        paddingBottom: '2px',
+        flexWrap: 'wrap'
       }}>
-        <button
-          onClick={() => handleFilterChange('all')}
-          style={{
-            padding: '8px 0',
-            background: 'none',
-            border: 'none',
-            borderBottom: activeFilter === 'all' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            color: activeFilter === 'all' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '-2px'
-          }}
-        >
-          All Posts ({posts.length})
-        </button>
-        <button
-          onClick={() => handleFilterChange('published')}
-          style={{
-            padding: '8px 0',
-            background: 'none',
-            border: 'none',
-            borderBottom: activeFilter === 'published' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            color: activeFilter === 'published' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '-2px'
-          }}
-        >
-          Published ({posts.filter(p => !p.draft).length})
-        </button>
-        <button
-          onClick={() => handleFilterChange('drafts')}
-          style={{
-            padding: '8px 0',
-            background: 'none',
-            border: 'none',
-            borderBottom: activeFilter === 'drafts' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            color: activeFilter === 'drafts' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '-2px'
-          }}
-        >
-          Drafts ({posts.filter(p => p.draft === true).length})
-        </button>
-        <button
-          onClick={() => handleFilterChange('featured')}
-          style={{
-            padding: '8px 0',
-            background: 'none',
-            border: 'none',
-            borderBottom: activeFilter === 'featured' ? '2px solid var(--color-primary)' : '2px solid transparent',
-            color: activeFilter === 'featured' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '-2px'
-          }}
-        >
-          Featured ({posts.filter(p => p.featured === true).length})
-        </button>
+        {/* Status Filter Tabs */}
+        <div style={{ display: 'flex', gap: '24px' }}>
+          <button
+            onClick={() => handleFilterChange('all')}
+            style={{
+              padding: '8px 0',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeFilter === 'all' ? '2px solid var(--color-primary)' : '2px solid transparent',
+              color: activeFilter === 'all' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '-2px'
+            }}
+          >
+            All Posts ({getFilteredCount('all')})
+          </button>
+          <button
+            onClick={() => handleFilterChange('published')}
+            style={{
+              padding: '8px 0',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeFilter === 'published' ? '2px solid var(--color-primary)' : '2px solid transparent',
+              color: activeFilter === 'published' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '-2px'
+            }}
+          >
+            Published ({getFilteredCount('published')})
+          </button>
+          <button
+            onClick={() => handleFilterChange('drafts')}
+            style={{
+              padding: '8px 0',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeFilter === 'drafts' ? '2px solid var(--color-primary)' : '2px solid transparent',
+              color: activeFilter === 'drafts' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '-2px'
+            }}
+          >
+            Drafts ({getFilteredCount('drafts')})
+          </button>
+          <button
+            onClick={() => handleFilterChange('featured')}
+            style={{
+              padding: '8px 0',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeFilter === 'featured' ? '2px solid var(--color-primary)' : '2px solid transparent',
+              color: activeFilter === 'featured' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '-2px'
+            }}
+          >
+            Featured ({getFilteredCount('featured')})
+          </button>
+        </div>
+        
+        {/* Divider */}
+        <div style={{ 
+          width: '1px', 
+          height: '24px', 
+          background: 'var(--color-border-light)',
+          marginBottom: '-2px'
+        }} />
+        
+        {/* Filter Dropdowns */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '-2px' }}>
+          {/* Category Dropdown */}
+          <select
+            value={categoryFilter || ''}
+            onChange={(e) => {
+              const params = new URLSearchParams(searchParams.toString());
+              if (e.target.value) {
+                params.set('category', e.target.value);
+              } else {
+                params.delete('category');
+              }
+              router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
+            }}
+            style={{
+              padding: '4px 8px',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--color-border-light)',
+              background: categoryFilter ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-surface)',
+              color: categoryFilter ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="">All Categories</option>
+            {categories.map(cat => (
+              <option key={cat} value={cat}>
+                {cat.replace(/-/g, ' ').charAt(0).toUpperCase() + cat.replace(/-/g, ' ').slice(1)}
+              </option>
+            ))}
+          </select>
+          
+          {/* Tag Dropdown */}
+          <select
+            value={tagFilter || ''}
+            onChange={(e) => {
+              const params = new URLSearchParams(searchParams.toString());
+              if (e.target.value) {
+                params.set('tag', e.target.value);
+              } else {
+                params.delete('tag');
+              }
+              router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
+            }}
+            style={{
+              padding: '4px 8px',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--color-border-light)',
+              background: tagFilter ? 'rgba(34, 197, 94, 0.1)' : 'var(--color-surface)',
+              color: tagFilter ? 'var(--color-success)' : 'var(--color-text-secondary)',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="">All Tags</option>
+            {tags.map(tag => (
+              <option key={tag} value={tag}>{tag}</option>
+            ))}
+          </select>
+        </div>
+        
+        {/* Active Filters Pills */}
+        {(categoryFilter || tagFilter) && (
+          <>
+            <div style={{ 
+              width: '1px', 
+              height: '24px', 
+              background: 'var(--color-border-light)',
+              marginBottom: '-2px'
+            }} />
+            
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '-2px' }}>
+              {categoryFilter && (
+                <span style={{
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  color: 'var(--color-primary)',
+                  padding: '2px 8px',
+                  borderRadius: 'var(--radius-full)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                  fontSize: '12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  {categoryFilter.replace(/-/g, ' ')}
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.delete('category');
+                      router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'inherit',
+                      cursor: 'pointer',
+                      padding: '0',
+                      display: 'inline-flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </span>
+              )}
+              
+              {tagFilter && (
+                <span style={{
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  color: 'var(--color-success)',
+                  padding: '2px 8px',
+                  borderRadius: 'var(--radius-full)',
+                  border: '1px solid rgba(34, 197, 94, 0.2)',
+                  fontSize: '12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  {tagFilter}
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.delete('tag');
+                      router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'inherit',
+                      cursor: 'pointer',
+                      padding: '0',
+                      display: 'inline-flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </span>
+              )}
+              
+              <button
+                onClick={() => router.push('/admin/blog')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--color-text-tertiary)',
+                  padding: '2px 4px',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+              >
+                Clear
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       <div style={{
@@ -370,8 +613,11 @@ function BlogListContent() {
                           border: 'none',
                           borderRadius: 'var(--radius-sm)',
                           fontSize: '14px',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
                         }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#B91C1C'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-danger)'}
                       >
                         Delete
                       </button>

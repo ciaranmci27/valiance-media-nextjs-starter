@@ -8,7 +8,7 @@ This boilerplate includes a flexible authentication system for the admin panel t
 
 1. **Generate your admin credentials:**
    ```bash
-   npx tsx src/scripts/setup-auth.ts
+   npx tsx scripts/setup-auth.ts
    ```
 
 2. **Add the generated environment variables to `.env.local`:**
@@ -248,7 +248,7 @@ Since the authentication is environment-based, resetting your password is simple
 
 1. **Generate a new password hash:**
    ```bash
-   npx tsx src/scripts/setup-auth.ts
+   npx tsx scripts/setup-auth.ts
    ```
 
 2. **Update your `.env.local` file** with the new `ADMIN_PASSWORD_HASH` value

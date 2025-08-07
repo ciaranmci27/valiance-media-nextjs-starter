@@ -32,6 +32,12 @@
   --color-premium-light: #67E8F9;
   --color-premium-dark: #0891B2;
   
+  /* Semantic colors */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-danger: #DC2626;
+  --color-info: #3B82F6;
+  
   /* Base colors - Updated to match mobile app */
   --color-background: #FAFBFC; /* Ultra-light with hint of blue */
   --color-surface: #FFFFFF;
@@ -142,6 +148,18 @@
   --color-border-medium: rgba(255, 255, 255, 0.2);
   --color-border-heavy: rgba(255, 255, 255, 0.3);
   --color-border-accent: #60A5FA;
+  
+  /* Blue palette - Dark mode variants */
+  --color-blue-50: rgba(59, 130, 246, 0.1);
+  --color-blue-100: rgba(59, 130, 246, 0.2);
+  --color-blue-200: rgba(59, 130, 246, 0.3);
+  --color-blue-300: rgba(59, 130, 246, 0.4);
+  --color-blue-400: #60A5FA;
+  --color-blue-500: #3B82F6;
+  --color-blue-600: #2563EB;
+  --color-blue-700: #1D4ED8;
+  --color-blue-800: #1E40AF;
+  --color-blue-900: #1E3A8A;
   
   /* Shadow colors */
   --shadow-light: rgba(0, 0, 0, 0.2);

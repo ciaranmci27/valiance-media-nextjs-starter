@@ -23,10 +23,7 @@ const validBlogRoutes = new Set([
   '/blog',
   '/blog/guides',
   '/blog/guides/blog-post-example',
-  '/blog/guides/seo-config',
   '/blog/new-category',
-  '/blog/new-category/category-meta',
-  '/blog/new-category/seo-config',
   '/blog/blog-post-no-category-example'
 ]);
 

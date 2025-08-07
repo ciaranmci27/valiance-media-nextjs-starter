@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
-import { loadBlogPosts } from '@/lib/blog-utils';
+import { loadBlogPosts, loadAllCategories } from '@/lib/blog-utils';
 
 export async function GET() {
   try {
     const posts = loadBlogPosts();
+    const categories = loadAllCategories();
+    
+    // Create a mapping of slug to category name
+    const categoryMap = new Map();
+    categories.forEach(cat => {
+      categoryMap.set(cat.slug, cat.name);
+    });
     
     // Calculate statistics
     const totalPosts = posts.length;
@@ -11,11 +18,17 @@ export async function GET() {
     const draftPosts = posts.filter(p => p.draft).length;
     const featuredPosts = posts.filter(p => p.featured).length;
     
-    // Group by categories
-    const categories: { [key: string]: number } = {};
+    // Initialize all categories with 0 count
+    const categoriesWithCounts: { [key: string]: number } = {};
+    categories.forEach(cat => {
+      categoriesWithCounts[cat.name] = 0;
+    });
+    
+    // Count posts for each category
     posts.forEach(post => {
       if (post.category) {
-        categories[post.category] = (categories[post.category] || 0) + 1;
+        const categoryName = categoryMap.get(post.category) || post.category;
+        categoriesWithCounts[categoryName] = (categoriesWithCounts[categoryName] || 0) + 1;
       }
     });
     
@@ -55,7 +68,7 @@ export async function GET() {
       publishedPosts,
       draftPosts,
       featuredPosts,
-      categories,
+      categories: categoriesWithCounts,
       recentPosts,
       popularTags
     });

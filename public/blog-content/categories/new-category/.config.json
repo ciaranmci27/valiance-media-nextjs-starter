@@ -1,0 +1,15 @@
+{
+  "name": "New Category",
+  "slug": "new-category",
+  "description": "",
+  "createdAt": "2025-08-06T21:40:56.106Z",
+  "seo": {
+    "title": "New Category Blog Posts | Your Site Name",
+    "description": "Browse our latest new category blog posts and articles.",
+    "keywords": [
+      "new category",
+      "blog",
+      "articles"
+    ]
+  }
+}

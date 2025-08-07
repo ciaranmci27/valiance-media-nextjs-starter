@@ -16,24 +16,24 @@ export async function GET() {
         const stat = await fs.stat(categoryPath);
         
         if (stat.isDirectory()) {
-          // Count posts in this category
+          // Count posts in this category (exclude config files)
           const files = await fs.readdir(categoryPath);
           const postCount = files.filter(file => 
-            file.endsWith('.json') && !file.includes('seo-config')
+            file.endsWith('.json') && !file.startsWith('.')
           ).length;
           
-          // Try to read category metadata if it exists
+          // Try to read category config if it exists
           let categoryName = categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1);
           let description = '';
           
           try {
-            const metaPath = path.join(categoryPath, 'category-meta.json');
-            const metaContent = await fs.readFile(metaPath, 'utf-8');
-            const metadata = JSON.parse(metaContent);
-            categoryName = metadata.name || categoryName;
-            description = metadata.description || '';
+            const configPath = path.join(categoryPath, '.config.json');
+            const configContent = await fs.readFile(configPath, 'utf-8');
+            const config = JSON.parse(configContent);
+            categoryName = config.name || categoryName;
+            description = config.description || '';
           } catch {
-            // No metadata file, use defaults
+            // No config file, use defaults
           }
           
           categories.push({
