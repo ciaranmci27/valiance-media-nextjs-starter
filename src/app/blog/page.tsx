@@ -2,7 +2,7 @@ import React from 'react';
 import { Metadata } from 'next';
 import { PageWrapper } from '@/components/PageWrapper';
 import { BlogCard } from '@/components/BlogCard';
-import { loadBlogPosts, loadCategories } from '@/lib/blog-utils';
+import { loadBlogPosts, loadCategories } from '@/lib/blog-utils-universal';
 import Link from 'next/link';
 
 export const metadata: Metadata = {

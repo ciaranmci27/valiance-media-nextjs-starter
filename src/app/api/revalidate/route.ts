@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { clearGitHubCache } from '@/lib/blog-utils-github';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +12,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (path) {
-      // Revalidate specific path(s)
+      // Clear GitHub cache and revalidate specific path(s)
+      clearGitHubCache();
       if (Array.isArray(path)) {
         path.forEach(p => revalidatePath(p));
       } else {
@@ -35,7 +37,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Default: revalidate blog pages
+    // Default: revalidate blog pages and clear cache
+    clearGitHubCache();
     revalidatePath('/blog');
     revalidatePath('/blog/[category]', 'page');
     revalidatePath('/blog/[category]/[slug]', 'page');
