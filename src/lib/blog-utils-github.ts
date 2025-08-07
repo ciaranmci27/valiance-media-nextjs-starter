@@ -25,7 +25,8 @@ async function fetchFromGitHub(path: string): Promise<any> {
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
   const repo = process.env.GITHUB_REPO;
-  const branch = process.env.GITHUB_BRANCH || 'main';
+  // Use data branch for blog content
+  const branch = process.env.GITHUB_DATA_BRANCH || 'blog-data';
 
   if (!token || !owner || !repo) {
     throw new Error('GitHub configuration missing');
@@ -67,7 +68,7 @@ async function fetchFileContent(path: string): Promise<string | null> {
 
 // Load category metadata from GitHub
 async function loadCategoryMetadataFromGitHub(categorySlug: string): Promise<BlogCategory> {
-  const configPath = `public/blog-content/categories/${categorySlug}/.config.json`;
+  const configPath = `blog-content/categories/${categorySlug}/.config.json`;
   const content = await fetchFileContent(configPath);
   
   if (content) {
@@ -93,7 +94,7 @@ async function loadCategoryMetadataFromGitHub(categorySlug: string): Promise<Blo
 // Load categories from GitHub
 export async function loadCategoriesFromGitHub(): Promise<BlogCategory[]> {
   try {
-    const categoriesData = await fetchFromGitHub('public/blog-content/categories');
+    const categoriesData = await fetchFromGitHub('blog-content/categories');
     if (!categoriesData || !Array.isArray(categoriesData)) return [];
 
     const categories: BlogCategory[] = [];
@@ -128,7 +129,7 @@ export async function loadBlogPostsFromGitHub(): Promise<BlogPost[]> {
     const posts: BlogPost[] = [];
 
     // Load posts from categories
-    const categoriesData = await fetchFromGitHub('public/blog-content/categories');
+    const categoriesData = await fetchFromGitHub('blog-content/categories');
     if (categoriesData && Array.isArray(categoriesData)) {
       for (const category of categoriesData) {
         if (category.type === 'dir') {
@@ -159,7 +160,7 @@ export async function loadBlogPostsFromGitHub(): Promise<BlogPost[]> {
     }
 
     // Load root-level posts
-    const rootContents = await fetchFromGitHub('public/blog-content');
+    const rootContents = await fetchFromGitHub('blog-content');
     if (rootContents && Array.isArray(rootContents)) {
       for (const file of rootContents) {
         if (file.type === 'file' && file.name.endsWith('.json') && file.name !== 'categories.json') {
@@ -194,21 +195,21 @@ export async function loadPostFromGitHub(slug: string, category?: string): Promi
     let postPath: string;
     
     if (category) {
-      postPath = `public/blog-content/categories/${category}/${slug}.json`;
+      postPath = `blog-content/categories/${category}/${slug}.json`;
     } else {
       // Try root first
-      postPath = `public/blog-content/${slug}.json`;
+      postPath = `blog-content/${slug}.json`;
     }
 
     let content = await fetchFileContent(postPath);
     
     // If not found and no category specified, search all categories
     if (!content && !category) {
-      const categoriesData = await fetchFromGitHub('public/blog-content/categories');
+      const categoriesData = await fetchFromGitHub('blog-content/categories');
       if (categoriesData && Array.isArray(categoriesData)) {
         for (const cat of categoriesData) {
           if (cat.type === 'dir') {
-            const categoryPostPath = `public/blog-content/categories/${cat.name}/${slug}.json`;
+            const categoryPostPath = `blog-content/categories/${cat.name}/${slug}.json`;
             content = await fetchFileContent(categoryPostPath);
             if (content) {
               category = cat.name;

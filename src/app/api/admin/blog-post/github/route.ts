@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GitHubCMS } from '@/lib/github-api';
+import { GitHubCMSDataBranch } from '@/lib/github-cms-data-branch';
 
 // This endpoint uses GitHub API instead of local file system
 // Perfect for production deployments on Vercel/Netlify
@@ -27,11 +27,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const githubCMS = new GitHubCMS({
+    const githubCMS = new GitHubCMSDataBranch({
       token: process.env.GITHUB_TOKEN!,
       owner: process.env.GITHUB_OWNER!,
       repo: process.env.GITHUB_REPO!,
-      branch: process.env.GITHUB_BRANCH || 'main'
+      branch: process.env.GITHUB_BRANCH || 'main',
+      dataBranch: process.env.GITHUB_DATA_BRANCH || 'blog-data'
     });
 
     const postData = await request.json();
@@ -97,11 +98,12 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const githubCMS = new GitHubCMS({
+    const githubCMS = new GitHubCMSDataBranch({
       token: process.env.GITHUB_TOKEN!,
       owner: process.env.GITHUB_OWNER!,
       repo: process.env.GITHUB_REPO!,
-      branch: process.env.GITHUB_BRANCH || 'main'
+      branch: process.env.GITHUB_BRANCH || 'main',
+      dataBranch: process.env.GITHUB_DATA_BRANCH || 'blog-data'
     });
 
     const { slug, ...postData } = await request.json();
@@ -165,16 +167,17 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const githubCMS = new GitHubCMS({
+    const githubCMS = new GitHubCMSDataBranch({
       token: process.env.GITHUB_TOKEN!,
       owner: process.env.GITHUB_OWNER!,
       repo: process.env.GITHUB_REPO!,
-      branch: process.env.GITHUB_BRANCH || 'main'
+      branch: process.env.GITHUB_BRANCH || 'main',
+      dataBranch: process.env.GITHUB_DATA_BRANCH || 'blog-data'
     });
 
-    const { slug } = await request.json();
+    const { slug, category } = await request.json();
     
-    await githubCMS.deletePost(slug);
+    await githubCMS.deletePost(slug, category);
 
     // Trigger on-demand revalidation
     if (process.env.REVALIDATION_SECRET) {

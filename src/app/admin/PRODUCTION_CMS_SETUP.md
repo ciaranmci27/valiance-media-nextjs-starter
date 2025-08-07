@@ -35,6 +35,7 @@ GITHUB_TOKEN=ghp_your_personal_access_token
 GITHUB_OWNER=your-github-username
 GITHUB_REPO=your-repo-name
 GITHUB_BRANCH=main  # or your default branch
+GITHUB_DATA_BRANCH=blog-data  # Separate branch for content (prevents auto-deployments)
 
 # Admin Authentication (keep these secure!)
 ADMIN_USERNAME=your-admin-username
