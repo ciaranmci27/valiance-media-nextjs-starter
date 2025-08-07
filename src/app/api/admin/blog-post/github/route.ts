@@ -46,15 +46,38 @@ export async function POST(request: NextRequest) {
     // Save to GitHub
     await githubCMS.savePost(post);
 
-    // Optionally trigger deployment webhook
-    if (process.env.DEPLOY_WEBHOOK_URL) {
+    // Trigger on-demand revalidation instead of full deployment
+    if (process.env.REVALIDATION_SECRET) {
+      try {
+        const revalidateUrl = new URL('/api/revalidate', request.url);
+        await fetch(revalidateUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            secret: process.env.REVALIDATION_SECRET,
+            path: [
+              '/blog',
+              `/blog/${post.category}`,
+              `/blog/${post.category}/${post.slug}`
+            ]
+          })
+        });
+      } catch (error) {
+        console.error('Revalidation failed:', error);
+      }
+    }
+    
+    // Optionally trigger deployment webhook (fallback)
+    if (!process.env.REVALIDATION_SECRET && process.env.DEPLOY_WEBHOOK_URL) {
       await githubCMS.triggerDeployment(process.env.DEPLOY_WEBHOOK_URL);
     }
 
     return NextResponse.json({ 
       success: true, 
       slug: post.slug,
-      message: 'Post saved to GitHub. Deployment will update shortly.'
+      message: process.env.REVALIDATION_SECRET 
+        ? 'Post saved and published instantly!' 
+        : 'Post saved to GitHub. Deployment will update shortly.'
     });
   } catch (error) {
     console.error('Error saving post:', error);
@@ -92,14 +115,37 @@ export async function PUT(request: NextRequest) {
 
     await githubCMS.savePost(post);
 
-    if (process.env.DEPLOY_WEBHOOK_URL) {
+    // Trigger on-demand revalidation
+    if (process.env.REVALIDATION_SECRET) {
+      try {
+        const revalidateUrl = new URL('/api/revalidate', request.url);
+        await fetch(revalidateUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            secret: process.env.REVALIDATION_SECRET,
+            path: [
+              '/blog',
+              `/blog/${post.category}`,
+              `/blog/${post.category}/${post.slug}`
+            ]
+          })
+        });
+      } catch (error) {
+        console.error('Revalidation failed:', error);
+      }
+    }
+    
+    if (!process.env.REVALIDATION_SECRET && process.env.DEPLOY_WEBHOOK_URL) {
       await githubCMS.triggerDeployment(process.env.DEPLOY_WEBHOOK_URL);
     }
 
     return NextResponse.json({ 
       success: true, 
       slug,
-      message: 'Post updated on GitHub. Deployment will update shortly.'
+      message: process.env.REVALIDATION_SECRET 
+        ? 'Post updated and changes are live!' 
+        : 'Post updated on GitHub. Deployment will update shortly.'
     });
   } catch (error) {
     console.error('Error updating post:', error);
@@ -130,13 +176,32 @@ export async function DELETE(request: NextRequest) {
     
     await githubCMS.deletePost(slug);
 
-    if (process.env.DEPLOY_WEBHOOK_URL) {
+    // Trigger on-demand revalidation
+    if (process.env.REVALIDATION_SECRET) {
+      try {
+        const revalidateUrl = new URL('/api/revalidate', request.url);
+        await fetch(revalidateUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            secret: process.env.REVALIDATION_SECRET,
+            path: '/blog'
+          })
+        });
+      } catch (error) {
+        console.error('Revalidation failed:', error);
+      }
+    }
+    
+    if (!process.env.REVALIDATION_SECRET && process.env.DEPLOY_WEBHOOK_URL) {
       await githubCMS.triggerDeployment(process.env.DEPLOY_WEBHOOK_URL);
     }
 
     return NextResponse.json({ 
       success: true,
-      message: 'Post deleted from GitHub. Deployment will update shortly.'
+      message: process.env.REVALIDATION_SECRET 
+        ? 'Post deleted and removed from site!' 
+        : 'Post deleted from GitHub. Deployment will update shortly.'
     });
   } catch (error) {
     console.error('Error deleting post:', error);

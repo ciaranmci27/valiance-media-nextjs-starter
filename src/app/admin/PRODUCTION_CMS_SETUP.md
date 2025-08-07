@@ -40,11 +40,25 @@ GITHUB_BRANCH=main  # or your default branch
 ADMIN_USERNAME=your-admin-username
 ADMIN_PASSWORD=your-secure-password
 ADMIN_TOKEN=your-secret-token
+
+# On-Demand Revalidation (for instant updates)
+# Generate using: openssl rand -hex 32
+REVALIDATION_SECRET=your-secure-revalidation-secret
 ```
 
-### 3. Set Up Deploy Webhook (Optional but Recommended)
+### 3. Choose Your Update Strategy
 
-#### For Vercel:
+#### Option A: On-Demand Revalidation (Recommended - Instant Updates)
+Uses Vercel's ISR to update only the affected pages instantly:
+- Updates are live in **seconds** instead of minutes
+- No full rebuild needed
+- Much more efficient for frequent updates
+- Already configured if you set `REVALIDATION_SECRET`
+
+#### Option B: Deploy Webhook (Full Rebuild - Fallback)
+Triggers a complete site rebuild and deployment:
+
+##### For Vercel:
 1. Go to your project settings on Vercel
 2. Navigate to "Git" → "Deploy Hooks"
 3. Create a hook with name "CMS Updates"
@@ -54,11 +68,13 @@ ADMIN_TOKEN=your-secret-token
 DEPLOY_WEBHOOK_URL=https://api.vercel.com/v1/integrations/deploy/...
 ```
 
-#### For Netlify:
+##### For Netlify:
 1. Go to Site Settings → Build & Deploy → Build hooks
 2. Add a build hook named "CMS Updates"
 3. Copy the webhook URL
 4. Add to environment variables
+
+**Note:** The system will use on-demand revalidation if `REVALIDATION_SECRET` is set, falling back to deploy webhooks only if it's not configured.
 
 ### 4. Update Your Blog Post Components
 
@@ -81,17 +97,19 @@ const apiEndpoint = useGitHub
 3. **Create/Edit Posts**: Work exactly as in development
 4. **Publishing**: 
    - Posts are committed to GitHub automatically
-   - Vercel/Netlify detects the commit and rebuilds
-   - Changes are live in 1-2 minutes
+   - With on-demand revalidation: Changes are live in **seconds**
+   - Without revalidation: Full rebuild takes 1-2 minutes
 
 ## Benefits of GitHub API Approach
 
 ✅ **Works in Production**: No file system limitations
 ✅ **Version Control**: All changes tracked in Git
+✅ **Instant Updates**: With on-demand revalidation, changes are live in seconds
 ✅ **Rollback Capability**: Can revert posts via Git
 ✅ **Multi-User**: Multiple admins can work simultaneously
 ✅ **Audit Trail**: See who made what changes when
 ✅ **Backup**: GitHub serves as automatic backup
+✅ **Cost Efficient**: No need for external database or CMS
 
 ## Alternative Solutions
 
