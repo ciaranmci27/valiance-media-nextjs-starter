@@ -1,0 +1,27 @@
+{
+  "title": "Last test",
+  "excerpt": "Please work",
+  "content": "Testing one last time",
+  "author": {
+    "name": "",
+    "image": "/logos/square-logo.png",
+    "bio": ""
+  },
+  "category": "",
+  "tags": [],
+  "image": "/logos/horizontal-logo.png",
+  "imageAlt": "",
+  "featured": false,
+  "draft": false,
+  "excludeFromSearch": false,
+  "seo": {
+    "title": "",
+    "description": "",
+    "keywords": [],
+    "image": "/logos/horizontal-logo.png"
+  },
+  "slug": "last-test",
+  "publishedAt": "2025-08-07T02:42:04.415Z",
+  "readingTime": 1,
+  "updatedAt": "2025-08-07T02:42:04.657Z"
+}
