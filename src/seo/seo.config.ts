@@ -6,13 +6,8 @@
  */
 
 export const seoConfig = {
-  siteName: 'Your Company Name',
+  siteName: 'Valiance Media',
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com',
-  company: {
-    name: 'Your Company',
-    legalName: 'Your Company LLC',
-    email: 'info@example.com'
-  },
   defaultTitle: 'Welcome to Your Company - Your Tagline Here',
   titleTemplate: '{pageName} | {siteName}',
   defaultDescription: 'Describe your company and what makes it unique. This description will appear in search results.',
