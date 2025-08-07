@@ -134,3 +134,6 @@ jspm_packages/
 
 # Claude AI local directory
 .claude/
+
+# Application settings (contains configurations)
+settings.json

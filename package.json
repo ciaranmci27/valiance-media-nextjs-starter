@@ -7,7 +7,8 @@
     "build": "node scripts/generate-routes.js && next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-routes": "node scripts/generate-routes.js"
+    "generate-routes": "node scripts/generate-routes.js",
+    "setup-auth": "npx tsx scripts/setup-auth.ts"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",

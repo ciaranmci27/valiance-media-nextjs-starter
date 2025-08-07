@@ -7,45 +7,40 @@
 
 export const seoConfig = {
   // Basic Information
-  siteName: 'Valiance Media',
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://valiancemedia.com',
+  siteName: 'Your Company Name',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com',
   
   // Company Information
   company: {
-    name: 'Valiance Media LLC',
-    legalName: 'Valiance Media LLC',
-    foundingDate: '2024',
-    email: 'hello@valiancemedia.com',
-    phone: '+1-555-0123', // Update with your actual phone
+    name: 'Your Company',
+    legalName: 'Your Company LLC',
+    foundingDate: '',
+    email: 'info@example.com',
+    phone: '', // Optional: Add your phone number
     address: {
-      streetAddress: '123 Innovation Drive', // Update with your actual address
-      addressLocality: 'Austin',
-      addressRegion: 'TX',
-      postalCode: '78701',
-      addressCountry: 'US'
+      streetAddress: '', // Optional: Add your street address
+      addressLocality: '', // Optional: Add your city
+      addressRegion: '', // Optional: Add your state/region
+      postalCode: '', // Optional: Add your postal code
+      addressCountry: '' // Optional: Add your country code (e.g., US)
     }
   },
 
   // Default SEO Settings
-  defaultTitle: 'Valiance Media - In-House Software & E-commerce Innovation',
-  titleTemplate: '%s | Valiance Media',
-  defaultDescription: 'Valiance Media LLC creates innovative in-house software solutions and e-commerce brands. We build digital products that drive growth and deliver exceptional user experiences.',
+  defaultTitle: 'Welcome to Your Company - Your Tagline Here',
+  titleTemplate: '%s | Your Company',
+  defaultDescription: 'Describe your company and what makes it unique. This description will appear in search results.',
   defaultKeywords: [
-    'software development',
-    'e-commerce',
-    'digital products',
-    'SaaS',
-    'technology innovation',
-    'Valiance Media',
-    'custom software',
-    'digital transformation'
+    'keyword1',
+    'keyword2',
+    'keyword3'
   ],
 
   // Open Graph Defaults
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'Valiance Media',
+    siteName: 'Your Company Name',
     defaultImage: '/images/og-image.jpg', // Create this image at 1200x630px
     imageWidth: 1200,
     imageHeight: 630,
@@ -53,19 +48,19 @@ export const seoConfig = {
 
   // Twitter/X Configuration
   twitter: {
-    handle: '@valiancemedia', // Update with your actual handle
-    site: '@valiancemedia',
+    handle: '', // Optional: Add your Twitter/X handle
+    site: '', // Optional: Add your Twitter/X site handle
     cardType: 'summary_large_image',
   },
 
-  // Social Media Links
+  // Social Media Links (Optional - leave empty if not applicable)
   social: {
-    twitter: 'https://twitter.com/valiancemedia',
-    linkedin: 'https://linkedin.com/company/valiance-media',
-    github: 'https://github.com/valiance-media',
-    instagram: 'https://instagram.com/valiancemedia',
-    facebook: 'https://facebook.com/valiancemedia',
-    youtube: 'https://youtube.com/@valiancemedia',
+    twitter: '',
+    linkedin: '',
+    github: '',
+    instagram: '',
+    facebook: '',
+    youtube: '',
   },
 
   // Additional SEO Settings

@@ -14,8 +14,26 @@ import { PageSeoConfig, PageSeoConfigRaw } from './page-seo-types';
  */
 export function loadPageSeoConfig(pagePath: string): PageSeoConfig | null {
   try {
-    // Convert route path to file system path
-    // e.g., '/privacy' -> 'src/app/privacy/seo-config.json'
+    // First, check for the new centralized SEO config format
+    const fileName = pagePath === '/' ? 'home' : pagePath.replace(/\//g, '').replace(/-/g, '_');
+    const centralConfigPath = path.join(process.cwd(), 'src', 'seo', 'pages', `${fileName}.seo.json`);
+    
+    if (fs.existsSync(centralConfigPath)) {
+      const configContent = fs.readFileSync(centralConfigPath, 'utf-8');
+      const centralConfig = JSON.parse(configContent);
+      
+      // Convert from the new format to the expected format
+      return {
+        slug: path.basename(pagePath) || 'home',
+        metadata: centralConfig.metadata,
+        openGraph: centralConfig.openGraph,
+        twitter: centralConfig.twitter,
+        robots: centralConfig.robots,
+        alternates: centralConfig.alternates
+      } as PageSeoConfig;
+    }
+    
+    // Fallback to the old format (page-specific seo-config.json)
     const normalizedPath = pagePath === '/' ? '' : pagePath;
     const configPath = path.join(process.cwd(), 'src', 'app', normalizedPath, 'seo-config.json');
     

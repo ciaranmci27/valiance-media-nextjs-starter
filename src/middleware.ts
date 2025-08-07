@@ -9,6 +9,7 @@ const validRoutes = new Set([
   '/admin/categories',
   '/admin/login',
   '/admin',
+  '/admin/seo/edit',
   '/admin/seo',
   '/admin/settings',
   '/blog',
@@ -24,7 +25,6 @@ const validBlogRoutes = new Set([
   '/blog',
   '/blog/guides',
   '/blog/guides/blog-post-example',
-  '/blog/new-category',
   '/blog/blog-post-no-category-example'
 ]);
 

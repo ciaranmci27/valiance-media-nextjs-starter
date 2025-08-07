@@ -190,7 +190,7 @@ function BlogListContent() {
         </p>
         
         <button
-          onClick={() => router.push('/admin/blog-post/new')}
+          onClick={() => router.push('/admin/blog-post')}
           style={{
             padding: '12px 24px',
             background: 'var(--color-primary)',
