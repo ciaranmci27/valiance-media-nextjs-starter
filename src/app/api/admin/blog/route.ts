@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { GitHubCMSDataBranch } from '@/lib/github-cms-data-branch';
+import { GitHubCMS } from '@/lib/github-api';
 import { getServerCMSConfig } from '@/lib/server-cms-config';
 
 /**
@@ -71,7 +71,7 @@ async function handleLocalStorage(method: string, data: any) {
 }
 
 // Helper function to handle GitHub API operations
-async function handleGitHubStorage(method: string, data: any, request?: NextRequest) {
+async function handleGitHubStorage(method: string, data: any) {
   const missingVars = [];
   if (!process.env.GITHUB_TOKEN) missingVars.push('GITHUB_TOKEN');
   if (!process.env.GITHUB_OWNER) missingVars.push('GITHUB_OWNER');
@@ -84,12 +84,11 @@ async function handleGitHubStorage(method: string, data: any, request?: NextRequ
     );
   }
   
-  const githubCMS = new GitHubCMSDataBranch({
+  const githubCMS = new GitHubCMS({
     token: process.env.GITHUB_TOKEN!,
     owner: process.env.GITHUB_OWNER!,
     repo: process.env.GITHUB_REPO!,
-    branch: process.env.GITHUB_BRANCH || 'main',
-    dataBranch: process.env.GITHUB_DATA_BRANCH || 'blog-data'
+    branch: process.env.GITHUB_BRANCH || 'main'
   });
   
   switch (method) {
@@ -103,29 +102,8 @@ async function handleGitHubStorage(method: string, data: any, request?: NextRequ
       
       await githubCMS.savePost(post);
       
-      // Trigger on-demand revalidation instead of full deployment
-      if (process.env.REVALIDATION_SECRET && request) {
-        try {
-          const revalidateUrl = new URL('/api/revalidate', request.url);
-          await fetch(revalidateUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              secret: process.env.REVALIDATION_SECRET,
-              path: [
-                '/blog',
-                post.category ? `/blog/${post.category}` : null,
-                post.category ? `/blog/${post.category}/${post.slug}` : `/blog/${post.slug}`
-              ].filter(Boolean)
-            })
-          });
-        } catch (error) {
-          console.error('Revalidation failed:', error);
-        }
-      }
-      
-      // Fallback to webhook if revalidation not configured
-      if (!process.env.REVALIDATION_SECRET && process.env.DEPLOY_WEBHOOK_URL) {
+      // Trigger deployment webhook if configured
+      if (process.env.DEPLOY_WEBHOOK_URL) {
         await githubCMS.triggerDeployment(process.env.DEPLOY_WEBHOOK_URL);
       }
       
@@ -133,26 +111,9 @@ async function handleGitHubStorage(method: string, data: any, request?: NextRequ
     }
     
     case 'DELETE': {
-      await githubCMS.deletePost(data.slug, data.category);
+      await githubCMS.deletePost(data.slug);
       
-      // Trigger revalidation
-      if (process.env.REVALIDATION_SECRET && request) {
-        try {
-          const revalidateUrl = new URL('/api/revalidate', request.url);
-          await fetch(revalidateUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              secret: process.env.REVALIDATION_SECRET,
-              path: '/blog'
-            })
-          });
-        } catch (error) {
-          console.error('Revalidation failed:', error);
-        }
-      }
-      
-      if (!process.env.REVALIDATION_SECRET && process.env.DEPLOY_WEBHOOK_URL) {
+      if (process.env.DEPLOY_WEBHOOK_URL) {
         await githubCMS.triggerDeployment(process.env.DEPLOY_WEBHOOK_URL);
       }
       
@@ -174,7 +135,7 @@ export async function POST(request: NextRequest) {
     
     let result;
     if (config.useGitHub) {
-      result = await handleGitHubStorage('POST', data, request);
+      result = await handleGitHubStorage('POST', data);
     } else {
       result = await handleLocalStorage('POST', data);
     }
@@ -231,7 +192,7 @@ export async function PUT(request: NextRequest) {
       // Delete old file first
       const deleteData = { slug: data.originalSlug, category: data.originalCategory };
       if (config.useGitHub) {
-        await handleGitHubStorage('DELETE', deleteData, request);
+        await handleGitHubStorage('DELETE', deleteData);
       } else {
         await handleLocalStorage('DELETE', deleteData);
       }
@@ -239,7 +200,7 @@ export async function PUT(request: NextRequest) {
     
     let result;
     if (config.useGitHub) {
-      result = await handleGitHubStorage('PUT', data, request);
+      result = await handleGitHubStorage('PUT', data);
     } else {
       result = await handleLocalStorage('PUT', data);
     }
@@ -293,7 +254,7 @@ export async function DELETE(request: NextRequest) {
     
     let result;
     if (config.useGitHub) {
-      result = await handleGitHubStorage('DELETE', data, request);
+      result = await handleGitHubStorage('DELETE', data);
     } else {
       result = await handleLocalStorage('DELETE', data);
     }

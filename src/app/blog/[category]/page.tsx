@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { PageWrapper } from '@/components/PageWrapper';
 import { BlogCard } from '@/components/BlogCard';
-import { loadPostsByCategory, loadCategories, loadPost, loadBlogPosts } from '@/lib/blog-utils-universal';
+import { loadPostsByCategory, loadCategories, loadPost, loadBlogPosts } from '@/lib/blog-utils';
 import Link from 'next/link';
 
 interface CategoryPageProps {
@@ -147,7 +147,7 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
   if (post) {
     // Redirect to the proper URL structure
     const { BlogLayout } = await import('@/components/BlogLayout');
-    const { getRelatedPosts } = await import('@/lib/blog-utils-universal');
+    const { getRelatedPosts } = await import('@/lib/blog-utils');
     const relatedPosts = await getRelatedPosts(post, 3);
     
     return <BlogLayout post={post} relatedPosts={relatedPosts} />;
