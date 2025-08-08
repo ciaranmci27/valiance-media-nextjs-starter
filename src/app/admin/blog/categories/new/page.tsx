@@ -184,91 +184,118 @@ export default function NewCategoryPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-8">
-        <Link
-          href="/admin/blog/categories"
-          className="text-blue-600 hover:text-blue-700 mb-4 inline-block"
-        >
-          ← Back to Categories
-        </Link>
-        <h1 className="text-3xl font-bold">Create New Category</h1>
-      </div>
+    <div className="min-h-screen py-8">
+      <div className="max-w-6xl mx-auto px-4">
+        <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+          <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-md)' }}>
+            Create New Category
+          </h1>
+        </div>
 
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow">
-        {/* Tabs */}
-        <div className="border-b dark:border-gray-700">
-          <div className="flex">
+        {/* Tab Navigation */}
+        <div style={{ 
+          borderBottom: '1px solid var(--color-border-light)',
+          marginBottom: 'var(--spacing-lg)'
+        }}>
+          <div style={{ display: 'flex', gap: '24px' }}>
             <button
               type="button"
               onClick={() => setActiveTab('general')}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === 'general'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
+              style={{
+                padding: '12px 0',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'general' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                color: activeTab === 'general' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '500',
+                marginBottom: '-1px'
+              }}
             >
               General
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('seo')}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === 'seo'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
+              style={{
+                padding: '12px 0',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'seo' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                color: activeTab === 'seo' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '500',
+                marginBottom: '-1px'
+              }}
             >
               SEO
             </button>
           </div>
         </div>
 
-        <div className="p-6">
+        <form onSubmit={handleSubmit}>
+
           {/* General Tab */}
           {activeTab === 'general' && (
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">
-                  Category Name *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="input-field"
-                  placeholder="e.g., Technology"
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-                )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+              {/* Category Name and Slug Row - 70% / 30% split */}
+              <div className="form-row form-row-70-30">
+                {/* Category Name - 70% */}
+                <div className="form-group">
+                  <label className="form-label form-label-required">
+                    Category Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="input-field"
+                    placeholder="e.g., Technology"
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                  )}
+                </div>
+
+                {/* Slug - 30% */}
+                <div className="form-group" style={{ minWidth: 0, overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-xs)' }}>
+                    <label className="form-label form-label-required" style={{ marginBottom: 0 }}>
+                      Slug
+                    </label>
+                    <span style={{ 
+                      fontSize: '12px',
+                      fontFamily: 'monospace',
+                      color: 'var(--color-text-tertiary)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                    title={`/blog/${formData.slug || 'category-slug'}`}>
+                      /blog/{formData.slug || 'category-slug'}
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    id="slug"
+                    name="slug"
+                    value={formData.slug}
+                    onChange={handleInputChange}
+                    className="input-field input-field-mono"
+                    placeholder="category-slug"
+                  />
+                  {errors.slug && (
+                    <p className="text-red-500 text-sm mt-1">{errors.slug}</p>
+                  )}
+                </div>
               </div>
 
-              <div>
-                <label htmlFor="slug" className="block text-sm font-medium mb-2">
-                  Slug
-                </label>
-                <input
-                  type="text"
-                  id="slug"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleInputChange}
-                  className="input-field input-field-mono"
-                  placeholder="technology"
-                />
-                {errors.slug && (
-                  <p className="text-red-500 text-sm mt-1">{errors.slug}</p>
-                )}
-                <p className="text-sm text-gray-500 mt-1">
-                  URL: /blog/category/{formData.slug || 'slug'}
-                </p>
-              </div>
-
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium mb-2">
+              <div className="form-group">
+                <label className="form-label">
                   Description
                 </label>
                 <textarea
@@ -286,7 +313,7 @@ export default function NewCategoryPage() {
 
           {/* SEO Tab */}
           {activeTab === 'seo' && (
-            <div className="space-y-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
               <div className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg p-4 mb-6">
                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                   You can apply the default category SEO template to quickly fill in the fields below.
@@ -300,8 +327,8 @@ export default function NewCategoryPage() {
                 </button>
               </div>
 
-              <div>
-                <label htmlFor="seo.title" className="block text-sm font-medium mb-2">
+              <div className="form-group">
+                <label className="form-label">
                   SEO Title
                 </label>
                 <input
@@ -319,8 +346,8 @@ export default function NewCategoryPage() {
                 </p>
               </div>
 
-              <div>
-                <label htmlFor="seo.description" className="block text-sm font-medium mb-2">
+              <div className="form-group">
+                <label className="form-label">
                   SEO Description
                 </label>
                 <textarea
@@ -338,8 +365,8 @@ export default function NewCategoryPage() {
                 </p>
               </div>
 
-              <div>
-                <label htmlFor="keywords" className="block text-sm font-medium mb-2">
+              <div className="form-group">
+                <label className="form-label">
                   Keywords
                 </label>
                 <input
@@ -364,24 +391,42 @@ export default function NewCategoryPage() {
             </div>
           )}
 
-          {/* Submit buttons */}
-          <div className="mt-8 flex justify-end gap-3">
-            <Link
-              href="/admin/blog/categories"
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Creating...' : 'Create Category'}
-            </button>
-          </div>
+        </form>
+
+        {/* Action Buttons */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end',
+          gap: '12px', 
+          marginTop: 'var(--spacing-xl)',
+          paddingTop: 'var(--spacing-lg)',
+          borderTop: '1px solid var(--color-border-light)'
+        }}>
+          <button
+            onClick={() => router.push('/admin/blog/categories')}
+            className="btn btn-secondary"
+            style={{
+              padding: '12px 24px',
+              fontSize: '16px'
+            }}
+          >
+            Cancel
+          </button>
+          
+          <button
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="btn btn-primary"
+            style={{
+              padding: '12px 24px',
+              fontSize: '16px'
+            }}
+            type="button"
+          >
+            {isLoading ? 'Creating...' : 'Create Category'}
+          </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

@@ -28,10 +28,13 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
     category: 'general',
     featured: false
   });
+  const [hasManuallyEditedSlug, setHasManuallyEditedSlug] = useState(false);
+  const [previousTitle, setPreviousTitle] = useState('');
 
   useEffect(() => {
     if (initialPage) {
       setTitle(initialPage.title || '');
+      setPreviousTitle(initialPage.title || '');
       setSlug(initialPage.slug || '');
       setContent(initialPage.content || '');
       if (initialPage.seoConfig?.metadata) {
@@ -45,24 +48,24 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
 
   // Generate slug from title for new pages
   useEffect(() => {
-    if (isNew && title && !slug) {
+    if (isNew && title && !hasManuallyEditedSlug) {
       const generatedSlug = generateSlug(title);
       setSlug(generatedSlug);
     }
-  }, [title, isNew, slug]);
+  }, [title, isNew, hasManuallyEditedSlug]);
 
   const handleSlugChange = (newSlug: string) => {
-    if (!isNew && newSlug !== initialPage?.slug && initialPage?.slug !== 'home') {
-      setPendingSlug(newSlug);
-      setShowSlugWarning(true);
-    } else if (initialPage?.slug !== 'home') {
+    // Just update the slug without showing warning - warning will be shown on save
+    if (initialPage?.slug !== 'home') {
       setSlug(newSlug);
+      setHasManuallyEditedSlug(true); // Mark that user has manually edited the slug
     }
   };
 
   const confirmSlugChange = () => {
-    setSlug(pendingSlug);
     setShowSlugWarning(false);
+    // Continue with the save after confirmation
+    performSave();
   };
 
   const cancelSlugChange = () => {
@@ -70,12 +73,60 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
     setPendingSlug('');
   };
 
-  const handleSave = async (): Promise<void> => {
-    if (!title || (!slug && !initialPage?.isHomePage)) {
-      alert('Please provide a title and slug for the page');
-      return;
+  // Update content when title changes
+  const updateContentWithNewTitle = (oldTitle: string, newTitle: string, currentContent: string): string => {
+    if (!oldTitle || !newTitle || !currentContent) return currentContent;
+    
+    let updatedContent = currentContent;
+    
+    // Update component name (e.g., function LetsSeePage() -> function NewTitlePage())
+    const oldComponentName = oldTitle.replace(/[^a-zA-Z0-9]/g, '');
+    const newComponentName = newTitle.replace(/[^a-zA-Z0-9]/g, '');
+    if (oldComponentName && newComponentName) {
+      const componentPattern = new RegExp(`function\\s+${oldComponentName}Page`, 'g');
+      updatedContent = updatedContent.replace(componentPattern, `function ${newComponentName}Page`);
     }
+    
+    // Update title in SEO pageData
+    updatedContent = updatedContent.replace(
+      new RegExp(`title:\\s*["'\`]${oldTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["'\`]`, 'g'),
+      `title: "${newTitle}"`
+    );
+    
+    // Update title in breadcrumbs
+    updatedContent = updatedContent.replace(
+      new RegExp(`name:\\s*["'\`]${oldTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["'\`]`, 'g'),
+      `name: "${newTitle}"`
+    );
+    
+    // Update title in h1 tags
+    updatedContent = updatedContent.replace(
+      new RegExp(`>\\s*${oldTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*<`, 'g'),
+      `>${newTitle}<`
+    );
+    
+    // Update title in description and content
+    updatedContent = updatedContent.replace(
+      new RegExp(`${oldTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} page`, 'g'),
+      `${newTitle} page`
+    );
+    
+    return updatedContent;
+  };
 
+  // Handle title change
+  const handleTitleChange = (newTitle: string) => {
+    setTitle(newTitle);
+    
+    // Update content if this is an existing page and the title has changed
+    if (!isNew && previousTitle && previousTitle !== newTitle && content) {
+      const updatedContent = updateContentWithNewTitle(previousTitle, newTitle, content);
+      setContent(updatedContent);
+      setPreviousTitle(newTitle);
+    }
+  };
+
+  const performSave = async () => {
     setSaving(true);
     try {
       const pageSlug: string = initialPage?.isHomePage ? 'home' : (slug || initialPage?.slug || '');
@@ -114,24 +165,61 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         body: JSON.stringify({
           title,
           slug: pageSlug,
-          content,
+          content: content || undefined, // Let the backend generate default content if empty
           seoConfig,
           newSlug: !isNew && slug !== initialPage?.slug ? slug : undefined
         }),
       });
 
       if (response.ok) {
-        router.push('/admin/pages');
+        console.log('Page saved successfully, redirecting...');
+        setSaving(false); // Reset saving state before navigation
+        // Use router.replace for more reliable navigation
+        router.replace('/admin/pages');
       } else {
         const error = await response.json();
+        console.error('Save failed:', error);
+        setSaving(false);
         alert(`Failed to save page: ${error.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error saving page:', error);
-      alert('An error occurred while saving the page');
-    } finally {
       setSaving(false);
+      alert('An error occurred while saving the page');
     }
+  };
+
+  const handleSave = async (e?: React.MouseEvent): Promise<void> => {
+    // Prevent default button behavior
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    // Early return if already saving
+    if (saving) {
+      return;
+    }
+
+    // Validation
+    if (!title?.trim()) {
+      alert('Please provide a title for the page');
+      return;
+    }
+
+    if (!initialPage?.isHomePage && !slug?.trim()) {
+      alert('Please provide a slug for the page');
+      return;
+    }
+
+    // Check if slug is changing for existing pages
+    if (!isNew && slug !== initialPage?.slug && initialPage?.slug !== 'home') {
+      setPendingSlug(slug);
+      setShowSlugWarning(true);
+      return; // Stop here, let the modal handle the rest
+    }
+
+    performSave();
   };
 
   return (
@@ -233,7 +321,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                 <input
                   type="text"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="Enter page title"
                   disabled={initialPage?.isHomePage}
                   className="input-field"
@@ -499,23 +587,12 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         {/* Action Buttons */}
         <div style={{ 
           display: 'flex', 
+          justifyContent: 'flex-end',
           gap: '12px', 
           marginTop: 'var(--spacing-xl)',
           paddingTop: 'var(--spacing-lg)',
           borderTop: '1px solid var(--color-border-light)'
         }}>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="btn btn-primary"
-            style={{
-              padding: '12px 24px',
-              fontSize: '16px'
-            }}
-          >
-            {saving ? 'Saving...' : (isNew ? 'Create Page' : 'Save Changes')}
-          </button>
-          
           <button
             onClick={() => router.push('/admin/pages')}
             className="btn btn-secondary"
@@ -525,6 +602,19 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
             }}
           >
             Cancel
+          </button>
+          
+          <button
+            onClick={(e) => handleSave(e)}
+            disabled={saving}
+            className="btn btn-primary"
+            style={{
+              padding: '12px 24px',
+              fontSize: '16px'
+            }}
+            type="button"
+          >
+            {saving ? 'Saving...' : (isNew ? 'Create Page' : 'Save Changes')}
           </button>
         </div>
       </div>

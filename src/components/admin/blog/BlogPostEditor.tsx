@@ -362,11 +362,15 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       return;
     }
 
-    // Check if slug OR category changed for published posts
-    const slugChanged = mode === 'edit' && isPublished && formData.slug && formData.slug !== originalSlug;
-    const categoryChanged = mode === 'edit' && isPublished && formData.category !== originalCategory;
+    // Check if slug OR category changed for existing posts (both published and drafts)
+    const slugChanged = mode === 'edit' && formData.slug && formData.slug !== originalSlug;
+    const categoryChanged = mode === 'edit' && formData.category !== originalCategory;
     
     if (slugChanged || categoryChanged) {
+      console.log('Slug or category changed, showing warning modal');
+      console.log('Original slug:', originalSlug, 'New slug:', formData.slug);
+      console.log('Original category:', originalCategory, 'New category:', formData.category);
+      
       // Check if this would create a circular redirect
       const oldUrl = originalCategory 
         ? `/blog/${originalCategory}/${originalSlug}`

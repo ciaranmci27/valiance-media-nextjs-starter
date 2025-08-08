@@ -66,6 +66,15 @@ export interface SEOConfigData {
       'max-image-preview': string;
       'max-snippet': number;
     };
+    txt?: {
+      rules: Array<{
+        userAgent: string;
+        allow: string[];
+        disallow: string[];
+        crawlDelay: number;
+      }>;
+      customRules: string;
+    };
   };
   alternates: {
     canonical: string;
@@ -86,6 +95,20 @@ export interface SEOConfigData {
       blog: number;
       categories: number;
     };
+  };
+  schema?: {
+    activeTypes: {
+      organization: boolean;
+      website: boolean;
+      localBusiness: boolean;
+      person: boolean;
+      breadcrumbs: boolean;
+    };
+    organization: any;
+    website: any;
+    localBusiness: any;
+    person: any;
+    breadcrumbs: any;
   };
 }
 
@@ -140,17 +163,36 @@ export function getCurrentConfig(): { config: SEOConfigData } {
       hotjarId: '',
       clarityId: ''
     },
-    robots: seoConfig.robots || {
-      index: true,
-      follow: true,
-      nocache: false,
-      googleBot: {
+    robots: {
+      ...(seoConfig.robots || {
         index: true,
         follow: true,
-        noimageindex: false,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1
+        nocache: false,
+        googleBot: {
+          index: true,
+          follow: true,
+          noimageindex: false,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1
+        }
+      }),
+      txt: (seoConfig.robots as any)?.txt || {
+        rules: [
+          {
+            userAgent: '*',
+            allow: ['/'],
+            disallow: ['/api/', '/admin/', '/_next/', '/private/', '*.json', '/*?*'],
+            crawlDelay: 0
+          },
+          {
+            userAgent: 'Googlebot',
+            allow: ['/'],
+            disallow: ['/api/', '/admin/', '/_next/', '/private/'],
+            crawlDelay: 0
+          }
+        ],
+        customRules: ''
       }
     },
     alternates: seoConfig.alternates || {
@@ -172,6 +214,24 @@ export function getCurrentConfig(): { config: SEOConfigData } {
         blog: 0.6,
         categories: 0.7
       }
+    },
+    schema: (seoConfig as any).schema || {
+      activeTypes: {
+        organization: true,
+        website: true,
+        localBusiness: false,
+        person: false,
+        breadcrumbs: true,
+      },
+      organization: {},
+      website: {},
+      localBusiness: {},
+      person: {},
+      breadcrumbs: {
+        homeLabel: 'Home',
+        separator: '›',
+        showCurrent: true,
+      },
     }
   };
   return {
@@ -307,6 +367,67 @@ export function formatConfigForFile(config: SEOConfigData): string {
         } else {
           continue;
         }
+      } else if (key === 'robots' && indent === 1) {
+        // Special handling for robots configuration
+        const robotsData = value as any;
+        const robotsEntries: string[] = [];
+        
+        // Add basic robot settings
+        robotsEntries.push(`${spaces}  index: ${robotsData.index}`);
+        robotsEntries.push(`${spaces}  follow: ${robotsData.follow}`);
+        robotsEntries.push(`${spaces}  nocache: ${robotsData.nocache}`);
+        
+        // Add googleBot settings
+        if (robotsData.googleBot) {
+          const googleBotEntries: string[] = [];
+          for (const [gKey, gValue] of Object.entries(robotsData.googleBot)) {
+            const keyStr = gKey.includes('-') ? `'${gKey}'` : gKey;
+            const valStr = typeof gValue === 'string' ? `'${gValue}'` : gValue;
+            googleBotEntries.push(`${spaces}    ${keyStr}: ${valStr}`);
+          }
+          robotsEntries.push(`${spaces}  googleBot: {\n${googleBotEntries.join(',\n')}\n${spaces}  }`);
+        }
+        
+        // Add txt configuration if present
+        if (robotsData.txt) {
+          const txtEntries: string[] = [];
+          
+          // Format rules
+          if (robotsData.txt.rules && robotsData.txt.rules.length > 0) {
+            const rulesStr = robotsData.txt.rules.map((rule: any) => {
+              const ruleEntries: string[] = [];
+              ruleEntries.push(`${spaces}      userAgent: '${rule.userAgent}'`);
+              
+              if (rule.allow && rule.allow.length > 0) {
+                const allowStr = rule.allow.map((a: string) => `'${a}'`).join(', ');
+                ruleEntries.push(`${spaces}      allow: [${allowStr}]`);
+              }
+              
+              if (rule.disallow && rule.disallow.length > 0) {
+                const disallowStr = rule.disallow.map((d: string) => `'${d}'`).join(', ');
+                ruleEntries.push(`${spaces}      disallow: [${disallowStr}]`);
+              }
+              
+              ruleEntries.push(`${spaces}      crawlDelay: ${rule.crawlDelay || 0}`);
+              
+              return `${spaces}    {\n${ruleEntries.join(',\n')}\n${spaces}    }`;
+            }).join(',\n');
+            
+            txtEntries.push(`${spaces}    rules: [\n${rulesStr}\n${spaces}    ]`);
+          }
+          
+          // Add custom rules
+          if (robotsData.txt.customRules) {
+            txtEntries.push(`${spaces}    customRules: '${robotsData.txt.customRules.replace(/'/g, "\\'")}'`);
+          } else {
+            txtEntries.push(`${spaces}    customRules: ''`);
+          }
+          
+          robotsEntries.push(`${spaces}  // Robots.txt configuration`);
+          robotsEntries.push(`${spaces}  txt: {\n${txtEntries.join(',\n')}\n${spaces}  }`);
+        }
+        
+        formattedValue = `{\n${robotsEntries.join(',\n')}\n${spaces}}`;
       } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         const filteredNested = filterEmptyFields(value);
         if (Object.keys(filteredNested).length > 0) {

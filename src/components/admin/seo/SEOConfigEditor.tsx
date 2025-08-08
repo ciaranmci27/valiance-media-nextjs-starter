@@ -87,6 +87,20 @@ interface SEOConfigData {
       categories: number;
     };
   };
+  schema?: {
+    activeTypes: {
+      organization: boolean;
+      website: boolean;
+      localBusiness: boolean;
+      person: boolean;
+      breadcrumbs: boolean;
+    };
+    organization: any;
+    website: any;
+    localBusiness: any;
+    person: any;
+    breadcrumbs: any;
+  };
 }
 
 export default function SEOConfigEditor() {
@@ -95,10 +109,18 @@ export default function SEOConfigEditor() {
   const [isSaving, setIsSaving] = useState(false);
   const [activeSection, setActiveSection] = useState('basic');
   const [showOGPreview, setShowOGPreview] = useState(false);
+  const [urlWarnings, setUrlWarnings] = useState<string[]>([]);
 
   useEffect(() => {
     fetchConfig();
   }, []);
+  
+  // Validate URL on initial load
+  useEffect(() => {
+    if (config?.siteUrl) {
+      setUrlWarnings(validateUrl(config.siteUrl));
+    }
+  }, [config?.siteUrl]);
 
   const fetchConfig = async () => {
     setIsLoading(true);
@@ -116,6 +138,57 @@ export default function SEOConfigEditor() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Validate URL and provide warnings
+  const validateUrl = (url: string): string[] => {
+    const warnings: string[] = [];
+    
+    if (!url) {
+      warnings.push('Site URL is required for proper SEO functionality');
+      return warnings;
+    }
+    
+    // Check for common issues
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      warnings.push('URL should start with http:// or https://');
+    } else if (url.startsWith('http://') && url !== 'http://localhost:3000') {
+      warnings.push('Consider using HTTPS for better SEO and security');
+    }
+    
+    if (url.endsWith('/')) {
+      warnings.push('URL should not end with a trailing slash');
+    }
+    
+    if (!url.includes('.') && !url.includes('localhost')) {
+      warnings.push('URL appears to be missing a domain extension (e.g., .com, .org)');
+    }
+    
+    // Always provide WWW guidance for production URLs
+    if (url.includes('://') && !url.includes('localhost') && !url.includes('127.0.0.1')) {
+      if (url.includes('www.')) {
+        warnings.push('Using WWW version - ensure all links and redirects consistently use www.yourdomain.com');
+      } else {
+        warnings.push('Using non-WWW version - ensure all links and redirects consistently use yourdomain.com (without www)');
+      }
+    }
+    
+    if (url === 'https://example.com' || url === 'http://example.com') {
+      warnings.push('Please update the example URL to your actual website URL');
+    }
+    
+    // Check for spaces or invalid characters
+    if (url.includes(' ')) {
+      warnings.push('URL should not contain spaces');
+    }
+    
+    try {
+      new URL(url);
+    } catch {
+      warnings.push('Invalid URL format');
+    }
+    
+    return warnings;
   };
 
   const handleSave = async () => {
@@ -150,6 +223,7 @@ export default function SEOConfigEditor() {
     // Global Site Configuration
     { id: 'basic', label: 'Site Information', icon: '🌐' },
     { id: 'company', label: 'Organization', icon: '🏢' },
+    { id: 'schema', label: 'Schema Data', icon: '🏷️' },
     { id: 'templates', label: 'Default SEO', icon: '📝' },
     { id: 'opengraph', label: 'Open Graph', icon: '🔗' },
     { id: 'social', label: 'Social Media', icon: '📱' },
@@ -232,11 +306,28 @@ export default function SEOConfigEditor() {
                     <input
                       type="url"
                       value={config.siteUrl}
-                      onChange={(e) => setConfig({...config, siteUrl: e.target.value})}
-                      className="input-field"
+                      onChange={(e) => {
+                        const newUrl = e.target.value;
+                        setConfig({...config, siteUrl: newUrl});
+                        setUrlWarnings(validateUrl(newUrl));
+                      }}
+                      className={`input-field ${urlWarnings.length > 0 ? 'border-yellow-500' : ''}`}
                       placeholder="https://example.com"
                     />
                     <p className="text-xs text-gray-500 mt-1">Full URL including protocol (https://)</p>
+                    {urlWarnings.length > 0 && (
+                      <div className="mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <p className="text-xs font-semibold text-yellow-800 dark:text-yellow-200 mb-1">URL Warnings:</p>
+                        <ul className="text-xs text-yellow-700 dark:text-yellow-300 space-y-1">
+                          {urlWarnings.map((warning, index) => (
+                            <li key={index} className="flex items-start gap-1">
+                              <span>⚠️</span>
+                              <span>{warning}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
 
                 </div>
@@ -647,7 +738,745 @@ export default function SEOConfigEditor() {
               </div>
             )}
 
+            {/* Schema Data */}
+            {activeSection === 'schema' && (
+              <div className="space-y-6">
+                <h3 className="text-h3 mb-4">Schema Data</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                  Configure structured data to enhance your search appearance with rich snippets, knowledge panels, and other SERP features.
+                </p>
 
+                {/* Schema Type Selection - 2 columns x 3 rows */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  {/* Organization */}
+                  <div className="card p-4 flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Organization</span>
+                        <span className="badge badge-primary text-xs">Recommended</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Company info, logo, social profiles</p>
+                    </div>
+                    <Switch
+                      checked={config.schema?.activeTypes?.organization || false}
+                      onChange={(checked) => setConfig({
+                        ...config,
+                        schema: {
+                          ...config.schema!,
+                          activeTypes: { ...config.schema?.activeTypes!, organization: checked }
+                        }
+                      })}
+                    />
+                  </div>
+
+                  {/* LocalBusiness */}
+                  <div className="card p-4 flex items-center justify-between">
+                    <div className="flex-1">
+                      <span className="text-sm font-medium">LocalBusiness</span>
+                      <p className="text-xs text-gray-500 mt-1">Physical location, hours, local SEO</p>
+                    </div>
+                    <Switch
+                      checked={config.schema?.activeTypes?.localBusiness || false}
+                      onChange={(checked) => setConfig({
+                        ...config,
+                        schema: {
+                          ...config.schema!,
+                          activeTypes: { ...config.schema?.activeTypes!, localBusiness: checked }
+                        }
+                      })}
+                    />
+                  </div>
+
+                  {/* Person */}
+                  <div className="card p-4 flex items-center justify-between">
+                    <div className="flex-1">
+                      <span className="text-sm font-medium">Person</span>
+                      <p className="text-xs text-gray-500 mt-1">Personal brand, author profiles</p>
+                    </div>
+                    <Switch
+                      checked={config.schema?.activeTypes?.person || false}
+                      onChange={(checked) => setConfig({
+                        ...config,
+                        schema: {
+                          ...config.schema!,
+                          activeTypes: { ...config.schema?.activeTypes!, person: checked }
+                        }
+                      })}
+                    />
+                  </div>
+
+                  {/* Contact Point - Separated from Organization */}
+                  <div className="card p-4 flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Contact Point</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Customer service & support info</p>
+                    </div>
+                    <Switch
+                      checked={config.schema?.activeTypes?.organization && config.schema?.organization?.contactPoint?.enabled !== false}
+                      onChange={(checked) => setConfig({
+                        ...config,
+                        schema: {
+                          ...config.schema!,
+                          organization: {
+                            ...config.schema?.organization!,
+                            contactPoint: {
+                              ...config.schema?.organization?.contactPoint!,
+                              enabled: checked
+                            }
+                          }
+                        }
+                      })}
+                    />
+                  </div>
+
+                  {/* Breadcrumbs */}
+                  <div className="card p-4 flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Breadcrumbs</span>
+                        <span className="badge badge-primary text-xs">Recommended</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Navigation path in search results</p>
+                    </div>
+                    <Switch
+                      checked={config.schema?.activeTypes?.breadcrumbs || false}
+                      onChange={(checked) => setConfig({
+                        ...config,
+                        schema: {
+                          ...config.schema!,
+                          activeTypes: { ...config.schema?.activeTypes!, breadcrumbs: checked }
+                        }
+                      })}
+                    />
+                  </div>
+
+                  {/* WebSite */}
+                  <div className="card p-4 flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">WebSite</span>
+                        <span className="badge badge-primary text-xs">Recommended</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Site search box in Google results</p>
+                    </div>
+                    <Switch
+                      checked={config.schema?.activeTypes?.website || false}
+                      onChange={(checked) => setConfig({
+                        ...config,
+                        schema: {
+                          ...config.schema!,
+                          activeTypes: { ...config.schema?.activeTypes!, website: checked }
+                        }
+                      })}
+                    />
+                  </div>
+                </div>
+
+                {/* Organization Schema */}
+                {config.schema?.activeTypes?.organization && (
+                  <div className="card p-6">
+                    <h4 className="text-h4 mb-4">🏢 Organization Schema</h4>
+                    
+                    {/* Info box about auto-population */}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+                      <p className="text-xs text-blue-800 dark:text-blue-200">
+                        ℹ️ Basic organization info (name, address, phone, email) is automatically pulled from the <strong>Organization</strong> tab.
+                        Configure additional schema-specific settings below.
+                      </p>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Schema-specific fields only */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-label block mb-2">Organization Type</label>
+                          <select
+                            value={config.schema?.organization?.type || 'Organization'}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              schema: {
+                                ...config.schema!,
+                                organization: { ...config.schema?.organization!, type: e.target.value }
+                              }
+                            })}
+                            className="input-field"
+                          >
+                            <option value="Organization">Organization</option>
+                            <option value="Corporation">Corporation</option>
+                            <option value="EducationalOrganization">Educational Organization</option>
+                            <option value="GovernmentOrganization">Government Organization</option>
+                            <option value="NGO">NGO</option>
+                            <option value="SportsOrganization">Sports Organization</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-label block mb-2">Logo URL for Schema</label>
+                          <input
+                            type="text"
+                            value={config.schema?.organization?.logo?.url || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              schema: {
+                                ...config.schema!,
+                                organization: {
+                                  ...config.schema?.organization!,
+                                  logo: { ...config.schema?.organization?.logo!, url: e.target.value }
+                                }
+                              }
+                            })}
+                            className="input-field"
+                            placeholder="/logos/logo.png or https://..."
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Square logo recommended (600x600px)</p>
+                        </div>
+                      </div>
+
+                      {/* SameAs URLs */}
+                      <div>
+                        <label className="text-label block mb-2">Additional Profile URLs (SameAs)</label>
+                        <textarea
+                          value={config.schema?.organization?.sameAs?.join('\n') || ''}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            schema: {
+                              ...config.schema!,
+                              organization: {
+                                ...config.schema?.organization!,
+                                sameAs: e.target.value.split('\n').filter(Boolean)
+                              }
+                            }
+                          })}
+                          className="input-field"
+                          rows={3}
+                          placeholder="https://wikipedia.org/wiki/YourCompany
+https://crunchbase.com/organization/yourcompany
+https://www.wikidata.org/wiki/Q12345"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Social media URLs from the <strong>Social Media</strong> tab are included automatically. 
+                          Add additional profiles here (Wikipedia, Crunchbase, etc.)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Contact Point Schema - Separate from Organization */}
+                {config.schema?.activeTypes?.organization && config.schema?.organization?.contactPoint?.enabled !== false && (
+                  <div className="card p-6">
+                    <h4 className="text-h4 mb-4">☎️ Contact Point</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Define customer service contact information for search results and knowledge panels.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-label block mb-2">Contact Type</label>
+                        <select
+                          value={config.schema?.organization?.contactPoint?.contactType || 'customer service'}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            schema: {
+                              ...config.schema!,
+                              organization: {
+                                ...config.schema?.organization!,
+                                contactPoint: {
+                                  ...config.schema?.organization?.contactPoint!,
+                                  contactType: e.target.value
+                                }
+                              }
+                            }
+                          })}
+                          className="input-field"
+                        >
+                          <option value="customer service">Customer Service</option>
+                          <option value="technical support">Technical Support</option>
+                          <option value="sales">Sales</option>
+                          <option value="billing support">Billing Support</option>
+                          <option value="emergency">Emergency</option>
+                          <option value="reservations">Reservations</option>
+                          <option value="credit card support">Credit Card Support</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-label block mb-2">Support Phone</label>
+                        <input
+                          type="tel"
+                          value={config.schema?.organization?.contactPoint?.telephone || ''}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            schema: {
+                              ...config.schema!,
+                              organization: {
+                                ...config.schema?.organization!,
+                                contactPoint: {
+                                  ...config.schema?.organization?.contactPoint!,
+                                  telephone: e.target.value
+                                }
+                              }
+                            }
+                          })}
+                          className="input-field"
+                          placeholder="+1-800-SUPPORT"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Dedicated support line (if different from main phone)</p>
+                      </div>
+
+                      <div>
+                        <label className="text-label block mb-2">Service Hours</label>
+                        <select
+                          value={config.schema?.organization?.contactPoint?.hoursAvailable?.dayOfWeek?.length === 7 ? 'everyday' : 
+                                 config.schema?.organization?.contactPoint?.hoursAvailable?.dayOfWeek?.length === 0 ? '24/7' : 'weekdays'}
+                          onChange={(e) => {
+                            let dayOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                            if (e.target.value === 'everyday') {
+                              dayOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                            } else if (e.target.value === '24/7') {
+                              dayOfWeek = [];
+                            }
+                            setConfig({
+                              ...config,
+                              schema: {
+                                ...config.schema!,
+                                organization: {
+                                  ...config.schema?.organization!,
+                                  contactPoint: {
+                                    ...config.schema?.organization?.contactPoint!,
+                                    hoursAvailable: {
+                                      ...config.schema?.organization?.contactPoint?.hoursAvailable!,
+                                      dayOfWeek
+                                    }
+                                  }
+                                }
+                              }
+                            });
+                          }}
+                          className="input-field"
+                        >
+                          <option value="weekdays">Weekdays Only</option>
+                          <option value="everyday">Every Day</option>
+                          <option value="24/7">24/7 Support</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-label block mb-2">Area Served</label>
+                        <input
+                          type="text"
+                          value={config.schema?.organization?.contactPoint?.areaServed || 'US'}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            schema: {
+                              ...config.schema!,
+                              organization: {
+                                ...config.schema?.organization!,
+                                contactPoint: {
+                                  ...config.schema?.organization?.contactPoint!,
+                                  areaServed: e.target.value
+                                }
+                              }
+                            }
+                          })}
+                          className="input-field"
+                          placeholder="US, Global, EU, etc."
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="text-label block mb-2">Available Languages</label>
+                        <input
+                          type="text"
+                          value={config.schema?.organization?.contactPoint?.availableLanguage?.join(', ') || 'English'}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            schema: {
+                              ...config.schema!,
+                              organization: {
+                                ...config.schema?.organization!,
+                                contactPoint: {
+                                  ...config.schema?.organization?.contactPoint!,
+                                  availableLanguage: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                                }
+                              }
+                            }
+                          })}
+                          className="input-field"
+                          placeholder="English, Spanish, French, Mandarin"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Comma-separated list of supported languages</p>
+                      </div>
+
+                      {/* Business Hours if not 24/7 */}
+                      {config.schema?.organization?.contactPoint?.hoursAvailable?.dayOfWeek?.length !== 0 && (
+                        <>
+                          <div>
+                            <label className="text-label block mb-2">Opening Time</label>
+                            <input
+                              type="time"
+                              value={config.schema?.organization?.contactPoint?.hoursAvailable?.opens || '09:00'}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                schema: {
+                                  ...config.schema!,
+                                  organization: {
+                                    ...config.schema?.organization!,
+                                    contactPoint: {
+                                      ...config.schema?.organization?.contactPoint!,
+                                      hoursAvailable: {
+                                        ...config.schema?.organization?.contactPoint?.hoursAvailable!,
+                                        opens: e.target.value
+                                      }
+                                    }
+                                  }
+                                }
+                              })}
+                              className="input-field"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-label block mb-2">Closing Time</label>
+                            <input
+                              type="time"
+                              value={config.schema?.organization?.contactPoint?.hoursAvailable?.closes || '17:00'}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                schema: {
+                                  ...config.schema!,
+                                  organization: {
+                                    ...config.schema?.organization!,
+                                    contactPoint: {
+                                      ...config.schema?.organization?.contactPoint!,
+                                      hoursAvailable: {
+                                        ...config.schema?.organization?.contactPoint?.hoursAvailable!,
+                                        closes: e.target.value
+                                      }
+                                    }
+                                  }
+                                }
+                              })}
+                              className="input-field"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Website Schema */}
+                {config.schema?.activeTypes?.website && (
+                  <div className="card p-6">
+                    <h4 className="text-h4 mb-4">🌐 WebSite Schema</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-label block mb-2">Site Search URL Template</label>
+                        <input
+                          type="text"
+                          value={config.schema?.website?.potentialAction?.searchUrlTemplate || ''}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            schema: {
+                              ...config.schema!,
+                              website: {
+                                ...config.schema?.website!,
+                                potentialAction: {
+                                  ...config.schema?.website?.potentialAction!,
+                                  searchUrlTemplate: e.target.value
+                                }
+                              }
+                            }
+                          })}
+                          className="input-field"
+                          placeholder="https://example.com/search?q={search_term_string}"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          This enables the Google Sitelinks search box. Use {'{search_term_string}'} as the query placeholder.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={config.schema?.website?.potentialAction?.enabled || false}
+                          onChange={(checked) => setConfig({
+                            ...config,
+                            schema: {
+                              ...config.schema!,
+                              website: {
+                                ...config.schema?.website!,
+                                potentialAction: {
+                                  ...config.schema?.website?.potentialAction!,
+                                  enabled: checked
+                                }
+                              }
+                            }
+                          })}
+                        />
+                        <span className="text-sm">Enable site search box in Google results</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* LocalBusiness Schema */}
+                {config.schema?.activeTypes?.localBusiness && (
+                  <div className="card p-6">
+                    <h4 className="text-h4 mb-4">📍 LocalBusiness Schema</h4>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-label block mb-2">Business Type</label>
+                          <select
+                            value={config.schema?.localBusiness?.type || 'LocalBusiness'}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              schema: {
+                                ...config.schema!,
+                                localBusiness: { ...config.schema?.localBusiness!, type: e.target.value }
+                              }
+                            })}
+                            className="input-field"
+                          >
+                            <option value="LocalBusiness">Local Business (General)</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Store">Store</option>
+                            <option value="Hotel">Hotel</option>
+                            <option value="ProfessionalService">Professional Service</option>
+                            <option value="MedicalBusiness">Medical Business</option>
+                            <option value="AutomotiveBusiness">Automotive Business</option>
+                            <option value="FinancialService">Financial Service</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-label block mb-2">Price Range</label>
+                          <select
+                            value={config.schema?.localBusiness?.priceRange || '$$'}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              schema: {
+                                ...config.schema!,
+                                localBusiness: { ...config.schema?.localBusiness!, priceRange: e.target.value }
+                              }
+                            })}
+                            className="input-field"
+                          >
+                            <option value="$">$ - Inexpensive</option>
+                            <option value="$$">$$ - Moderate</option>
+                            <option value="$$$">$$$ - Expensive</option>
+                            <option value="$$$$">$$$$ - Very Expensive</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Geo Coordinates */}
+                      <div className="border-t pt-4">
+                        <h5 className="font-medium mb-3">Location Coordinates</h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-label block mb-2">Latitude</label>
+                            <input
+                              type="text"
+                              value={config.schema?.localBusiness?.geo?.latitude || ''}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                schema: {
+                                  ...config.schema!,
+                                  localBusiness: {
+                                    ...config.schema?.localBusiness!,
+                                    geo: { ...config.schema?.localBusiness?.geo!, latitude: e.target.value }
+                                  }
+                                }
+                              })}
+                              className="input-field"
+                              placeholder="40.7128"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-label block mb-2">Longitude</label>
+                            <input
+                              type="text"
+                              value={config.schema?.localBusiness?.geo?.longitude || ''}
+                              onChange={(e) => setConfig({
+                                ...config,
+                                schema: {
+                                  ...config.schema!,
+                                  localBusiness: {
+                                    ...config.schema?.localBusiness!,
+                                    geo: { ...config.schema?.localBusiness?.geo!, longitude: e.target.value }
+                                  }
+                                }
+                              })}
+                              className="input-field"
+                              placeholder="-74.0060"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Get coordinates from Google Maps by right-clicking on your location
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Person Schema */}
+                {config.schema?.activeTypes?.person && (
+                  <div className="card p-6">
+                    <h4 className="text-h4 mb-4">👤 Person Schema</h4>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-label block mb-2">Full Name</label>
+                          <input
+                            type="text"
+                            value={config.schema?.person?.name || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              schema: {
+                                ...config.schema!,
+                                person: { ...config.schema?.person!, name: e.target.value }
+                              }
+                            })}
+                            className="input-field"
+                            placeholder="John Doe"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-label block mb-2">Job Title</label>
+                          <input
+                            type="text"
+                            value={config.schema?.person?.jobTitle || ''}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              schema: {
+                                ...config.schema!,
+                                person: { ...config.schema?.person!, jobTitle: e.target.value }
+                              }
+                            })}
+                            className="input-field"
+                            placeholder="CEO & Founder"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-label block mb-2">Expertise/Knowledge Areas</label>
+                        <input
+                          type="text"
+                          value={config.schema?.person?.knowsAbout?.join(', ') || ''}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            schema: {
+                              ...config.schema!,
+                              person: {
+                                ...config.schema?.person!,
+                                knowsAbout: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                              }
+                            }
+                          })}
+                          className="input-field"
+                          placeholder="Web Development, SEO, Marketing, Business Strategy"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Comma-separated list of expertise areas</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Breadcrumbs Configuration */}
+                {config.schema?.activeTypes?.breadcrumbs && (
+                  <div className="card p-6">
+                    <h4 className="text-h4 mb-4">🍞 Breadcrumbs Configuration</h4>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-label block mb-2">Home Label</label>
+                          <input
+                            type="text"
+                            value={config.schema?.breadcrumbs?.homeLabel || 'Home'}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              schema: {
+                                ...config.schema!,
+                                breadcrumbs: { ...config.schema?.breadcrumbs!, homeLabel: e.target.value }
+                              }
+                            })}
+                            className="input-field"
+                            placeholder="Home"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-label block mb-2">Separator</label>
+                          <select
+                            value={config.schema?.breadcrumbs?.separator || '›'}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              schema: {
+                                ...config.schema!,
+                                breadcrumbs: { ...config.schema?.breadcrumbs!, separator: e.target.value }
+                              }
+                            })}
+                            className="input-field"
+                          >
+                            <option value="›">› (Chevron)</option>
+                            <option value="/">/  (Slash)</option>
+                            <option value=">">{'>'} (Greater Than)</option>
+                            <option value="→">→ (Arrow)</option>
+                            <option value="|">| (Pipe)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={config.schema?.breadcrumbs?.showCurrent || true}
+                          onChange={(checked) => setConfig({
+                            ...config,
+                            schema: {
+                              ...config.schema!,
+                              breadcrumbs: { ...config.schema?.breadcrumbs!, showCurrent: checked }
+                            }
+                          })}
+                        />
+                        <span className="text-sm">Show current page in breadcrumbs</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Preview Information */}
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    💡 <strong>Tip:</strong> After configuring schema, validate your structured data using Google's{' '}
+                    <a 
+                      href="https://search.google.com/test/rich-results" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      Rich Results Test
+                    </a>{' '}
+                    and the{' '}
+                    <a 
+                      href="https://validator.schema.org/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      Schema.org Validator
+                    </a>.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Robots & Crawling */}
             {activeSection === 'robots' && (

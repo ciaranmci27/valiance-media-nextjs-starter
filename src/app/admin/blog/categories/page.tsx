@@ -68,75 +68,172 @@ export default function BlogCategoriesPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Blog Categories</h1>
-        <Link
-          href="/admin/blog/categories/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Create New Category
-        </Link>
-      </div>
-
-      {categories.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">No categories found</p>
-          <Link
-            href="/admin/blog/categories/new"
-            className="text-blue-600 hover:text-blue-700"
-          >
-            Create your first category
-          </Link>
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {categories.map(category => (
-            <div
-              key={category.slug}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+    <div className="min-h-screen py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div style={{ marginBottom: 'var(--spacing-xl)' }}>
+          <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-md)' }}>
+            Blog Categories
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)' }}>
+            Manage your blog categories. Organize your content into meaningful groups.
+          </p>
+          
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={() => router.push('/admin/blog/categories/new')}
+              style={{
+                padding: '12px 24px',
+                background: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
             >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-start gap-3 mb-2">
-                    <h2 className="text-xl font-semibold">{category.name}</h2>
-                    <code className="px-2 py-0.5 text-xs font-mono bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
-                      {category.slug}
-                    </code>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-2">
-                    {category.description || 'No description'}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {category.postCount} {category.postCount === 1 ? 'post' : 'posts'}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Link
-                    href={`/admin/blog/categories/${category.slug}/edit`}
-                    className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setCategoryToDelete(category);
-                      setDeleteModalOpen(true);
-                    }}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                    disabled={category.postCount > 0}
-                    title={category.postCount > 0 ? 'Cannot delete category with posts' : 'Delete category'}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Create New Category
+            </button>
+          </div>
         </div>
-      )}
 
-      {/* Delete Confirmation Modal */}
+        <div style={{
+          background: 'var(--color-surface)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-border-light)',
+          overflow: 'hidden'
+        }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--color-border-light)' }}>
+                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+                  Name
+                </th>
+                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+                  Slug
+                </th>
+                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+                  Description
+                </th>
+                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+                  Posts
+                </th>
+                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ 
+                    padding: 'var(--spacing-xl)', 
+                    textAlign: 'center',
+                    color: 'var(--color-text-secondary)'
+                  }}>
+                    No categories found. Create your first category to get started.
+                  </td>
+                </tr>
+              ) : (
+                categories.map((category) => (
+                  <tr key={category.slug} style={{ borderBottom: '1px solid var(--color-border-light)' }}>
+                    <td style={{ padding: 'var(--spacing-md)' }}>
+                      <div style={{ 
+                        color: 'var(--color-text-primary)', 
+                        fontWeight: '500'
+                      }}>
+                        {category.name}
+                      </div>
+                    </td>
+                    <td style={{ padding: 'var(--spacing-md)' }}>
+                      <code style={{ 
+                        fontSize: '13px', 
+                        fontFamily: 'monospace',
+                        color: 'var(--color-primary)',
+                        background: 'rgba(59, 130, 246, 0.1)',
+                        padding: '2px 6px',
+                        borderRadius: 'var(--radius-sm)'
+                      }}>
+                        {category.slug}
+                      </code>
+                    </td>
+                    <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
+                      {category.description || 'No description'}
+                    </td>
+                    <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
+                      {category.postCount} {category.postCount === 1 ? 'post' : 'posts'}
+                    </td>
+                    <td style={{ padding: 'var(--spacing-md)' }}>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => router.push(`/admin/blog/categories/${category.slug}/edit`)}
+                          style={{
+                            padding: '6px 12px',
+                            background: 'var(--color-primary)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 'var(--radius-sm)',
+                            fontSize: '14px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (category.postCount > 0) {
+                              alert(`Cannot delete category "${category.name}" because it contains ${category.postCount} ${category.postCount === 1 ? 'post' : 'posts'}. Please delete or reassign the posts first.`);
+                              return;
+                            }
+                            setCategoryToDelete(category);
+                            setDeleteModalOpen(true);
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            background: category.postCount > 0 ? '#6B7280' : 'var(--color-danger)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 'var(--radius-sm)',
+                            fontSize: '14px',
+                            cursor: category.postCount > 0 ? 'not-allowed' : 'pointer',
+                            opacity: category.postCount > 0 ? 0.6 : 1,
+                            transition: 'background 0.2s',
+                            position: 'relative'
+                          }}
+                          title={category.postCount > 0 ? `Cannot delete - contains ${category.postCount} ${category.postCount === 1 ? 'post' : 'posts'}` : 'Delete category'}
+                          onMouseEnter={(e) => {
+                            if (category.postCount === 0) {
+                              e.currentTarget.style.background = '#B91C1C';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (category.postCount === 0) {
+                              e.currentTarget.style.background = 'var(--color-danger)';
+                            } else {
+                              e.currentTarget.style.background = '#6B7280';
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+    </div>
+
+    {/* Delete Confirmation Modal */}
       {deleteModalOpen && categoryToDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">

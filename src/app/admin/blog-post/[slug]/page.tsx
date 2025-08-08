@@ -70,6 +70,7 @@ export default function EditBlogPost() {
           draft: post.draft || false,
           excludeFromSearch: post.excludeFromSearch || false,
           slug: post.slug || slug,
+          publishedAt: post.publishedAt || undefined,
           seo: post.seo || { title: '', description: '', keywords: [], image: '/logos/horizontal-logo.png' }
         });
       } else {
