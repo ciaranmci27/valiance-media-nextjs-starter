@@ -188,7 +188,7 @@ openGraph: {
 }
 ```
 
-### Twitter/X Cards
+### X (Twitter) Cards
 
 ```typescript
 twitter: {

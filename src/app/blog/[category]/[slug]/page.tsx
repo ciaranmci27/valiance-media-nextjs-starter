@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
-import { BlogLayout } from '@/components/BlogLayout';
+import { BlogLayout } from '@/components/admin/BlogLayout';
 import { loadPost, loadBlogPosts, getRelatedPosts, loadCategories } from '@/lib/blog-utils';
 
 interface BlogPostPageProps {

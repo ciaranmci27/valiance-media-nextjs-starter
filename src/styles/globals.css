@@ -328,7 +328,7 @@ body > * {
   background: #DC2626;
 }
 
-/* Input Fields */
+/* Input Fields - Centralized Design System */
 .input-field {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
@@ -336,22 +336,107 @@ body > * {
   border: 1px solid var(--color-border-medium);
   border-radius: var(--radius-md);
   color: var(--color-text-primary);
+  font-size: 14px;
   transition: all var(--transition-fast);
 }
 
 .input-field:focus {
   outline: none;
   border-color: var(--color-border-accent);
+  background: var(--color-surface);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.input-field:hover:not(:focus):not(:disabled) {
+  border-color: var(--color-border-dark);
+}
+
+.input-field:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-surface-disabled);
+}
+
+.input-field::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* Monospace variant for slugs/codes */
+.input-field-mono {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+}
+
+/* Textarea specific */
+textarea.input-field {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Select field */
+select.input-field {
+  cursor: pointer;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+}
+
 [data-theme="dark"] .input-field {
-  background: var(--color-surface);
-  border-color: var(--color-border-medium);
+  background: rgb(31, 41, 55);
+  border-color: rgb(55, 65, 81);
+  color: rgb(243, 244, 246);
 }
 
 [data-theme="dark"] .input-field:focus {
+  background: rgb(31, 41, 55);
+  border-color: rgb(59, 130, 246);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="dark"] .input-field:hover:not(:focus):not(:disabled) {
+  border-color: rgb(75, 85, 99);
+}
+
+[data-theme="dark"] .input-field::placeholder {
+  color: rgb(156, 163, 175);
+}
+
+/* Form Labels */
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-label-required::after {
+  content: ' *';
+  color: var(--color-danger);
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Form Row for inline fields */
+.form-row {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.form-row-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.form-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-row-70-30 {
+  grid-template-columns: 7fr 3fr;
 }
 
 /* Alerts */
@@ -763,6 +848,11 @@ body::before {
 .btn:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+.btn-sm {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
 }
 
 .btn-primary {

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { PageWrapper } from "@/components/PageWrapper";
+import { PageWrapper } from "@/components/admin/PageWrapper";
 import { SEO } from "@/seo";
 import { pageMetadata } from "@/seo/seo.config";
 

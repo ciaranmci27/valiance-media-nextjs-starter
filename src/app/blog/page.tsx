@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { PageWrapper } from '@/components/PageWrapper';
-import { BlogCard } from '@/components/BlogCard';
+import { PageWrapper } from '@/components/admin/PageWrapper';
+import { BlogCard } from '@/components/admin/BlogCard';
 import { loadBlogPosts, loadCategories } from '@/lib/blog-utils';
 import Link from 'next/link';
 

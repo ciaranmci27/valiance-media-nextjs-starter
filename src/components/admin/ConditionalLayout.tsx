@@ -1,9 +1,9 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Header } from './Header';
+import { Header } from '../Header';
 import { AdminHeader } from './AdminHeader';
-import { Footer } from './Footer';
+import { Footer } from '../Footer';
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

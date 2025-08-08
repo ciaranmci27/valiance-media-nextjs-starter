@@ -4,10 +4,10 @@ import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const categoriesDir = path.join(process.cwd(), 'public', 'blog-content', 'categories');
     const categoryPath = path.join(categoriesDir, slug);
     const configPath = path.join(categoryPath, '.config.json');
@@ -70,10 +70,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug: currentSlug } = params;
+    const { slug: currentSlug } = await params;
     const data = await request.json();
     const { originalSlug, slug: newSlug, ...categoryData } = data;
     
@@ -160,10 +160,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const categoriesDir = path.join(process.cwd(), 'public', 'blog-content', 'categories');
     const categoryPath = path.join(categoriesDir, slug);
 

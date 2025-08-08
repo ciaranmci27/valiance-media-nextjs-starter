@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { seoConfig } from '@/seo/seo.config';
-import SlugChangeWarningModal from '@/components/SlugChangeWarningModal';
+import SlugChangeWarningModal from '@/components/admin/SlugChangeWarningModal';
 
 interface CategoryFormData {
   name: string;
@@ -40,6 +40,7 @@ export default function EditCategoryPage() {
   const [hasPublishedPosts, setHasPublishedPosts] = useState(false);
   const [showSlugWarning, setShowSlugWarning] = useState(false);
   const [pendingSlug, setPendingSlug] = useState<string>('');
+  const [isCircularRedirect, setIsCircularRedirect] = useState(false);
 
   useEffect(() => {
     fetchCategory();
@@ -194,16 +195,24 @@ export default function EditCategoryPage() {
     if (createRedirect && hasPublishedPosts) {
       try {
         // First, create redirect for the category page itself
-        await fetch('/api/admin/redirects', {
+        const categoryRedirectResponse = await fetch('/api/admin/redirects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             from: `/blog/${originalSlug}`,
             to: `/blog/${pendingSlug}`,
             permanent: true,
+            createdAt: new Date().toISOString(),
             reason: 'Category slug changed'
           })
         });
+        
+        if (categoryRedirectResponse.ok) {
+          const result = await categoryRedirectResponse.json();
+          if (result.updatedChains && result.updatedChains > 0) {
+            console.log(`Prevented redirect chains: Updated ${result.updatedChains} existing redirect(s) to point directly to the new category URL`);
+          }
+        }
 
         // Then, get all posts in this category and create redirects for them
         const response = await fetch(`/api/admin/blog/categories/${originalSlug}/posts`);
@@ -221,6 +230,7 @@ export default function EditCategoryPage() {
                   from: `/blog/${originalSlug}/${post.slug}`,
                   to: `/blog/${pendingSlug}/${post.slug}`,
                   permanent: true,
+                  createdAt: new Date().toISOString(),
                   reason: `Category slug changed from ${originalSlug} to ${pendingSlug}`
                 })
               });
@@ -274,6 +284,24 @@ export default function EditCategoryPage() {
 
     // Check if slug has changed and category has published posts
     if (hasPublishedPosts && formData.slug && formData.slug !== originalSlug) {
+      // Check if this would create a circular redirect
+      const oldUrl = `/blog/${originalSlug}`;
+      const newUrl = `/blog/${formData.slug}`;
+      
+      try {
+        const response = await fetch('/api/admin/redirects');
+        if (response.ok) {
+          const data = await response.json();
+          const wouldBeCircular = data.redirects?.some((r: any) => 
+            r.from === newUrl && r.to === oldUrl
+          );
+          setIsCircularRedirect(wouldBeCircular || false);
+        }
+      } catch (error) {
+        console.error('Error checking redirects:', error);
+        setIsCircularRedirect(false);
+      }
+      
       setPendingSlug(formData.slug);
       setShowSlugWarning(true);
       return;
@@ -354,7 +382,7 @@ export default function EditCategoryPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder="e.g., Technology"
                 />
                 {errors.name && (
@@ -372,7 +400,7 @@ export default function EditCategoryPage() {
                   name="slug"
                   value={formData.slug}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field input-field-mono"
                   placeholder="technology"
                 />
                 {errors.slug && (
@@ -398,7 +426,7 @@ export default function EditCategoryPage() {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder="Brief description of this category..."
                 />
               </div>
@@ -431,7 +459,7 @@ export default function EditCategoryPage() {
                   name="seo.title"
                   value={formData.seo.title}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder={formData.name || "Category SEO title"}
                   maxLength={60}
                 />
@@ -450,7 +478,7 @@ export default function EditCategoryPage() {
                   value={formData.seo.description}
                   onChange={handleInputChange}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder={formData.description || "Category SEO description"}
                   maxLength={160}
                 />
@@ -468,7 +496,7 @@ export default function EditCategoryPage() {
                   id="keywords"
                   value={formData.seo.keywords.join(', ')}
                   onChange={handleKeywordsChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder="technology, tech news, software (comma-separated)"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -507,10 +535,14 @@ export default function EditCategoryPage() {
       {/* Slug Change Warning Modal */}
       <SlugChangeWarningModal
         isOpen={showSlugWarning}
-        onClose={() => setShowSlugWarning(false)}
+        onClose={() => {
+          setShowSlugWarning(false);
+          setIsCircularRedirect(false);
+        }}
         onConfirm={handleSlugWarningConfirm}
         oldSlug={originalSlug}
         newSlug={pendingSlug}
+        isCircularRedirect={isCircularRedirect}
       />
     </div>
   );

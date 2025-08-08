@@ -2,6 +2,40 @@ import { Metadata } from 'next';
 import { seoConfig } from './seo.config';
 
 /**
+ * Get a valid site URL with fallback
+ */
+function getSiteUrl(): string {
+  // Check if siteUrl exists and is valid
+  if (seoConfig.siteUrl) {
+    try {
+      new URL(seoConfig.siteUrl);
+      return seoConfig.siteUrl;
+    } catch {
+      // Invalid URL, continue to fallback
+    }
+  }
+  
+  // Fallback to environment variable
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    try {
+      new URL(process.env.NEXT_PUBLIC_SITE_URL);
+      return process.env.NEXT_PUBLIC_SITE_URL;
+    } catch {
+      // Invalid URL, continue to fallback
+    }
+  }
+  
+  // Development fallback
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  
+  // Production fallback - use a placeholder that won't break
+  // This should be updated in production
+  return 'https://example.com';
+}
+
+/**
  * Generate metadata for a page
  */
 export function generateMetadata({
@@ -20,9 +54,10 @@ export function generateMetadata({
 
   const metaDescription = description || seoConfig.defaultDescription;
   const metaKeywords = keywords || seoConfig.defaultKeywords;
+  const siteUrl = getSiteUrl();
 
   const metadata: any = {
-    metadataBase: new URL(seoConfig.siteUrl),
+    metadataBase: new URL(siteUrl),
     title: metaTitle,
     description: metaDescription,
     keywords: metaKeywords,
@@ -45,7 +80,7 @@ export function generateMetadata({
     openGraph: {
       title: openGraph?.title || metaTitle,
       description: openGraph?.description || metaDescription,
-      url: openGraph?.url || seoConfig.siteUrl,
+      url: openGraph?.url || siteUrl,
       siteName: seoConfig.siteName,
       type: (openGraph as any)?.type || seoConfig.openGraph.type,
       locale: (openGraph as any)?.locale || seoConfig.openGraph.locale,
@@ -82,11 +117,12 @@ export function generateOrganizationSchema() {
     return null;
   }
 
+  const siteUrl = getSiteUrl();
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: seoConfig.company.name,
-    url: seoConfig.siteUrl,
+    url: siteUrl,
   };
 
   // Add optional fields only if they exist
@@ -95,7 +131,7 @@ export function generateOrganizationSchema() {
   }
 
   // Add logo if it exists
-  const logoPath = `${seoConfig.siteUrl}/logos/square-logo.png`;
+  const logoPath = `${siteUrl}/logos/square-logo.png`;
   schema.logo = logoPath;
 
   if (seoConfig.company.foundingDate) {
@@ -158,11 +194,12 @@ export function generateOrganizationSchema() {
  * Generate JSON-LD structured data for website
  */
 export function generateWebsiteSchema() {
+  const siteUrl = getSiteUrl();
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: seoConfig.siteName,
-    url: seoConfig.siteUrl,
+    url: siteUrl,
     description: seoConfig.defaultDescription,
   };
 
@@ -173,7 +210,7 @@ export function generateWebsiteSchema() {
       name: seoConfig.company.name,
       logo: {
         '@type': 'ImageObject',
-        url: `${seoConfig.siteUrl}/logos/square-logo.png`,
+        url: `${siteUrl}/logos/square-logo.png`,
       },
     };
   }
@@ -183,7 +220,7 @@ export function generateWebsiteSchema() {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: `${seoConfig.siteUrl}/search?q={search_term_string}`,
+      urlTemplate: `${siteUrl}/search?q={search_term_string}`,
     },
     'query-input': 'required name=search_term_string',
   };
@@ -209,12 +246,13 @@ export function generateWebPageSchema({
   author?: string;
   image?: string;
 }) {
+  const siteUrl = getSiteUrl();
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: title,
     description: description,
-    url: typeof window !== 'undefined' ? window.location.href : seoConfig.siteUrl,
+    url: typeof window !== 'undefined' ? window.location.href : siteUrl,
     datePublished: datePublished || new Date().toISOString(),
     dateModified: dateModified || new Date().toISOString(),
   };
@@ -234,7 +272,7 @@ export function generateWebPageSchema({
       name: seoConfig.company.name,
       logo: {
         '@type': 'ImageObject',
-        url: `${seoConfig.siteUrl}/logos/square-logo.png`,
+        url: `${siteUrl}/logos/square-logo.png`,
       },
     };
   }
@@ -242,7 +280,7 @@ export function generateWebPageSchema({
   schema.image = image || seoConfig.openGraph.defaultImage;
   schema.mainEntityOfPage = {
     '@type': 'WebPage',
-    '@id': typeof window !== 'undefined' ? window.location.href : seoConfig.siteUrl,
+    '@id': typeof window !== 'undefined' ? window.location.href : siteUrl,
   };
 
   return schema;
@@ -274,6 +312,7 @@ export function generateProductSchema({
   rating?: number;
   reviewCount?: number;
 }) {
+  const siteUrl = getSiteUrl();
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -282,7 +321,7 @@ export function generateProductSchema({
     image: Array.isArray(image) ? image : [image],
     offers: {
       '@type': 'Offer',
-      url: typeof window !== 'undefined' ? window.location.href : seoConfig.siteUrl,
+      url: typeof window !== 'undefined' ? window.location.href : siteUrl,
       priceCurrency: currency,
       price: price,
       availability: availability,
@@ -357,7 +396,8 @@ export function generateFAQSchema(faqs: Array<{ question: string; answer: string
  */
 export function generateCanonicalUrl(path: string = ''): string {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  return `${seoConfig.siteUrl}${cleanPath}`;
+  const siteUrl = getSiteUrl();
+  return `${siteUrl}${cleanPath}`;
 }
 
 /**

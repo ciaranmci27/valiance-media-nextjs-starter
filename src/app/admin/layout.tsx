@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { AdminFooter } from '@/components/AdminFooter';
+import { AdminFooter } from '@/components/admin/AdminFooter';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',

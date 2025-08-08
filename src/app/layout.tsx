@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/styles/ThemeProvider";
-import { ConditionalLayout } from "@/components/ConditionalLayout";
-import { Analytics } from "@/components/Analytics";
+import { ConditionalLayout } from "@/components/admin/ConditionalLayout";
+import { Analytics } from "@/components/admin/Analytics";
 import { generateMetadata } from "@/seo/seo-utils";
 import { seoConfig } from "@/seo/seo.config";
 import "@/styles/globals.css";

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { toast } from '@/components/ui/Toast';
+import { toast } from '@/components/admin/ui/Toast';
 import SocialMediaPreview from './SocialMediaPreview';
-import { Switch } from '@/components/ui/Switch';
+import { Switch } from '@/components/admin/ui/Switch';
 
 interface SEOConfigData {
   siteName: string;
@@ -621,7 +621,7 @@ export default function SEOConfigEditor() {
                   {Object.entries(config.social).map(([platform, url]) => {
                     // Format platform names for display
                     const platformLabels: Record<string, string> = {
-                      twitter: 'Twitter/X',
+                      twitter: 'X (Twitter)',
                       linkedin: 'LinkedIn',
                       github: 'GitHub',
                       instagram: 'Instagram',
@@ -768,30 +768,32 @@ export default function SEOConfigEditor() {
                   <h4 className="font-semibold mb-3">Language Versions</h4>
                   <div className="space-y-3">
                     {Object.entries(config.alternates.languages).map(([lang, url]) => (
-                      <div key={lang} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={lang}
-                          className="input-field w-32"
-                          placeholder="en-US"
-                          readOnly
-                        />
+                      <div key={lang} className="flex gap-2 items-start">
+                        <div className="w-32 shrink-0">
+                          <input
+                            type="text"
+                            value={lang}
+                            className="input-field w-full"
+                            placeholder="en-US"
+                            readOnly
+                          />
+                        </div>
                         <input
                           type="url"
                           value={url}
                           onChange={(e) => {
-                            const newLanguages = {...config.alternates.languages};
+                            const newLanguages = { ...config.alternates.languages };
                             newLanguages[lang] = e.target.value;
-                            setConfig({...config, alternates: {...config.alternates, languages: newLanguages}});
+                            setConfig({ ...config, alternates: { ...config.alternates, languages: newLanguages } });
                           }}
                           className="input-field flex-1"
                           placeholder="https://example.com"
                         />
                         <button
                           onClick={() => {
-                            const newLanguages = {...config.alternates.languages};
+                            const newLanguages = { ...config.alternates.languages };
                             delete newLanguages[lang];
-                            setConfig({...config, alternates: {...config.alternates, languages: newLanguages}});
+                            setConfig({ ...config, alternates: { ...config.alternates, languages: newLanguages } });
                           }}
                           className="btn btn-sm btn-danger"
                         >

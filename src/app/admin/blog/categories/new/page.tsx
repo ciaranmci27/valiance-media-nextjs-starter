@@ -241,7 +241,7 @@ export default function NewCategoryPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder="e.g., Technology"
                 />
                 {errors.name && (
@@ -259,7 +259,7 @@ export default function NewCategoryPage() {
                   name="slug"
                   value={formData.slug}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field input-field-mono"
                   placeholder="technology"
                 />
                 {errors.slug && (
@@ -280,7 +280,7 @@ export default function NewCategoryPage() {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder="Brief description of this category..."
                 />
               </div>
@@ -313,7 +313,7 @@ export default function NewCategoryPage() {
                   name="seo.title"
                   value={formData.seo.title}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder={formData.name || "Category SEO title"}
                   maxLength={60}
                 />
@@ -332,7 +332,7 @@ export default function NewCategoryPage() {
                   value={formData.seo.description}
                   onChange={handleInputChange}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder={formData.description || "Category SEO description"}
                   maxLength={160}
                 />
@@ -350,7 +350,7 @@ export default function NewCategoryPage() {
                   id="keywords"
                   value={formData.seo.keywords.join(', ')}
                   onChange={handleKeywordsChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                  className="input-field"
                   placeholder="technology, tech news, software (comma-separated)"
                 />
                 <p className="text-xs text-gray-500 mt-1">

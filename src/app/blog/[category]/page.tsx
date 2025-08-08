@@ -1,8 +1,8 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
-import { PageWrapper } from '@/components/PageWrapper';
-import { BlogCard } from '@/components/BlogCard';
+import { PageWrapper } from '@/components/admin/PageWrapper';
+import { BlogCard } from '@/components/admin/BlogCard';
 import { loadPostsByCategory, loadCategories, loadPost, loadBlogPosts } from '@/lib/blog-utils';
 import Link from 'next/link';
 
@@ -146,7 +146,7 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
   const post = await loadPost(resolvedParams.category);
   if (post) {
     // Redirect to the proper URL structure
-    const { BlogLayout } = await import('@/components/BlogLayout');
+    const { BlogLayout } = await import('@/components/admin/BlogLayout');
     const { getRelatedPosts } = await import('@/lib/blog-utils');
     const relatedPosts = await getRelatedPosts(post, 3);
     

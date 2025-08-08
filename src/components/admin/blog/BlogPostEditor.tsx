@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import RichTextEditor from '@/components/RichTextEditor';
-import TagInputImproved from '@/components/TagInputImproved';
-import KeywordsInput from '@/components/KeywordsInput';
+import RichTextEditor from '@/components/admin/RichTextEditor';
+import TagInputImproved from '@/components/admin/TagInputImproved';
+import KeywordsInput from '@/components/admin/KeywordsInput';
 import SocialMediaPreview from '@/components/admin/seo/SocialMediaPreview';
-import UrlChangeWarningModal from '@/components/UrlChangeWarningModal';
+import UrlChangeWarningModal from '@/components/admin/UrlChangeWarningModal';
 import { getCMSConfig } from '@/lib/cms-config';
 import { seoConfig } from '@/seo/seo.config';
-import { Switch } from '@/components/ui/Switch';
+import { Switch } from '@/components/admin/ui/Switch';
 
 interface BlogFormData {
   title: string;
@@ -57,6 +57,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
   const [originalSlug, setOriginalSlug] = useState<string>(slug || '');
   const [originalCategory, setOriginalCategory] = useState<string>(initialData?.category || '');
   const [pendingCategory, setPendingCategory] = useState<string>('');
+  const [isCircularRedirect, setIsCircularRedirect] = useState(false);
   // Check if post is published based on initial data
   const isPublished = mode === 'edit' && initialData && !initialData.draft && !!initialData.publishedAt;
   
@@ -153,7 +154,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     }
 
     const siteName = seoConfig.siteName || 'Your Site';
-    const siteTagline = seoConfig.siteTagline || '';
+    const siteTagline = (seoConfig as any).siteTagline || '';
     const titleTemplate = seoConfig.titleTemplate || '{pageName} | {siteName}';
     
     // Replace variables with actual values
@@ -319,7 +320,14 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
           })
         });
         
-        if (!response.ok) {
+        if (response.ok) {
+          const result = await response.json();
+          if (result.action === 'removed_circular') {
+            console.log('Removed circular redirect:', result.removedRedirect);
+          } else if (result.updatedChains && result.updatedChains > 0) {
+            console.log(`Prevented redirect chains: Updated ${result.updatedChains} existing redirect(s) to point directly to the new URL`);
+          }
+        } else {
           console.error('Failed to create redirect');
         }
       } catch (error) {
@@ -359,7 +367,29 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     const categoryChanged = mode === 'edit' && isPublished && formData.category !== originalCategory;
     
     if (slugChanged || categoryChanged) {
-      setPendingSlug(formData.slug);
+      // Check if this would create a circular redirect
+      const oldUrl = originalCategory 
+        ? `/blog/${originalCategory}/${originalSlug}`
+        : `/blog/${originalSlug}`;
+      const newUrl = formData.category
+        ? `/blog/${formData.category}/${formData.slug}`
+        : `/blog/${formData.slug}`;
+      
+      try {
+        const response = await fetch('/api/admin/redirects');
+        if (response.ok) {
+          const data = await response.json();
+          const wouldBeCircular = data.redirects?.some((r: any) => 
+            r.from === newUrl && r.to === oldUrl
+          );
+          setIsCircularRedirect(wouldBeCircular || false);
+        }
+      } catch (error) {
+        console.error('Error checking redirects:', error);
+        setIsCircularRedirect(false);
+      }
+      
+      setPendingSlug(formData.slug || originalSlug || '');
       setPendingCategory(formData.category);
       setShowSlugWarning(true);
       return; // Stop here, let the modal handle the rest
@@ -657,10 +687,13 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                   {/* Slug Field - 30% */}
                   <div className="min-w-0 overflow-hidden">
                     <div className="flex items-center gap-2 mb-2">
-                      <label htmlFor="slug" className="text-label">
+                      <label htmlFor="slug" className="text-label whitespace-nowrap shrink-0">
                         Post Slug *
                       </label>
-                      <span className="text-xs text-gray-500 font-mono truncate" title={getSlugPreview()}>
+                      <span
+                        className="text-xs text-gray-500 font-mono block flex-1 min-w-0 truncate max-w-[140px] sm:max-w-[220px] md:max-w-[280px]"
+                        title={getSlugPreview()}
+                      >
                         {getSlugPreview()}
                       </span>
                     </div>
@@ -1098,6 +1131,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
           setShowSlugWarning(false);
           setPendingSlug('');
           setPendingCategory('');
+          setIsCircularRedirect(false);
         }}
         onConfirm={handleSlugWarningConfirm}
         oldUrl={originalCategory ? `/blog/${originalCategory}/${originalSlug}` : `/blog/${originalSlug}`}
@@ -1106,6 +1140,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
           formData.slug !== originalSlug && formData.category !== originalCategory ? 'both' :
           formData.slug !== originalSlug ? 'slug' : 'category'
         }
+        isCircularRedirect={isCircularRedirect}
       />
     </div>
   );

@@ -9,6 +9,7 @@ interface SlugChangeWarningModalProps {
   oldSlug: string;
   newSlug: string;
   category?: string;
+  isCircularRedirect?: boolean;
 }
 
 export default function SlugChangeWarningModal({
@@ -17,7 +18,8 @@ export default function SlugChangeWarningModal({
   onConfirm,
   oldSlug,
   newSlug,
-  category
+  category,
+  isCircularRedirect = false
 }: SlugChangeWarningModalProps) {
   const [isCreatingRedirect, setIsCreatingRedirect] = useState(false);
 
@@ -47,10 +49,12 @@ export default function SlugChangeWarningModal({
             </div>
             <div>
               <h3 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                URL Change Warning
+                {isCircularRedirect ? 'Circular Redirect Detected' : 'URL Change Warning'}
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                This action will change your post's URL
+                {isCircularRedirect 
+                  ? 'An existing redirect will be removed'
+                  : category ? 'This action will change your category\'s URL' : 'This action will change your post\'s URL'}
               </p>
             </div>
           </div>
@@ -59,7 +63,11 @@ export default function SlugChangeWarningModal({
         {/* Content */}
         <div className="p-6 space-y-4">
           <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-            You're about to change the slug, which will modify the URL of this published blog post. This can impact SEO and break existing links.
+            {isCircularRedirect 
+              ? `You're changing the slug back to its original value. Since a redirect already exists from the new URL to the old URL, clicking "Remove Circular Redirect" will delete that existing redirect instead of creating a new one. This keeps your redirects clean and organized.`
+              : category 
+                ? `You're about to change the slug, which will modify the URL of this category and all its posts. This can impact SEO and break existing links.`
+                : `You're about to change the slug, which will modify the URL of this published blog post. This can impact SEO and break existing links.`}
           </p>
           
           {/* URL Comparison */}
@@ -97,18 +105,41 @@ export default function SlugChangeWarningModal({
             </div>
           </div>
           
-          {/* SEO Impact Notice */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          {/* SEO Impact Notice or Circular Redirect Notice */}
+          <div className={`border rounded-lg p-4 ${
+            isCircularRedirect 
+              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+              : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+          }`}>
             <div className="flex gap-3">
-              <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              <svg className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                isCircularRedirect 
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-blue-600 dark:text-blue-400'
+              }`} fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d={isCircularRedirect 
+                  ? "M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  : "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                } clipRule="evenodd" />
               </svg>
               <div className="flex-1">
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                  SEO Impact
+                <p className={`text-sm font-medium mb-1 ${
+                  isCircularRedirect 
+                    ? 'text-green-900 dark:text-green-100'
+                    : 'text-blue-900 dark:text-blue-100'
+                }`}>
+                  {isCircularRedirect ? 'Smart Redirect Management' : 'SEO Impact'}
                 </p>
-                <p className="text-xs leading-relaxed text-blue-800 dark:text-blue-200">
-                  Changing URLs can affect search rankings and break bookmarks. A 308 permanent redirect will preserve most SEO value and automatically send visitors to the new URL.
+                <p className={`text-xs leading-relaxed ${
+                  isCircularRedirect 
+                    ? 'text-green-800 dark:text-green-200'
+                    : 'text-blue-800 dark:text-blue-200'
+                }`}>
+                  {isCircularRedirect 
+                    ? 'A redirect from the new URL to the old URL already exists. Removing it will restore the original URL without creating circular redirects, keeping your redirect configuration clean.'
+                    : category
+                      ? 'Changing category URLs can affect search rankings and break bookmarks. A 308 permanent redirect will preserve most SEO value and automatically redirect visitors and posts to the new URL.'
+                      : 'Changing URLs can affect search rankings and break bookmarks. A 308 permanent redirect will preserve most SEO value and automatically send visitors to the new URL.'}
                 </p>
               </div>
             </div>
@@ -126,7 +157,7 @@ export default function SlugChangeWarningModal({
             <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Skip Redirect
+            {isCircularRedirect ? 'Keep Existing Redirect' : 'Skip Redirect'}
           </button>
           
           <button
@@ -141,14 +172,14 @@ export default function SlugChangeWarningModal({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Creating Redirect...
+                {isCircularRedirect ? 'Removing Redirect...' : 'Creating Redirect...'}
               </span>
             ) : (
               <>
                 <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Create Redirect
+                {isCircularRedirect ? 'Remove Circular Redirect' : 'Create Redirect'}
               </>
             )}
           </button>

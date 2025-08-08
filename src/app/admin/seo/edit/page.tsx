@@ -28,6 +28,12 @@ export default function EditPageSEO() {
   const searchParams = useSearchParams();
   const pagePath = searchParams.get('page') || '/';
   
+  // Determine if we came from page editor - check if page parameter exists and is not just the home page
+  const isFromPageEditor = searchParams.has('page');
+  
+  // Extract the slug from the path for navigation back
+  const pageSlug = pagePath === '/' ? 'home' : pagePath.replace(/^\//, '');
+  
   const [page, setPage] = useState<PageSEO | null>(null);
   const [seoConfig, setSeoConfig] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -130,8 +136,11 @@ export default function EditPageSEO() {
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center">
             <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>Page not found</p>
-            <Link href="/admin/seo?tab=pages" className="btn btn-primary mt-4">
-              Back to SEO Dashboard
+            <Link 
+              href={isFromPageEditor ? `/admin/pages/${pageSlug}/edit` : "/admin/seo?tab=pages"} 
+              className="btn btn-primary mt-4"
+            >
+              {isFromPageEditor ? 'Back to Page Editor' : 'Back to SEO Dashboard'}
             </Link>
           </div>
         </div>
@@ -148,10 +157,10 @@ export default function EditPageSEO() {
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Link 
-              href="/admin/seo?tab=pages" 
+              href={isFromPageEditor ? `/admin/pages/${pageSlug}/edit` : "/admin/seo?tab=pages"} 
               className="text-blue-600 hover:text-blue-800"
             >
-              ← Back to SEO Dashboard
+              ← {isFromPageEditor ? 'Back to Page Editor' : 'Back to SEO Dashboard'}
             </Link>
           </div>
           
@@ -297,7 +306,7 @@ export default function EditPageSEO() {
             <div className="space-y-6">
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-6">
                 <p className="text-sm">
-                  <strong>ℹ️ Note:</strong> Open Graph tags are used by Facebook, LinkedIn, Twitter/X, and most social media platforms. 
+                  <strong>ℹ️ Note:</strong> Open Graph tags are used by Facebook, LinkedIn, X (Twitter), and most social media platforms. 
                   You don't need separate Twitter Card settings.
                 </p>
               </div>
@@ -477,7 +486,7 @@ export default function EditPageSEO() {
         {/* Action Buttons */}
         <div className="flex justify-between items-center mt-8">
           <Link 
-            href="/admin/seo?tab=pages" 
+            href={isFromPageEditor ? `/admin/pages/${pageSlug}/edit` : "/admin/seo?tab=pages"} 
             className="btn btn-secondary"
           >
             Cancel

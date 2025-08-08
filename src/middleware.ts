@@ -1,15 +1,18 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAuthEdge } from '@/lib/auth-edge';
-import redirectsConfig from '../public/redirects.json';
 
 // Valid routes generated at build time
 const validRoutes = new Set([
+  '/admin/blog/categories/new',
+  '/admin/blog/categories',
   '/admin/blog',
   '/admin/blog-post',
   '/admin/categories',
   '/admin/login',
   '/admin',
+  '/admin/pages/new',
+  '/admin/pages',
   '/admin/seo/edit',
   '/admin/seo',
   '/admin/settings',
@@ -24,23 +27,13 @@ const validRoutes = new Set([
 // Valid blog routes generated at build time
 const validBlogRoutes = new Set([
   '/blog',
-  '/blog/guides',
-  '/blog/guides/blog-post-example',
-  '/blog/blog-post-no-category-example',
-  '/blog/does-this-work'
+  '/blog/guides-2',
+  '/blog/guides-2/blog-post-example',
+  '/blog/blog-post-no-category-example-2'
 ]);
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  
-  // Check for custom redirects from redirects.json first
-  const customRedirect = redirectsConfig.redirects.find(r => r.from === path);
-  if (customRedirect) {
-    return NextResponse.redirect(
-      new URL(customRedirect.to, request.url),
-      customRedirect.permanent ? 308 : 307
-    );
-  }
   
   // Handle sitemap redirects BEFORE allowing static files
   const sitemapRedirects: { [key: string]: string } = {
@@ -50,7 +43,7 @@ export async function middleware(request: NextRequest) {
     '/sitemap-blog-categories.xml': '/sitemap/blog-categories',
   };
 
-  // Check for sitemap redirects
+  // Check for sitemap redirects first
   if (sitemapRedirects[path]) {
     return NextResponse.redirect(new URL(sitemapRedirects[path], request.url));
   }

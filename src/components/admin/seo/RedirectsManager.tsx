@@ -17,8 +17,7 @@ export default function RedirectsManager() {
   const [newRedirect, setNewRedirect] = useState<Partial<Redirect>>({
     from: '',
     to: '',
-    permanent: true,
-    reason: ''
+    permanent: true
   });
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
@@ -65,7 +64,7 @@ export default function RedirectsManager() {
 
       if (response.ok) {
         setSuccess('Redirect added successfully');
-        setNewRedirect({ from: '', to: '', permanent: true, reason: '' });
+        setNewRedirect({ from: '', to: '', permanent: true });
         setShowAddForm(false);
         fetchRedirects();
       } else {
@@ -173,28 +172,17 @@ export default function RedirectsManager() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-label block mb-2">Redirect Type</label>
-              <select
-                value={newRedirect.permanent ? 'permanent' : 'temporary'}
-                onChange={(e) => setNewRedirect({ ...newRedirect, permanent: e.target.value === 'permanent' })}
-                className="input-field"
-              >
-                <option value="permanent">Permanent (308)</option>
-                <option value="temporary">Temporary (307)</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-label block mb-2">Reason (Optional)</label>
-              <input
-                type="text"
-                value={newRedirect.reason || ''}
-                onChange={(e) => setNewRedirect({ ...newRedirect, reason: e.target.value })}
-                className="input-field"
-                placeholder="e.g., Blog post slug changed"
-              />
-            </div>
+          <div>
+            <label className="text-label block mb-2">Redirect Type</label>
+            <select
+              value={newRedirect.permanent ? 'permanent' : 'temporary'}
+              onChange={(e) => setNewRedirect({ ...newRedirect, permanent: e.target.value === 'permanent' })}
+              className="input-field"
+              style={{ maxWidth: '300px' }}
+            >
+              <option value="permanent">Permanent (308)</option>
+              <option value="temporary">Temporary (307)</option>
+            </select>
           </div>
           
           <div className="flex justify-end gap-3">
@@ -202,7 +190,7 @@ export default function RedirectsManager() {
               type="button"
               onClick={() => {
                 setShowAddForm(false);
-                setNewRedirect({ from: '', to: '', permanent: true, reason: '' });
+                setNewRedirect({ from: '', to: '', permanent: true });
               }}
               className="btn btn-secondary"
             >
@@ -241,9 +229,6 @@ export default function RedirectsManager() {
                     Type
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Reason
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Created
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -272,9 +257,6 @@ export default function RedirectsManager() {
                       }`}>
                         {redirect.permanent ? '308 Permanent' : '307 Temporary'}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                      {redirect.reason || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
                       {new Date(redirect.createdAt).toLocaleDateString()}

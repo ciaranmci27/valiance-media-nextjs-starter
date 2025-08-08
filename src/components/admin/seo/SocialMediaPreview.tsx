@@ -34,7 +34,7 @@ export default function SocialMediaPreview({
 
   const previewTabs = [
     { id: 'facebook', label: 'Facebook', icon: '📘' },
-    { id: 'twitter', label: 'Twitter/X', icon: '🐦' },
+    { id: 'twitter', label: 'X (Twitter)', icon: '🐦' },
     { id: 'linkedin', label: 'LinkedIn', icon: '💼' }
   ];
 
@@ -116,7 +116,7 @@ export default function SocialMediaPreview({
       {activePreview === 'twitter' && (
         <div className="space-y-3">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            This is how your content will appear when shared on Twitter/X
+            This is how your content will appear when shared on X (Twitter)
           </p>
           {twitterCard === 'summary_large_image' ? (
             <div className="border border-gray-300 dark:border-gray-600 rounded-2xl overflow-hidden max-w-[500px] bg-white dark:bg-gray-800">
