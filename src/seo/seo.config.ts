@@ -35,6 +35,29 @@ export const seoConfig = {
     imageWidth: 1200,
     imageHeight: 630
   },
+  // Social media profiles
+  social: {
+    twitter: '',
+    linkedin: '',
+    github: '',
+    instagram: '',
+    facebook: '',
+    youtube: ''
+  },
+  // Site verification codes for search engines
+  verification: {
+    google: '',
+    bing: '',
+    yandex: '',
+    pinterest: ''
+  },
+  // Analytics and tracking IDs
+  analytics: {
+    googleAnalyticsId: '',
+    facebookPixelId: '',
+    hotjarId: '',
+    clarityId: ''
+  },
   robots: {
     index: true,
     follow: true,
