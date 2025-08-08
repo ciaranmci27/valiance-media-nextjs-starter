@@ -25,6 +25,8 @@ export const seoConfig = {
   defaultTitle: 'Welcome to Your Company - Your Tagline Here',
   titleTemplate: '{pageName} | {siteName}',
   defaultDescription: 'Your company description here',
+  // Default keywords used when a page doesn't specify its own
+  defaultKeywords: [],
   openGraph: {
     type: 'website',
     locale: 'en_US',
