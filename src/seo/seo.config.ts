@@ -99,11 +99,11 @@ export const seoConfig = {
   },
   schema: {
     activeTypes: {
-      organization: true,
-      website: true,
+      organization: false,
+      website: false,
       localBusiness: false,
       person: false,
-      breadcrumbs: true
+      breadcrumbs: false
     },
     organization: {
       enabled: true,
