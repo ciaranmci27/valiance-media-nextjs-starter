@@ -11,6 +11,21 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const type = searchParams.get('type');
 
+    // Compute a safe site URL with fallbacks
+    const getSiteUrl = (): string => {
+      if (process.env.NEXT_PUBLIC_SITE_URL) {
+        try {
+          new URL(process.env.NEXT_PUBLIC_SITE_URL);
+          return process.env.NEXT_PUBLIC_SITE_URL;
+        } catch {}
+      }
+      if (process.env.NODE_ENV === 'development') {
+        return 'http://localhost:3000';
+      }
+      return 'https://example.com';
+    };
+    const siteUrl = getSiteUrl();
+
     // Get page SEO data (static pages only, no blog content, no admin pages)
     if (type === 'pages') {
       // Get all static pages (excluding admin pages)
@@ -71,7 +86,7 @@ export async function GET(request: NextRequest) {
           isIndexed: route.isIndexed && isInSitemap,
           isInSitemap,
           hasCustomMeta,
-          canonicalUrl: `${seoConfig.siteUrl}${route.path}`,
+          canonicalUrl: siteUrl ? `${siteUrl}${route.path}` : '',
           robots: pageConfig?.robots || (route.isIndexed ? 'index, follow' : 'noindex, nofollow'),
         };
       });
@@ -126,7 +141,7 @@ Disallow: /admin/
 Disallow: /_next/
 Disallow: /private/
 
-Sitemap: ${seoConfig.siteUrl}/sitemap.xml`;
+Sitemap: ${siteUrl}/sitemap.xml`;
 
       return NextResponse.json({ content: robotsContent });
     }
@@ -167,7 +182,7 @@ Sitemap: ${seoConfig.siteUrl}/sitemap.xml`;
     return NextResponse.json({
       config: {
         siteName: seoConfig.siteName,
-        siteUrl: seoConfig.siteUrl,
+        siteUrl: siteUrl,
         defaultTitle: seoConfig.defaultTitle,
         defaultDescription: seoConfig.defaultDescription,
         defaultKeywords: seoConfig.defaultKeywords,

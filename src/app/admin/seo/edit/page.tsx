@@ -149,6 +149,24 @@ export default function EditPageSEO() {
   }
 
   const pageDisplayName = page.path === '/' ? 'Homepage' : page.title;
+  
+  // Compute a safe base URL for previews/fallbacks to avoid showing "undefined/..."
+  const baseUrl = (seoConfig?.siteUrl && typeof seoConfig.siteUrl === 'string')
+    ? seoConfig.siteUrl
+    : (typeof window !== 'undefined' ? window.location.origin : '');
+
+  const isValidUrl = (value: string | undefined | null): boolean => {
+    if (!value || typeof value !== 'string') return false;
+    try {
+      // URL constructor will throw if invalid
+      // Also protect against strings like "undefined/..."
+      if (value.trim().toLowerCase().startsWith('undefined')) return false;
+      new URL(value);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   return (
     <div className="min-h-screen py-8">
@@ -274,7 +292,7 @@ export default function EditPageSEO() {
                 <label className="text-label block mb-2">Canonical URL</label>
                 <input
                   type="text"
-                  value={page.canonicalUrl || `${seoConfig?.siteUrl}${page.path}`}
+                  value={isValidUrl(page.canonicalUrl) ? page.canonicalUrl! : (baseUrl ? `${baseUrl}${page.path}` : '')}
                   onChange={(e) => setPage({...page, canonicalUrl: e.target.value})}
                   className="input-field"
                   placeholder="https://example.com/page"
@@ -292,7 +310,7 @@ export default function EditPageSEO() {
                     {page.title || 'Page Title'}
                   </p>
                   <p className="text-green-700 dark:text-green-400 text-sm mt-1">
-                    {seoConfig?.siteUrl}{page.path}
+                    {baseUrl}{page.path}
                   </p>
                   <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
                     {page.description || 'Page description will appear here...'}
@@ -371,10 +389,10 @@ export default function EditPageSEO() {
                   <SocialMediaPreview
                     title={page.ogTitle || page.title}
                     description={page.ogDescription || page.description}
-                    imageUrl={page.ogImage && (page.ogImage.startsWith('http') 
-                      ? page.ogImage 
-                      : `${seoConfig?.siteUrl || ''}${page.ogImage}`)}
-                    url={`${seoConfig?.siteUrl || ''}${page.path}`}
+                    imageUrl={page.ogImage && (page.ogImage.startsWith('http')
+                      ? page.ogImage
+                      : (baseUrl ? `${baseUrl}${page.ogImage}` : ''))}
+                    url={baseUrl ? `${baseUrl}${page.path}` : ''}
                     siteName={seoConfig?.siteName || ''}
                     twitterCard={'summary_large_image'}
                   />
