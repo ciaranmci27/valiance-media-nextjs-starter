@@ -6,12 +6,51 @@
  */
 
 export const seoConfig = {
+  siteName: 'Your Company Name',
+  siteUrl: 'https://example.com',
   defaultTitle: 'Welcome to Your Company - Your Tagline Here',
+  defaultDescription: 'Your company description here',
+  defaultKeywords: [] as string[],
   titleTemplate: '{pageName} | {siteName}',
+  company: {
+    name: 'Your Company Name',
+    legalName: 'Your Company Legal Name',
+    foundingDate: '2024-01-01',
+    email: 'contact@example.com',
+    phone: '+1234567890',
+    address: {
+      streetAddress: '123 Main St',
+      addressLocality: 'City',
+      addressRegion: 'State',
+      postalCode: '12345',
+      addressCountry: 'US'
+    }
+  },
+  social: {
+    twitter: '',
+    facebook: '',
+    instagram: '',
+    linkedin: '',
+    youtube: '',
+    github: ''
+  },
+  verification: {
+    google: '',
+    bing: '',
+    yandex: '',
+    pinterest: ''
+  },
+  analytics: {
+    googleAnalyticsId: '',
+    facebookPixelId: '',
+    hotjarId: '',
+    clarityId: ''
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
     siteName: 'Your Company Name',
+    defaultImage: '/logos/horizontal-logo.png',
     imageWidth: 1200,
     imageHeight: 630
   },

@@ -141,28 +141,25 @@ export default function EditCategoryPage() {
       }
     }
 
-    const siteName = seoConfig.siteName || 'Your Site';
-    const siteTagline = seoConfig.siteTagline || '';
+    const siteName = seoConfig.openGraph.siteName || 'Your Site';
     
     // Use category template if available, otherwise use default
-    const titleTemplate = seoConfig.categoryTitleTemplate || seoConfig.titleTemplate || '{pageName} | {siteName}';
-    const descTemplate = seoConfig.categoryDescription || seoConfig.defaultDescription || 'Browse articles in {pageName} category on {siteName}';
+    const titleTemplate = seoConfig.titleTemplate || '{pageName} | {siteName}';
+    const descTemplate = 'Browse articles in {pageName} category on {siteName}';
     
     // Replace variables with actual values
     const seoTitle = titleTemplate
       .replace('{pageName}', formData.name)
       .replace('{categoryName}', formData.name)
-      .replace('{siteName}', siteName)
-      .replace('{siteTagline}', siteTagline);
+      .replace('{siteName}', siteName);
 
     const seoDescription = descTemplate
       .replace('{pageName}', formData.name)
       .replace('{categoryName}', formData.name)
-      .replace('{siteName}', siteName)
-      .replace('{siteTagline}', siteTagline);
+      .replace('{siteName}', siteName);
 
     // Use the keywords from the SEO template configuration
-    const seoKeywords = seoConfig.defaultKeywords || [];
+    const seoKeywords = [] as string[];
 
     setFormData(prev => ({
       ...prev,

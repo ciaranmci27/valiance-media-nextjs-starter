@@ -6,6 +6,7 @@ import BlogPostEditor from '@/components/admin/blog/BlogPostEditor';
 
 interface BlogFormData {
   title: string;
+  slug?: string;
   excerpt: string;
   content: string;
   author: {
@@ -68,7 +69,6 @@ export default function EditBlogPost() {
           featured: post.featured || false,
           draft: post.draft || false,
           excludeFromSearch: post.excludeFromSearch || false,
-          publishedAt: post.publishedAt || null,
           slug: post.slug || slug,
           seo: post.seo || { title: '', description: '', keywords: [], image: '/logos/horizontal-logo.png' }
         });

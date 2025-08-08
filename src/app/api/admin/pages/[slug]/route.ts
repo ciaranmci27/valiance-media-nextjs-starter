@@ -4,10 +4,11 @@ import { getPageBySlug, savePage, deletePage } from '@/lib/page-utils-server';
 // GET - Fetch a single page by slug
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const page = await getPageBySlug(params.slug);
+    const { slug } = await params;
+    const page = await getPageBySlug(slug);
     
     if (!page) {
       return NextResponse.json(
@@ -29,20 +30,21 @@ export async function GET(
 // PUT - Update a page by slug
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params;
     const body = await request.json();
     
     // If slug is changing and it's not the home page, handle the rename
-    if (body.newSlug && body.newSlug !== params.slug && params.slug !== 'home') {
+    if (body.newSlug && body.newSlug !== slug && slug !== 'home') {
       // Delete old page
-      await deletePage(params.slug);
+      await deletePage(slug);
       // Save as new page
       await savePage(body.newSlug, body.content, body.seoConfig);
     } else {
       // Just update the existing page
-      await savePage(params.slug, body.content, body.seoConfig);
+      await savePage(slug, body.content, body.seoConfig);
     }
     
     return NextResponse.json({ success: true });
@@ -58,17 +60,18 @@ export async function PUT(
 // DELETE - Delete a page by slug
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    if (params.slug === 'home') {
+    const { slug } = await params;
+    if (slug === 'home') {
       return NextResponse.json(
         { error: 'Cannot delete the home page' },
         { status: 400 }
       );
     }
     
-    await deletePage(params.slug);
+    await deletePage(slug);
     
     return NextResponse.json({ success: true });
   } catch (error) {
