@@ -21,11 +21,29 @@ export interface SchemaGeneratorOptions {
 
 export class SchemaGenerator {
   private siteUrl: string;
-  private config: typeof seoConfig;
+  // Use a flexible type for config to allow optional fields without TS errors
+  private config: any;
 
   constructor() {
     this.config = seoConfig;
     this.siteUrl = this.getSiteUrl();
+  }
+
+  /**
+   * Helpers to avoid emitting schemas with placeholder or empty data
+   */
+  private isEmpty(value: unknown): boolean {
+    if (value == null) return true;
+    if (typeof value === 'string') return value.trim().length === 0;
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === 'object') return Object.values(value as any).every(v => this.isEmpty(v));
+    return false;
+  }
+
+  private isPlaceholder(value?: string): boolean {
+    if (!value) return true;
+    const v = value.trim().toLowerCase();
+    return v === 'your company name' || v === 'contact@example.com' || v === '+1234567890' || v === '123 main st' || v === 'state' || v === 'city' || v === 'us' || v === 'https://example.com';
   }
 
   private getSiteUrl(): string {
@@ -47,27 +65,27 @@ export class SchemaGenerator {
     // Only generate schemas if they're enabled
     if (this.config.schema?.activeTypes?.organization) {
       const orgSchema = this.generateOrganizationSchema();
-      if (orgSchema) schemas.push(orgSchema);
+      if (orgSchema && !this.isEmpty(orgSchema)) schemas.push(orgSchema);
     }
 
     if (this.config.schema?.activeTypes?.website) {
       const websiteSchema = this.generateWebSiteSchema();
-      if (websiteSchema) schemas.push(websiteSchema);
+      if (websiteSchema && !this.isEmpty(websiteSchema)) schemas.push(websiteSchema);
     }
 
     if (this.config.schema?.activeTypes?.localBusiness) {
       const localBusinessSchema = this.generateLocalBusinessSchema();
-      if (localBusinessSchema) schemas.push(localBusinessSchema);
+      if (localBusinessSchema && !this.isEmpty(localBusinessSchema)) schemas.push(localBusinessSchema);
     }
 
     if (this.config.schema?.activeTypes?.person) {
       const personSchema = this.generatePersonSchema();
-      if (personSchema) schemas.push(personSchema);
+      if (personSchema && !this.isEmpty(personSchema)) schemas.push(personSchema);
     }
 
     if (this.config.schema?.activeTypes?.breadcrumbs && options.breadcrumbs) {
       const breadcrumbSchema = this.generateBreadcrumbSchema(options.breadcrumbs);
-      if (breadcrumbSchema) schemas.push(breadcrumbSchema);
+      if (breadcrumbSchema && !this.isEmpty(breadcrumbSchema)) schemas.push(breadcrumbSchema);
     }
 
     // Generate article schema for blog posts
@@ -84,10 +102,17 @@ export class SchemaGenerator {
    * Automatically merges data from Organization tab with schema-specific settings
    */
   private generateOrganizationSchema(): any {
-    const org = this.config.schema?.organization;
+    const org = this.config.schema?.organization || {};
     const company = this.config.company; // Auto-pull from Organization tab
     
     if (!this.config.schema?.activeTypes?.organization) return null;
+
+    // Skip if both Organization tab and schema-specific fields look like placeholders/empty
+    const hasRealCompanyName = company?.name && !this.isPlaceholder(company.name);
+    const hasOrgSpecific = !!(org?.logo?.url || org?.sameAs?.length || org?.contactPoint?.enabled || org?.type);
+    if (!hasRealCompanyName && !hasOrgSpecific) {
+      return null;
+    }
 
     const schema: any = {
       '@context': 'https://schema.org',
@@ -152,8 +177,8 @@ export class SchemaGenerator {
     
     // Add social media links from Social Media tab first
     if (this.config.social) {
-      Object.values(this.config.social).forEach(url => {
-        if (url && !sameAs.includes(url)) {
+      (Object.values(this.config.social) as string[]).forEach((url: string) => {
+        if (typeof url === 'string' && url && !sameAs.includes(url)) {
           sameAs.push(url);
         }
       });
@@ -161,7 +186,7 @@ export class SchemaGenerator {
     
     // Add additional sameAs URLs from schema config (Wikipedia, Crunchbase, etc.)
     if (org?.sameAs && org.sameAs.length > 0) {
-      org.sameAs.filter(Boolean).forEach(url => {
+      (org.sameAs as string[]).filter((u: string) => !!u).forEach((url: string) => {
         if (!sameAs.includes(url)) {
           sameAs.push(url);
         }
@@ -190,13 +215,19 @@ export class SchemaGenerator {
    * Generate WebSite schema with search action
    */
   private generateWebSiteSchema(): any {
-    const website = this.config.schema?.website;
+    const website = this.config.schema?.website || {};
     if (!this.config.schema?.activeTypes?.website) return null;
+
+    // Require real site name or a configured alternate name; otherwise skip
+    const siteName = this.config.siteName;
+    if (this.isPlaceholder(siteName) && !website.alternateName && !website.potentialAction?.searchUrlTemplate) {
+      return null;
+    }
 
     const schema: any = {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: website.name || this.config.siteName,
+      name: website.name || siteName,
       url: this.siteUrl,
     };
 
@@ -223,8 +254,15 @@ export class SchemaGenerator {
    * Generate LocalBusiness schema
    */
   private generateLocalBusinessSchema(): any {
-    const business = this.config.schema?.localBusiness;
+    const business = this.config.schema?.localBusiness || {};
     if (!this.config.schema?.activeTypes?.localBusiness) return null;
+
+    // Skip if core business identifiers are missing (name or address)
+    const hasName = !!(business.name || this.config.company?.name);
+    const hasAddress = !!(business.address && Object.values(business.address).some(Boolean));
+    if (!hasName && !hasAddress) {
+      return null;
+    }
 
     const schema: any = {
       '@context': 'https://schema.org',
@@ -305,8 +343,13 @@ export class SchemaGenerator {
    * Generate Person schema
    */
   private generatePersonSchema(): any {
-    const person = this.config.schema?.person;
+    const person = this.config.schema?.person || {};
     if (!this.config.schema?.activeTypes?.person) return null;
+
+    // Require at minimum a name to emit Person schema
+    if (!person.name || this.isPlaceholder(person.name)) {
+      return null;
+    }
 
     const schema: any = {
       '@context': 'https://schema.org',
