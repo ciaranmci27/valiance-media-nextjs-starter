@@ -203,7 +203,7 @@ export default function AdminDashboard() {
             </div>
           </Link>
 
-          <Link href="/admin/categories" className="quick-action-card">
+          <Link href="/admin/blog/categories" className="quick-action-card">
             <div className="card p-6 text-center hover-lift">
               <div style={{ 
                 width: '64px', 

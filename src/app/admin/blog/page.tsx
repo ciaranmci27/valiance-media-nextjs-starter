@@ -69,7 +69,7 @@ function BlogListContent() {
   
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/categories/list');
+      const response = await fetch('/api/admin/blog/categories/list');
       const data = await response.json();
       setCategories(data.categories?.map((cat: any) => cat.slug) || []);
     } catch (error) {
@@ -189,28 +189,51 @@ function BlogListContent() {
           Manage your blog content. Create, edit, and organize your posts.
         </p>
         
+        <div style={{ display: 'flex', gap: '12px' }}>
         <button
-          onClick={() => router.push('/admin/blog-post')}
-          style={{
-            padding: '12px 24px',
-            background: 'var(--color-primary)',
-            color: 'white',
-            border: 'none',
-            borderRadius: 'var(--radius-md)',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Create New Post
-        </button>
+            onClick={() => router.push('/admin/blog-post')}
+            style={{
+              padding: '12px 24px',
+              background: 'var(--color-primary)',
+              color: 'white',
+              border: 'none',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Create New Post
+          </button>
+          <button
+            onClick={() => router.push('/admin/blog/categories')}
+            style={{
+              padding: '12px 24px',
+              background: 'transparent',
+              color: 'var(--color-primary)',
+              border: '2px solid var(--color-primary)',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            Manage Categories
+          </button>
+        </div>
       </div>
 
       {/* Combined Filter Bar */}
@@ -477,6 +500,9 @@ function BlogListContent() {
                 Title
               </th>
               <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+                Slug
+              </th>
+              <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
                 Category
               </th>
               <th style={{ padding: 'var(--spacing-md)', textAlign: 'center', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
@@ -493,7 +519,7 @@ function BlogListContent() {
           <tbody>
             {filteredPosts.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ 
+                <td colSpan={6} style={{ 
                   padding: 'var(--spacing-xl)', 
                   textAlign: 'center',
                   color: 'var(--color-text-secondary)'
@@ -517,7 +543,21 @@ function BlogListContent() {
                     </div>
                   </td>
                   <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
-                    {post.category || 'No category'}
+                    <code style={{ 
+                      fontSize: '13px', 
+                      fontFamily: 'monospace',
+                      color: 'var(--color-primary)',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      padding: '2px 6px',
+                      borderRadius: 'var(--radius-sm)'
+                    }}>
+                      {post.slug}
+                    </code>
+                  </td>
+                  <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
+                    {post.category ? post.category.split('-').map(word => 
+                      word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ') : 'No category'}
                   </td>
                   <td style={{ padding: 'var(--spacing-md)', textAlign: 'center' }}>
                     {post.featured && (

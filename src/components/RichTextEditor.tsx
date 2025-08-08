@@ -13,10 +13,12 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
   const contentRef = useRef<string>(value);
 
   useLayoutEffect(() => {
-    if (editorRef.current && !editorRef.current.getAttribute('data-initialized')) {
+    if (editorRef.current) {
       editorRef.current.setAttribute('contenteditable', 'true');
-      editorRef.current.setAttribute('data-initialized', 'true');
+      
+      // Set initial content
       editorRef.current.innerHTML = value || '';
+      contentRef.current = value;
       
       const handleInput = () => {
         if (editorRef.current) {
@@ -42,11 +44,12 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         }
       };
     }
-  }, []);
+  }, []); // Empty dependency array - only run on mount
 
+  // Update content when value prop changes externally
   useLayoutEffect(() => {
-    if (editorRef.current && value !== contentRef.current) {
-      editorRef.current.innerHTML = value;
+    if (editorRef.current && value !== contentRef.current && value !== editorRef.current.innerHTML) {
+      editorRef.current.innerHTML = value || '';
       contentRef.current = value;
     }
   }, [value]);

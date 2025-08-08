@@ -18,7 +18,7 @@ export function AdminHeader() {
     { label: 'Dashboard', href: '/admin' },
     { label: 'New Post', href: '/admin/blog-post/new' },
     { label: 'Posts', href: '/admin/blog' },
-    { label: 'Categories', href: '/admin/categories' },
+    { label: 'Categories', href: '/admin/blog/categories' },
     { label: 'SEO', href: '/admin/seo' },
     { label: 'Settings', href: '/admin/settings' },
   ];

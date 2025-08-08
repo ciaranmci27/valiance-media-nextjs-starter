@@ -3,13 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import RichTextEditor from '@/components/RichTextEditor';
-import TagInput from '@/components/TagInput';
+import TagInputImproved from '@/components/TagInputImproved';
 import KeywordsInput from '@/components/KeywordsInput';
 import SocialMediaPreview from '@/components/admin/seo/SocialMediaPreview';
+import UrlChangeWarningModal from '@/components/UrlChangeWarningModal';
 import { getCMSConfig } from '@/lib/cms-config';
+import { seoConfig } from '@/seo/seo.config';
+import { Switch } from '@/components/ui/Switch';
 
 interface BlogFormData {
   title: string;
+  slug?: string;
   excerpt: string;
   content: string;
   author: {
@@ -24,6 +28,7 @@ interface BlogFormData {
   featured: boolean;
   draft: boolean;
   excludeFromSearch: boolean;
+  publishedAt?: string;
   seo: {
     title: string;
     description: string;
@@ -47,19 +52,28 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
   const [showSEOPreview, setShowSEOPreview] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [showSlugWarning, setShowSlugWarning] = useState(false);
+  const [pendingSlug, setPendingSlug] = useState<string>('');
+  const [originalSlug, setOriginalSlug] = useState<string>(slug || '');
+  const [originalCategory, setOriginalCategory] = useState<string>(initialData?.category || '');
+  const [pendingCategory, setPendingCategory] = useState<string>('');
+  // Check if post is published based on initial data
+  const isPublished = mode === 'edit' && initialData && !initialData.draft && !!initialData.publishedAt;
   
-  const [formData, setFormData] = useState<BlogFormData>(initialData || {
+  const [formData, setFormData] = useState<BlogFormData>(initialData ? 
+    { ...initialData, slug: initialData.slug || slug || '' } : {
     title: '',
+    slug: '',
     excerpt: '',
     content: '',
     author: {
       name: '',
-      image: '/logos/square-logo.png',
+      image: '',
       bio: ''
     },
     category: '',
     tags: [],
-    image: '/logos/horizontal-logo.png',
+    image: '',
     imageAlt: '',
     featured: false,
     draft: false,
@@ -68,7 +82,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       title: '',
       description: '',
       keywords: [],
-      image: '/logos/horizontal-logo.png'
+      image: ''
     }
   });
 
@@ -78,13 +92,13 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       id: 'content', 
       label: 'Content', 
       icon: '📝',
-      description: 'Main content and excerpt'
+      description: 'Main content, category and tags'
     },
     { 
       id: 'media', 
-      label: 'Media & Images', 
+      label: 'Featured Image', 
       icon: '🖼️',
-      description: 'Featured image and media'
+      description: 'Hero image for the post'
     },
     { 
       id: 'seo', 
@@ -93,10 +107,10 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       description: 'Search and social optimization'
     },
     { 
-      id: 'metadata', 
-      label: 'Metadata', 
-      icon: '🏷️',
-      description: 'Categories, tags, and author'
+      id: 'author', 
+      label: 'Author', 
+      icon: '👤',
+      description: 'Author information'
     },
     { 
       id: 'settings', 
@@ -108,13 +122,68 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
   useEffect(() => {
     fetchCategories();
+    // SEO fields are now manually filled via the "Apply SEO Template" button
   }, []);
+
+  // SEO fields are now manually filled via the "Apply SEO Template" button
+  // Users must explicitly click the button to populate SEO fields
+
+  const applySEOTemplate = () => {
+    if (!formData.title) {
+      alert('Please enter a title first before applying the SEO template.');
+      return;
+    }
+
+    // Check if user has existing SEO content
+    const hasExistingSEO = formData.seo.title || formData.seo.description || (formData.seo.keywords && formData.seo.keywords.length > 0);
+    
+    if (hasExistingSEO) {
+      const confirmReplace = confirm(
+        'You have existing SEO content that will be replaced by the template.\n\n' +
+        'Current content:\n' +
+        (formData.seo.title ? `Title: ${formData.seo.title}\n` : '') +
+        (formData.seo.description ? `Description: ${formData.seo.description}\n` : '') +
+        (formData.seo.keywords.length > 0 ? `Keywords: ${formData.seo.keywords.join(', ')}\n` : '') +
+        '\nDo you want to continue and replace this content?'
+      );
+      
+      if (!confirmReplace) {
+        return;
+      }
+    }
+
+    const siteName = seoConfig.siteName || 'Your Site';
+    const siteTagline = seoConfig.siteTagline || '';
+    const titleTemplate = seoConfig.titleTemplate || '{pageName} | {siteName}';
+    
+    // Replace variables with actual values
+    const seoTitle = titleTemplate
+      .replace('{pageName}', formData.title)
+      .replace('{siteName}', siteName)
+      .replace('{siteTagline}', siteTagline);
+
+    // Use excerpt as description if available, otherwise use the template description
+    const seoDescription = formData.excerpt || seoConfig.defaultDescription?.replace('{pageName}', formData.title).replace('{siteName}', siteName).replace('{siteTagline}', siteTagline) || `Read our article about ${formData.title}`;
+
+    // Use the keywords from the SEO template configuration
+    const blogPostKeywords = seoConfig.defaultKeywords || [];
+
+    setFormData(prev => ({
+      ...prev,
+      seo: {
+        ...prev.seo,
+        title: seoTitle,
+        description: seoDescription,
+        keywords: blogPostKeywords
+      }
+    }));
+  };
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/categories');
+      const response = await fetch('/api/admin/blog/categories/list');
       const data = await response.json();
-      setCategories(data.categories || []);
+      setCategories(data.categories?.map((cat: any) => cat.slug) || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -129,7 +198,11 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     if (!formData.excerpt.trim()) {
       newErrors.excerpt = 'Excerpt is required';
     }
-    if (!formData.content.trim()) {
+    // Check if content has actual text (not just HTML tags)
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = formData.content;
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    if (!textContent.trim()) {
       newErrors.content = 'Content is required';
     }
     
@@ -139,6 +212,10 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    
+    // Force lowercase for image URLs and SEO image fields
+    const imageFields = ['image', 'imageAlt', 'seo.image', 'author.image'];
+    const processedValue = imageFields.includes(name) ? value.toLowerCase() : value;
     
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
@@ -152,13 +229,13 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
         ...prev,
         [parent]: {
           ...(prev as any)[parent],
-          [child]: value
+          [child]: processedValue
         }
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: value
+        [name]: processedValue
       }));
     }
     
@@ -166,6 +243,14 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+  
+  const getSlugPreview = () => {
+    const slug = formData.slug || (mode === 'create' ? generateSlug(formData.title) : '');
+    if (formData.category && formData.category !== '') {
+      return `/blog/${formData.category}/${slug}`;
+    }
+    return `/blog/${slug}`;
   };
 
   const handleContentChange = (value: string) => {
@@ -202,6 +287,62 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       .replace(/^-+|-+$/g, '');
   };
 
+  const handleSlugChange = (newSlug: string) => {
+    // Force lowercase for slugs
+    const lowercaseSlug = newSlug.toLowerCase();
+    
+    // Always update the form data to allow typing
+    setFormData(prev => ({ ...prev, slug: lowercaseSlug }));
+  };
+
+  const handleSlugWarningConfirm = async (createRedirect: boolean) => {
+    if (createRedirect) {
+      // Add redirect to the redirects config
+      try {
+        // Determine the old and new URLs based on what changed
+        const fromUrl = originalCategory 
+          ? `/blog/${originalCategory}/${originalSlug}`
+          : `/blog/${originalSlug}`;
+        const toUrl = (pendingCategory || formData.category)
+          ? `/blog/${pendingCategory || formData.category}/${pendingSlug || formData.slug}`
+          : `/blog/${pendingSlug || formData.slug}`;
+          
+        const response = await fetch('/api/admin/redirects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: fromUrl,
+            to: toUrl,
+            permanent: true,
+            createdAt: new Date().toISOString(),
+            reason: 'Blog post slug changed'
+          })
+        });
+        
+        if (!response.ok) {
+          console.error('Failed to create redirect');
+        }
+      } catch (error) {
+        console.error('Error creating redirect:', error);
+      }
+    }
+    
+    // Close the modal
+    setShowSlugWarning(false);
+    
+    // IMPORTANT: Update formData with the new slug before saving
+    setFormData(prev => ({ ...prev, slug: pendingSlug }));
+    
+    // Now perform the save with the updated slug
+    // Use setTimeout to ensure state update happens first
+    setTimeout(() => {
+      // Update the original slug AFTER saving to prevent future warnings
+      setOriginalSlug(pendingSlug);
+      setPendingSlug('');
+      performSave();
+    }, 0);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -213,25 +354,48 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       return;
     }
 
+    // Check if slug OR category changed for published posts
+    const slugChanged = mode === 'edit' && isPublished && formData.slug && formData.slug !== originalSlug;
+    const categoryChanged = mode === 'edit' && isPublished && formData.category !== originalCategory;
+    
+    if (slugChanged || categoryChanged) {
+      setPendingSlug(formData.slug);
+      setPendingCategory(formData.category);
+      setShowSlugWarning(true);
+      return; // Stop here, let the modal handle the rest
+    }
+
+    performSave();
+  };
+
+  const performSave = async () => {
     setIsLoading(true);
     setSaveStatus('saving');
 
     try {
-      const endpoint = mode === 'create' 
-        ? '/api/admin/blog-post'
-        : `/api/admin/blog-post?slug=${slug}`;
+      const endpoint = '/api/admin/blog-post';
       
       const method = mode === 'create' ? 'POST' : 'PUT';
       
-      const postSlug = mode === 'create' ? generateSlug(formData.title) : slug;
-      const publishedAt = new Date().toISOString();
+      const postSlug = formData.slug || (mode === 'create' ? generateSlug(formData.title) : originalSlug);
       
-      const postData = {
+      // Only set publishedAt if not a draft
+      const postData: any = {
         ...formData,
         slug: postSlug,
-        publishedAt,
         readingTime: Math.ceil(formData.content.split(/\s+/).length / 200)
       };
+      
+      // Add original slug/category info for PUT requests (needed to delete old file if slug/category changed)
+      if (mode === 'edit') {
+        postData.originalSlug = originalSlug;
+        postData.originalCategory = originalCategory;
+      }
+      
+      // Only set publishedAt for non-draft posts
+      if (!formData.draft) {
+        postData.publishedAt = initialData?.publishedAt || new Date().toISOString();
+      }
 
       const response = await fetch(endpoint, {
         method,
@@ -243,6 +407,11 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
       if (response.ok) {
         setSaveStatus('saved');
+        // Show success message based on draft status
+        const message = formData.draft 
+          ? 'Post saved as draft successfully!' 
+          : 'Post published successfully!';
+        console.log(message, postData);
         setTimeout(() => {
           router.push('/admin/blog');
         }, 1500);
@@ -259,9 +428,69 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     }
   };
 
-  const handleSaveDraft = async () => {
-    setFormData(prev => ({ ...prev, draft: true }));
-    await handleSubmit(new Event('submit') as any);
+  const handleSaveDraft = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      // Find the first tab with an error and switch to it
+      if (errors.title || errors.excerpt || errors.content) {
+        setActiveTab('content');
+      }
+      return;
+    }
+
+    setIsLoading(true);
+    setSaveStatus('saving');
+
+    try {
+      const endpoint = '/api/admin/blog-post';
+      
+      const method = mode === 'create' ? 'POST' : 'PUT';
+      
+      const postSlug = formData.slug || (mode === 'create' ? generateSlug(formData.title) : originalSlug);
+      
+      // Force draft to true for save as draft
+      const postData: any = {
+        ...formData,
+        draft: true, // Always true when saving as draft
+        slug: postSlug,
+        readingTime: Math.ceil(formData.content.split(/\s+/).length / 200)
+      };
+      
+      // Add original slug/category info for PUT requests (needed to delete old file if slug/category changed)
+      if (mode === 'edit') {
+        postData.originalSlug = originalSlug;
+        postData.originalCategory = originalCategory;
+      }
+      
+      // Don't set publishedAt for drafts
+      // Keep existing publishedAt if it exists (for unpublishing)
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (response.ok) {
+        setSaveStatus('saved');
+        console.log('Post saved as draft successfully!', postData);
+        setTimeout(() => {
+          router.push('/admin/blog');
+        }, 1500);
+      } else {
+        setSaveStatus('error');
+        const error = await response.json();
+        console.error('Error saving post:', error);
+      }
+    } catch (error) {
+      setSaveStatus('error');
+      console.error('Error saving post:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Calculate completion percentage
@@ -305,7 +534,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
-                {mode === 'create' ? 'Create New Blog Post' : 'Edit Blog Post'}
+                {mode === 'create' ? 'New Blog Post' : 'Edit Blog Post'}
               </h1>
               <p className="text-body-lg mt-2" style={{ color: 'var(--color-text-secondary)' }}>
                 {mode === 'create' 
@@ -381,46 +610,107 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
             {/* Content Tab */}
             {activeTab === 'content' && (
               <div className="space-y-6">
-                <div>
-                  <label htmlFor="title" className="text-label block mb-2">
-                    Post Title *
-                  </label>
-                  <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    className={`input-field ${errors.title ? 'border-red-500' : ''}`}
-                    placeholder="Enter a compelling title for your blog post"
-                  />
-                  {errors.title && (
-                    <p className="text-sm text-red-500 mt-1">{errors.title}</p>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1">
-                    Slug will be: {formData.title ? generateSlug(formData.title) : 'enter-title-to-see-slug'}
-                  </p>
+                {/* Title, Category, and Slug Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-[5fr_2fr_3fr] gap-4">
+                  {/* Title Field - 50% */}
+                  <div>
+                    <label htmlFor="title" className="text-label block mb-2">
+                      Post Title *
+                    </label>
+                    <input
+                      type="text"
+                      id="title"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      className={`input-field ${errors.title ? 'border-red-500' : ''}`}
+                      placeholder="Enter a compelling title"
+                    />
+                    {errors.title && (
+                      <p className="text-sm text-red-500 mt-1">{errors.title}</p>
+                    )}
+                  </div>
+
+                  {/* Category Field - 20% */}
+                  <div>
+                    <label htmlFor="category" className="text-label block mb-2">
+                      Category
+                    </label>
+                    <select
+                      id="category"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className="input-field"
+                    >
+                      <option value="">No Category</option>
+                      {categories.map(cat => (
+                        <option key={cat} value={cat}>
+                          {cat.split('-').map(word => 
+                            word.charAt(0).toUpperCase() + word.slice(1)
+                          ).join(' ')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Slug Field - 30% */}
+                  <div className="min-w-0 overflow-hidden">
+                    <div className="flex items-center gap-2 mb-2">
+                      <label htmlFor="slug" className="text-label">
+                        Post Slug *
+                      </label>
+                      <span className="text-xs text-gray-500 font-mono truncate" title={getSlugPreview()}>
+                        {getSlugPreview()}
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      id="slug"
+                      name="slug"
+                      value={formData.slug || (mode === 'create' ? generateSlug(formData.title) : '')}
+                      onChange={(e) => handleSlugChange(e.target.value)}
+                      className={`input-field font-mono w-full ${errors.slug ? 'border-red-500' : ''}`}
+                      placeholder="enter-post-slug"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label htmlFor="excerpt" className="text-label block mb-2">
-                    Excerpt *
-                  </label>
-                  <textarea
-                    id="excerpt"
-                    name="excerpt"
-                    value={formData.excerpt}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className={`input-field ${errors.excerpt ? 'border-red-500' : ''}`}
-                    placeholder="Write a brief summary that will appear in blog listings"
-                  />
-                  {errors.excerpt && (
-                    <p className="text-sm text-red-500 mt-1">{errors.excerpt}</p>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formData.excerpt.length}/200 characters recommended
-                  </p>
+                {/* Excerpt and Tags Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label htmlFor="excerpt" className="text-label">
+                        Excerpt *
+                      </label>
+                      <span className="text-xs text-gray-500">
+                        {formData.excerpt.length}/200
+                      </span>
+                    </div>
+                    <textarea
+                      id="excerpt"
+                      name="excerpt"
+                      value={formData.excerpt}
+                      onChange={handleInputChange}
+                      rows={3}
+                      className={`input-field ${errors.excerpt ? 'border-red-500' : ''}`}
+                      placeholder="Write a brief summary that will appear in blog listings"
+                    />
+                    {errors.excerpt && (
+                      <p className="text-sm text-red-500 mt-1">{errors.excerpt}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="text-label block mb-2">
+                      Tags
+                    </label>
+                    <TagInputImproved
+                      tags={formData.tags}
+                      onChange={handleTagsChange}
+                      placeholder="Type to search or add tags..."
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -527,6 +817,20 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
               <div className="space-y-6">
                 <div>
                   <h3 className="text-h3 mb-4">Search Engine Optimization</h3>
+                  <div className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg p-4 mb-4">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                      {mode === 'create' 
+                        ? 'You can apply the default blog post SEO template to quickly fill in the fields below.'
+                        : 'Apply the SEO template to replace current SEO fields with template values.'}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={applySEOTemplate}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                    >
+                      Apply SEO Template
+                    </button>
+                  </div>
                   
                   <div className="space-y-4">
                     <div>
@@ -625,44 +929,9 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
               </div>
             )}
 
-            {/* Metadata Tab */}
-            {activeTab === 'metadata' && (
+            {/* Author Tab */}
+            {activeTab === 'author' && (
               <div className="space-y-6">
-                <div>
-                  <h3 className="text-h3 mb-4">Organization & Author</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="category" className="text-label block mb-2">
-                        Category
-                      </label>
-                      <select
-                        id="category"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        className="input-field"
-                      >
-                        <option value="">Select a category</option>
-                        {categories.map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-label block mb-2">
-                        Tags
-                      </label>
-                      <TagInput
-                        tags={formData.tags}
-                        onChange={handleTagsChange}
-                        placeholder="Add tags..."
-                      />
-                    </div>
-                  </div>
-                </div>
-
                 <div>
                   <h3 className="text-h3 mb-4">Author Information</h3>
                   
@@ -723,53 +992,46 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                   <h3 className="text-h3 mb-4">Post Settings</h3>
                   
                   <div className="space-y-4">
-                    <label className="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="featured"
-                        checked={formData.featured}
-                        onChange={handleInputChange}
-                        className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                      />
+                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                       <div>
                         <p className="font-medium">Featured Post</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           Display this post prominently on the homepage
                         </p>
                       </div>
-                    </label>
-
-                    <label className="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="draft"
-                        checked={formData.draft}
-                        onChange={handleInputChange}
-                        className="w-5 h-5 text-yellow-600 bg-gray-100 border-gray-300 rounded focus:ring-yellow-500"
+                      <Switch
+                        checked={formData.featured}
+                        onChange={(checked) => setFormData(prev => ({ ...prev, featured: checked }))}
                       />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                       <div>
-                        <p className="font-medium">Save as Draft</p>
+                        <p className="font-medium">{mode === 'edit' && !initialData?.draft ? 'Unpublish to Draft' : 'Save as Draft'}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Post will not be published publicly
+                          {mode === 'edit' && !initialData?.draft 
+                            ? 'Move this published post back to draft status'
+                            : 'Post will not be published publicly'}
                         </p>
                       </div>
-                    </label>
-
-                    <label className="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="excludeFromSearch"
-                        checked={formData.excludeFromSearch}
-                        onChange={handleInputChange}
-                        className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
+                      <Switch
+                        checked={formData.draft}
+                        onChange={(checked) => setFormData(prev => ({ ...prev, draft: checked }))}
                       />
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                       <div>
                         <p className="font-medium">Exclude from Search</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           Hide this post from search engines
                         </p>
                       </div>
-                    </label>
+                      <Switch
+                        checked={formData.excludeFromSearch}
+                        onChange={(checked) => setFormData(prev => ({ ...prev, excludeFromSearch: checked }))}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -828,6 +1090,23 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
           </ul>
         </div>
       </div>
+
+      {/* URL Change Warning Modal */}
+      <UrlChangeWarningModal
+        isOpen={showSlugWarning}
+        onClose={() => {
+          setShowSlugWarning(false);
+          setPendingSlug('');
+          setPendingCategory('');
+        }}
+        onConfirm={handleSlugWarningConfirm}
+        oldUrl={originalCategory ? `/blog/${originalCategory}/${originalSlug}` : `/blog/${originalSlug}`}
+        newUrl={formData.category ? `/blog/${formData.category}/${formData.slug}` : `/blog/${formData.slug}`}
+        changeType={
+          formData.slug !== originalSlug && formData.category !== originalCategory ? 'both' :
+          formData.slug !== originalSlug ? 'slug' : 'category'
+        }
+      />
     </div>
   );
 }

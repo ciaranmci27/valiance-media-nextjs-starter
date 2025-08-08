@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, KeyboardEvent } from 'react';
+import { useState, useEffect, KeyboardEvent, useRef } from 'react';
 
 interface TagInputProps {
   tags: string[];
@@ -8,11 +8,14 @@ interface TagInputProps {
   placeholder?: string;
 }
 
-export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }: TagInputProps) {
+export default function TagInputImproved({ tags, onChange, placeholder = 'Type to search or add tags...' }: TagInputProps) {
   const [inputValue, setInputValue] = useState('');
   const [existingTags, setExistingTags] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredTags, setFilteredTags] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Fetch existing tags from API
@@ -25,27 +28,46 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
   useEffect(() => {
     // Filter existing tags based on input
     if (inputValue.trim()) {
-      const filtered = existingTags.filter(tag => 
-        tag.toLowerCase().includes(inputValue.toLowerCase()) &&
-        !tags.includes(tag)
-      );
+      const filtered = existingTags
+        .filter(tag => 
+          tag.toLowerCase().includes(inputValue.toLowerCase()) &&
+          !tags.includes(tag)
+        )
+        .slice(0, 10); // Limit to 10 suggestions
       setFilteredTags(filtered);
-      setShowSuggestions(filtered.length > 0);
+      // Show suggestions if we have matches OR if it's a new tag
+      setShowSuggestions(true);
     } else {
       setFilteredTags([]);
       setShowSuggestions(false);
     }
+    setSelectedIndex(-1);
   }, [inputValue, existingTags, tags]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      addTag();
+      if (selectedIndex >= 0 && filteredTags[selectedIndex]) {
+        addTag(filteredTags[selectedIndex]);
+      } else {
+        addTag();
+      }
     } else if (e.key === 'Backspace' && inputValue === '' && tags.length > 0) {
       // Remove last tag when backspace is pressed on empty input
       const newTags = [...tags];
       newTags.pop();
       onChange(newTags);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => 
+        prev < filteredTags.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
     }
   };
 
@@ -55,6 +77,7 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
       onChange([...tags, value]);
       setInputValue('');
       setShowSuggestions(false);
+      setSelectedIndex(-1);
     }
   };
 
@@ -67,20 +90,19 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
     // If user types a comma, add the tag
     if (value.endsWith(',')) {
       setInputValue(value.slice(0, -1));
-      addTag();
+      addTag(value.slice(0, -1));
     } else {
       setInputValue(value);
     }
   };
 
+  const recentTags = existingTags
+    .filter(tag => !tags.includes(tag))
+    .slice(0, 4); // Show up to 4 recent tags
+
   return (
     <div className="tag-input-container" style={{ position: 'relative' }}>
-      <div className="tag-input-wrapper" onBlur={(e) => {
-        // Hide suggestions when clicking outside
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-          setTimeout(() => setShowSuggestions(false), 200);
-        }
-      }}>
+      <div className="tag-input-wrapper">
         {tags.map((tag, index) => (
           <span key={index} className="tag-chip">
             {tag}
@@ -97,14 +119,22 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
           </span>
         ))}
         <input
+          ref={inputRef}
           type="text"
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            if (filteredTags.length > 0) {
+            if (inputValue.trim() && filteredTags.length > 0) {
               setShowSuggestions(true);
             }
+          }}
+          onBlur={() => {
+            // Delay to allow clicking on suggestions
+            setTimeout(() => {
+              setShowSuggestions(false);
+              setSelectedIndex(-1);
+            }, 200);
           }}
           placeholder={tags.length === 0 ? placeholder : ''}
           className="tag-input"
@@ -112,42 +142,65 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
       </div>
       
       {/* Suggestions dropdown */}
-      {showSuggestions && (
-        <div className="tag-suggestions">
-          {filteredTags.map((tag, index) => (
-            <button
-              key={index}
-              type="button"
-              className="tag-suggestion"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                addTag(tag);
-              }}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-      )}
-      
-      {/* Existing tags section */}
-      {existingTags.length > 0 && (
-        <div className="existing-tags-section">
-          <div className="existing-tags-label">Available tags (click to add):</div>
-          <div className="existing-tags">
-            {existingTags
-              .filter(tag => !tags.includes(tag))
-              .map((tag, index) => (
+      {showSuggestions && inputValue.trim() && (
+        (() => {
+          const showCreate = !existingTags.some(tag => tag.toLowerCase() === inputValue.trim().toLowerCase()) &&
+                           !tags.some(tag => tag.toLowerCase() === inputValue.trim().toLowerCase());
+          
+          // Only show dropdown if we have suggestions or can create a new tag
+          if (filteredTags.length === 0 && !showCreate) {
+            return null;
+          }
+          
+          return (
+            <div ref={suggestionsRef} className="tag-suggestions">
+              {filteredTags.map((tag, index) => (
                 <button
                   key={index}
                   type="button"
-                  className="existing-tag"
-                  onClick={() => addTag(tag)}
+                  className={`tag-suggestion ${index === selectedIndex ? 'selected' : ''}`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    addTag(tag);
+                  }}
+                  onMouseEnter={() => setSelectedIndex(index)}
                 >
                   {tag}
                 </button>
               ))}
-          </div>
+              {/* Only show Create option if tag doesn't exist */}
+              {showCreate && (
+                <button
+                  type="button"
+                  className={`tag-suggestion create-new ${selectedIndex === filteredTags.length ? 'selected' : ''}`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    addTag(inputValue.trim());
+                  }}
+                  onMouseEnter={() => setSelectedIndex(filteredTags.length)}
+                >
+                  <span className="create-icon">+</span> Create "{inputValue.trim()}"
+                </button>
+              )}
+            </div>
+          );
+        })()
+      )}
+      
+      {/* Recent tags section */}
+      {tags.length === 0 && recentTags.length > 0 && !showSuggestions && (
+        <div className="recent-tags">
+          <span className="recent-tags-label">Recent Tags:</span>
+          {recentTags.map((tag, index) => (
+            <button
+              key={index}
+              type="button"
+              className="recent-tag"
+              onClick={() => addTag(tag)}
+            >
+              + {tag}
+            </button>
+          ))}
         </div>
       )}
       
@@ -183,7 +236,7 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
           background: var(--color-primary);
           color: white;
           border-radius: var(--radius-sm);
-          font-size: 14px;
+          font-size: 13px;
           white-space: nowrap;
         }
 
@@ -220,12 +273,6 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
           opacity: 0.7;
         }
 
-        .tag-hint {
-          margin-top: 4px;
-          font-size: 12px;
-          color: var(--color-text-secondary);
-        }
-
         .tag-suggestions {
           position: absolute;
           top: 100%;
@@ -235,16 +282,19 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
           background: var(--color-surface);
           border: 1px solid var(--color-border-medium);
           border-radius: var(--radius-md);
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          max-height: 200px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          max-height: 280px;
           overflow-y: auto;
           z-index: 1000;
         }
 
+
         .tag-suggestion {
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           width: 100%;
-          padding: 8px 12px;
+          padding: 10px 12px;
           text-align: left;
           background: transparent;
           border: none;
@@ -254,29 +304,44 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
           transition: background-color 0.2s;
         }
 
-        .tag-suggestion:hover {
+        .tag-suggestion:hover,
+        .tag-suggestion.selected {
+          background: var(--color-surface-elevated);
+        }
+
+        .tag-suggestion.create-new {
+          border-top: 1px solid var(--color-border-light);
+          color: var(--color-primary);
+          font-weight: 500;
+        }
+
+        .create-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 18px;
+          height: 18px;
           background: var(--color-primary);
           color: white;
+          border-radius: 50%;
+          font-size: 14px;
+          margin-right: 6px;
         }
 
-        .existing-tags-section {
-          margin-top: 12px;
-          padding-top: 12px;
+        .recent-tags {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 8px;
+          flex-wrap: wrap;
         }
 
-        .existing-tags-label {
+        .recent-tags-label {
           font-size: 12px;
           color: var(--color-text-secondary);
-          margin-bottom: 8px;
         }
 
-        .existing-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
-
-        .existing-tag {
+        .recent-tag {
           padding: 4px 10px;
           background: var(--color-surface-elevated);
           border: 1px solid var(--color-border-light);
@@ -287,7 +352,7 @@ export default function TagInput({ tags, onChange, placeholder = 'Add tags...' }
           transition: all 0.2s;
         }
 
-        .existing-tag:hover {
+        .recent-tag:hover {
           background: var(--color-primary);
           color: white;
           border-color: var(--color-primary);

@@ -18,30 +18,36 @@ function AnalyticsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // Get analytics IDs from seo config (which can be managed via Settings page)
+  const googleAnalyticsId = seoConfig.analytics?.googleAnalyticsId || '';
+  const facebookPixelId = seoConfig.analytics?.facebookPixelId || '';
+  const hotjarId = seoConfig.analytics?.hotjarId || '';
+  const clarityId = seoConfig.analytics?.clarityId || '';
+
   // Google Analytics pageview tracking
   useEffect(() => {
-    if (seoConfig.analytics.googleAnalyticsId && window.gtag) {
+    if (googleAnalyticsId && window.gtag) {
       const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
-      window.gtag('config', seoConfig.analytics.googleAnalyticsId, {
+      window.gtag('config', googleAnalyticsId, {
         page_path: url,
       });
     }
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, googleAnalyticsId]);
 
   // Facebook Pixel pageview tracking
   useEffect(() => {
-    if (seoConfig.analytics.facebookPixelId && window.fbq) {
+    if (facebookPixelId && window.fbq) {
       window.fbq('track', 'PageView');
     }
-  }, [pathname]);
+  }, [pathname, facebookPixelId]);
 
   return (
     <>
       {/* Google Analytics */}
-      {seoConfig.analytics.googleAnalyticsId && (
+      {googleAnalyticsId && (
         <>
           <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${seoConfig.analytics.googleAnalyticsId}`}
+            src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
             strategy="afterInteractive"
           />
           <Script id="google-analytics" strategy="afterInteractive">
@@ -49,14 +55,14 @@ function AnalyticsContent() {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', '${seoConfig.analytics.googleAnalyticsId}');
+              gtag('config', '${googleAnalyticsId}');
             `}
           </Script>
         </>
       )}
 
       {/* Facebook Pixel */}
-      {seoConfig.analytics.facebookPixelId && (
+      {facebookPixelId && (
         <Script id="facebook-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
@@ -67,19 +73,19 @@ function AnalyticsContent() {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${seoConfig.analytics.facebookPixelId}');
+            fbq('init', '${facebookPixelId}');
             fbq('track', 'PageView');
           `}
         </Script>
       )}
 
       {/* Hotjar */}
-      {seoConfig.analytics.hotjarId && (
+      {hotjarId && (
         <Script id="hotjar" strategy="afterInteractive">
           {`
             (function(h,o,t,j,a,r){
               h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-              h._hjSettings={hjid:${seoConfig.analytics.hotjarId},hjsv:6};
+              h._hjSettings={hjid:${hotjarId},hjsv:6};
               a=o.getElementsByTagName('head')[0];
               r=o.createElement('script');r.async=1;
               r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
@@ -90,14 +96,14 @@ function AnalyticsContent() {
       )}
 
       {/* Microsoft Clarity */}
-      {seoConfig.analytics.clarityId && (
+      {clarityId && (
         <Script id="microsoft-clarity" strategy="afterInteractive">
           {`
             (function(c,l,a,r,i,t,y){
               c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
               t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
               y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-            })(window, document, "clarity", "script", "${seoConfig.analytics.clarityId}");
+            })(window, document, "clarity", "script", "${clarityId}");
           `}
         </Script>
       )}

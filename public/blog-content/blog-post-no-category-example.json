@@ -7,7 +7,7 @@
     "image": "/logos/square-logo.png",
     "bio": "Our marketing team specializes in creating high-converting websites and sharing best practices for modern web development."
   },
-  "publishedAt": "2025-08-06T23:57:32.000Z",
+  "publishedAt": "2025-08-07T20:48:15.483Z",
   "tags": [
     "nextjs",
     "marketing",
@@ -23,16 +23,9 @@
   "draft": false,
   "excludeFromSearch": true,
   "seo": {
-    "title": "Next.js Marketing Website Boilerplate - High Performance & SEO Optimized",
-    "description": "Build fast, SEO-optimized marketing websites with our Next.js boilerplate. Features modern design, performance optimization, and conversion-focused components.",
-    "keywords": [
-      "nextjs",
-      "marketing website",
-      "boilerplate",
-      "seo",
-      "performance",
-      "conversion optimization"
-    ],
-    "image": "/logos/horizontal-logo.png"
+    "title": "",
+    "description": "",
+    "keywords": [],
+    "image": ""
   }
 }

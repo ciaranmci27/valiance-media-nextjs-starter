@@ -90,14 +90,88 @@ export interface SEOConfigData {
 }
 
 export function getCurrentConfig(): { config: SEOConfigData } {
-  // Return the current configuration from the imported module
-  // Add default twitter config for backward compatibility
+  // Return the current configuration from the imported module with defaults for missing fields
   const configWithDefaults = {
-    ...seoConfig,
-    twitter: {
-      handle: '',
-      site: '',
-      cardType: 'summary_large_image'
+    siteName: seoConfig.siteName || '',
+    siteUrl: seoConfig.siteUrl || '',
+    company: seoConfig.company || {
+      name: '',
+      legalName: '',
+      foundingDate: '',
+      email: '',
+      phone: '',
+      address: {
+        streetAddress: '',
+        addressLocality: '',
+        addressRegion: '',
+        postalCode: '',
+        addressCountry: ''
+      }
+    },
+    defaultTitle: seoConfig.defaultTitle || '',
+    titleTemplate: seoConfig.titleTemplate || '%s | Site Name',
+    defaultDescription: seoConfig.defaultDescription || '',
+    defaultKeywords: seoConfig.defaultKeywords || [],
+    openGraph: seoConfig.openGraph || {
+      type: 'website',
+      locale: 'en_US',
+      siteName: '',
+      defaultImage: '',
+      imageWidth: 1200,
+      imageHeight: 630
+    },
+    social: seoConfig.social || {
+      twitter: '',
+      linkedin: '',
+      github: '',
+      instagram: '',
+      facebook: '',
+      youtube: ''
+    },
+    verification: seoConfig.verification || {
+      google: '',
+      bing: '',
+      yandex: '',
+      pinterest: ''
+    },
+    analytics: seoConfig.analytics || {
+      googleAnalyticsId: '',
+      facebookPixelId: '',
+      hotjarId: '',
+      clarityId: ''
+    },
+    robots: seoConfig.robots || {
+      index: true,
+      follow: true,
+      nocache: false,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1
+      }
+    },
+    alternates: seoConfig.alternates || {
+      canonical: '',
+      languages: {}
+    },
+    sitemap: seoConfig.sitemap || {
+      excludedPages: [],
+      excludedBlogPatterns: [],
+      changeFrequency: {
+        homepage: 'weekly',
+        pages: 'monthly',
+        blog: 'weekly',
+        categories: 'monthly'
+      },
+      priority: {
+        homepage: 1,
+        mainPages: 0.8,
+        blog: 0.6,
+        categories: 0.7
+      }
     }
   };
   return {

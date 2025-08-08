@@ -1,0 +1,18 @@
+{
+  "redirects": [
+    {
+      "from": "/blog/will-this-work",
+      "to": "/blog/will-this-work-2",
+      "permanent": true,
+      "createdAt": "2025-08-08T00:09:40.470Z",
+      "reason": "Blog post slug changed"
+    },
+    {
+      "from": "/blog/guides/blog-post-no-category-example",
+      "to": "/blog/blog-post-no-category-example",
+      "permanent": true,
+      "createdAt": "2025-08-08T00:45:02.926Z",
+      "reason": "Blog post slug changed"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAuthEdge } from '@/lib/auth-edge';
+import redirectsConfig from '../public/redirects.json';
 
 // Valid routes generated at build time
 const validRoutes = new Set([
@@ -32,6 +33,15 @@ const validBlogRoutes = new Set([
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
+  // Check for custom redirects from redirects.json first
+  const customRedirect = redirectsConfig.redirects.find(r => r.from === path);
+  if (customRedirect) {
+    return NextResponse.redirect(
+      new URL(customRedirect.to, request.url),
+      customRedirect.permanent ? 308 : 307
+    );
+  }
+  
   // Handle sitemap redirects BEFORE allowing static files
   const sitemapRedirects: { [key: string]: string } = {
     '/sitemap.xml': '/sitemap',
@@ -40,7 +50,7 @@ export async function middleware(request: NextRequest) {
     '/sitemap-blog-categories.xml': '/sitemap/blog-categories',
   };
 
-  // Check for sitemap redirects first
+  // Check for sitemap redirects
   if (sitemapRedirects[path]) {
     return NextResponse.redirect(new URL(sitemapRedirects[path], request.url));
   }

@@ -68,14 +68,6 @@ export function generateMetadata({
     },
     robots: robots || (seoConfig.robots as any),
     alternates: alternates || seoConfig.alternates,
-    verification: {
-      google: seoConfig.verification.google,
-      other: {
-        'msvalidate.01': seoConfig.verification.bing,
-        'yandex-verification': seoConfig.verification.yandex,
-        'p:domain_verify': seoConfig.verification.pinterest,
-      },
-    },
     ...rest,
   };
 }
@@ -152,9 +144,11 @@ export function generateOrganizationSchema() {
   }
 
   // Add social media links if they exist
-  const socialLinks = Object.values(seoConfig.social || {}).filter(Boolean);
-  if (socialLinks.length > 0) {
-    schema.sameAs = socialLinks;
+  if (seoConfig.social) {
+    const socialLinks = Object.values(seoConfig.social).filter(Boolean);
+    if (socialLinks.length > 0) {
+      schema.sameAs = socialLinks;
+    }
   }
 
   return schema;

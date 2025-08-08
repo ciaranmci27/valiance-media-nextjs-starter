@@ -17,6 +17,18 @@ const SEOConfigEditor = dynamic(() => import('@/components/admin/seo/SEOConfigEd
   )
 });
 
+const RedirectsManager = dynamic(() => import('@/components/admin/seo/RedirectsManager'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>Loading redirects...</p>
+      </div>
+    </div>
+  )
+});
+
 interface PageSEO {
   path: string;
   title: string;
@@ -179,6 +191,7 @@ ${pages.map(page => `  <url>
 
   const tabs = [
     { id: 'config', label: 'Configuration', icon: '⚙️' },
+    { id: 'redirects', label: 'Redirects', icon: '↪️' },
     { id: 'pages', label: 'Page SEO', icon: '📄' },
     { id: 'schema', label: 'Schema Markup', icon: '🏷️' },
     { id: 'overview', label: 'SEO Health', icon: '🏥' },
@@ -881,6 +894,8 @@ ${pages.map(page => `  <url>
         )}
 
         {activeTab === 'config' && <SEOConfigEditor />}
+        
+        {activeTab === 'redirects' && <RedirectsManager />}
       </div>
     </div>
   );

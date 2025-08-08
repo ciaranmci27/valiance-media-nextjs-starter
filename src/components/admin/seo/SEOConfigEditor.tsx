@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from '@/components/ui/Toast';
 import SocialMediaPreview from './SocialMediaPreview';
+import { Switch } from '@/components/ui/Switch';
 
 interface SEOConfigData {
   siteName: string;
@@ -146,14 +147,17 @@ export default function SEOConfigEditor() {
   };
 
   const sections = [
-    { id: 'basic', label: 'Basic Information', icon: '🏢' },
-    { id: 'company', label: 'Company Details', icon: '📍' },
-    { id: 'defaults', label: 'SEO Templates', icon: '📝' },
+    // Global Site Configuration
+    { id: 'basic', label: 'Site Information', icon: '🌐' },
+    { id: 'company', label: 'Organization', icon: '🏢' },
+    { id: 'templates', label: 'Default SEO', icon: '📝' },
     { id: 'opengraph', label: 'Open Graph', icon: '🔗' },
     { id: 'social', label: 'Social Media', icon: '📱' },
+    
+    // Technical SEO
     { id: 'robots', label: 'Robots & Crawling', icon: '🤖' },
+    { id: 'sitemap', label: 'Sitemap', icon: '🗺️' },
     { id: 'languages', label: 'Languages', icon: '🌍' },
-    { id: 'sitemap', label: 'Sitemap Settings', icon: '🗺️' },
   ];
 
   if (isLoading) {
@@ -203,10 +207,13 @@ export default function SEOConfigEditor() {
         {/* Content Area */}
         <div className="flex-1">
           <div className="card p-6">
-            {/* Basic Information */}
+            {/* Site Information */}
             {activeSection === 'basic' && (
               <div className="space-y-6">
-                <h3 className="text-h3 mb-4">Basic Information</h3>
+                <h3 className="text-h3 mb-4">Site Information</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Global site settings that apply across your entire website.
+                </p>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="text-label block mb-2">Site Name</label>
@@ -232,27 +239,16 @@ export default function SEOConfigEditor() {
                     <p className="text-xs text-gray-500 mt-1">Full URL including protocol (https://)</p>
                   </div>
 
-                  <div>
-                    <label className="text-label block mb-2">Title Template</label>
-                    <input
-                      type="text"
-                      value={config.titleTemplate}
-                      onChange={(e) => setConfig({...config, titleTemplate: e.target.value})}
-                      className="input-field"
-                      placeholder="%s | My Company"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Use %s as placeholder for page title</p>
-                  </div>
                 </div>
               </div>
             )}
 
-            {/* Company Details */}
+            {/* Organization */}
             {activeSection === 'company' && (
               <div className="space-y-6">
-                <h3 className="text-h3 mb-4">Company Details</h3>
+                <h3 className="text-h3 mb-4">Organization Schema</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  All company fields are optional. Leave empty if not applicable.
+                  Optional structured data about your organization for search engines. Leave empty for personal sites.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -375,54 +371,22 @@ export default function SEOConfigEditor() {
             )}
 
             {/* Default SEO */}
-            {activeSection === 'defaults' && (
+            {activeSection === 'templates' && (
               <div className="space-y-6">
-                <h3 className="text-h3 mb-4">SEO Templates</h3>
+                <h3 className="text-h3 mb-4">Default SEO Templates</h3>
                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
-                    These templates automatically generate SEO metadata for new content. Use placeholders like {'{title}'}, {'{siteName}'}, and {'{description}'} to create dynamic content.
+                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                    Default SEO templates that automatically apply to new content when custom SEO is not provided.
+                  </p>
+                  <p className="text-xs text-blue-700 dark:text-blue-300">
+                    <strong>Available variables:</strong> {'{pageName}'} = current page/post/category name | {'{siteName}'} = your site name | {'{siteTagline}'} = your tagline
                   </p>
                 </div>
 
                 <div className="space-y-6">
-                  {/* Homepage */}
+                  {/* Pages Template */}
                   <div className="border rounded-lg p-4">
-                    <h4 className="font-semibold mb-3">Homepage</h4>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-label block mb-2">Title</label>
-                        <input
-                          type="text"
-                          value={config.defaultTitle}
-                          onChange={(e) => setConfig({...config, defaultTitle: e.target.value})}
-                          className="input-field"
-                          placeholder="Welcome to {siteName} - Your Tagline Here"
-                          maxLength={60}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          {config.defaultTitle.length}/60 characters
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-label block mb-2">Description</label>
-                        <textarea
-                          value={config.defaultDescription}
-                          onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
-                          className="input-field"
-                          rows={2}
-                          placeholder="Brief description of your website and services"
-                          maxLength={160}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          {config.defaultDescription.length}/160 characters
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Page Template */}
-                  <div className="border rounded-lg p-4">
-                    <h4 className="font-semibold mb-3">Page Template</h4>
+                    <h4 className="font-semibold mb-3">📄 Page SEO</h4>
                     <div className="space-y-3">
                       <div>
                         <label className="text-label block mb-2">Title Template</label>
@@ -431,35 +395,119 @@ export default function SEOConfigEditor() {
                           value={config.titleTemplate}
                           onChange={(e) => setConfig({...config, titleTemplate: e.target.value})}
                           className="input-field"
-                          placeholder="%s | {siteName}"
+                          placeholder="{pageName} | {siteName}"
+                          maxLength={60}
                         />
-                        <p className="text-xs text-gray-500 mt-1">%s will be replaced with the page title</p>
+                        <p className="text-xs text-gray-500 mt-1">Example: About Us | Your Company</p>
                       </div>
                       <div>
                         <label className="text-label block mb-2">Description Template</label>
-                        <input
-                          type="text"
+                        <textarea
                           value={config.defaultDescription}
                           onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
                           className="input-field"
-                          placeholder="Learn about %s at {siteName}"
+                          rows={2}
+                          placeholder="Learn about {pageName} at {siteName}. {siteTagline}"
+                          maxLength={160}
                         />
-                        <p className="text-xs text-gray-500 mt-1">Falls back to page-specific description if available</p>
+                        <p className="text-xs text-gray-500 mt-1">{config.defaultDescription.length}/160 characters</p>
+                      </div>
+                      <div>
+                        <label className="text-label block mb-2">Keywords Template</label>
+                        <input
+                          type="text"
+                          value={config.defaultKeywords.join(', ')}
+                          onChange={(e) => setConfig({...config, defaultKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean)})}
+                          className="input-field"
+                          placeholder="{pageName}, {siteName}, your service, your industry"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Comma-separated, can use variables</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Keywords */}
-                  <div>
-                    <label className="text-label block mb-2">Default Keywords</label>
-                    <input
-                      type="text"
-                      value={config.defaultKeywords.join(', ')}
-                      onChange={(e) => setConfig({...config, defaultKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean)})}
-                      className="input-field"
-                      placeholder="keyword1, keyword2, keyword3"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Base keywords applied to all pages (comma-separated)</p>
+                  {/* Blog Posts Template */}
+                  <div className="border rounded-lg p-4">
+                    <h4 className="font-semibold mb-3">📝 Blog Post SEO</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-label block mb-2">Title Template</label>
+                        <input
+                          type="text"
+                          value={config.titleTemplate}
+                          onChange={(e) => setConfig({...config, titleTemplate: e.target.value})}
+                          className="input-field"
+                          placeholder="{pageName} | Blog | {siteName}"
+                          maxLength={60}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Example: How to Start a Business | Blog | Your Company</p>
+                      </div>
+                      <div>
+                        <label className="text-label block mb-2">Description Template</label>
+                        <textarea
+                          value={config.defaultDescription}
+                          onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
+                          className="input-field"
+                          rows={2}
+                          placeholder="Read our latest article about {pageName}. Expert insights from {siteName}."
+                          maxLength={160}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Will use post excerpt if available</p>
+                      </div>
+                      <div>
+                        <label className="text-label block mb-2">Keywords Template</label>
+                        <input
+                          type="text"
+                          value={config.defaultKeywords.join(', ')}
+                          onChange={(e) => setConfig({...config, defaultKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean)})}
+                          className="input-field"
+                          placeholder="{pageName}, blog, article, {siteName}"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Will combine with post tags if available</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Blog Categories Template */}
+                  <div className="border rounded-lg p-4">
+                    <h4 className="font-semibold mb-3">📁 Blog Category SEO</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-label block mb-2">Title Template</label>
+                        <input
+                          type="text"
+                          value={config.titleTemplate}
+                          onChange={(e) => setConfig({...config, titleTemplate: e.target.value})}
+                          className="input-field"
+                          placeholder="{pageName} Articles | {siteName} Blog"
+                          maxLength={60}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Example: Technology Articles | Your Company Blog</p>
+                      </div>
+                      <div>
+                        <label className="text-label block mb-2">Description Template</label>
+                        <textarea
+                          value={config.defaultDescription}
+                          onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
+                          className="input-field"
+                          rows={2}
+                          placeholder="Browse all {pageName} articles and resources from {siteName}."
+                          maxLength={160}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Applied to category archive pages</p>
+                      </div>
+                      <div>
+                        <label className="text-label block mb-2">Keywords Template</label>
+                        <input
+                          type="text"
+                          value={config.defaultKeywords.join(', ')}
+                          onChange={(e) => setConfig({...config, defaultKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean)})}
+                          className="input-field"
+                          placeholder="{pageName}, category, articles, {siteName} blog"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Category-specific keywords</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -606,73 +654,79 @@ export default function SEOConfigEditor() {
               <div className="space-y-6">
                 <h3 className="text-h3 mb-4">Robots & Crawling Settings</h3>
                 
-                <div className="space-y-4">
-                  <h4 className="font-semibold">Default Robot Settings</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
+                <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-6">
+                  <h4 className="font-semibold text-lg mb-4">Default Robot Settings</h4>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between py-2">
+                      <div>
+                        <span className="text-sm font-medium">Index</span>
+                        <p className="text-xs text-gray-500 mt-1">Allow search engines to index this site</p>
+                      </div>
+                      <Switch
                         checked={config.robots.index}
-                        onChange={(e) => setConfig({...config, robots: {...config.robots, index: e.target.checked}})}
-                        className="checkbox"
+                        onChange={(checked) => setConfig({...config, robots: {...config.robots, index: checked}})}
                       />
-                      <span>Index</span>
-                    </label>
-
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
+                    </div>
+                    
+                    <div className="flex items-center justify-between py-2 border-t dark:border-gray-700">
+                      <div>
+                        <span className="text-sm font-medium">Follow</span>
+                        <p className="text-xs text-gray-500 mt-1">Allow search engines to follow links</p>
+                      </div>
+                      <Switch
                         checked={config.robots.follow}
-                        onChange={(e) => setConfig({...config, robots: {...config.robots, follow: e.target.checked}})}
-                        className="checkbox"
+                        onChange={(checked) => setConfig({...config, robots: {...config.robots, follow: checked}})}
                       />
-                      <span>Follow</span>
-                    </label>
-
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
+                    </div>
+                    
+                    <div className="flex items-center justify-between py-2 border-t dark:border-gray-700">
+                      <div>
+                        <span className="text-sm font-medium">No Cache</span>
+                        <p className="text-xs text-gray-500 mt-1">Prevent search engines from caching</p>
+                      </div>
+                      <Switch
                         checked={config.robots.nocache}
-                        onChange={(e) => setConfig({...config, robots: {...config.robots, nocache: e.target.checked}})}
-                        className="checkbox"
+                        onChange={(checked) => setConfig({...config, robots: {...config.robots, nocache: checked}})}
                       />
-                      <span>No Cache</span>
-                    </label>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="font-semibold">GoogleBot Settings</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
+                <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-6">
+                  <h4 className="font-semibold text-lg mb-4">GoogleBot Settings</h4>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between py-2">
+                      <div>
+                        <span className="text-sm font-medium">Index</span>
+                        <p className="text-xs text-gray-500 mt-1">Allow GoogleBot to index pages</p>
+                      </div>
+                      <Switch
                         checked={config.robots.googleBot.index}
-                        onChange={(e) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, index: e.target.checked}}})}
-                        className="checkbox"
+                        onChange={(checked) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, index: checked}}})}
                       />
-                      <span>Index</span>
-                    </label>
-
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
+                    </div>
+                    
+                    <div className="flex items-center justify-between py-2 border-t dark:border-gray-700">
+                      <div>
+                        <span className="text-sm font-medium">Follow</span>
+                        <p className="text-xs text-gray-500 mt-1">Allow GoogleBot to follow links</p>
+                      </div>
+                      <Switch
                         checked={config.robots.googleBot.follow}
-                        onChange={(e) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, follow: e.target.checked}}})}
-                        className="checkbox"
+                        onChange={(checked) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, follow: checked}}})}
                       />
-                      <span>Follow</span>
-                    </label>
-
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
+                    </div>
+                    
+                    <div className="flex items-center justify-between py-2 border-t dark:border-gray-700">
+                      <div>
+                        <span className="text-sm font-medium">No Image Index</span>
+                        <p className="text-xs text-gray-500 mt-1">Prevent GoogleBot from indexing images</p>
+                      </div>
+                      <Switch
                         checked={config.robots.googleBot.noimageindex}
-                        onChange={(e) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, noimageindex: e.target.checked}}})}
-                        className="checkbox"
+                        onChange={(checked) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, noimageindex: checked}}})}
                       />
-                      <span>No Image Index</span>
-                    </label>
+                    </div>
 
                     <div>
                       <label className="text-label block mb-2">Max Image Preview</label>
@@ -771,10 +825,13 @@ export default function SEOConfigEditor() {
               </div>
             )}
 
-            {/* Sitemap Settings */}
+            {/* Sitemap */}
             {activeSection === 'sitemap' && (
               <div className="space-y-6">
-                <h3 className="text-h3 mb-4">Sitemap Settings</h3>
+                <h3 className="text-h3 mb-4">Sitemap Configuration</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Control how your sitemap.xml is generated and what content is included.
+                </p>
                 
                 <div>
                   <h4 className="font-semibold mb-3">Excluded Pages</h4>
