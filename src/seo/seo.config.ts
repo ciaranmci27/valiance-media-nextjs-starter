@@ -8,12 +8,6 @@
 export const seoConfig = {
   defaultTitle: 'Welcome to Your Company - Your Tagline Here',
   titleTemplate: '{pageName} | {siteName}',
-  defaultDescription: 'Describe your company and what makes it unique. This description will appear in search results.',
-  defaultKeywords: [
-    'keyword1',
-    'keyword2',
-    'keyword3'
-  ],
   openGraph: {
     type: 'website',
     locale: 'en_US',
