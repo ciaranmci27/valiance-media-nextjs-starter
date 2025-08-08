@@ -14,10 +14,16 @@ export async function getAllPages(): Promise<PageListItem[]> {
   try {
     const pages: PageListItem[] = [];
     
-    // Add home page
-    const homePagePath = path.join(APP_DIR, 'page.tsx');
+    // Add home page (supports either root page.tsx or route-group (pages)/(home)/page.tsx)
+    const groupedHomePath = path.join(APP_DIR, '(pages)', '(home)', 'page.tsx');
+    const rootHomePath = path.join(APP_DIR, 'page.tsx');
     try {
-      await fs.access(homePagePath);
+      // Prefer route-group home if present, otherwise fallback to root
+      try {
+        await fs.access(groupedHomePath);
+      } catch {
+        await fs.access(rootHomePath);
+      }
       const homeSeoConfig = await getPageSEOConfig('');
       pages.push({
         slug: 'home',
@@ -33,11 +39,44 @@ export async function getAllPages(): Promise<PageListItem[]> {
       console.log('Home page not found');
     }
     
-    // Scan for other pages
-    const entries = await fs.readdir(APP_DIR, { withFileTypes: true });
+    // Scan for other pages in (pages) directory
+    const pagesDir = path.join(APP_DIR, '(pages)');
+    try {
+      const entries = await fs.readdir(pagesDir, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        if (entry.isDirectory() && !EXCLUDED_DIRS.includes(entry.name) && !entry.name.startsWith('_') && !entry.name.startsWith('[') && !entry.name.startsWith('(')) {
+          const pagePath = path.join(pagesDir, entry.name, 'page.tsx');
+          
+          try {
+            await fs.access(pagePath);
+            const seoConfig = await getPageSEOConfig(entry.name);
+            
+            pages.push({
+              slug: entry.name,
+              title: seoConfig?.seo?.title?.replace(' - Valiance Media', '') || formatTitle(entry.name),
+              path: `/${entry.name}`,
+              lastModified: seoConfig?.metadata?.lastModified,
+              category: seoConfig?.metadata?.category,
+              featured: seoConfig?.metadata?.featured,
+              draft: seoConfig?.metadata?.draft,
+              isHomePage: false
+            });
+          } catch (error) {
+            // Page.tsx doesn't exist in this directory
+          }
+        }
+      }
+    } catch (error) {
+      // (pages) directory might not exist yet
+      console.log('(pages) directory not found, scanning root app directory');
+    }
     
-    for (const entry of entries) {
-      if (entry.isDirectory() && !EXCLUDED_DIRS.includes(entry.name) && !entry.name.startsWith('_') && !entry.name.startsWith('[')) {
+    // Also scan root app directory for backwards compatibility
+    const rootEntries = await fs.readdir(APP_DIR, { withFileTypes: true });
+    
+    for (const entry of rootEntries) {
+      if (entry.isDirectory() && !EXCLUDED_DIRS.includes(entry.name) && !entry.name.startsWith('_') && !entry.name.startsWith('[') && !entry.name.startsWith('(')) {
         const pagePath = path.join(APP_DIR, entry.name, 'page.tsx');
         
         try {
@@ -72,9 +111,28 @@ export async function getAllPages(): Promise<PageListItem[]> {
 export async function getPageBySlug(slug: string): Promise<Page | null> {
   try {
     const isHomePage = slug === 'home' || slug === '';
-    const pagePath = isHomePage 
-      ? path.join(APP_DIR, 'page.tsx')
-      : path.join(APP_DIR, slug, 'page.tsx');
+    let pagePath = '';
+    if (isHomePage) {
+      // Prefer route-group home if available
+      const groupedHomePath = path.join(APP_DIR, '(pages)', '(home)', 'page.tsx');
+      const rootHomePath = path.join(APP_DIR, 'page.tsx');
+      try {
+        await fs.access(groupedHomePath);
+        pagePath = groupedHomePath;
+      } catch {
+        pagePath = rootHomePath;
+      }
+    } else {
+      // First try (pages) directory, then fall back to root
+      const pagesPath = path.join(APP_DIR, '(pages)', slug, 'page.tsx');
+      const rootPath = path.join(APP_DIR, slug, 'page.tsx');
+      try {
+        await fs.access(pagesPath);
+        pagePath = pagesPath;
+      } catch {
+        pagePath = rootPath;
+      }
+    }
     
     // Check if page exists
     await fs.access(pagePath);
@@ -85,15 +143,16 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
     // Get SEO config
     const seoConfig = await getPageSEOConfig(isHomePage ? '' : slug);
     
-    return {
+    const page: Page = {
       slug: isHomePage ? 'home' : slug,
       path: isHomePage ? '/' : `/${slug}`,
       title: isHomePage ? 'Home' : (seoConfig?.seo?.title?.replace(' - Valiance Media', '') || formatTitle(slug)),
       content,
-      seoConfig,
+      ...(seoConfig ? { seoConfig } : {}),
       isHomePage,
       exists: true
     };
+    return page;
   } catch (error) {
     return null;
   }
@@ -102,9 +161,27 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
 // Get SEO config for a page
 export async function getPageSEOConfig(slug: string): Promise<PageSEOConfig | null> {
   try {
-    const configPath = slug === '' 
-      ? path.join(APP_DIR, 'seo-config.json')
-      : path.join(APP_DIR, slug, 'seo-config.json');
+    let configPath: string;
+    if (slug === '') {
+      // Prefer route-group home if available
+      const groupedSeoPath = path.join(APP_DIR, '(pages)', '(home)', 'seo-config.json');
+      try {
+        await fs.access(groupedSeoPath);
+        configPath = groupedSeoPath;
+      } catch {
+        configPath = path.join(APP_DIR, 'seo-config.json');
+      }
+    } else {
+      // First try (pages) directory, then fall back to root
+      const pagesConfigPath = path.join(APP_DIR, '(pages)', slug, 'seo-config.json');
+      const rootConfigPath = path.join(APP_DIR, slug, 'seo-config.json');
+      try {
+        await fs.access(pagesConfigPath);
+        configPath = pagesConfigPath;
+      } catch {
+        configPath = rootConfigPath;
+      }
+    }
     
     const configContent = await fs.readFile(configPath, 'utf-8');
     return JSON.parse(configContent);
@@ -119,17 +196,19 @@ export async function savePage(slug: string, content: string, seoConfig: PageSEO
   const isHomePage = slug === 'home';
   
   if (isHomePage) {
-    // For home page, only update the existing files
-    const pagePath = path.join(APP_DIR, 'page.tsx');
-    const seoPath = path.join(APP_DIR, 'seo-config.json');
+    // For home page, write to the route-group (pages)/(home) for organization
+    const homeDir = path.join(APP_DIR, '(pages)', '(home)');
+    const pagePath = path.join(homeDir, 'page.tsx');
+    const seoPath = path.join(homeDir, 'seo-config.json');
     
+    await fs.mkdir(homeDir, { recursive: true });
     await fs.writeFile(pagePath, content, 'utf-8');
     if (seoConfig) {
       await fs.writeFile(seoPath, JSON.stringify(seoConfig, null, 2), 'utf-8');
     }
   } else {
-    // For other pages, create directory if needed
-    const pageDir = path.join(APP_DIR, slug);
+    // For other pages, create directory in (pages) if needed
+    const pageDir = path.join(APP_DIR, '(pages)', slug);
     const pagePath = path.join(pageDir, 'page.tsx');
     const seoPath = path.join(pageDir, 'seo-config.json');
     
@@ -148,11 +227,21 @@ export async function deletePage(slug: string): Promise<void> {
     throw new Error('Cannot delete the home page');
   }
   
-  const pageDir = path.join(APP_DIR, slug);
+  // First try (pages) directory, then fall back to root
+  const pagesDir = path.join(APP_DIR, '(pages)', slug);
+  const rootDir = path.join(APP_DIR, slug);
+  
+  // Try to delete from (pages) first
+  try {
+    await fs.rm(pagesDir, { recursive: true, force: true });
+    return;
+  } catch (error) {
+    // Try root directory
+  }
   
   try {
-    // Remove the entire directory
-    await fs.rm(pageDir, { recursive: true, force: true });
+    // Remove the entire directory from root
+    await fs.rm(rootDir, { recursive: true, force: true });
   } catch (error) {
     console.error(`Error deleting page ${slug}:`, error);
     throw error;

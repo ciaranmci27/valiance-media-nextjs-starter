@@ -27,8 +27,8 @@ const validRoutes = new Set([
 // Valid blog routes generated at build time
 const validBlogRoutes = new Set([
   '/blog',
-  '/blog/guides-2',
-  '/blog/guides-2/blog-post-example',
+  '/blog/guides',
+  '/blog/guides/blog-post-example',
   '/blog/blog-post-no-category-example-2'
 ]);
 

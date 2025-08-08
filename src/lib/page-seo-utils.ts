@@ -34,8 +34,23 @@ export function loadPageSeoConfig(pagePath: string): PageSeoConfig | null {
     }
     
     // Fallback to the old format (page-specific seo-config.json)
-    const normalizedPath = pagePath === '/' ? '' : pagePath;
-    const configPath = path.join(process.cwd(), 'src', 'app', normalizedPath, 'seo-config.json');
+    // For the homepage, prefer route-group (pages)/(home) if present
+    let configPath: string;
+    if (pagePath === '/') {
+      const groupedHomePath = path.join(process.cwd(), 'src', 'app', '(pages)', '(home)', 'seo-config.json');
+      const oldGroupedHomePath = path.join(process.cwd(), 'src', 'app', '(home)', 'seo-config.json');
+      configPath = fs.existsSync(groupedHomePath)
+        ? groupedHomePath
+        : fs.existsSync(oldGroupedHomePath)
+        ? oldGroupedHomePath
+        : path.join(process.cwd(), 'src', 'app', 'seo-config.json');
+    } else {
+      const normalizedPath = pagePath.replace('/(pages)', '');
+      // Try (pages) directory first, then root
+      const pagesConfigPath = path.join(process.cwd(), 'src', 'app', '(pages)', normalizedPath, 'seo-config.json');
+      const rootConfigPath = path.join(process.cwd(), 'src', 'app', normalizedPath, 'seo-config.json');
+      configPath = fs.existsSync(pagesConfigPath) ? pagesConfigPath : rootConfigPath;
+    }
     
     if (!fs.existsSync(configPath)) {
       return null;
@@ -72,9 +87,12 @@ export function loadAllPageSeoConfigs(): PageSeoConfig[] {
     // Define known page directories to scan
     const pagePaths = [
       '', // Root/home page
-      'privacy',
-      'terms-of-service',
-      'home',
+      '(pages)/privacy',
+      '(pages)/terms-of-service',
+      '(pages)/(home)',
+      'privacy', // backwards compatibility
+      'terms-of-service', // backwards compatibility
+      'home', // backwards compatibility
       'admin', // Example admin page (excluded from search/sitemap)
       // Add more page paths as your site grows
     ];
