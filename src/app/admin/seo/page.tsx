@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
@@ -58,6 +57,7 @@ interface SEOStats {
 export default function SEODashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('config');
+  const [configInitialSection, setConfigInitialSection] = useState<string | undefined>(undefined);
   const [pages, setPages] = useState<PageSEO[]>([]);
   const [stats, setStats] = useState<SEOStats>({
     totalPages: 0,
@@ -73,6 +73,9 @@ export default function SEODashboard() {
   const [sitemapData, setSitemapData] = useState<any>(null);
 
   const [isSaving, setIsSaving] = useState(false);
+
+  // Keep the desired initial section when navigating from other tabs
+  // Do not auto-reset; the child component will read the prop once on mount
 
   // Fetch SEO data on component mount
   useEffect(() => {
@@ -695,15 +698,21 @@ ${pages.map(page => `  <url>
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h2 className="text-h3" style={{ color: 'var(--color-text-primary)' }}>
-                    Active Schema Markup
+                    Global Schema Markup
                   </h2>
                   <p className="text-body-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>
                     View all structured data schemas currently active on your website
                   </p>
                 </div>
-                <Link href="/admin/seo/edit" className="btn btn-primary">
+                <button 
+                  onClick={() => {
+                    setConfigInitialSection('schema');
+                    setActiveTab('config');
+                  }}
+                  className="btn btn-primary"
+                >
                   Configure Schemas
-                </Link>
+                </button>
               </div>
 
               {/* Schema Status Summary */}
@@ -761,8 +770,8 @@ ${pages.map(page => `  <url>
               <div className="space-y-4">
                 {/* Organization Schema */}
                 {seoConfig?.schema?.activeTypes?.organization && schemas?.organization && (
-                  <div className="border rounded-lg">
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 border-b">
+                  <div className="rounded-lg">
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-lg">🏢</span>
@@ -791,10 +800,129 @@ ${pages.map(page => `  <url>
                   </div>
                 )}
 
+                {/* LocalBusiness Schema */}
+                {seoConfig?.schema?.activeTypes?.localBusiness && schemas?.localBusiness && (
+                  <div className="rounded-lg">
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">📍</span>
+                          <h3 className="font-semibold">LocalBusiness Schema</h3>
+                          <span className="badge badge-success text-xs">Active</span>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            const schemaEl = document.getElementById('local-schema-code');
+                            if (schemaEl) {
+                              navigator.clipboard.writeText(schemaEl.textContent || '');
+                            }
+                          }}
+                          className="btn btn-sm btn-secondary"
+                        >
+                          Copy JSON-LD
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <pre id="local-schema-code" className="bg-gray-900 text-gray-100 p-4 rounded text-xs overflow-x-auto max-h-64 overflow-y-auto">
+{JSON.stringify(schemas.localBusiness, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+
+                {/* Person Schema */}
+                {seoConfig?.schema?.activeTypes?.person && schemas?.person && (
+                  <div className="rounded-lg">
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">👤</span>
+                          <h3 className="font-semibold">Person Schema</h3>
+                          <span className="badge badge-success text-xs">Active</span>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            const schemaEl = document.getElementById('person-schema-code');
+                            if (schemaEl) {
+                              navigator.clipboard.writeText(schemaEl.textContent || '');
+                            }
+                          }}
+                          className="btn btn-sm btn-secondary"
+                        >
+                          Copy JSON-LD
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <pre id="person-schema-code" className="bg-gray-900 text-gray-100 p-4 rounded text-xs overflow-x-auto max-h-64 overflow-y-auto">
+{JSON.stringify(schemas.person, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+
+                {/* Contact Point Schema */}
+                {seoConfig?.schema?.organization?.contactPoint?.enabled && schemas?.organization?.contactPoint && (
+                  <div className="rounded-lg">
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">📞</span>
+                          <h3 className="font-semibold">Contact Point Schema</h3>
+                          <span className="badge badge-success text-xs">Active</span>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            const schemaEl = document.getElementById('contact-schema-code');
+                            if (schemaEl) {
+                              navigator.clipboard.writeText(schemaEl.textContent || '');
+                            }
+                          }}
+                          className="btn btn-sm btn-secondary"
+                        >
+                          Copy JSON-LD
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <pre id="contact-schema-code" className="bg-gray-900 text-gray-100 p-4 rounded text-xs overflow-x-auto max-h-64 overflow-y-auto">
+{JSON.stringify(schemas.organization?.contactPoint, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+
+                {/* Breadcrumbs Schema Info */}
+                {seoConfig?.schema?.activeTypes?.breadcrumbs && (
+                  <div className="rounded-lg">
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🍞</span>
+                        <h3 className="font-semibold">Breadcrumbs Schema</h3>
+                        <span className="badge badge-success text-xs">Active</span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        Breadcrumbs are dynamically generated for each page based on the URL structure.
+                      </p>
+                      <div className="bg-gray-100 dark:bg-gray-800 rounded p-3">
+                        <p className="text-xs font-medium mb-2">Configuration:</p>
+                        <ul className="text-xs space-y-1 text-gray-600 dark:text-gray-400">
+                          <li>• Home Label: <span className="font-mono">{seoConfig?.schema?.breadcrumbs?.homeLabel || 'Home'}</span></li>
+                          <li>• Separator: <span className="font-mono">{seoConfig?.schema?.breadcrumbs?.separator || '›'}</span></li>
+                          <li>• Show Current: <span className="font-mono">{seoConfig?.schema?.breadcrumbs?.showCurrent ? 'Yes' : 'No'}</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Website Schema */}
                 {seoConfig?.schema?.activeTypes?.website && schemas?.website && (
-                  <div className="border rounded-lg">
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 border-b">
+                  <div className="rounded-lg">
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-lg">🌐</span>
@@ -825,94 +953,6 @@ ${pages.map(page => `  <url>
                   </div>
                 )}
 
-                {/* LocalBusiness Schema */}
-                {seoConfig?.schema?.activeTypes?.localBusiness && schemas?.localBusiness && (
-                  <div className="border rounded-lg">
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 border-b">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">📍</span>
-                          <h3 className="font-semibold">LocalBusiness Schema</h3>
-                          <span className="badge badge-success text-xs">Active</span>
-                        </div>
-                        <button 
-                          onClick={() => {
-                            const schemaEl = document.getElementById('local-schema-code');
-                            if (schemaEl) {
-                              navigator.clipboard.writeText(schemaEl.textContent || '');
-                            }
-                          }}
-                          className="btn btn-sm btn-secondary"
-                        >
-                          Copy JSON-LD
-                        </button>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <pre id="local-schema-code" className="bg-gray-900 text-gray-100 p-4 rounded text-xs overflow-x-auto max-h-64 overflow-y-auto">
-{JSON.stringify(schemas.localBusiness, null, 2)}
-                      </pre>
-                    </div>
-                  </div>
-                )}
-
-                {/* Person Schema */}
-                {seoConfig?.schema?.activeTypes?.person && schemas?.person && (
-                  <div className="border rounded-lg">
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 border-b">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">👤</span>
-                          <h3 className="font-semibold">Person Schema</h3>
-                          <span className="badge badge-success text-xs">Active</span>
-                        </div>
-                        <button 
-                          onClick={() => {
-                            const schemaEl = document.getElementById('person-schema-code');
-                            if (schemaEl) {
-                              navigator.clipboard.writeText(schemaEl.textContent || '');
-                            }
-                          }}
-                          className="btn btn-sm btn-secondary"
-                        >
-                          Copy JSON-LD
-                        </button>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <pre id="person-schema-code" className="bg-gray-900 text-gray-100 p-4 rounded text-xs overflow-x-auto max-h-64 overflow-y-auto">
-{JSON.stringify(schemas.person, null, 2)}
-                      </pre>
-                    </div>
-                  </div>
-                )}
-
-                {/* Breadcrumbs Schema Info */}
-                {seoConfig?.schema?.activeTypes?.breadcrumbs && (
-                  <div className="border rounded-lg">
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 border-b">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">🍞</span>
-                        <h3 className="font-semibold">Breadcrumbs Schema</h3>
-                        <span className="badge badge-success text-xs">Active</span>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        Breadcrumbs are dynamically generated for each page based on the URL structure.
-                      </p>
-                      <div className="bg-gray-100 dark:bg-gray-800 rounded p-3">
-                        <p className="text-xs font-medium mb-2">Configuration:</p>
-                        <ul className="text-xs space-y-1 text-gray-600 dark:text-gray-400">
-                          <li>• Home Label: <span className="font-mono">{seoConfig?.schema?.breadcrumbs?.homeLabel || 'Home'}</span></li>
-                          <li>• Separator: <span className="font-mono">{seoConfig?.schema?.breadcrumbs?.separator || '›'}</span></li>
-                          <li>• Show Current: <span className="font-mono">{seoConfig?.schema?.breadcrumbs?.showCurrent ? 'Yes' : 'No'}</span></li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* No Active Schemas Message */}
                 {!seoConfig?.schema?.activeTypes?.organization && 
                  !seoConfig?.schema?.activeTypes?.website && 
@@ -922,12 +962,9 @@ ${pages.map(page => `  <url>
                   <div className="text-center py-12">
                     <div className="text-4xl mb-4">📋</div>
                     <h3 className="text-lg font-medium mb-2">No Active Schemas</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       Enable structured data schemas to enhance your search appearance
                     </p>
-                    <Link href="/admin/seo/edit" className="btn btn-primary">
-                      Configure Schemas
-                    </Link>
                   </div>
                 )}
               </div>
@@ -966,7 +1003,7 @@ ${pages.map(page => `  <url>
           </div>
         )}
 
-        {activeTab === 'config' && <SEOConfigEditor />}
+        {activeTab === 'config' && <SEOConfigEditor initialSection={configInitialSection} />}
         
         {activeTab === 'redirects' && <RedirectsManager />}
       </div>

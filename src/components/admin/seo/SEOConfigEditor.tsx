@@ -103,17 +103,28 @@ interface SEOConfigData {
   };
 }
 
-export default function SEOConfigEditor() {
+interface SEOConfigEditorProps {
+  initialSection?: string;
+}
+
+export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigEditorProps = {}) {
   const [config, setConfig] = useState<SEOConfigData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [activeSection, setActiveSection] = useState('basic');
+  const [activeSection, setActiveSection] = useState(initialSection);
   const [showOGPreview, setShowOGPreview] = useState(false);
   const [urlWarnings, setUrlWarnings] = useState<string[]>([]);
 
   useEffect(() => {
     fetchConfig();
   }, []);
+  
+  // Update active section when initialSection prop changes
+  useEffect(() => {
+    if (initialSection) {
+      setActiveSection(initialSection);
+    }
+  }, [initialSection]);
   
   // Validate URL on initial load
   useEffect(() => {
@@ -814,7 +825,7 @@ export default function SEOConfigEditor() {
                       <p className="text-xs text-gray-500 mt-1">Customer service & support info</p>
                     </div>
                     <Switch
-                      checked={config.schema?.activeTypes?.organization && config.schema?.organization?.contactPoint?.enabled !== false}
+                      checked={!!(config.schema?.activeTypes?.organization && config.schema?.organization?.contactPoint?.enabled !== false)}
                       onChange={(checked) => setConfig({
                         ...config,
                         schema: {
