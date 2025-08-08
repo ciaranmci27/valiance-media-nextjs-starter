@@ -7,11 +7,7 @@
 
 export const seoConfig = {
   siteName: 'Your Company Name',
-  siteUrl: 'https://example.com',
-  defaultTitle: 'Welcome to Your Company - Your Tagline Here',
-  defaultDescription: 'Your company description here',
-  defaultKeywords: [] as string[],
-  titleTemplate: '{pageName} | {siteName}',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com',
   company: {
     name: 'Your Company Name',
     legalName: 'Your Company Legal Name',
@@ -26,26 +22,9 @@ export const seoConfig = {
       addressCountry: 'US'
     }
   },
-  social: {
-    twitter: '',
-    facebook: '',
-    instagram: '',
-    linkedin: '',
-    youtube: '',
-    github: ''
-  },
-  verification: {
-    google: '',
-    bing: '',
-    yandex: '',
-    pinterest: ''
-  },
-  analytics: {
-    googleAnalyticsId: '',
-    facebookPixelId: '',
-    hotjarId: '',
-    clarityId: ''
-  },
+  defaultTitle: 'Welcome to Your Company - Your Tagline Here',
+  titleTemplate: '{pageName} | {siteName}',
+  defaultDescription: 'Your company description here',
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -65,6 +44,24 @@ export const seoConfig = {
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1
+    },
+    // Robots.txt configuration,
+    txt: {
+      rules: [
+      {
+        userAgent: '*',
+        allow: ['/'],
+        disallow: ['/api/', '/admin/', '/_next/', '/private/', '*.json', '/*?*'],
+        crawlDelay: 0
+      },
+      {
+        userAgent: 'Googlebot',
+        allow: ['/'],
+        disallow: ['/api/', '/admin/', '/_next/', '/private/'],
+        crawlDelay: 0
+      }
+      ],
+      customRules: ''
     }
   },
   alternates: {
@@ -98,6 +95,86 @@ export const seoConfig = {
       mainPages: 0.8,
       blog: 0.6,
       categories: 0.7
+    }
+  },
+  schema: {
+    activeTypes: {
+      organization: true,
+      website: false,
+      localBusiness: false,
+      person: false,
+      breadcrumbs: false
+    },
+    organization: {
+      enabled: true,
+      type: 'Organization',
+      logo: {
+        width: 600,
+        height: 60
+      },
+      contactPoint: {
+        contactType: 'customer service',
+        areaServed: 'US',
+        availableLanguage: [
+    'English'
+  ],
+        hoursAvailable: {
+          opens: '09:00',
+          closes: '17:00',
+          dayOfWeek: [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday'
+  ]
+        },
+        enabled: false
+      }
+    },
+    website: {
+      enabled: true,
+      potentialAction: {
+        enabled: true,
+        queryInput: 'required name=search_term_string'
+      }
+    },
+    localBusiness: {
+      enabled: false,
+      type: 'LocalBusiness',
+      priceRange: '$$',
+      openingHours: {
+        monday: {
+          opens: '09:00',
+          closes: '17:00'
+        },
+        tuesday: {
+          opens: '09:00',
+          closes: '17:00'
+        },
+        wednesday: {
+          opens: '09:00',
+          closes: '17:00'
+        },
+        thursday: {
+          opens: '09:00',
+          closes: '17:00'
+        },
+        friday: {
+          opens: '09:00',
+          closes: '17:00'
+        }
+      },
+      currenciesAccepted: 'USD'
+    },
+    person: {
+      enabled: false
+    },
+    breadcrumbs: {
+      enabled: true,
+      homeLabel: 'Home',
+      separator: '›',
+      showCurrent: true
     }
   }
 };
