@@ -21,6 +21,7 @@ interface BlogFormData {
   featured: boolean;
   draft: boolean;
   excludeFromSearch: boolean;
+  publishedAt?: string;
   seo: {
     title: string;
     description: string;
