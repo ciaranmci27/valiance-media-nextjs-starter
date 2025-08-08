@@ -12,7 +12,6 @@ export const seoConfig = {
     type: 'website',
     locale: 'en_US',
     siteName: 'Your Company Name',
-    defaultImage: '/images/og-image.jpg',
     imageWidth: 1200,
     imageHeight: 630
   },
