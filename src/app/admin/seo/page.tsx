@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
 const SEOConfigEditor = dynamic(() => import('@/components/admin/seo/SEOConfigEditor'), {
@@ -56,7 +56,9 @@ interface SEOStats {
 
 export default function SEODashboard() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('config');
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabParam || 'config');
   const [configInitialSection, setConfigInitialSection] = useState<string | undefined>(undefined);
   const [pages, setPages] = useState<PageSEO[]>([]);
   const [stats, setStats] = useState<SEOStats>({
@@ -76,6 +78,13 @@ export default function SEODashboard() {
 
   // Keep the desired initial section when navigating from other tabs
   // Do not auto-reset; the child component will read the prop once on mount
+
+  // Update active tab when URL parameter changes
+  useEffect(() => {
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   // Fetch SEO data on component mount
   useEffect(() => {

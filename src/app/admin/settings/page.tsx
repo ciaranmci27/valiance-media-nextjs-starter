@@ -58,6 +58,7 @@ export default function SettingsPage() {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [isLoadingEnv, setIsLoadingEnv] = useState(true);
 
   // GitHub env vars status
   const [githubEnvStatus, setGithubEnvStatus] = useState({
@@ -125,6 +126,7 @@ export default function SettingsPage() {
 
   const checkEnvVariables = async () => {
     try {
+      setIsLoadingEnv(true);
       const res = await fetch('/api/admin/settings/env-status');
       if (res.ok) {
         const data = await res.json();
@@ -133,6 +135,8 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error('Error checking env variables:', error);
+    } finally {
+      setIsLoadingEnv(false);
     }
   };
 
@@ -273,26 +277,33 @@ export default function SettingsPage() {
               {/* Status Overview */}
               <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
                 <h3 className="font-semibold mb-3">Configuration Status</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className={githubEnvStatus.token ? 'text-green-600' : 'text-red-600'}>
-                      {githubEnvStatus.token ? '✓' : '✗'}
-                    </span>
-                    <span>GitHub Token: {githubEnvStatus.token ? 'Configured' : 'Not configured'}</span>
+                {isLoadingEnv ? (
+                  <div className="flex items-center gap-2 py-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <span className="text-gray-600 dark:text-gray-400">Checking configuration...</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={githubEnvStatus.owner ? 'text-green-600' : 'text-red-600'}>
-                      {githubEnvStatus.owner ? '✓' : '✗'}
-                    </span>
-                    <span>Repository Owner: {githubEnvStatus.owner ? 'Configured' : 'Not configured'}</span>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className={githubEnvStatus.token ? 'text-green-600' : 'text-red-600'}>
+                        {githubEnvStatus.token ? '✓' : '✗'}
+                      </span>
+                      <span>GitHub Token: {githubEnvStatus.token ? 'Configured' : 'Not configured'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={githubEnvStatus.owner ? 'text-green-600' : 'text-red-600'}>
+                        {githubEnvStatus.owner ? '✓' : '✗'}
+                      </span>
+                      <span>Repository Owner: {githubEnvStatus.owner ? 'Configured' : 'Not configured'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={githubEnvStatus.repo ? 'text-green-600' : 'text-red-600'}>
+                        {githubEnvStatus.repo ? '✓' : '✗'}
+                      </span>
+                      <span>Repository Name: {githubEnvStatus.repo ? 'Configured' : 'Not configured'}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={githubEnvStatus.repo ? 'text-green-600' : 'text-red-600'}>
-                      {githubEnvStatus.repo ? '✓' : '✗'}
-                    </span>
-                    <span>Repository Name: {githubEnvStatus.repo ? 'Configured' : 'Not configured'}</span>
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Setup Instructions */}

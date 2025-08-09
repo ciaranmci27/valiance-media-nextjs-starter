@@ -2,48 +2,62 @@
 
 <img width="1200" height="630" alt="valiance-media-nextjs-starter-preview" src="https://github.com/user-attachments/assets/0d7c53f7-509b-4e95-9922-49f387b750cf" />
 
-A production-ready Next.js boilerplate with built-in SEO optimization, theme support, and modern development practices. Created by [Valiance Media LLC](https://valiancemedia.com) to accelerate the development of marketing websites and web applications.
+A production-ready Next.js boilerplate with built-in SEO optimization, content management system, and modern development practices. Created by [Valiance Media LLC](https://valiancemedia.com) to accelerate the development of professional marketing websites and web applications.
 
 ## 🚀 Features
 
-### SEO Optimized
-- **Complete SEO Setup**: Meta tags, Open Graph, Twitter Cards, and structured data
-- **Automatic Sitemap**: Dynamic sitemap generation at `/sitemap.xml`
-- **Robots.txt**: Configurable crawling rules
-- **Schema.org Integration**: Organization, WebSite, Product, FAQ, and more
-- **Performance Focused**: Optimized for Core Web Vitals
+### Advanced SEO Management
+- **Visual SEO Dashboard**: Complete SEO health monitoring with actionable insights
+- **Multi-Sitemap Architecture**: Automatic generation of separate sitemaps for pages, blog posts, and categories
+- **Schema Markup Generator**: Visual interface for 13+ schema types (Article, Product, FAQ, HowTo, Event, etc.)
+- **Social Media Previews**: Live preview of content on Twitter, Facebook, and LinkedIn
+- **Redirect Management**: Intelligent redirect system with chain and circular redirect prevention
+- **Robots.txt Editor**: GUI editor with validation and best practices
+- **Meta Tag Automation**: Automatic generation of optimal meta tags for all pages
+- **Search Console Integration**: Direct integration with verification codes
+
+### Professional Content Management System
+- **Comprehensive Admin Dashboard**: Multi-tab interface with Overview, Content, and System management
+- **Visual Blog Editor**: Rich text editor with formatting tools, image management, and SEO fields
+- **GitHub CMS Integration**: Production-ready GitHub API for serverless deployments
+- **Page Management System**: CRUD operations for static pages with individual SEO settings
+- **Category Management**: Full category system with descriptions, slugs, and post counting
+- **Draft/Published Workflow**: Complete content workflow with featured content highlighting
+- **Content Organization**: Tags, categories, reading time, and author management
+- **Bulk Operations**: Manage multiple posts and pages efficiently
+
+### System Configuration & Monitoring
+- **Multi-Provider Email Support**: SMTP, SendGrid, Mailgun, Postmark, and Resend
+- **Analytics Integration**: Google Analytics, Facebook Pixel, Hotjar, Microsoft Clarity
+- **Site Verification**: Google, Bing, Yandex, Pinterest verification management
+- **Real-time Health Monitoring**: System status indicators for all components
+- **Environment Variable Validation**: Automatic checking of required configurations
+- **Performance Metrics**: Publishing rates, content statistics, system health scores
 
 ### Developer Experience
-- **TypeScript**: Full type safety across the application
-- **Tailwind CSS**: Utility-first CSS framework with blue-based theme
-- **Theme System**: Built-in dark/light mode support with Valiance Media branding
-- **Component Library**: Reusable UI components with consistent naming
-- **ESLint & Prettier**: Code quality and formatting
-- **File Organization**: Clean, logical structure with centralized exports
-- **Design System**: Comprehensive typography and spacing system with CSS variables
-
-### Content Management
-- **Admin Dashboard**: Built-in CMS dashboard at `/admin` with statistics and overview
-- **Blog Editor**: Rich text editor for creating and editing blog posts
-- **Authentication**: Environment-based admin authentication system
-- **Content API**: RESTful API endpoints for content management
-- **Rich Text Editor**: Custom contentEditable editor with formatting tools
-- **Draft System**: Support for draft and published states
-- **Categories & Tags**: Organize content with categories and tags
+- **TypeScript**: Full type safety across the application with proper interfaces
+- **Tailwind CSS**: Utility-first CSS framework with custom blue-based theme
+- **Theme System**: Built-in dark/light mode with CSS variables
+- **Component Library**: 50+ reusable UI components with consistent naming
+- **ESLint & Prettier**: Code quality and formatting enforcement
+- **Design System**: Comprehensive typography and spacing system
+- **Edge-Compatible Auth**: Authentication system optimized for edge runtime
+- **API Documentation**: Well-structured RESTful endpoints
 
 ### Production Ready
-- **Favicon Setup**: Complete favicon package with easy generation
-- **Legal Pages**: Privacy Policy and Terms of Service templates
-- **Analytics Ready**: Pre-configured for Google Analytics, Facebook Pixel, and more
-- **Mobile Optimized**: Responsive design with mobile-first approach
-- **Layout Architecture**: Optimized layout system with global components
-- **Comprehensive .gitignore**: Properly configured to exclude build artifacts and cache files
+- **Performance Optimized**: 95+ Lighthouse scores, optimized for Core Web Vitals
+- **Mobile-First Design**: Responsive layouts with touch-friendly interfaces
+- **Security Features**: CSRF protection, XSS prevention, secure authentication
+- **Deployment Ready**: Optimized for Vercel, Netlify, and other platforms
+- **Legal Compliance**: Privacy Policy and Terms of Service templates
+- **Accessibility**: WCAG 2.1 AA compliant components
 
 ## 📦 Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
 - npm or yarn or pnpm
+- Git (for GitHub CMS features)
 
 ### Installation
 
@@ -58,138 +72,219 @@ cd my-project
 npm install
 ```
 
-3. **Set up environment variables:**
+3. **Set up authentication (Required for Admin Access):**
 ```bash
-# Create .env.local file
-echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000" > .env.local
+# Run the auth setup script
+npm run setup-auth
+
+# Or manually create .env.local with:
+ADMIN_USERNAME=your-admin-username
+ADMIN_PASSWORD_HASH=your-hashed-password
+SESSION_SECRET=your-session-secret
 ```
 
-4. **Update the SEO configuration:**
+4. **Configure environment variables:**
+```bash
+# Create .env.local file
+cp .env.example .env.local
+
+# Edit .env.local with your values
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+5. **Update the SEO configuration:**
 - Edit `src/seo/seo.config.ts` with your company information
 - Update site URL, social media links, and verification codes
 
-5. **Generate favicon assets:**
+6. **Generate favicon assets:**
 - Go to [favicon.io/favicon-converter/](https://favicon.io/favicon-converter/)
 - Upload your logo (512x512px or larger recommended)
 - Download and extract files to `public/favicon/`
 
-6. **Run the development server:**
+7. **Run the development server:**
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see your site.
+Access the admin dashboard at [http://localhost:3000/admin](http://localhost:3000/admin)
 
-## 🎨 Customization
+## 🎨 Admin Dashboard
+
+### Accessing the Admin Panel
+1. Navigate to `/admin/login`
+2. Use the credentials you set up in `.env.local`
+3. Access the comprehensive dashboard at `/admin`
+
+### Dashboard Features
+
+#### Overview Tab
+- **Quick Actions**: Create new posts/pages, manage categories, access SEO settings
+- **Statistics Cards**: Total posts, published, drafts, pages count
+- **Recent Posts**: Quick access with inline editing capabilities
+- **System Status**: Real-time monitoring of GitHub, Email, Analytics, SEO configuration
+- **Categories Overview**: Visual breakdown with post counts
+- **Performance Metrics**: Publishing rates and content health scores
+
+#### Content Tab
+- **Blog Management**: Create, edit, delete posts with rich text editor
+- **Page Management**: Static page CRUD operations with SEO settings
+- **Category Management**: Organize content with hierarchical categories
+- **Redirect Management**: Create and manage URL redirects with chain prevention
+
+#### System Tab
+- **Configuration Center**: Access all system settings from one place
+- **Integration Management**: GitHub, Email, Analytics configuration
+- **Site Files**: Quick access to sitemap.xml and robots.txt
+- **Settings Page**: Comprehensive configuration interface
+
+### Content Editor Features
+- **Rich Text Editing**: Headings, formatting, lists, links, images, code blocks
+- **SEO Optimization**: Meta title, description, keywords, schema markup
+- **Media Management**: Upload and manage images through GitHub integration
+- **Draft System**: Save drafts and publish when ready
+- **Featured Content**: Highlight important posts
+- **Categories & Tags**: Organize content effectively
+- **Author Attribution**: Track content creators
+- **Reading Time**: Automatic calculation
+
+## 🎯 SEO Management
+
+### SEO Dashboard (`/admin/seo`)
+Access the comprehensive SEO management interface with multiple tabs:
+
+#### Configuration Tab
+- **Visual Config Editor**: Modify seo.config.ts through GUI
+- **Social Media Settings**: Configure Open Graph and Twitter Cards
+- **Analytics Setup**: Integrate tracking codes
+- **Verification Codes**: Manage search engine verifications
+
+#### Redirects Tab
+- **Smart Redirect Management**: Create, edit, delete redirects
+- **Chain Prevention**: Automatic detection and prevention of redirect chains
+- **Circular Detection**: Prevents A→B→A redirect loops
+- **Bulk Updates**: Update multiple redirects when chains are detected
+
+#### Schema Markup Tab
+- **Schema Generator**: Visual interface for creating structured data
+- **13+ Schema Types**: Article, Product, FAQ, HowTo, Event, Service, etc.
+- **Auto-population**: Schemas populate with page data automatically
+- **Validation Tools**: Direct links to Google Rich Results Test
+- **Export JSON-LD**: Copy generated schemas for external use
+
+#### SEO Health Tab
+- **Meta Tag Analysis**: Check all pages for proper meta tags
+- **Sitemap Status**: Monitor sitemap generation and content
+- **Schema Coverage**: Track which pages have structured data
+- **Performance Metrics**: SEO-related performance indicators
+
+### Schema Markup System
+
+The boilerplate includes advanced schema markup support:
+
+**Supported Schema Types:**
+- Organization / LocalBusiness / Person
+- Article / BlogPosting / NewsArticle  
+- Product / Service / Review
+- FAQ / HowTo / Recipe
+- Event / Course / JobPosting
+- Video / SoftwareApplication
+- Website / BreadcrumbList
+
+**Features:**
+- Visual schema editor in blog/page editors
+- Automatic schema generation based on content
+- Multiple schemas per page support
+- Schema validation and testing tools
+
+## 🔧 Configuration
+
+### Environment Variables
+
+```env
+# Required
+NEXT_PUBLIC_SITE_URL=https://yoursite.com
+
+# Admin Authentication (Required for Admin Access)
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD_HASH=hashed-password-here
+SESSION_SECRET=your-session-secret
+
+# GitHub CMS (For Production Content Management)
+GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+GITHUB_OWNER=your-username
+GITHUB_REPO=your-repo-name
+GITHUB_BRANCH=main
+
+# Email Configuration (Choose One Provider)
+# SMTP
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+
+# OR SendGrid
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxx
+
+# OR Mailgun
+MAILGUN_API_KEY=key-xxxxxxxxxxxxx
+MAILGUN_DOMAIN=mg.yourdomain.com
+
+# OR Postmark
+POSTMARK_API_KEY=xxxxxxxxxxxxx
+
+# OR Resend
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+
+# Analytics (Optional)
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_FB_PIXEL_ID=XXXXXXXXXX
+NEXT_PUBLIC_HOTJAR_ID=XXXXXXXXXX
+NEXT_PUBLIC_CLARITY_ID=XXXXXXXXXX
+
+# Site Verification (Optional)
+NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=XXXXXXXXXX
+NEXT_PUBLIC_BING_SITE_VERIFICATION=XXXXXXXXXX
+NEXT_PUBLIC_YANDEX_SITE_VERIFICATION=XXXXXXXXXX
+NEXT_PUBLIC_PINTEREST_SITE_VERIFICATION=XXXXXXXXXX
+
+# Development Options
+DISABLE_ADMIN_AUTH=true  # Disable auth in development
+```
 
 ### SEO Configuration
-All SEO settings are centralized in `src/seo/seo.config.ts`. Update this file with:
-- Your company name and details
-- Default meta descriptions and keywords
-- Social media handles
-- Analytics IDs
-- Verification codes
+All SEO settings are centralized in `src/seo/seo.config.ts`:
 
-See the [SEO Guide](src/seo/README.md) for detailed instructions.
-
-### Favicon Generation
-1. Go to [favicon.io/favicon-converter/](https://favicon.io/favicon-converter/)
-2. Upload your logo (512x512px or larger recommended)
-3. Download the generated package
-4. Extract and upload all files to `public/favicon/`
+```typescript
+export const seoConfig = {
+  siteName: 'Your Company',
+  siteUrl: 'https://yoursite.com',
+  defaultTitle: 'Your Default Title',
+  defaultDescription: 'Your default description',
+  defaultKeywords: ['keyword1', 'keyword2'],
+  
+  // Social Media
+  social: {
+    twitter: '@yourhandle',
+    facebook: 'yourpage',
+    instagram: 'yourprofile',
+    linkedin: 'company/yourcompany'
+  },
+  
+  // Organization Schema
+  organization: {
+    name: 'Your Company',
+    logo: '/logos/logo.png',
+    contactEmail: 'contact@yoursite.com'
+  }
+};
+```
 
 ### Theme Customization
 - Edit `src/styles/themes.ts` for color schemes
 - Modify `tailwind.config.js` for design tokens
-- Update `src/styles/` for typography and spacing
-- Use CSS variables for consistent theming across components
-
-### Typography System
-The boilerplate includes a comprehensive typography system:
-- **CSS Variables**: All typography values are defined as CSS variables in `src/styles/globals.css`
-- **Base Styles**: HTML elements (`h1`, `h2`, `p`, etc.) automatically inherit design system typography
-- **Utility Classes**: Custom typography classes (`.text-h1`, `.text-body1`, etc.) for specific styling
-- **Responsive Design**: Typography scales appropriately across different screen sizes
-
-### Adding Pages
-Create new pages in `src/app/` following Next.js App Router conventions:
-
-```typescript
-// src/app/about/page.tsx
-import { Metadata } from 'next';
-import { generateMetadata } from '@/seo/seo-utils';
-import { PageWrapper } from '@/components/PageWrapper';
-
-export const metadata: Metadata = generateMetadata({
-  title: 'About Us',
-  description: 'Learn about our company',
-});
-
-export default function AboutPage() {
-  return (
-    <PageWrapper>
-      {/* Your page content */}
-    </PageWrapper>
-  );
-}
-```
-
-## 🎨 Content Management System (CMS)
-
-### Admin Dashboard
-Access the admin dashboard at `/admin` (requires authentication):
-- **Statistics Overview**: Total posts, published, drafts, and featured content
-- **Recent Posts**: Quick access to latest blog posts with inline editing
-- **Categories & Tags**: Visual breakdown of content organization
-- **Quick Actions**: Create new posts, manage existing content, view live blog
-
-### Blog Editor Features
-- **Rich Text Editor**: Custom contentEditable implementation with formatting tools
-  - Headings (H1, H2, H3)
-  - Text formatting (bold, italic, underline, strikethrough)
-  - Lists (ordered and unordered)
-  - Links and images
-  - Code blocks and quotes
-- **SEO Fields**: Meta title, description, keywords
-- **Post Management**: Save as draft, publish, feature posts
-- **Categories & Tags**: Organize content effectively
-- **Author Information**: Track post authors
-- **Reading Time**: Automatic calculation
-
-### Setting Up Admin Access
-1. Set environment variables in `.env.local`:
-```env
-ADMIN_USERNAME=your-admin-username
-ADMIN_PASSWORD=your-secure-password
-ADMIN_TOKEN=your-secret-token
-```
-
-2. Access the admin panel at `/admin/login`
-3. Use your credentials to authenticate
-
-### Content Storage
-- Blog posts are stored as JSON files in `/public/blog-content/`
-- Images are stored in `/public/blog-content/images/`
-- Automatic slug generation from post titles
-- Support for draft and published states
-
-### API Endpoints
-- `POST /api/admin/blog-post` - Create new blog post
-- `PUT /api/admin/blog-post` - Update existing post
-- `DELETE /api/admin/blog-post` - Delete post
-- `GET /api/admin/dashboard` - Dashboard statistics
-- `POST /api/admin/auth/login` - Admin authentication
-- `POST /api/admin/auth/logout` - Admin logout
-- `GET /api/blog` - Public blog posts API
-
-### Important Notes for Production
-⚠️ **Local Development Only**: The current file-based CMS works perfectly in local development but has limitations in production environments like Vercel due to the read-only file system in serverless functions.
-
-**For production use, consider:**
-1. **GitHub API Integration**: Commit blog posts directly to your repository
-2. **Database Integration**: Use PostgreSQL, MySQL, or MongoDB
-3. **Headless CMS**: Integrate with Strapi, Contentful, or Sanity
-4. **Static Generation**: Pre-build all blog posts at build time
+- Update CSS variables in `src/styles/globals.css`
+- Customize typography system for brand consistency
 
 ## 📁 Project Structure
 
@@ -202,137 +297,92 @@ ADMIN_TOKEN=your-secret-token
 │       └── images/       # Blog post images
 ├── src/
 │   ├── app/              # Next.js app router pages
-│   │   ├── layout.tsx    # Root layout with global Header/Footer
-│   │   ├── page.tsx      # Homepage (example template)
 │   │   ├── admin/        # Admin CMS pages
-│   │   │   ├── page.tsx  # Admin dashboard
+│   │   │   ├── page.tsx  # Enhanced admin dashboard
 │   │   │   ├── blog/     # Blog management
-│   │   │   │   └── page.tsx
-│   │   │   └── blog-post/ # Blog post editor
-│   │   │       ├── [slug]/
-│   │   │       │   └── page.tsx
-│   │   │       └── page.tsx
+│   │   │   ├── pages/    # Page management
+│   │   │   ├── seo/      # SEO dashboard
+│   │   │   ├── settings/ # System settings
+│   │   │   └── categories/ # Category management
 │   │   ├── api/          # API routes
-│   │   │   ├── admin/     # Admin API endpoints
-│   │   │   │   ├── auth/  # Authentication
-│   │   │   │   ├── blog-post/ # Blog CRUD operations
-│   │   │   │   └── dashboard/ # Dashboard data
-│   │   │   └── blog/      # Public blog API
-│   │   ├── blog/         # Blog pages
-│   │   │   ├── page.tsx  # Blog listing
-│   │   │   └── [slug]/   # Individual blog posts
-│   │   │       └── page.tsx
-│   │   ├── privacy/      # Privacy policy page
-│   │   │   └── page.tsx
-│   │   ├── terms-of-service/ # Terms page
-│   │   │   └── page.tsx
-│   │   ├── sitemap.ts    # Auto-generated sitemap (re-export)
-│   │   └── robots.ts     # Robots.txt configuration (re-export)
+│   │   │   └── admin/    # Admin API endpoints
+│   │   ├── blog/         # Public blog pages
+│   │   └── (pages)/      # Static pages
 │   ├── components/       # Reusable components
-│   │   ├── ui/          # UI components
-│   │   ├── Header.tsx   # Site header
-│   │   ├── Footer.tsx   # Site footer
-│   │   ├── PageWrapper.tsx # Page content wrapper
-│   │   ├── RichTextEditor.tsx # Custom rich text editor
-│   │   └── BlogCard.tsx # Blog post card component
-│   ├── seo/             # SEO utilities and configuration
-│   │   ├── index.ts     # Centralized SEO exports
-│   │   ├── README.md    # SEO documentation
-│   │   ├── seo.config.ts # SEO settings
-│   │   ├── seo-utils.ts # SEO utility functions
-│   │   ├── SEO.tsx      # SEO component
-│   │   ├── StructuredData.tsx # JSON-LD component
-│   │   ├── sitemap.ts   # Sitemap generation
-│   │   └── robots.ts    # Robots.txt generation
-│   ├── styles/          # Global styles and design system
-│   │   ├── index.ts     # Centralized style exports
-│   │   ├── README.md    # Style documentation
-│   │   ├── globals.css  # Global CSS with CSS variables
-│   │   ├── themes.ts    # Theme definitions
-│   │   ├── typography.ts # Typography utilities
-│   │   ├── spacing.ts   # Spacing utilities
-│   │   └── shadows.ts   # Shadow utilities
-│   ├── hooks/           # Custom React hooks
-│   ├── lib/             # Utility functions
-│   │   ├── auth.ts      # Authentication utilities
-│   │   ├── auth-edge.ts # Edge-compatible auth
-│   │   └── blog-utils.ts # Blog post utilities
-│   ├── theme/           # Theme provider
-│   │   └── ThemeProvider.tsx
-│   └── middleware.ts    # Next.js middleware for auth
-├── .gitignore           # Comprehensive ignore rules
-├── next.config.ts       # Next.js configuration
-├── tailwind.config.js   # Tailwind CSS configuration
-├── tsconfig.json        # TypeScript configuration
-└── package.json         # Dependencies and scripts
+│   │   ├── admin/        # Admin-specific components
+│   │   │   ├── seo/      # SEO management components
+│   │   │   └── blog/     # Blog editor components
+│   │   └── ui/           # UI components
+│   ├── seo/              # SEO utilities
+│   ├── lib/              # Utility functions
+│   │   ├── auth.ts       # Authentication
+│   │   ├── github-cms.ts # GitHub integration
+│   │   └── redirects.ts  # Redirect management
+│   └── middleware.ts     # Auth middleware
 ```
-
-## 🔧 Configuration Files
-
-- `next.config.ts` - Next.js configuration
-- `tailwind.config.js` - Tailwind CSS configuration with blue theme
-- `tsconfig.json` - TypeScript configuration
-- `package.json` - Dependencies and scripts
-- `.gitignore` - Comprehensive ignore rules for build artifacts, cache files, and development tools
-
-## 📝 Documentation
-
-- [SEO Guide](src/seo/GUIDE_FOR_SEO.md) - Complete SEO setup and best practices
-- [Style Guide](src/styles/STYLE_GUIDE.md) - Design system and component guidelines
-- [Favicon Guide](public/favicon/create-favicon-readme.md) - Favicon generation instructions
 
 ## 🚢 Deployment
 
 ### Vercel (Recommended)
 1. Push your code to GitHub
 2. Import your repository on [Vercel](https://vercel.com)
-3. Set environment variables:
-   - `NEXT_PUBLIC_SITE_URL` - Your production URL
+3. Add all environment variables in Vercel dashboard
 4. Deploy
 
-### Environment Variables
-```env
-# Required
-NEXT_PUBLIC_SITE_URL=https://yoursite.com
+### Production Content Management
 
-# Admin Authentication
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=your-secure-password
-ADMIN_TOKEN=your-secret-token
+For production environments, the GitHub CMS integration allows you to:
+- Create and edit content without database
+- Automatic deployments on content changes
+- Version control for all content
+- Works perfectly with Vercel/Netlify
 
-# Optional - Analytics
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
-NEXT_PUBLIC_FB_PIXEL_ID=XXXXXXXXXX
-NEXT_PUBLIC_HOTJAR_ID=XXXXXXXXXX
-NEXT_PUBLIC_CLARITY_ID=XXXXXXXXXX
+### Setting up GitHub CMS:
+1. Create a GitHub Personal Access Token
+2. Add token and repository details to environment variables
+3. Content changes will trigger automatic deployments
 
-# Optional - Site Verification
-NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=XXXXXXXXXX
-NEXT_PUBLIC_BING_SITE_VERIFICATION=XXXXXXXXXX
-NEXT_PUBLIC_YANDEX_SITE_VERIFICATION=XXXXXXXXXX
-NEXT_PUBLIC_PINTEREST_SITE_VERIFICATION=XXXXXXXXXX
-```
+## 📊 API Endpoints
 
-### Other Platforms
-This boilerplate works with any platform that supports Next.js:
-- Netlify
-- AWS Amplify
-- Google Cloud Run
-- Docker containers
+### Public Endpoints
+- `GET /api/blog` - List all published blog posts
+- `GET /api/blog/[slug]` - Get single blog post
+- `GET /sitemap.xml` - Dynamic sitemap
+- `GET /robots.txt` - Robots file
+
+### Admin Endpoints (Protected)
+- `POST /api/admin/auth/login` - Admin login
+- `POST /api/admin/auth/logout` - Admin logout
+- `GET /api/admin/dashboard` - Dashboard statistics
+- `POST /api/admin/blog-post` - Create blog post
+- `PUT /api/admin/blog-post` - Update blog post
+- `DELETE /api/admin/blog-post` - Delete blog post
+- `GET /api/admin/pages` - List pages
+- `POST /api/admin/pages` - Create page
+- `GET /api/admin/seo` - SEO configuration
+- `PUT /api/admin/seo` - Update SEO settings
+- `GET /api/admin/settings/env-status` - Check environment variables
+- `POST /api/admin/redirects` - Manage redirects
+
+## ⚡ Performance
+
+This boilerplate is optimized for:
+- **Lighthouse Score**: 95+ across all metrics
+- **Core Web Vitals**: Optimized for LCP, FID, and CLS
+- **SEO Score**: 100/100 on most SEO analyzers
+- **Accessibility**: WCAG 2.1 AA compliant
+- **Page Speed**: Sub-second load times with proper caching
 
 ## 🛠️ Built With
 
 - [Next.js 15](https://nextjs.org/) - React framework with App Router
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS with custom theme
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
 - [React 19](https://react.dev/) - UI library
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Based on the official Next.js examples by Vercel.
-Modified and maintained by Valiance Media LLC.
 
 ## 🤝 Contributing
 
@@ -342,56 +392,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 [Valiance Media LLC](https://valiancemedia.com) creates innovative in-house software solutions and e-commerce brands. We build digital products that drive growth and deliver exceptional user experiences.
 
-### Our Portfolio
-- E-commerce Solutions
-- Digital Product Innovation
-- SaaS Development
-
 ### Contact
 - Website: [valiancemedia.com](https://valiancemedia.com)
 - Email: contact@valiancemedia.com
-
-## ⚡ Performance
-
-This boilerplate is optimized for:
-- **Lighthouse Score**: 95+ across all metrics
-- **Core Web Vitals**: Optimized for LCP, FID, and CLS
-- **SEO Score**: 100/100 on most SEO analyzers
-- **Accessibility**: WCAG 2.1 AA compliant
-
-## 🔄 Updates
-
-This boilerplate is actively maintained and updated with:
-- Latest Next.js features and best practices
-- Security updates and dependency upgrades
-- New SEO strategies and optimizations
-- Community feedback and contributions
-- Improved design system with CSS variables
-- Enhanced typography and spacing system
-
-## 🎨 Design System
-
-### Color Palette
-- **Primary**: Blue-based theme matching Valiance Media branding
-- **Secondary**: Complementary blue shades
-- **Accent**: Cyan highlights
-- **Dark/Light**: Full theme support with CSS variables
-
-### Typography System
-- **CSS Variables**: All typography values centralized in CSS variables
-- **Base Elements**: HTML elements automatically inherit design system typography
-- **Utility Classes**: Custom classes for specific styling needs
-- **Responsive**: Scales appropriately across all screen sizes
-
-### Component Naming
-- `Header.tsx` - Site navigation (industry standard)
-- `Footer.tsx` - Site footer (industry standard)
-- `PageWrapper.tsx` - Consistent page content wrapper
-
-### File Organization
-- **Centralized Exports**: Index files for clean imports
-- **Logical Grouping**: Related files in dedicated directories
-- **Documentation**: README files for each major directory
 
 ---
 
