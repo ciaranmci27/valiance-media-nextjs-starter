@@ -10,15 +10,6 @@
       "isHomePage": true
     },
     {
-      "slug": "does-this-work",
-      "title": "does this work",
-      "path": "/does-this-work",
-      "category": "general",
-      "featured": false,
-      "draft": false,
-      "isHomePage": false
-    },
-    {
       "slug": "privacy",
       "title": "Privacy Policy",
       "path": "/privacy",
