@@ -1,5 +1,7 @@
 # Valiance Media Next.js Starter Boilerplate
 
+A production-ready Next.js boilerplate with built-in SEO optimization, content management system, and modern development practices. Created by [Valiance Media LLC](https://valiancemedia.com) to accelerate the development of professional marketing websites and web applications.
+
 ## Homepage
 <p align="center">
   <img src="https://github.com/user-attachments/assets/18bcfa52-7716-4c04-9eb9-4daf86f94297" alt="valiance-media-nextjs-starter-preview" width="49%" />
@@ -29,8 +31,6 @@
   <img src="https://github.com/user-attachments/assets/f61d3e1f-a9dc-4066-aabd-369536c14b37" alt="valiance-media-nextjs-starter-preview" width="49%" />
   <img src="https://github.com/user-attachments/assets/4472540e-c69e-40ee-ab7d-246312598249" alt="image" width="49%" />
 </p>
-
-A production-ready Next.js boilerplate with built-in SEO optimization, content management system, and modern development practices. Created by [Valiance Media LLC](https://valiancemedia.com) to accelerate the development of professional marketing websites and web applications.
 
 ## 🚀 Features
 
