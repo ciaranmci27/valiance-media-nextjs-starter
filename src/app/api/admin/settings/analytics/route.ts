@@ -7,6 +7,8 @@ import { promisify } from 'util';
 const execAsync = promisify(exec);
 const SEO_CONFIG_PATH = path.join(process.cwd(), 'src', 'seo', 'seo.config.ts');
 
+export const runtime = 'nodejs';
+
 export async function GET() {
   try {
     // Read current seo.config.ts file

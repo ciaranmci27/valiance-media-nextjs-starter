@@ -3,6 +3,8 @@ import { sessionStore } from '@/lib/auth-store';
 import fs from 'fs/promises';
 import path from 'path';
 
+export const runtime = 'nodejs';
+
 const SETTINGS_FILE = path.join(process.cwd(), 'settings.json');
 
 // Default settings
