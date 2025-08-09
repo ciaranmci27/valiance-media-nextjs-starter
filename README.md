@@ -1,6 +1,34 @@
 # Valiance Media Next.js Starter Boilerplate
 
-<img width="1200" height="630" alt="valiance-media-nextjs-starter-preview" src="https://github.com/user-attachments/assets/0d7c53f7-509b-4e95-9922-49f387b750cf" />
+## Homepage
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/18bcfa52-7716-4c04-9eb9-4daf86f94297" alt="valiance-media-nextjs-starter-preview" width="49%" />
+  <img src="https://github.com/user-attachments/assets/c8d6405a-36de-4295-a78e-31bcc65d6a05" alt="image" width="49%" />
+</p>
+
+## Admin Dashboard
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4467133b-a70d-41e6-ae4a-98ab6eadc103" alt="valiance-media-nextjs-starter-preview" width="49%" />
+  <img src="https://github.com/user-attachments/assets/03770c68-f2e3-465c-ba45-0420c49b0724" alt="image" width="49%" />
+</p>
+
+## Manage Pages
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/6e0ff488-817b-4f7d-acdd-7de121ffb916" alt="valiance-media-nextjs-starter-preview" width="49%" />
+  <img src="https://github.com/user-attachments/assets/98273f47-4bcf-4067-a1d2-a7f917b2f1db" alt="image" width="49%" />
+</p>
+
+## SEO Dashboard
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/cd01fba4-0825-45b0-bb60-37711a31ddb9" alt="valiance-media-nextjs-starter-preview" width="49%" />
+  <img src="https://github.com/user-attachments/assets/c26b7647-1788-4a54-861f-bb027d156f8a" alt="image" width="49%" />
+</p>
+
+## Application Settings
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f61d3e1f-a9dc-4066-aabd-369536c14b37" alt="valiance-media-nextjs-starter-preview" width="49%" />
+  <img src="https://github.com/user-attachments/assets/4472540e-c69e-40ee-ab7d-246312598249" alt="image" width="49%" />
+</p>
 
 A production-ready Next.js boilerplate with built-in SEO optimization, content management system, and modern development practices. Created by [Valiance Media LLC](https://valiancemedia.com) to accelerate the development of professional marketing websites and web applications.
 
