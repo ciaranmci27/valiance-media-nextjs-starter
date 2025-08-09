@@ -6,55 +6,13 @@
  */
 
 export const seoConfig = {
-  siteName: 'Your Company Name',
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com',
-  company: {
-    name: 'Your Company Name',
-    legalName: 'Your Company Legal Name',
-    foundingDate: '2024-01-01',
-    email: 'contact@example.com',
-    phone: '+1234567890',
-    address: {
-      streetAddress: '123 Main St',
-      addressLocality: 'City',
-      addressRegion: 'State',
-      postalCode: '12345',
-      addressCountry: 'US'
-    }
-  },
-  defaultTitle: 'Welcome to Your Company - Your Tagline Here',
+  siteName: 'Test',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://test.com',
   titleTemplate: '{pageName} | {siteName}',
-  defaultDescription: 'Your company description here',
-  // Default keywords used when a page does not specify its own
-  defaultKeywords: [],
-  // Social profile links used across meta tags and schema
-  social: {
-    twitter: '',
-    linkedin: '',
-    github: '',
-    instagram: '',
-    facebook: '',
-    youtube: ''
-  },
-  // Site verification codes for search engines
-  verification: {
-    google: '',
-    bing: '',
-    yandex: '',
-    pinterest: ''
-  },
-  // Analytics IDs
-  analytics: {
-    googleAnalyticsId: '',
-    facebookPixelId: '',
-    hotjarId: '',
-    clarityId: ''
-  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'Your Company Name',
-    defaultImage: '/logos/horizontal-logo.png',
+    defaultImage: '/images/og-default.jpg',
     imageWidth: 1200,
     imageHeight: 630
   },
@@ -87,12 +45,6 @@ export const seoConfig = {
       }
       ],
       customRules: ''
-    }
-  },
-  alternates: {
-    canonical: 'https://valiancemedia.com',
-    languages: {
-      'en-US': 'https://valiancemedia.com'
     }
   },
   sitemap: {
