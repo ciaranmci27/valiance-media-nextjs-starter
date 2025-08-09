@@ -20,15 +20,18 @@ class SessionStore {
   private loginAttempts: Map<string, LoginAttempt> = new Map();
   private sessionTimeoutMinutes: number = 60; // Default 60 minutes
   private maxLoginAttempts: number = 5; // Default 5 attempts
-  private lockoutDurationMinutes: number = 15; // Lock for 15 minutes after max attempts
+  private lockoutDurationMinutes: number = 15; // Default 15 minutes after max attempts
 
   // Update settings from saved configuration
-  updateSettings(settings: { sessionTimeout?: number; maxLoginAttempts?: number }) {
+  updateSettings(settings: { sessionTimeout?: number; maxLoginAttempts?: number; lockoutDuration?: number }) {
     if (typeof settings.sessionTimeout === 'number' && !Number.isNaN(settings.sessionTimeout)) {
       this.sessionTimeoutMinutes = settings.sessionTimeout;
     }
     if (typeof settings.maxLoginAttempts === 'number' && !Number.isNaN(settings.maxLoginAttempts)) {
       this.maxLoginAttempts = settings.maxLoginAttempts;
+    }
+    if (typeof settings.lockoutDuration === 'number' && !Number.isNaN(settings.lockoutDuration)) {
+      this.lockoutDurationMinutes = settings.lockoutDuration;
     }
   }
 
@@ -41,6 +44,7 @@ class SessionStore {
       lastActivity: now
     });
     // Clear login attempts on successful login
+    // This should only be called when account is not locked
     this.loginAttempts.delete(username.toLowerCase());
   }
 
@@ -141,12 +145,7 @@ class SessionStore {
       return true;
     }
     
-    // Clear lock if expired
-    if (attempt.lockedUntil && attempt.lockedUntil <= now) {
-      attempt.lockedUntil = undefined;
-      attempt.attempts = 0;
-    }
-    
+    // Don't auto-clear here - let successful login clear it
     return false;
   }
 

@@ -18,6 +18,7 @@ const defaultSettings = {
   admin: {
     sessionTimeout: 60,
     maxLoginAttempts: 5,
+    lockoutDuration: 15,
   },
 };
 
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
     sessionStore.updateSettings({
       sessionTimeout: settings.admin?.sessionTimeout,
       maxLoginAttempts: settings.admin?.maxLoginAttempts,
+      lockoutDuration: settings.admin?.lockoutDuration,
     });
 
     // Return response and set/update timeout cookie used by middleware

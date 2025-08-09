@@ -14,6 +14,7 @@ interface AppSettings {
   admin: {
     sessionTimeout: number;
     maxLoginAttempts: number;
+    lockoutDuration: number;
   };
   analytics: {
     googleAnalyticsId: string;
@@ -42,6 +43,7 @@ export default function SettingsPage() {
     admin: {
       sessionTimeout: 60,
       maxLoginAttempts: 5,
+      lockoutDuration: 15,
     },
     analytics: {
       googleAnalyticsId: '',
@@ -778,8 +780,11 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
-                      value={settings.admin.sessionTimeout}
-                      onChange={(e) => handleInputChange('admin', 'sessionTimeout', parseInt(e.target.value))}
+                      value={settings.admin.sessionTimeout || ''}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        handleInputChange('admin', 'sessionTimeout', isNaN(val) ? 60 : val);
+                      }}
                       className="input-field w-32"
                       min="5"
                       max="1440"
@@ -787,7 +792,7 @@ export default function SettingsPage() {
                     <span className="text-body" style={{ color: 'var(--color-text-secondary)' }}>minutes</span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Automatically log out users after this period of inactivity
+                    Automatically log out users after this period of inactivity (min: 5, max: 1440 minutes)
                   </p>
                 </div>
 
@@ -797,14 +802,40 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="number"
-                    value={settings.admin.maxLoginAttempts}
-                    onChange={(e) => handleInputChange('admin', 'maxLoginAttempts', parseInt(e.target.value))}
+                    value={settings.admin.maxLoginAttempts || ''}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      handleInputChange('admin', 'maxLoginAttempts', isNaN(val) ? 5 : val);
+                    }}
                     className="input-field w-32"
                     min="3"
                     max="10"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Lock account after this many failed login attempts
+                    Lock account after this many failed login attempts (min: 3, max: 10 attempts)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                    Lockout Duration
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={settings.admin.lockoutDuration || ''}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        handleInputChange('admin', 'lockoutDuration', isNaN(val) ? 15 : val);
+                      }}
+                      className="input-field w-32"
+                      min="5"
+                      max="120"
+                    />
+                    <span className="text-body" style={{ color: 'var(--color-text-secondary)' }}>minutes</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    How long to lock the account after max failed attempts (min: 5, max: 120 minutes)
                   </p>
                 </div>
               </div>

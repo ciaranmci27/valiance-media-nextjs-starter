@@ -137,3 +137,6 @@ jspm_packages/
 
 # Application settings (contains configurations)
 settings.json
+
+# Authentication lockout tracking
+.lockouts.json

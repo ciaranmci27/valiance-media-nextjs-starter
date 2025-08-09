@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCredentials } from '@/lib/auth';
 import { sessionStore } from '@/lib/auth-store';
+import { lockoutStore } from '@/lib/lockout-store';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -9,17 +10,24 @@ async function loadAdminSettings() {
   try {
     const data = await fs.readFile(SETTINGS_FILE, 'utf-8');
     const json = JSON.parse(data);
-    return json?.admin || { sessionTimeout: 60, maxLoginAttempts: 5 };
+    return json?.admin || { sessionTimeout: 60, maxLoginAttempts: 5, lockoutDuration: 15 };
   } catch {
-    return { sessionTimeout: 60, maxLoginAttempts: 5 };
+    return { sessionTimeout: 60, maxLoginAttempts: 5, lockoutDuration: 15 };
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const { username, password } = await request.json();
+    
+    // Get client IP address
+    const forwarded = request.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(',')[0].trim() : 
+               request.headers.get('x-real-ip') || 
+               request.ip || 
+               null;
 
-    console.log('Login attempt for username:', username);
+    console.log('Login attempt for username:', username, 'from IP:', ip);
 
     if (!username || !password) {
       return NextResponse.json(
@@ -28,11 +36,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Enforce max login attempts using sessionStore
-    if (sessionStore.isAccountLocked(username)) {
-      const remaining = sessionStore.getRemainingLockTime(username);
+    // Load admin settings first to ensure session store has latest settings
+    const adminSettings = await loadAdminSettings();
+    sessionStore.updateSettings({
+      sessionTimeout: adminSettings.sessionTimeout,
+      maxLoginAttempts: adminSettings.maxLoginAttempts,
+      lockoutDuration: adminSettings.lockoutDuration,
+    });
+
+    // Enforce max login attempts using persistent lockout store (IP-based)
+    if (await lockoutStore.isLocked(ip)) {
+      const remaining = await lockoutStore.getRemainingLockTime(ip);
+      console.log(`IP ${ip} is locked. Remaining time: ${remaining} seconds`);
       return NextResponse.json(
-        { error: `Account locked. Try again in ${Math.ceil(remaining / 60)} minutes.` },
+        { error: `Too many failed attempts. Try again in ${Math.ceil(remaining / 60)} minutes.` },
         { status: 429 }
       );
     }
@@ -42,10 +59,16 @@ export async function POST(request: NextRequest) {
 
     if (!token) {
       console.log('Invalid credentials for username:', username);
-      const { locked, remainingAttempts } = sessionStore.recordFailedLogin(username);
+      const { locked, remainingAttempts } = await lockoutStore.recordFailedAttempt(
+        ip,
+        username, 
+        adminSettings.maxLoginAttempts || 5,
+        adminSettings.lockoutDuration || 15
+      );
       const status = locked ? 429 : 401;
+      const lockoutMinutes = adminSettings.lockoutDuration || 15;
       const message = locked
-        ? 'Too many failed attempts. Account locked for 15 minutes.'
+        ? `Too many failed attempts. Account locked for ${lockoutMinutes} minutes.`
         : `Invalid credentials. ${remainingAttempts} attempts remaining.`;
       return NextResponse.json(
         { error: message },
@@ -56,7 +79,18 @@ export async function POST(request: NextRequest) {
     console.log('Login successful for username:', username);
     console.log('Token generated/retrieved:', token);
 
-    // Clear failed attempts and create an in-memory session
+    // Double-check the IP isn't locked (race condition protection)
+    if (await lockoutStore.isLocked(ip)) {
+      const remaining = await lockoutStore.getRemainingLockTime(ip);
+      console.log(`IP ${ip} is locked (double-check). Remaining time: ${remaining} seconds`);
+      return NextResponse.json(
+        { error: `Too many failed attempts. Try again in ${Math.ceil(remaining / 60)} minutes.` },
+        { status: 429 }
+      );
+    }
+
+    // Clear lockout on successful login and create an in-memory session
+    await lockoutStore.clearLockout(ip);
     sessionStore.createSession(username, token);
 
     // Create response with cookies
@@ -75,11 +109,6 @@ export async function POST(request: NextRequest) {
     });
 
     // Set last-activity cookie and timeout cookie based on saved settings
-    const adminSettings = await loadAdminSettings();
-    sessionStore.updateSettings({
-      sessionTimeout: adminSettings.sessionTimeout,
-      maxLoginAttempts: adminSettings.maxLoginAttempts,
-    });
     response.cookies.set('admin-last', String(Date.now()), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
