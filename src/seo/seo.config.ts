@@ -6,6 +6,8 @@
  */
 
 export const seoConfig = {
+  siteName: 'Test',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://test.com',
   titleTemplate: '{pageName} | {siteName}',
   openGraph: {
     type: 'website',
