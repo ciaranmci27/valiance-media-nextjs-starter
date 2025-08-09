@@ -48,23 +48,29 @@ export function generateMetadata({
   alternates,
   ...rest
 }: Partial<Metadata> = {}): Metadata {
-  const metaTitle = title 
-    ? seoConfig.titleTemplate.replace('%s', String(title))
-    : seoConfig.defaultTitle;
-
-  const metaDescription = description || seoConfig.defaultDescription;
-  const metaKeywords = keywords || seoConfig.defaultKeywords;
   const siteUrl = getSiteUrl();
+  
+  // Handle empty config values gracefully
+  const siteName = seoConfig.siteName || 'Website';
+  const defaultTitle = seoConfig.defaultTitle || siteName;
+  const titleTemplate = seoConfig.titleTemplate || '{pageName} | {siteName}';
+  
+  const metaTitle = title 
+    ? titleTemplate.replace('{pageName}', String(title)).replace('{siteName}', siteName)
+    : defaultTitle;
+
+  const metaDescription = description || seoConfig.defaultDescription || `Welcome to ${siteName}`;
+  const metaKeywords = keywords || seoConfig.defaultKeywords || [];
 
   const metadata: any = {
     metadataBase: new URL(siteUrl),
-    title: metaTitle,
+    title: metaTitle || 'Website',
     description: metaDescription,
     keywords: metaKeywords,
   };
 
-  // Add company-related metadata only if company data exists
-  if (seoConfig.company?.name) {
+  // Add company-related metadata only if company data exists and is not empty
+  if (seoConfig.company?.name && seoConfig.company.name.trim()) {
     metadata.authors = [{ name: seoConfig.company.name }];
     metadata.creator = seoConfig.company.name;
     metadata.publisher = seoConfig.company.name;
@@ -81,17 +87,17 @@ export function generateMetadata({
       title: openGraph?.title || metaTitle,
       description: openGraph?.description || metaDescription,
       url: openGraph?.url || siteUrl,
-      siteName: seoConfig.siteName,
-      type: (openGraph as any)?.type || seoConfig.openGraph.type,
-      locale: (openGraph as any)?.locale || seoConfig.openGraph.locale,
-      images: openGraph?.images || [
+      siteName: seoConfig.siteName || siteName,
+      type: (openGraph as any)?.type || seoConfig.openGraph.type || 'website',
+      locale: (openGraph as any)?.locale || seoConfig.openGraph.locale || 'en_US',
+      images: openGraph?.images || (seoConfig.openGraph.defaultImage ? [
         {
           url: seoConfig.openGraph.defaultImage,
-          width: seoConfig.openGraph.imageWidth,
-          height: seoConfig.openGraph.imageHeight,
-          alt: seoConfig.siteName,
+          width: seoConfig.openGraph.imageWidth || 1200,
+          height: seoConfig.openGraph.imageHeight || 630,
+          alt: seoConfig.siteName || siteName,
         },
-      ],
+      ] : []),
       ...openGraph,
     },
     twitter: {
@@ -102,7 +108,7 @@ export function generateMetadata({
       ...twitter,
     },
     robots: robots || (seoConfig.robots as any),
-    alternates: alternates || seoConfig.alternates,
+    alternates: alternates || (seoConfig.alternates?.canonical ? seoConfig.alternates : undefined),
     ...rest,
   };
 }
@@ -112,8 +118,8 @@ export function generateMetadata({
  * Returns null if company data is not configured
  */
 export function generateOrganizationSchema() {
-  // Check if company data exists and has required fields
-  if (!seoConfig.company?.name || !seoConfig.company?.email) {
+  // Check if company data exists and has required fields (not empty strings)
+  if (!seoConfig.company?.name?.trim() || !seoConfig.company?.email?.trim()) {
     return null;
   }
 
@@ -194,17 +200,22 @@ export function generateOrganizationSchema() {
  * Generate JSON-LD structured data for website
  */
 export function generateWebsiteSchema() {
+  // Return null if no site name is configured
+  if (!seoConfig.siteName?.trim()) {
+    return null;
+  }
+  
   const siteUrl = getSiteUrl();
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: seoConfig.siteName,
     url: siteUrl,
-    description: seoConfig.defaultDescription,
+    description: seoConfig.defaultDescription || `Welcome to ${seoConfig.siteName}`,
   };
 
-  // Only add publisher if company name exists
-  if (seoConfig.company?.name) {
+  // Only add publisher if company name exists and is not empty
+  if (seoConfig.company?.name?.trim()) {
     schema.publisher = {
       '@type': 'Organization',
       name: seoConfig.company.name,
@@ -257,16 +268,16 @@ export function generateWebPageSchema({
     dateModified: dateModified || new Date().toISOString(),
   };
 
-  // Add author - use provided author or company name if available
-  if (author || seoConfig.company?.name) {
+  // Add author - use provided author or company name if available and not empty
+  if (author || seoConfig.company?.name?.trim()) {
     schema.author = {
       '@type': 'Organization',
       name: author || seoConfig.company.name,
     };
   }
 
-  // Add publisher if company name exists
-  if (seoConfig.company?.name) {
+  // Add publisher if company name exists and is not empty
+  if (seoConfig.company?.name?.trim()) {
     schema.publisher = {
       '@type': 'Organization',
       name: seoConfig.company.name,
@@ -328,16 +339,16 @@ export function generateProductSchema({
     },
   };
 
-  // Add brand - use provided brand or company name if available
-  if (brand || seoConfig.company?.name) {
+  // Add brand - use provided brand or company name if available and not empty
+  if (brand || seoConfig.company?.name?.trim()) {
     schema.brand = {
       '@type': 'Brand',
       name: brand || seoConfig.company.name,
     };
   }
 
-  // Add seller if company name exists
-  if (seoConfig.company?.name) {
+  // Add seller if company name exists and is not empty
+  if (seoConfig.company?.name?.trim()) {
     schema.offers.seller = {
       '@type': 'Organization',
       name: seoConfig.company.name,

@@ -12,6 +12,9 @@ export default function NotFound() {
   const [redirectTitle, setRedirectTitle] = useState<string>('Home');
 
   useEffect(() => {
+    // Handle case where pathname might be null
+    if (!pathname) return;
+    
     const currentPath = pathname.toLowerCase();
     
     // Determine redirect URL based on current path
@@ -47,7 +50,7 @@ export default function NotFound() {
     }
   }, [countdown, router, redirectUrl]);
 
-  const isBlogUrl = pathname.toLowerCase().startsWith('/blog/');
+  const isBlogUrl = pathname?.toLowerCase().startsWith('/blog/') || false;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
@@ -65,7 +68,7 @@ export default function NotFound() {
           </h2>
           
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Sorry, we couldn't find the page "{pathname}".
+            Sorry, we couldn't find the page {pathname ? `"${pathname}"` : 'you were looking for'}.
           </p>
 
           {/* Auto-redirect notice */}

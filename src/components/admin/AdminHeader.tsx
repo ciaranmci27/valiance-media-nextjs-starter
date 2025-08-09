@@ -13,6 +13,46 @@ export function AdminHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [hasBanner, setHasBanner] = useState(false);
+
+  // Check if config banner is present
+  useEffect(() => {
+    // Start with banner assumed present to prevent slide-under
+    setHasBanner(true);
+    
+    const checkBanner = () => {
+      const wasDismissed = sessionStorage.getItem('configBannerDismissed');
+      if (!wasDismissed) {
+        // Check if essential config is missing
+        fetch('/api/admin/config-check')
+          .then(res => res.json())
+          .then(data => {
+            const criticalWarnings = data.warnings?.filter((w: any) => 
+              w.message.includes('Site URL') || w.message.includes('Site Name')
+            );
+            setHasBanner(criticalWarnings && criticalWarnings.length > 0);
+          })
+          .catch(() => setHasBanner(false));
+      } else {
+        setHasBanner(false);
+      }
+    };
+    
+    checkBanner();
+    
+    // Listen for banner updates
+    const handleBannerUpdate = (event: any) => {
+      setHasBanner(event.detail?.showBanner || false);
+    };
+    
+    window.addEventListener('configBannerUpdate', handleBannerUpdate);
+    window.addEventListener('storage', checkBanner);
+    
+    return () => {
+      window.removeEventListener('configBannerUpdate', handleBannerUpdate);
+      window.removeEventListener('storage', checkBanner);
+    };
+  }, []);
 
   const navLinks = [
     { label: 'Pages', href: '/admin/pages' },
@@ -50,11 +90,14 @@ export function AdminHeader() {
 
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/30 dark:border-gray-700/30' 
           : 'bg-transparent border-b border-transparent'
       }`}
+      style={{
+        top: hasBanner ? '40px' : '0px'
+      }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">

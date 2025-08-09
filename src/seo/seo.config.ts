@@ -6,13 +6,39 @@
  */
 
 export const seoConfig = {
+  siteName: '',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || '',
+  company: {
+    name: '',
+    legalName: '',
+    foundingDate: '',
+    email: '',
+    phone: '',
+    address: {
+      streetAddress: '',
+      addressLocality: '',
+      addressRegion: '',
+      postalCode: '',
+      addressCountry: ''
+    }
+  },
+  defaultTitle: '',
   titleTemplate: '{pageName} | {siteName}',
+  defaultDescription: '',
+  defaultKeywords: [],
   openGraph: {
     type: 'website',
     locale: 'en_US',
+    siteName: '',
     defaultImage: '/images/og-default.jpg',
     imageWidth: 1200,
     imageHeight: 630
+  },
+  alternates: {
+    canonical: '',
+    languages: {
+      'en-US': ''
+    }
   },
   robots: {
     index: true,

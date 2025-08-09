@@ -97,8 +97,8 @@ export function Footer({
   ],
   showNewsletter = true,
   showBrandDescription = true,
-  brandDescription = 'Creating innovative in-house software solutions and e-commerce brands that drive growth and deliver exceptional user experiences.',
-  copyrightText = `© ${new Date().getFullYear()} Valiance Media LLC. All rights reserved.`,
+  brandDescription = 'Your company description here.',
+  copyrightText = `© ${new Date().getFullYear()} Your Company. All rights reserved.`,
   bottomLinks = [
     { label: 'Privacy', href: '/privacy' },
     { label: 'Terms', href: '/terms-of-service' },
@@ -125,7 +125,7 @@ export function Footer({
             <Link href="/" className="inline-block mt-8 mb-4">
               <Image
                 src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-                alt="Valiance Media"
+                alt="Company Logo"
                 width={180}
                 height={36}
                 className="h-9 w-auto"
@@ -195,7 +195,7 @@ export function Footer({
             <Link href="/" className="inline-block mb-4">
               <Image
                 src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-                alt="Valiance Media"
+                alt="Company Logo"
                 width={180}
                 height={36}
                 className="h-9 w-auto"
