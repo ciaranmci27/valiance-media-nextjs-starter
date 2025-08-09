@@ -20,12 +20,12 @@ export async function POST(request: NextRequest) {
   try {
     const { username, password } = await request.json();
     
-    // Get client IP address
+    // Get client IP address for rate limiting
     const forwarded = request.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0].trim() : 
                request.headers.get('x-real-ip') || 
-               request.ip || 
-               null;
+               request.headers.get('x-client-ip') ||
+               'unknown';
 
     console.log('Login attempt for username:', username, 'from IP:', ip);
 
