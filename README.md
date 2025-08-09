@@ -41,13 +41,13 @@ A production-ready Next.js boilerplate with built-in SEO optimization, content m
 - **Component Library**: 50+ reusable UI components with consistent naming
 - **ESLint & Prettier**: Code quality and formatting enforcement
 - **Design System**: Comprehensive typography and spacing system
-- **Edge-Compatible Auth**: Authentication system optimized for edge runtime
+- **Edge-Compatible Auth**: Authentication system optimized for edge runtime with security features
 - **API Documentation**: Well-structured RESTful endpoints
 
 ### Production Ready
 - **Performance Optimized**: 95+ Lighthouse scores, optimized for Core Web Vitals
 - **Mobile-First Design**: Responsive layouts with touch-friendly interfaces
-- **Security Features**: CSRF protection, XSS prevention, secure authentication
+- **Security Features**: CSRF protection, XSS prevention, secure authentication with brute-force protection and session management
 - **Deployment Ready**: Optimized for Vercel, Netlify, and other platforms
 - **Legal Compliance**: Privacy Policy and Terms of Service templates
 - **Accessibility**: WCAG 2.1 AA compliant components
@@ -115,6 +115,7 @@ Access the admin dashboard at [http://localhost:3000/admin](http://localhost:300
 1. Navigate to `/admin/login`
 2. Use the credentials you set up in `.env.local`
 3. Access the comprehensive dashboard at `/admin`
+4. Note: The system includes automatic account lockout after failed login attempts and session timeout for security
 
 ### Dashboard Features
 

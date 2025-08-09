@@ -219,6 +219,16 @@ ADMIN_AUTH_PROVIDER=custom
 5. **Add 2FA** - Consider adding two-factor authentication for extra security
 6. **Audit logs** - Track admin actions for security monitoring
 
+### Built-in Security Features
+
+The authentication system includes several security features out of the box:
+
+- **Brute Force Protection**: Automatic account lockout after 5 failed login attempts within 15 minutes
+- **Session Timeout**: Sessions automatically expire after 30 minutes of inactivity
+- **Secure Session Management**: Sessions are properly invalidated on logout and timeout
+- **CSRF Protection**: All admin routes are protected against cross-site request forgery
+- **XSS Prevention**: Input sanitization and output encoding throughout the admin panel
+
 ## Environment Variables Reference
 
 ```env
@@ -280,7 +290,8 @@ Most hosting providers also support environment variable updates without redeplo
 ### "Unauthorized" error when accessing admin
 - Check that your environment variables are properly set
 - Ensure you're logged in (check for `admin-token` cookie)
-- Verify the token hasn't expired
+- Verify the token hasn't expired or timed out due to inactivity
+- Check if your account is locked due to too many failed login attempts (wait 15 minutes or restart the server)
 
 ### Can't log in with correct credentials
 - Regenerate your password hash using the setup script
