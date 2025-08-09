@@ -10,6 +10,8 @@ import UrlChangeWarningModal from '@/components/admin/UrlChangeWarningModal';
 import { getCMSConfig } from '@/lib/cms-config';
 import { seoConfig } from '@/seo/seo.config';
 import { Switch } from '@/components/admin/ui/Switch';
+import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
+import { PageSchema } from '@/components/admin/seo/schema-types';
 
 interface BlogFormData {
   title: string;
@@ -35,6 +37,7 @@ interface BlogFormData {
     keywords: string[];
     image: string;
   };
+  schemas?: PageSchema[];
 }
 
 interface BlogPostEditorProps {
@@ -84,7 +87,8 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       description: '',
       keywords: [],
       image: ''
-    }
+    },
+    schemas: []
   });
 
   // Tab configuration
@@ -106,6 +110,12 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       label: 'SEO & Social', 
       icon: '🔍',
       description: 'Search and social optimization'
+    },
+    { 
+      id: 'schema', 
+      label: 'Schema', 
+      icon: '📊',
+      description: 'Structured data for rich snippets'
     },
     { 
       id: 'author', 
@@ -963,6 +973,34 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                     />
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Schema Tab */}
+            {activeTab === 'schema' && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-h3 mb-4">Structured Data Schema</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                    Configure structured data schemas to enhance how your content appears in search results.
+                    These schemas help search engines better understand your content and can enable rich snippets.
+                  </p>
+                  
+                  <PageSchemaEditor
+                    pageType="blogPost"
+                    schemas={formData.schemas || []}
+                    onChange={(schemas) => setFormData(prev => ({ ...prev, schemas }))}
+                    pageData={{
+                      title: formData.title,
+                      description: formData.excerpt,
+                      author: formData.author.name,
+                      publishedAt: formData.publishedAt,
+                      modifiedAt: new Date().toISOString(),
+                      image: formData.image,
+                      category: formData.category
+                    }}
+                  />
+                </div>
               </div>
             )}
 

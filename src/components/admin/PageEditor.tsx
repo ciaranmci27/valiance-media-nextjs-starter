@@ -7,6 +7,9 @@ import CategoryInput from '@/components/admin/CategoryInput';
 import { Switch } from '@/components/admin/ui/Switch';
 import SlugChangeWarningModal from '@/components/admin/SlugChangeWarningModal';
 import { generateSlug } from '@/lib/page-utils-client';
+import SocialMediaPreview from '@/components/admin/seo/SocialMediaPreview';
+import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
+import { PageSchema } from '@/components/admin/seo/schema-types';
 
 interface PageEditorProps {
   initialPage?: Page;
@@ -18,7 +21,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
   const [saving, setSaving] = useState(false);
   const [showSlugWarning, setShowSlugWarning] = useState(false);
   const [pendingSlug, setPendingSlug] = useState('');
-  const [activeTab, setActiveTab] = useState<'content' | 'settings'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo' | 'opengraph' | 'advanced' | 'schema'>('content');
   const [isEditingCode, setIsEditingCode] = useState(true); // Default to editing mode for better UX
   
   const [title, setTitle] = useState('');
@@ -28,6 +31,20 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
     category: 'general',
     featured: false
   });
+  
+  // SEO fields
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
+  const [seoKeywords, setSeoKeywords] = useState<string[]>([]);
+  const [ogTitle, setOgTitle] = useState('');
+  const [ogDescription, setOgDescription] = useState('');
+  const [ogImage, setOgImage] = useState('');
+  const [canonicalUrl, setCanonicalUrl] = useState('');
+  const [robots, setRobots] = useState('index, follow');
+  const [priority, setPriority] = useState(0.5);
+  const [changefreq, setChangefreq] = useState<'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'>('monthly');
+  const [schemas, setSchemas] = useState<PageSchema[]>([]);
+  const [showOGPreview, setShowOGPreview] = useState(false);
   const [hasManuallyEditedSlug, setHasManuallyEditedSlug] = useState(false);
   const [previousTitle, setPreviousTitle] = useState('');
 
@@ -37,11 +54,21 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
       setPreviousTitle(initialPage.title || '');
       setSlug(initialPage.slug || '');
       setContent(initialPage.content || '');
-      if (initialPage.seoConfig?.metadata) {
+      if (initialPage.seoConfig) {
+        const config = initialPage.seoConfig;
         setMetadata({
-          category: initialPage.seoConfig.metadata.category || 'general',
-          featured: initialPage.seoConfig.metadata.featured || false
+          category: config.metadata?.category || 'general',
+          featured: config.metadata?.featured || false
         });
+        setSeoTitle(config.seo?.title || '');
+        setSeoDescription(config.seo?.description || '');
+        setSeoKeywords(config.seo?.keywords || []);
+        setCanonicalUrl(config.seo?.canonical || '');
+        setRobots(config.seo?.noIndex ? 'noindex, nofollow' : 'index, follow');
+        setPriority(config.sitemap?.priority || 0.5);
+        setChangefreq(config.sitemap?.changeFrequency || 'monthly');
+        setSchemas(config.schemas || []);
+        // Note: ogTitle, ogDescription, ogImage would need to be added to PageSEOConfig if needed
       }
     }
   }, [initialPage]);
@@ -131,24 +158,27 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
     try {
       const pageSlug: string = initialPage?.isHomePage ? 'home' : (slug || initialPage?.slug || '');
       
-      // Create minimal SEO config for page creation
+      // Create complete SEO config
       const seoConfig: PageSEOConfig = {
         slug: pageSlug,
         seo: {
-          title: `${title} - Valiance Media`,
-          description: '',
-          keywords: [],
-          noIndex: false
+          title: seoTitle || `${title} - Valiance Media`,
+          description: seoDescription,
+          keywords: seoKeywords,
+          noIndex: robots.includes('noindex'),
+          canonical: canonicalUrl,
+          image: ogImage
         },
         sitemap: {
-          exclude: false,
-          priority: 0.5,
-          changeFrequency: 'monthly'
+          exclude: robots.includes('noindex'),
+          priority: priority,
+          changeFrequency: changefreq
         },
         metadata: {
           ...metadata,
           lastModified: new Date().toISOString().split('T')[0]
-        }
+        },
+        schemas: schemas
       };
       
       const endpoint = isNew 
@@ -234,9 +264,11 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         {/* Tab Navigation */}
         <div style={{ 
           borderBottom: '1px solid var(--color-border-light)',
-          marginBottom: 'var(--spacing-lg)'
+          marginBottom: 'var(--spacing-lg)',
+          overflowX: 'auto',
+          overflowY: 'hidden'
         }}>
-          <div style={{ display: 'flex', gap: '24px' }}>
+          <div style={{ display: 'flex', gap: '20px', minWidth: 'min-content' }}>
             <button
               onClick={() => setActiveTab('content')}
               style={{
@@ -246,12 +278,64 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                 borderBottom: activeTab === 'content' ? '2px solid var(--color-primary)' : '2px solid transparent',
                 color: activeTab === 'content' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                 cursor: 'pointer',
-                fontSize: '16px',
+                fontSize: '15px',
                 fontWeight: '500',
-                marginBottom: '-1px'
+                marginBottom: '-1px',
+                whiteSpace: 'nowrap'
               }}
             >
-              Page Content
+              Content
+            </button>
+            <button
+              onClick={() => setActiveTab('seo')}
+              style={{
+                padding: '12px 0',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'seo' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                color: activeTab === 'seo' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                cursor: 'pointer',
+                fontSize: '15px',
+                fontWeight: '500',
+                marginBottom: '-1px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              SEO
+            </button>
+            <button
+              onClick={() => setActiveTab('opengraph')}
+              style={{
+                padding: '12px 0',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'opengraph' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                color: activeTab === 'opengraph' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                cursor: 'pointer',
+                fontSize: '15px',
+                fontWeight: '500',
+                marginBottom: '-1px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Social
+            </button>
+            <button
+              onClick={() => setActiveTab('schema')}
+              style={{
+                padding: '12px 0',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'schema' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                color: activeTab === 'schema' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                cursor: 'pointer',
+                fontSize: '15px',
+                fontWeight: '500',
+                marginBottom: '-1px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Schema
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -262,49 +346,31 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                 borderBottom: activeTab === 'settings' ? '2px solid var(--color-primary)' : '2px solid transparent',
                 color: activeTab === 'settings' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                 cursor: 'pointer',
-                fontSize: '16px',
+                fontSize: '15px',
                 fontWeight: '500',
-                marginBottom: '-1px'
+                marginBottom: '-1px',
+                whiteSpace: 'nowrap'
               }}
             >
               Settings
             </button>
-            {!isNew && (
-              <button
-                onClick={() => {
-                  // Determine the correct path for the SEO page
-                  let pagePath = '/';
-                  if (initialPage?.isHomePage) {
-                    pagePath = '/';
-                  } else if (initialPage?.slug) {
-                    pagePath = `/${initialPage.slug}`;
-                  } else if (slug) {
-                    pagePath = `/${slug}`;
-                  }
-                  router.push(`/admin/seo/edit?page=${encodeURIComponent(pagePath)}`);
-                }}
-                style={{
-                  padding: '12px 0',
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: '2px solid transparent',
-                  color: 'var(--color-text-secondary)',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  marginBottom: '-1px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                Page SEO
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M7 17L17 7" />
-                  <path d="M7 7h10v10" />
-                </svg>
-              </button>
-            )}
+            <button
+              onClick={() => setActiveTab('advanced')}
+              style={{
+                padding: '12px 0',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'advanced' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                color: activeTab === 'advanced' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                cursor: 'pointer',
+                fontSize: '15px',
+                fontWeight: '500',
+                marginBottom: '-1px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Advanced
+            </button>
           </div>
         </div>
 
@@ -580,6 +646,253 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Basic SEO Tab */}
+        {activeTab === 'seo' && (
+          <div className="card p-6">
+            <div className="space-y-6">
+              <div>
+                <label className="text-label block mb-2">Page Title</label>
+                <input
+                  type="text"
+                  value={seoTitle}
+                  onChange={(e) => setSeoTitle(e.target.value)}
+                  className="input-field"
+                  maxLength={60}
+                  placeholder={title || "Page title for search results"}
+                />
+                <div className="flex justify-between mt-1">
+                  <p className="text-xs text-gray-500">
+                    Displayed in search results and browser tabs
+                  </p>
+                  <p className={`text-xs ${seoTitle.length > 60 ? 'text-red-500' : 'text-gray-500'}`}>
+                    {seoTitle.length}/60
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-label block mb-2">Meta Description</label>
+                <textarea
+                  value={seoDescription}
+                  onChange={(e) => setSeoDescription(e.target.value)}
+                  className="input-field"
+                  rows={3}
+                  maxLength={160}
+                  placeholder="Brief description for search results"
+                />
+                <div className="flex justify-between mt-1">
+                  <p className="text-xs text-gray-500">
+                    Shown in search results below the title
+                  </p>
+                  <p className={`text-xs ${seoDescription.length > 155 ? 'text-red-500' : 'text-gray-500'}`}>
+                    {seoDescription.length}/160
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-label block mb-2">Keywords</label>
+                <input
+                  type="text"
+                  value={seoKeywords.join(', ')}
+                  onChange={(e) => setSeoKeywords(e.target.value.split(',').map(k => k.trim()).filter(k => k))}
+                  className="input-field"
+                  placeholder="keyword1, keyword2, keyword3"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Comma-separated keywords (less important for modern SEO)
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Open Graph & Social Tab */}
+        {activeTab === 'opengraph' && (
+          <div className="card p-6">
+            <div className="space-y-6">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-6">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  Open Graph tags control how your page appears when shared on social media platforms.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-label block mb-2">OG Title</label>
+                <input
+                  type="text"
+                  value={ogTitle}
+                  onChange={(e) => setOgTitle(e.target.value)}
+                  className="input-field"
+                  placeholder={seoTitle || title || "Title for social media"}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave empty to use the SEO title
+                </p>
+              </div>
+
+              <div>
+                <label className="text-label block mb-2">OG Description</label>
+                <textarea
+                  value={ogDescription}
+                  onChange={(e) => setOgDescription(e.target.value)}
+                  className="input-field"
+                  rows={3}
+                  placeholder={seoDescription || "Description for social media"}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave empty to use the meta description
+                </p>
+              </div>
+
+              <div>
+                <label className="text-label block mb-2">OG Image URL</label>
+                <input
+                  type="text"
+                  value={ogImage}
+                  onChange={(e) => setOgImage(e.target.value)}
+                  className="input-field"
+                  placeholder="https://example.com/image.jpg"
+                />
+                <div className="flex justify-between items-center mt-1">
+                  <p className="text-xs text-gray-500">
+                    Recommended: 1200x630px for best results
+                  </p>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showOGPreview}
+                      onChange={(e) => setShowOGPreview(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Show preview</span>
+                  </label>
+                </div>
+              </div>
+
+              {showOGPreview && ogImage && (
+                <div className="mt-6">
+                  <SocialMediaPreview
+                    title={ogTitle || seoTitle || title}
+                    description={ogDescription || seoDescription}
+                    imageUrl={ogImage}
+                    url={`/${slug || 'page'}`}
+                    siteName="Your Site"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Advanced Tab */}
+        {activeTab === 'advanced' && (
+          <div className="card p-6">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="text-label block mb-2">Priority</label>
+                  <select
+                    value={priority}
+                    onChange={(e) => setPriority(parseFloat(e.target.value))}
+                    className="input-field"
+                  >
+                    <option value="1.0">1.0 (Highest)</option>
+                    <option value="0.9">0.9</option>
+                    <option value="0.8">0.8</option>
+                    <option value="0.7">0.7</option>
+                    <option value="0.6">0.6</option>
+                    <option value="0.5">0.5 (Default)</option>
+                    <option value="0.4">0.4</option>
+                    <option value="0.3">0.3</option>
+                    <option value="0.2">0.2</option>
+                    <option value="0.1">0.1 (Lowest)</option>
+                  </select>
+                  <p className="text-xs mt-1 text-gray-500">
+                    Sitemap priority hint for search engines
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-label block mb-2">Change Frequency</label>
+                  <select
+                    value={changefreq}
+                    onChange={(e) => setChangefreq(e.target.value as any)}
+                    className="input-field"
+                  >
+                    <option value="always">Always</option>
+                    <option value="hourly">Hourly</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="never">Never</option>
+                  </select>
+                  <p className="text-xs mt-1 text-gray-500">
+                    How often the page content changes
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-label block mb-2">Robots Meta Tag</label>
+                <select
+                  value={robots}
+                  onChange={(e) => setRobots(e.target.value)}
+                  className="input-field"
+                >
+                  <option value="index, follow">Index, Follow (Default)</option>
+                  <option value="index, nofollow">Index, No Follow</option>
+                  <option value="noindex, follow">No Index, Follow</option>
+                  <option value="noindex, nofollow">No Index, No Follow</option>
+                </select>
+                <p className="text-xs mt-1 text-gray-500">
+                  Controls search engine crawling and indexing
+                </p>
+              </div>
+
+              <div>
+                <label className="text-label block mb-2">Canonical URL</label>
+                <input
+                  type="text"
+                  value={canonicalUrl}
+                  onChange={(e) => setCanonicalUrl(e.target.value)}
+                  className="input-field"
+                  placeholder={`https://example.com/${slug || 'page'}`}
+                />
+                <p className="text-xs mt-1 text-gray-500">
+                  Specify the preferred URL for this content (leave empty for default)
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Schema Tab */}
+        {activeTab === 'schema' && (
+          <div className="card p-6">
+            <div className="space-y-6">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-6">
+                <h3 className="text-lg font-medium mb-2 text-gray-900 dark:text-gray-100">Structured Data Schema</h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  Configure structured data schemas for this page. These schemas help search engines understand 
+                  your content and can enable rich snippets in search results.
+                </p>
+              </div>
+              
+              <PageSchemaEditor
+                pageType="page"
+                schemas={schemas}
+                onChange={setSchemas}
+                pageData={{
+                  title: seoTitle || title,
+                  description: seoDescription,
+                }}
+              />
             </div>
           </div>
         )}

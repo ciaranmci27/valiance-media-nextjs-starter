@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { seoConfig } from '@/seo/seo.config';
+import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
+import { PageSchema } from '@/components/admin/seo/schema-types';
 
 interface CategoryFormData {
   name: string;
@@ -14,6 +16,7 @@ interface CategoryFormData {
     description: string;
     keywords: string[];
   };
+  schemas?: PageSchema[];
 }
 
 export default function NewCategoryPage() {
@@ -28,7 +31,7 @@ export default function NewCategoryPage() {
       keywords: []
     }
   });
-  const [activeTab, setActiveTab] = useState<'general' | 'seo'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'seo' | 'schema'>('general');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -232,6 +235,23 @@ export default function NewCategoryPage() {
             >
               SEO
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('schema')}
+              style={{
+                padding: '12px 0',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'schema' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                color: activeTab === 'schema' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '500',
+                marginBottom: '-1px'
+              }}
+            >
+              Schema
+            </button>
           </div>
         </div>
 
@@ -381,6 +401,29 @@ export default function NewCategoryPage() {
                   Separate keywords with commas
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* Schema Tab */}
+          {activeTab === 'schema' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+              <div className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg p-4 mb-6">
+                <h3 className="text-lg font-medium mb-2 text-gray-900 dark:text-gray-100">Structured Data Schema</h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  Configure structured data schemas for this category page. These schemas help search engines understand 
+                  your content and can enable rich snippets in search results.
+                </p>
+              </div>
+              
+              <PageSchemaEditor
+                pageType="category"
+                schemas={formData.schemas || []}
+                onChange={(schemas) => setFormData(prev => ({ ...prev, schemas }))}
+                pageData={{
+                  title: formData.name,
+                  description: formData.description,
+                }}
+              />
             </div>
           )}
 

@@ -1,5 +1,7 @@
 // Page Type Definitions for file-based pages
 
+import { PageSchema } from '@/components/admin/seo/schema-types';
+
 export interface PageSEOConfig {
   slug: string;
   seo: {
@@ -22,6 +24,7 @@ export interface PageSEOConfig {
     featured?: boolean;
     draft?: boolean;
   };
+  schemas?: PageSchema[];
 }
 
 export interface Page {
