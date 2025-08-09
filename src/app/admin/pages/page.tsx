@@ -13,10 +13,23 @@ function PagesListContent() {
   const [filteredPages, setFilteredPages] = useState<PageListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState(filter);
+  const [isProduction, setIsProduction] = useState(false);
 
   useEffect(() => {
+    // Check if we're in production
+    checkEnvironment();
     fetchPages();
   }, []);
+  
+  const checkEnvironment = async () => {
+    try {
+      const response = await fetch('/api/admin/environment');
+      const data = await response.json();
+      setIsProduction(data.isProduction);
+    } catch (error) {
+      console.error('Error checking environment:', error);
+    }
+  };
   
   useEffect(() => {
     applyFilter();
@@ -119,24 +132,55 @@ function PagesListContent() {
             Pages
           </h1>
           <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)' }}>
-            Manage your website pages. Create, edit, and organize your content.
+            {isProduction 
+              ? 'View your website pages. Editing is disabled in production.'
+              : 'Manage your website pages. Create, edit, and organize your content.'}
           </p>
+          
+          {isProduction && (
+            <div style={{
+              padding: '16px',
+              background: 'rgba(251, 191, 36, 0.1)',
+              border: '1px solid rgba(251, 191, 36, 0.3)',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: 'var(--spacing-lg)'
+            }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(251, 191, 36)" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <div>
+                  <p style={{ color: 'rgb(251, 191, 36)', fontWeight: '600', marginBottom: '4px' }}>
+                    Production Environment
+                  </p>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px', lineHeight: '1.5' }}>
+                    Page editing is not available in production. To modify pages, please edit them locally and redeploy your application. 
+                    This is a security best practice as production filesystems are typically read-only.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={() => router.push('/admin/pages/new')}
+              disabled={isProduction}
               style={{
                 padding: '12px 24px',
-                background: 'var(--color-primary)',
+                background: isProduction ? 'var(--color-text-tertiary)' : 'var(--color-primary)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 'var(--radius-md)',
                 fontSize: '16px',
                 fontWeight: '600',
-                cursor: 'pointer',
+                cursor: isProduction ? 'not-allowed' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                opacity: isProduction ? 0.5 : 1
               }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -266,15 +310,18 @@ function PagesListContent() {
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button
                           onClick={() => router.push(`/admin/pages/${page.slug}/edit`)}
+                          disabled={isProduction}
                           style={{
                             padding: '6px 12px',
-                            background: 'var(--color-primary)',
+                            background: isProduction ? 'var(--color-text-tertiary)' : 'var(--color-primary)',
                             color: 'white',
                             border: 'none',
                             borderRadius: 'var(--radius-sm)',
                             fontSize: '14px',
-                            cursor: 'pointer'
+                            cursor: isProduction ? 'not-allowed' : 'pointer',
+                            opacity: isProduction ? 0.5 : 1
                           }}
+                          title={isProduction ? 'Editing disabled in production' : 'Edit page'}
                         >
                           Edit
                         </button>
@@ -299,18 +346,21 @@ function PagesListContent() {
                         {!page.isHomePage && (
                           <button
                             onClick={() => deletePage(page.slug)}
+                            disabled={isProduction}
                             style={{
                               padding: '6px 12px',
-                              background: 'var(--color-danger)',
+                              background: isProduction ? 'var(--color-text-tertiary)' : 'var(--color-danger)',
                               color: 'white',
                               border: 'none',
                               borderRadius: 'var(--radius-sm)',
                               fontSize: '14px',
-                              cursor: 'pointer',
+                              cursor: isProduction ? 'not-allowed' : 'pointer',
                               transition: 'background 0.2s',
+                              opacity: isProduction ? 0.5 : 1
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = '#B91C1C'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-danger)'}
+                            onMouseEnter={(e) => !isProduction && (e.currentTarget.style.background = '#B91C1C')}
+                            onMouseLeave={(e) => !isProduction && (e.currentTarget.style.background = 'var(--color-danger)')}
+                            title={isProduction ? 'Deletion disabled in production' : 'Delete page'}
                           >
                             Delete
                           </button>

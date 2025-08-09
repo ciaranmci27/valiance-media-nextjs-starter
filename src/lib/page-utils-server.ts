@@ -224,7 +224,6 @@ export async function getPageSEOConfig(slug: string): Promise<PageSEOConfig | nu
 // Update pages configuration file
 async function updatePagesConfig(): Promise<void> {
   try {
-    // Get all pages from filesystem
     const pages: PageListItem[] = [];
     
     // Check for home page
@@ -292,6 +291,11 @@ async function updatePagesConfig(): Promise<void> {
 
 // Save page
 export async function savePage(slug: string, content: string, seoConfig: PageSEOConfig): Promise<void> {
+  // Check if we're in production
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Page editing is not available in production. Please edit pages locally and redeploy.');
+  }
+  
   const isHomePage = slug === 'home';
   
   if (isHomePage) {
@@ -327,6 +331,11 @@ export async function savePage(slug: string, content: string, seoConfig: PageSEO
 export async function deletePage(slug: string): Promise<void> {
   if (slug === 'home') {
     throw new Error('Cannot delete the home page');
+  }
+  
+  // Check if we're in production
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Page deletion is not available in production. Please delete pages locally and redeploy.');
   }
   
   // First try (pages) directory, then fall back to root
