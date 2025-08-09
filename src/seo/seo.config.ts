@@ -40,6 +40,26 @@ export const seoConfig = {
       'en-US': ''
     }
   },
+  social: {
+    twitter: '',
+    facebook: '',
+    instagram: '',
+    linkedin: '',
+    youtube: '',
+    github: ''
+  },
+  verification: {
+    google: '',
+    bing: '',
+    yandex: '',
+    pinterest: ''
+  },
+  analytics: {
+    googleAnalyticsId: '',
+    facebookPixelId: '',
+    hotjarId: '',
+    clarityId: ''
+  },
   robots: {
     index: true,
     follow: true,

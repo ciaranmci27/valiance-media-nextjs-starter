@@ -97,45 +97,11 @@ export async function middleware(request: NextRequest) {
         : NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       
       response.cookies.delete('admin-token');
-      response.cookies.delete('admin-last');
-      response.cookies.delete('admin-timeout');
       return response;
     }
 
-    // Check session timeout
-    const lastActivity = request.cookies.get('admin-last')?.value;
-    const timeoutMinutes = request.cookies.get('admin-timeout')?.value;
-    
-    if (lastActivity && timeoutMinutes) {
-      const lastActivityTime = parseInt(lastActivity);
-      const timeout = parseInt(timeoutMinutes) * 60 * 1000; // Convert to milliseconds
-      const now = Date.now();
-      
-      if (now - lastActivityTime > timeout) {
-        // Session expired
-        const response = path.startsWith('/admin') && !path.startsWith('/api/admin')
-          ? NextResponse.redirect(new URL('/admin/login', request.url))
-          : NextResponse.json({ error: 'Session expired' }, { status: 401 });
-        
-        response.cookies.delete('admin-token');
-        response.cookies.delete('admin-last');
-        response.cookies.delete('admin-timeout');
-        return response;
-      }
-    }
-
-    // Token is valid and session not expired, update last activity and allow access
-    const response = NextResponse.next();
-    
-    // Update last activity timestamp
-    response.cookies.set('admin-last', String(Date.now()), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-    });
-    
-    return response;
+    // Token is valid, allow access
+    return NextResponse.next();
   }
 
   // Check if it's a valid static route
