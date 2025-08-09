@@ -12,5 +12,21 @@ export async function POST() {
     path: '/',
   });
 
+  // Clear activity/timeout cookies
+  response.cookies.set('admin-last', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    expires: new Date(0),
+    path: '/',
+  });
+  response.cookies.set('admin-timeout', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    expires: new Date(0),
+    path: '/',
+  });
+
   return response;
 }

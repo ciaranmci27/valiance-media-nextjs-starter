@@ -770,7 +770,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
                     Session Timeout
@@ -807,7 +807,6 @@ export default function SettingsPage() {
                     Lock account after this many failed login attempts
                   </p>
                 </div>
-
               </div>
 
               <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">

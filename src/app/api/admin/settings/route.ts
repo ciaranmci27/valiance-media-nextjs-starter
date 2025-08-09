@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { sessionStore } from '@/lib/auth-store';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -75,15 +76,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In a real application, you might want to:
-    // 1. Update session timeout in your auth middleware
-    // 2. Update email configuration in your email service
-    // 3. Trigger any necessary system updates
+    // Update in-memory session store defaults for current runtime
+    sessionStore.updateSettings({
+      sessionTimeout: settings.admin?.sessionTimeout,
+      maxLoginAttempts: settings.admin?.maxLoginAttempts,
+    });
 
-    return NextResponse.json({ 
+    // Return response and set/update timeout cookie used by middleware
+    const response = NextResponse.json({ 
       success: true,
       message: 'Settings saved successfully'
     });
+    if (typeof settings.admin?.sessionTimeout === 'number') {
+      response.cookies.set('admin-timeout', String(settings.admin.sessionTimeout), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        // no explicit expiry; it will follow the session unless overridden
+      });
+    }
+    return response;
 
   } catch (error) {
     console.error('Error saving settings:', error);

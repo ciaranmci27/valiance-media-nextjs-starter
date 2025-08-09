@@ -25,6 +25,31 @@ export const seoConfig = {
   defaultTitle: 'Welcome to Your Company - Your Tagline Here',
   titleTemplate: '{pageName} | {siteName}',
   defaultDescription: 'Your company description here',
+  // Default keywords used when a page does not specify its own
+  defaultKeywords: [],
+  // Social profile links used across meta tags and schema
+  social: {
+    twitter: '',
+    linkedin: '',
+    github: '',
+    instagram: '',
+    facebook: '',
+    youtube: ''
+  },
+  // Site verification codes for search engines
+  verification: {
+    google: '',
+    bing: '',
+    yandex: '',
+    pinterest: ''
+  },
+  // Analytics IDs
+  analytics: {
+    googleAnalyticsId: '',
+    facebookPixelId: '',
+    hotjarId: '',
+    clarityId: ''
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
