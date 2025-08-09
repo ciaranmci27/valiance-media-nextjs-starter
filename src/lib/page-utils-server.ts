@@ -2,16 +2,46 @@
 
 import { Page, PageSEOConfig, PageListItem } from './page-types';
 import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
 
 const APP_DIR = path.join(process.cwd(), 'src', 'app');
+const PAGES_CONFIG_PATH = path.join(process.cwd(), 'public', 'pages-config.json');
 
 // Directories to exclude from page scanning
 const EXCLUDED_DIRS = ['admin', 'api', 'blog', '_components', '_utils'];
 
-// Get all pages from the file system
+// Get all pages from configuration file
 export async function getAllPages(): Promise<PageListItem[]> {
   try {
+    // Try to read from pages configuration file first (works in production)
+    if (fsSync.existsSync(PAGES_CONFIG_PATH)) {
+      const configContent = await fs.readFile(PAGES_CONFIG_PATH, 'utf-8');
+      const config = JSON.parse(configContent);
+      
+      // Enrich with SEO config data if available in development
+      const enrichedPages = await Promise.all(config.pages.map(async (page: PageListItem) => {
+        try {
+          const seoConfig = await getPageSEOConfig(page.slug === 'home' ? '' : page.slug);
+          if (seoConfig) {
+            return {
+              ...page,
+              lastModified: seoConfig.metadata?.lastModified || page.lastModified,
+              category: seoConfig.metadata?.category || page.category,
+              featured: seoConfig.metadata?.featured ?? page.featured,
+              draft: seoConfig.metadata?.draft ?? page.draft
+            };
+          }
+        } catch (error) {
+          // SEO config not available, use page data as is
+        }
+        return page;
+      }));
+      
+      return enrichedPages;
+    }
+    
+    // Fallback to filesystem scanning (development only)
     const pages: PageListItem[] = [];
     
     // Add home page (supports either root page.tsx or route-group (pages)/(home)/page.tsx)
@@ -191,6 +221,75 @@ export async function getPageSEOConfig(slug: string): Promise<PageSEOConfig | nu
   }
 }
 
+// Update pages configuration file
+async function updatePagesConfig(): Promise<void> {
+  try {
+    // Get all pages from filesystem
+    const pages: PageListItem[] = [];
+    
+    // Check for home page
+    const groupedHomePath = path.join(APP_DIR, '(pages)', '(home)', 'page.tsx');
+    const rootHomePath = path.join(APP_DIR, 'page.tsx');
+    try {
+      // Prefer route-group home if present, otherwise fallback to root
+      try {
+        await fs.access(groupedHomePath);
+      } catch {
+        await fs.access(rootHomePath);
+      }
+      const homeSeoConfig = await getPageSEOConfig('');
+      pages.push({
+        slug: 'home',
+        title: 'Home',
+        path: '/',
+        category: homeSeoConfig?.metadata?.category || 'general',
+        featured: homeSeoConfig?.metadata?.featured ?? true,
+        draft: homeSeoConfig?.metadata?.draft ?? false,
+        isHomePage: true
+      });
+    } catch (error) {
+      // Home page not found
+    }
+    
+    // Scan (pages) directory
+    const pagesDir = path.join(APP_DIR, '(pages)');
+    try {
+      const entries = await fs.readdir(pagesDir, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        if (entry.isDirectory() && !EXCLUDED_DIRS.includes(entry.name) && !entry.name.startsWith('_') && !entry.name.startsWith('[') && !entry.name.startsWith('(')) {
+          const pagePath = path.join(pagesDir, entry.name, 'page.tsx');
+          
+          try {
+            await fs.access(pagePath);
+            const seoConfig = await getPageSEOConfig(entry.name);
+            
+            pages.push({
+              slug: entry.name,
+              title: seoConfig?.seo?.title?.replace(' - Valiance Media', '') || formatTitle(entry.name),
+              path: `/${entry.name}`,
+              category: seoConfig?.metadata?.category || 'general',
+              featured: seoConfig?.metadata?.featured ?? false,
+              draft: seoConfig?.metadata?.draft ?? false,
+              isHomePage: false
+            });
+          } catch (error) {
+            // Page.tsx doesn't exist in this directory
+          }
+        }
+      }
+    } catch (error) {
+      // (pages) directory might not exist yet
+    }
+    
+    // Write to config file
+    const config = { pages };
+    await fs.writeFile(PAGES_CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error updating pages config:', error);
+  }
+}
+
 // Save page
 export async function savePage(slug: string, content: string, seoConfig: PageSEOConfig): Promise<void> {
   const isHomePage = slug === 'home';
@@ -219,6 +318,9 @@ export async function savePage(slug: string, content: string, seoConfig: PageSEO
     await fs.writeFile(pagePath, content, 'utf-8');
     await fs.writeFile(seoPath, JSON.stringify(seoConfig, null, 2), 'utf-8');
   }
+  
+  // Update pages configuration file
+  await updatePagesConfig();
 }
 
 // Delete page
@@ -234,6 +336,8 @@ export async function deletePage(slug: string): Promise<void> {
   // Try to delete from (pages) first
   try {
     await fs.rm(pagesDir, { recursive: true, force: true });
+    // Update pages configuration file after successful deletion
+    await updatePagesConfig();
     return;
   } catch (error) {
     // Try root directory
@@ -242,6 +346,8 @@ export async function deletePage(slug: string): Promise<void> {
   try {
     // Remove the entire directory from root
     await fs.rm(rootDir, { recursive: true, force: true });
+    // Update pages configuration file after successful deletion
+    await updatePagesConfig();
   } catch (error) {
     console.error(`Error deleting page ${slug}:`, error);
     throw error;

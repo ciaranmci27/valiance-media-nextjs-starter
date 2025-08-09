@@ -1,0 +1,40 @@
+{
+  "pages": [
+    {
+      "slug": "home",
+      "title": "Home",
+      "path": "/",
+      "category": "homepage",
+      "featured": true,
+      "draft": false,
+      "isHomePage": true
+    },
+    {
+      "slug": "does-this-work",
+      "title": "does this work",
+      "path": "/does-this-work",
+      "category": "general",
+      "featured": false,
+      "draft": false,
+      "isHomePage": false
+    },
+    {
+      "slug": "privacy",
+      "title": "Privacy Policy",
+      "path": "/privacy",
+      "category": "legal",
+      "featured": false,
+      "draft": false,
+      "isHomePage": false
+    },
+    {
+      "slug": "terms-of-service",
+      "title": "Terms of Service",
+      "path": "/terms-of-service",
+      "category": "legal",
+      "featured": false,
+      "draft": false,
+      "isHomePage": false
+    }
+  ]
+}
