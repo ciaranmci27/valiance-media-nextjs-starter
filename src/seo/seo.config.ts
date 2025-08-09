@@ -25,8 +25,6 @@ export const seoConfig = {
   defaultTitle: 'Welcome to Your Company - Your Tagline Here',
   titleTemplate: '{pageName} | {siteName}',
   defaultDescription: 'Your company description here',
-  // Default keywords used when a page doesn't specify its own
-  defaultKeywords: [],
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -34,29 +32,6 @@ export const seoConfig = {
     defaultImage: '/logos/horizontal-logo.png',
     imageWidth: 1200,
     imageHeight: 630
-  },
-  // Social media profiles
-  social: {
-    twitter: '',
-    linkedin: '',
-    github: '',
-    instagram: '',
-    facebook: '',
-    youtube: ''
-  },
-  // Site verification codes for search engines
-  verification: {
-    google: '',
-    bing: '',
-    yandex: '',
-    pinterest: ''
-  },
-  // Analytics and tracking IDs
-  analytics: {
-    googleAnalyticsId: '',
-    facebookPixelId: '',
-    hotjarId: '',
-    clarityId: ''
   },
   robots: {
     index: true,
@@ -124,7 +99,7 @@ export const seoConfig = {
   },
   schema: {
     activeTypes: {
-      organization: false,
+      organization: true,
       website: false,
       localBusiness: false,
       person: false,
