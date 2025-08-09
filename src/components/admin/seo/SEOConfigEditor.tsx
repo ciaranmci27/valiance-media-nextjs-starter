@@ -487,7 +487,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
 
                 <div className="space-y-6">
                   {/* Pages Template */}
-                  <div className="border rounded-lg p-4">
+                  <div className="border rounded-lg p-4" style={{ borderColor: 'var(--color-border-medium)' }}>
                     <h4 className="font-semibold mb-3">📄 Page SEO</h4>
                     <div className="space-y-3">
                       <div>
@@ -529,7 +529,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                   </div>
 
                   {/* Blog Posts Template */}
-                  <div className="border rounded-lg p-4">
+                  <div className="border rounded-lg p-4" style={{ borderColor: 'var(--color-border-medium)' }}>
                     <h4 className="font-semibold mb-3">📝 Blog Post SEO</h4>
                     <div className="space-y-3">
                       <div>
@@ -571,7 +571,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                   </div>
 
                   {/* Blog Categories Template */}
-                  <div className="border rounded-lg p-4">
+                  <div className="border rounded-lg p-4" style={{ borderColor: 'var(--color-border-medium)' }}>
                     <h4 className="font-semibold mb-3">📁 Blog Category SEO</h4>
                     <div className="space-y-3">
                       <div>
