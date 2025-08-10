@@ -103,7 +103,7 @@ export default function RedirectsManager() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
             Loading redirects...
           </p>
@@ -240,7 +240,7 @@ export default function RedirectsManager() {
                 {redirects.map((redirect) => (
                   <tr key={redirect.from} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <code className="text-sm font-mono text-blue-600 dark:text-blue-400">
+                      <code className="text-sm font-mono text-primary dark:text-primary-light">
                         {redirect.from}
                       </code>
                     </td>
@@ -278,7 +278,7 @@ export default function RedirectsManager() {
       </div>
 
       {/* Help Text */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+      <div className="bg-blue-50 dark:bg-primary/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
           About Redirects
         </h4>

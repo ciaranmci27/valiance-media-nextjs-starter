@@ -29,7 +29,7 @@ export function Switch({ checked, onChange, disabled = false, label, className =
           className={`
             block w-14 h-8 rounded-full transition-colors duration-200 ease-in-out
             ${checked 
-              ? 'bg-blue-600' 
+              ? 'bg-primary' 
               : 'bg-gray-300 dark:bg-gray-600'
             }
           `}

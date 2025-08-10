@@ -64,7 +64,7 @@ const ToastItem = ({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
   const bgColor = {
     success: 'bg-green-600',
     error: 'bg-red-600',
-    info: 'bg-blue-600',
+    info: 'bg-primary',
     warning: 'bg-yellow-600',
   }[toast.type];
 

@@ -77,10 +77,28 @@
   --color-error: #EF4444;
   --color-info: #3B82F6;
   
-  /* Shadow colors */
-  --shadow-light: rgba(0, 0, 0, 0.05);
-  --shadow-medium: rgba(0, 0, 0, 0.1);
-  --shadow-dark: rgba(0, 0, 0, 0.2);
+  /* Gray palette - Essential for theming */
+  --color-gray-50: #F8FAFC;
+  --color-gray-100: #F1F5F9;
+  --color-gray-200: #E2E8F0;
+  --color-gray-300: #CBD5E1;
+  --color-gray-400: #94A3B8;
+  --color-gray-500: #64748B;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1E293B;
+  --color-gray-900: #0F172A;
+  
+  /* Overlay colors for transparency effects */
+  --color-overlay-light: rgba(0, 0, 0, 0.02);
+  --color-overlay-medium: rgba(0, 0, 0, 0.1);
+  --color-overlay-heavy: rgba(0, 0, 0, 0.15);
+  
+  /* Shadow definitions */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
   
   /* Background gradient colors */
   --gradient-primary-rgb: 59, 130, 246; /* Blue-500 RGB */
@@ -177,10 +195,28 @@
   --color-blue-800: #1E40AF;
   --color-blue-900: #1E3A8A;
   
-  /* Shadow colors */
-  --shadow-light: rgba(0, 0, 0, 0.2);
-  --shadow-medium: rgba(0, 0, 0, 0.4);
-  --shadow-dark: rgba(0, 0, 0, 0.6);
+  /* Gray palette - Dark mode */
+  --color-gray-50: #0F172A;
+  --color-gray-100: #1E293B;
+  --color-gray-200: #334155;
+  --color-gray-300: #475569;
+  --color-gray-400: #64748B;
+  --color-gray-500: #94A3B8;
+  --color-gray-600: #CBD5E1;
+  --color-gray-700: #E2E8F0;
+  --color-gray-800: #F1F5F9;
+  --color-gray-900: #F8FAFC;
+  
+  /* Overlay colors - Dark mode */
+  --color-overlay-light: rgba(255, 255, 255, 0.02);
+  --color-overlay-medium: rgba(255, 255, 255, 0.1);
+  --color-overlay-heavy: rgba(255, 255, 255, 0.15);
+  
+  /* Shadow definitions - Dark mode */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
   
   /* Dark theme gradient colors (slightly adjusted for dark mode) */
   --gradient-primary-rgb: 59, 130, 246; /* Blue-500 RGB */

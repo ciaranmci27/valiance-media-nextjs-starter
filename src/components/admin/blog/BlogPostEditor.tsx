@@ -604,7 +604,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
           {/* Save Status */}
           {saveStatus !== 'idle' && (
             <div className={`p-3 rounded-lg mb-4 ${
-              saveStatus === 'saving' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' :
+              saveStatus === 'saving' ? 'bg-blue-50 dark:bg-primary/20 text-blue-700 dark:text-blue-300' :
               saveStatus === 'saved' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' :
               'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
             }`}>
@@ -624,7 +624,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 min-w-[150px] px-6 py-4 border-b-2 transition-all ${
                   activeTab === tab.id
-                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                    ? 'border-primary bg-blue-50 dark:bg-primary/20'
                     : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
@@ -633,7 +633,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                     <span className="text-xl">{tab.icon}</span>
                     <span className={`font-medium ${
                       activeTab === tab.id 
-                        ? 'text-blue-600 dark:text-blue-400' 
+                        ? 'text-primary dark:text-primary-light' 
                         : 'text-gray-700 dark:text-gray-300'
                     }`}>
                       {tab.label}
@@ -806,7 +806,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                               type="checkbox"
                               checked={showFeaturedPreview}
                               onChange={(e) => setShowFeaturedPreview(e.target.checked)}
-                              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                              className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary/50"
                             />
                             <span className="text-sm text-gray-600 dark:text-gray-400">Show preview</span>
                           </label>
@@ -850,7 +850,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                   )}
                 </div>
 
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="p-4 bg-blue-50 dark:bg-primary/20 rounded-lg">
                   <p className="text-sm">
                     <strong>💡 Tip:</strong> Use high-quality images that relate to your content. 
                     The featured image appears in blog listings and social media shares.
@@ -873,7 +873,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                     <button
                       type="button"
                       onClick={applySEOTemplate}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                      className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors text-sm font-medium"
                     >
                       Apply SEO Template
                     </button>
@@ -952,7 +952,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                               type="checkbox"
                               checked={showSEOPreview}
                               onChange={(e) => setShowSEOPreview(e.target.checked)}
-                              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                              className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary/50"
                             />
                             <span className="text-sm text-gray-600 dark:text-gray-400">Show preview</span>
                           </label>
@@ -1154,7 +1154,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
         </div>
 
         {/* Help Sidebar */}
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+        <div className="mt-6 p-4 bg-blue-50 dark:bg-primary/20 rounded-lg">
           <h3 className="font-medium mb-2">Quick Tips</h3>
           <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
             <li>• Required fields are marked with an asterisk (*)</li>

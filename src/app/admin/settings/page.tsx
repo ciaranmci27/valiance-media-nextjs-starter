@@ -253,7 +253,7 @@ export default function SettingsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-3 rounded-lg font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
@@ -281,7 +281,7 @@ export default function SettingsPage() {
                 <h3 className="font-semibold mb-3">Configuration Status</h3>
                 {isLoadingEnv ? (
                   <div className="flex items-center gap-2 py-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                     <span className="text-gray-600 dark:text-gray-400">Checking configuration...</span>
                   </div>
                 ) : (

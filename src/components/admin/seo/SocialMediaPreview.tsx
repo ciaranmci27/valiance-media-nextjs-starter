@@ -48,7 +48,7 @@ export default function SocialMediaPreview({
             onClick={() => setActivePreview(tab.id as any)}
             className={`px-4 py-2 text-sm font-medium transition-all border-b-2 ${
               activePreview === tab.id
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-primary text-primary'
                 : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
@@ -70,7 +70,7 @@ export default function SocialMediaPreview({
                 {imageLoading && !imageError && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="animate-pulse flex flex-col items-center">
-                      <div className="w-12 h-12 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                      <div className="w-12 h-12 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
                       <p className="mt-2 text-sm text-gray-500">Loading image...</p>
                     </div>
                   </div>
@@ -125,7 +125,7 @@ export default function SocialMediaPreview({
                   {imageLoading && !imageError && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="animate-pulse flex flex-col items-center">
-                        <div className="w-12 h-12 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                        <div className="w-12 h-12 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
                         <p className="mt-2 text-sm text-gray-500">Loading image...</p>
                       </div>
                     </div>
@@ -211,7 +211,7 @@ export default function SocialMediaPreview({
                 {imageLoading && !imageError && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="animate-pulse flex flex-col items-center">
-                      <div className="w-12 h-12 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                      <div className="w-12 h-12 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
                       <p className="mt-2 text-sm text-gray-500">Loading image...</p>
                     </div>
                   </div>
@@ -250,7 +250,7 @@ export default function SocialMediaPreview({
       )}
 
       {/* Image Guidelines */}
-      <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+      <div className="mt-4 p-4 bg-blue-50 dark:bg-primary/20 rounded-lg">
         <h4 className="font-medium text-sm mb-2">Image Guidelines</h4>
         <ul className="text-xs space-y-1 text-gray-600 dark:text-gray-400">
           <li>• <strong>Facebook & LinkedIn:</strong> 1200×630px (1.91:1 ratio) for best results</li>

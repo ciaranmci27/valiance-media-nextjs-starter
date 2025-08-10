@@ -123,8 +123,8 @@ export function AdminHeader() {
                 href={link.href}
                 className={`text-sm font-medium transition-colors ${
                   pathname === link.href
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'
+                    ? 'text-primary dark:text-primary-light'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light'
                 }`}
               >
                 {link.label}
@@ -138,7 +138,7 @@ export function AdminHeader() {
             <a
               href="/"
               target="_blank"
-              className="hidden sm:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="hidden sm:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -195,7 +195,7 @@ export function AdminHeader() {
                   onClick={() => setIsMenuOpen(false)}
                   className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     pathname === link.href
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-primary-light'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >

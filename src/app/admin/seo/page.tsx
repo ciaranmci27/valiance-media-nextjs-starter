@@ -9,7 +9,7 @@ const SEOConfigEditor = dynamic(() => import('@/components/admin/seo/SEOConfigEd
   loading: () => (
     <div className="flex items-center justify-center h-64">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
         <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>Loading configuration...</p>
       </div>
     </div>
@@ -21,7 +21,7 @@ const RedirectsManager = dynamic(() => import('@/components/admin/seo/RedirectsM
   loading: () => (
     <div className="flex items-center justify-center h-64">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
         <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>Loading redirects...</p>
       </div>
     </div>
@@ -192,7 +192,7 @@ ${pages.map(page => `  <url>
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>Loading SEO data...</p>
             </div>
           </div>
@@ -252,7 +252,7 @@ ${pages.map(page => `  <url>
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-3 rounded-lg font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
@@ -410,7 +410,7 @@ ${pages.map(page => `  <url>
                   href="/sitemap.xml" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  className="text-primary hover:text-primary-dark text-sm font-medium"
                 >
                   View Live Sitemap Index →
                 </a>
@@ -454,7 +454,7 @@ ${pages.map(page => `  <url>
                     href="/sitemap-pages.xml" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    className="text-primary hover:text-primary-dark text-sm font-medium"
                   >
                     View sitemap-pages.xml →
                   </a>
@@ -497,7 +497,7 @@ ${pages.map(page => `  <url>
                       href="/sitemap-blog-posts.xml" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      className="text-primary hover:text-primary-dark text-sm font-medium"
                     >
                       View sitemap-blog-posts.xml →
                     </a>
@@ -536,7 +536,7 @@ ${pages.map(page => `  <url>
                       href="/sitemap-blog-categories.xml" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      className="text-primary hover:text-primary-dark text-sm font-medium"
                     >
                       View sitemap-blog-categories.xml →
                     </a>
@@ -642,7 +642,7 @@ ${pages.map(page => `  <url>
             </div>
 
             {/* Help Info */}
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="p-4 bg-blue-50 dark:bg-primary/20 rounded-lg">
               <p className="text-body-sm flex items-start gap-2">
                 <span>💡</span>
                 <span>
@@ -979,7 +979,7 @@ ${pages.map(page => `  <url>
               </div>
 
               {/* Schema Validation Tools */}
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-primary/20 rounded-lg">
                 <h4 className="font-medium mb-3">🔍 Validation Tools</h4>
                 <div className="flex flex-wrap gap-3">
                   <a 

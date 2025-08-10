@@ -25,7 +25,7 @@ export function BlogCard({ post, featured = false, showCategoryLink = true, cate
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {post.category && showCategoryLink && (
-            <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-xs font-semibold text-blue-600 dark:text-blue-400 rounded-full uppercase tracking-wide">
+            <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-xs font-semibold text-primary dark:text-primary-light rounded-full uppercase tracking-wide">
               {categories.find(cat => cat.slug === post.category)?.name || post.category}
             </span>
           )}
@@ -51,7 +51,7 @@ export function BlogCard({ post, featured = false, showCategoryLink = true, cate
         </div>
         
         {/* Title */}
-        <h3 className={`font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-3 ${
+        <h3 className={`font-bold text-gray-900 dark:text-white group-hover:text-primary dark:group-hover:text-primary-light transition-colors mb-3 ${
           featured ? 'text-2xl lg:text-3xl' : 'text-xl'
         }`}>
           {post.title}

@@ -489,7 +489,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                 {/* Line Numbers */}
                 <div style={{
                   padding: '12px 8px',
-                  background: isEditingCode || isNew ? 'rgba(0, 0, 0, 0.02)' : '#2d2d2d',
+                  background: isEditingCode || isNew ? 'var(--color-overlay-light)' : 'var(--color-gray-800)',
                   borderRight: '1px solid var(--color-border-light)',
                   userSelect: 'none',
                   minWidth: '50px',
@@ -535,7 +535,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                       padding: '12px',
                       fontSize: '13px',
                       fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace',
-                      color: '#d4d4d4',
+                      color: 'var(--color-text-tertiary)',
                       overflow: 'auto',
                       minHeight: '500px',
                       lineHeight: '1.5',
@@ -584,7 +584,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                   <span style={{ 
                     padding: '2px 6px', 
-                    background: 'rgba(59, 130, 246, 0.1)',
+                    background: 'var(--color-blue-100)',
                     color: 'var(--color-primary)',
                     borderRadius: 'var(--radius-sm)',
                     fontWeight: '500'
@@ -767,7 +767,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                       type="checkbox"
                       checked={showOGPreview}
                       onChange={(e) => setShowOGPreview(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary/50"
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400">Show preview</span>
                   </label>

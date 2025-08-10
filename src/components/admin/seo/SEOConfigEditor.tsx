@@ -249,7 +249,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>Loading configuration...</p>
         </div>
       </div>
@@ -277,7 +277,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                   onClick={() => setActiveSection(section.id)}
                   className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3 ${
                     activeSection === section.id
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-primary text-white'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                   }`}
                 >
@@ -476,7 +476,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
             {activeSection === 'templates' && (
               <div className="space-y-6">
                 <h3 className="text-h3 mb-4">Default SEO Templates</h3>
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <div className="bg-blue-50 dark:bg-primary/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
                   <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
                     Default SEO templates that automatically apply to new content when custom SEO is not provided.
                   </p>
@@ -662,7 +662,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                             type="checkbox"
                             checked={showOGPreview}
                             onChange={(e) => setShowOGPreview(e.target.checked)}
-                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary/50 dark:focus:ring-primary/50 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                           />
                           <span className="text-sm text-gray-600 dark:text-gray-400">Show preview</span>
                         </label>
@@ -891,7 +891,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                     <h4 className="text-h4 mb-4">🏢 Organization Schema</h4>
                     
                     {/* Info box about auto-population */}
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+                    <div className="bg-blue-50 dark:bg-primary/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
                       <p className="text-xs text-blue-800 dark:text-blue-200">
                         ℹ️ Basic organization info (name, address, phone, email) is automatically pulled from the <strong>Organization</strong> tab.
                         Configure additional schema-specific settings below.
@@ -1464,7 +1464,7 @@ https://www.wikidata.org/wiki/Q12345"
                 )}
 
                 {/* Preview Information */}
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="p-4 bg-blue-50 dark:bg-primary/20 rounded-lg">
                   <p className="text-sm text-blue-800 dark:text-blue-200">
                     💡 <strong>Tip:</strong> After configuring schema, validate your structured data using Google's{' '}
                     <a 

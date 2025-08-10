@@ -109,7 +109,7 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
               href={`/blog/${cat.slug}`}
               className={`px-4 py-2 rounded-full font-medium transition-colors ${
                 cat.slug === resolvedParams.category
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
@@ -132,7 +132,7 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
             </p>
             <Link
               href="/blog"
-              className="inline-block mt-4 text-blue-600 dark:text-blue-400 hover:underline"
+              className="inline-block mt-4 text-primary dark:text-primary-light hover:underline"
             >
               ← Back to all posts
             </Link>

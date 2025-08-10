@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 
 // Consistent input styling for dark mode support
-const INPUT_CLASS = 'w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors';
+const INPUT_CLASS = 'w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors';
 const LABEL_CLASS = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
-const BUTTON_PRIMARY_CLASS = 'px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm';
+const BUTTON_PRIMARY_CLASS = 'px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors shadow-sm';
 const BUTTON_DANGER_CLASS = 'text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm transition-colors';
 const SECTION_CLASS = 'bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3';
 const CARD_CLASS = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-2';
@@ -206,7 +206,7 @@ export default function PageSchemaEditor({
       <div className="flex items-center gap-4">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Add Schema:</label>
         <select 
-          className="px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer shadow-sm"
+          className="px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer shadow-sm"
           onChange={(e) => {
             if (e.target.value) {
               addSchema(e.target.value);
@@ -271,7 +271,7 @@ export default function PageSchemaEditor({
       {/* Preview JSON-LD */}
       {activeSchemas.length > 0 && (
         <details className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
-          <summary className="cursor-pointer font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+          <summary className="cursor-pointer font-medium text-gray-900 dark:text-gray-100 hover:text-primary dark:hover:text-primary-light transition-colors">
             Preview JSON-LD Output
           </summary>
           <pre className="mt-4 p-4 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto text-xs text-gray-800 dark:text-gray-200">

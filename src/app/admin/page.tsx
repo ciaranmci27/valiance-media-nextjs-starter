@@ -189,13 +189,6 @@ export default function AdminDashboard() {
               Complete control center for your marketing website
             </p>
           </div>
-          <button 
-            onClick={handleLogout}
-            className="btn btn-secondary"
-            style={{ padding: '8px 20px' }}
-          >
-            Logout
-          </button>
         </div>
 
         {/* Navigation Tabs */}
