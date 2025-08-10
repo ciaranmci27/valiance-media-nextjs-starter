@@ -98,6 +98,9 @@ cd my-project
 2. **Install dependencies:**
 ```bash
 npm install
+# Note: You may see deprecation warnings from ESLint v8 dependencies.
+# These are expected as Next.js 15 still uses ESLint v8.
+# The warnings don't affect functionality.
 ```
 
 3. **Set up authentication (Required for Admin Access):**

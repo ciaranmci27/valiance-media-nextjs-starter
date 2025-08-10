@@ -53,7 +53,7 @@ export default function NotFound() {
   const isBlogUrl = pathname?.toLowerCase().startsWith('/blog/') || false;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-2xl w-full text-center">
         {/* 404 Number */}
         <div className="mb-8">

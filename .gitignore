@@ -92,6 +92,10 @@ jspm_packages/
 # Optional eslint cache
 .eslintcache
 
+# Prettier cache
+.prettierignore_cache
+.prettier_cache
+
 # Microbundle cache
 .rpt2_cache/
 .rts2_cache_cjs/
@@ -140,3 +144,9 @@ settings.json
 
 # Authentication lockout tracking
 .lockouts.json
+
+# Package manager lock files (optional - uncomment if you want to exclude them)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+# bun.lockb
