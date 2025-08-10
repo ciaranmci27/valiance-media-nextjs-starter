@@ -1,13 +1,14 @@
-# Valiance Media Marketing Site Style Guide
+# Next.js Marketing Boilerplate Style Guide
 
 ## Overview
-This guide outlines the design system and styling conventions for the Valiance Media marketing website. The design system is synchronized with our mobile app to provide a consistent brand experience across all platforms.
+This guide outlines the design system and styling conventions for the Next.js marketing boilerplate. The design system provides a modern, professional foundation for building marketing websites with a focus on accessibility, performance, and developer experience.
 
 ## Design System Philosophy
-- **Consistency**: Same colors, typography, and spacing as the mobile app
+- **Consistency**: Unified design tokens across all components
 - **Accessibility**: WCAG 2.1 AA compliant
 - **Performance**: Optimized for fast loading and smooth transitions
 - **Responsive**: Mobile-first design that scales beautifully
+- **Developer-Friendly**: Easy to customize and extend
 
 ## Theme System
 
@@ -44,16 +45,40 @@ For simpler use cases, you can use CSS variables directly:
 
 ### Color Palette
 
-#### Primary Colors
-- `primary`: Deep forest green (#1B5E20)
-- `primaryLight`: Vibrant green (#4CAF50)
-- `secondary`: Tournament gold (#D4AF37)
+#### Primary Colors (Blue Theme)
+- `primary`: Bright blue (#2563EB)
+- `primaryLight`: Light blue (#60A5FA)
+- `primaryDark`: Dark blue (#1E40AF)
+- `secondary`: Sky blue (#60A5FA)
+
+#### Blue Color Scale
+- `blue-50`: #EFF6FF (Lightest)
+- `blue-100`: #DBEAFE
+- `blue-200`: #BFDBFE
+- `blue-300`: #93C5FD
+- `blue-400`: #60A5FA
+- `blue-500`: #3B82F6 (Base)
+- `blue-600`: #2563EB (Primary)
+- `blue-700`: #1D4ED8
+- `blue-800`: #1E40AF
+- `blue-900`: #1E3A8A (Darkest)
+
+#### Accent Colors
+- `premium`: Cyan accent (#06B6D4)
+- `premiumLight`: Light cyan (#67E8F9)
+- `premiumDark`: Dark cyan (#0891B2)
 
 #### Text Colors
-- `text.primary`: Main text color
-- `text.secondary`: Subdued text
-- `text.tertiary`: Muted text
-- `text.inverse`: Text on colored backgrounds
+- `text.primary`: Deep slate (#0F172A)
+- `text.secondary`: Medium slate (#475569)
+- `text.tertiary`: Light slate (#94A3B8)
+- `text.inverse`: White (#FFFFFF)
+
+#### Semantic Colors
+- `success`: Green (#22C55E)
+- `warning`: Amber (#F59E0B)
+- `danger`: Red (#DC2626)
+- `info`: Blue (#3B82F6)
 
 ## Typography
 
@@ -70,8 +95,8 @@ For simpler use cases, you can use CSS variables directly:
 <span class="text-body3">Small text</span>
 
 <!-- Special -->
-<div class="text-score">72</div>
-<div class="text-handicap">14.2</div>
+<div class="text-feature">Feature Text</div>
+<div class="text-metric">99.9%</div>
 ```
 
 ### Typography with useStyles Hook
@@ -136,7 +161,7 @@ const styles = {
   padding: 'var(--spacing-md) var(--spacing-lg)',
   borderRadius: 'var(--radius-full)',
 }}>
-  Premium Feature
+  Get Started
 </button>
 ```
 
@@ -165,8 +190,8 @@ const styles = {
 
 ## Gradients
 ```html
-<div class="gradient-primary">Primary gradient background</div>
-<div class="gradient-premium">Premium gradient background</div>
+<div class="gradient-primary">Primary blue gradient background</div>
+<div class="gradient-premium">Premium cyan gradient background</div>
 ```
 
 ## Responsive Design
@@ -247,20 +272,25 @@ Use consistent transitions for smooth interactions:
 ## Best Practices
 
 ### Do's ✅
-- Use theme colors for all color values
+- Use the blue color palette for primary actions
+- Use CSS variables for all color values
 - Use spacing tokens for consistent layout
 - Use typography classes for text styling
 - Support both light and dark modes
 - Test on mobile devices first
 - Use semantic HTML elements
 - Ensure keyboard navigation works
+- Add hover states to interactive elements
+- Use the gradient utilities for hero sections
 
 ### Don'ts ❌
-- Don't hardcode color values
+- Don't hardcode hex color values directly
 - Don't use arbitrary spacing values
 - Don't forget dark mode support
 - Don't use px units for typography (use rem/em)
 - Don't forget focus states for interactive elements
+- Don't mix different color schemes (stick to blue theme)
+- Don't create new color variables without updating the guide
 
 ## Example Component
 
@@ -283,12 +313,23 @@ export function FeatureCard({ title, description, icon }) {
       transition: 'all 200ms ease',
       '&:hover': {
         ...shadows.lg,
-        transform: 'translateY(-2px)',
+        transform: 'translateY(-4px)',
+        borderColor: 'var(--color-primary)',
       },
     },
-    icon: {
-      fontSize: 48,
+    iconWrapper: {
+      width: 64,
+      height: 64,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: spacing.md,
+      backgroundColor: 'var(--color-blue-100)',
       marginBottom: spacing.md,
+    },
+    icon: {
+      fontSize: 32,
+      color: 'var(--color-primary)',
     },
     title: {
       ...typography.h4,
@@ -298,12 +339,15 @@ export function FeatureCard({ title, description, icon }) {
     description: {
       ...typography.body1,
       color: theme.text.secondary,
+      lineHeight: 1.6,
     },
   }));
   
   return (
     <div style={styles.card}>
-      <div style={styles.icon}>{icon}</div>
+      <div style={styles.iconWrapper}>
+        <div style={styles.icon}>{icon}</div>
+      </div>
       <h3 style={styles.title}>{title}</h3>
       <p style={styles.description}>{description}</p>
     </div>

@@ -384,40 +384,12 @@ function formatTitle(slug: string): string {
 export function generateDefaultPageContent(title: string, template: string = 'default'): string {
   const componentName = title.replace(/[^a-zA-Z0-9]/g, '');
   
-  return `'use client';
-
-import { PageWrapper } from "@/components/admin/PageWrapper";
-import { SEO } from "@/seo";
-import { pageMetadata } from "@/seo/seo.config";
-
-export default function ${componentName}Page() {
+  return `export default function ${componentName}Page() {
   return (
-    <PageWrapper>
-      <SEO 
-        pageData={{
-          title: "${title}",
-          description: "${title} page description",
-          dateModified: "${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}",
-        }}
-        breadcrumbs={[
-          { name: "Home", url: "https://valiancemedia.com" },
-          { name: "${title}", url: "https://valiancemedia.com/${generateSlug(title)}" }
-        ]}
-      />
-      
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">${title}</h1>
-          
-          <div className="prose prose-lg dark:prose-invert max-w-none">
-            <p className="text-gray-700 dark:text-gray-300">
-              This is the ${title} page. Add your content here.
-            </p>
-          </div>
-        </div>
-      </main>
-    </PageWrapper>
+    <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <h1>Welcome to Your Next.js Boilerplate</h1>
+      <p>This is an example "${title}" page. Replace this content with your own marketing site.</p>
+    </div>
   );
 }`;
 }
