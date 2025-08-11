@@ -7,7 +7,6 @@
 
 export const seoConfig = {
   siteName: 'Valiance Media',
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.valiancemedia.com',
   titleTemplate: '{pageName} | {siteName}',
   openGraph: {
     type: 'website',
