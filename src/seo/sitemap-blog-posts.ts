@@ -7,7 +7,7 @@ import { loadBlogPosts } from '@/lib/blog-utils';
  * This includes individual blog post URLs with proper filtering
  */
 export function sitemapBlogPosts(customBaseUrl?: string): MetadataRoute.Sitemap {
-  const baseUrl = customBaseUrl || seoConfig.siteUrl;
+  const baseUrl = customBaseUrl || (seoConfig as any).siteUrl;
   const sitemapConfig = seoConfig.sitemap;
 
   try {

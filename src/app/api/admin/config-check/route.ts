@@ -21,7 +21,7 @@ export async function GET() {
     const { seoConfig } = await import('@/seo/seo.config');
     
     // Check critical SEO fields - Site URL
-    const siteUrl = seoConfig.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || '';
+    const siteUrl = (seoConfig as any).siteUrl || process.env.NEXT_PUBLIC_SITE_URL || '';
     if (!siteUrl || siteUrl === '' || siteUrl === 'https://yourdomain.com') {
       warnings.push({
         type: 'error',
@@ -34,7 +34,8 @@ export async function GET() {
     }
 
     // Check if siteName is empty
-    if (!seoConfig.siteName || seoConfig.siteName === '') {
+    const siteName = (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName;
+    if (!siteName || siteName === '') {
       warnings.push({
         type: 'error',
         message: 'Site Name is not configured. This appears in page titles and meta tags.',

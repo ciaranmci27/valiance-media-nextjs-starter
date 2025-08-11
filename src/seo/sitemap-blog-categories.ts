@@ -65,7 +65,7 @@ function hasAnyRealBlogContent(): boolean {
 }
 
 export function sitemapCategories(customBaseUrl?: string): MetadataRoute.Sitemap {
-  const baseUrl = customBaseUrl || seoConfig.siteUrl;
+  const baseUrl = customBaseUrl || (seoConfig as any).siteUrl;
   const sitemapConfig = seoConfig.sitemap;
 
   // Only generate categories sitemap if there's real blog content

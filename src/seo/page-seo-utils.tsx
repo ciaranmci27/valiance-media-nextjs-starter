@@ -32,7 +32,7 @@ export function generatePageMetadata({
   // Build title with fallback chain
   const title = pageConfig?.seo?.title || 
     fallbackTitle || 
-    `${seoConfig.siteName}`;
+    `${(seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName || 'Website'}`;
   
   // Build description with fallback chain
   const configWithDefaults = seoConfig as any;
@@ -63,7 +63,7 @@ export function generatePageMetadata({
       description,
       images: imageUrl ? [imageUrl] : undefined,
       type: 'website',
-      siteName: seoConfig.siteName,
+      siteName: (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName || 'Website',
     },
     twitter: {
       card: 'summary_large_image',

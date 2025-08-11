@@ -116,8 +116,8 @@ export function getCurrentConfig(): { config: SEOConfigData } {
   // Return the current configuration from the imported module with defaults for missing fields
   const configAny = seoConfig as any;
   const configWithDefaults = {
-    siteName: seoConfig.siteName || '',
-    siteUrl: seoConfig.siteUrl || '',
+    siteName: (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName || '',
+    siteUrl: (seoConfig as any).siteUrl || '',
     company: configAny.company || {
       name: '',
       legalName: '',
@@ -139,7 +139,7 @@ export function getCurrentConfig(): { config: SEOConfigData } {
     openGraph: {
       type: seoConfig.openGraph?.type || 'website',
       locale: seoConfig.openGraph?.locale || 'en_US',
-      siteName: (seoConfig.openGraph as any)?.siteName || seoConfig.siteName || '',
+      siteName: (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName || '',
       defaultImage: seoConfig.openGraph?.defaultImage || '',
       imageWidth: seoConfig.openGraph?.imageWidth || 1200,
       imageHeight: seoConfig.openGraph?.imageHeight || 630
@@ -369,16 +369,11 @@ export function formatConfigForFile(config: SEOConfigData): string {
           continue;
         }
       } else if (key === 'openGraph' && indent === 1) {
-        // Special handling for openGraph to ensure siteName is included
+        // Special handling for openGraph - don't include siteName here since it's at top level
         const openGraphData = value as any;
         const openGraphEntries: string[] = [];
         openGraphEntries.push(`${spaces}  type: '${openGraphData.type || 'website'}'`);
         openGraphEntries.push(`${spaces}  locale: '${openGraphData.locale || 'en_US'}'`);
-        // Always include siteName in openGraph (use the one from openGraph or fallback to top-level siteName)
-        const ogSiteName = openGraphData.siteName || config.siteName || '';
-        if (ogSiteName) {
-          openGraphEntries.push(`${spaces}  siteName: '${ogSiteName}'`);
-        }
         if (openGraphData.defaultImage) {
           openGraphEntries.push(`${spaces}  defaultImage: '${openGraphData.defaultImage}'`);
         }
@@ -465,6 +460,13 @@ export function formatConfigForFile(config: SEOConfigData): string {
     return `{\n${entries.join(',\n')}\n${' '.repeat((indent - 1) * 2)}}`;
   };
 
+  // Ensure siteName and siteUrl are always at the top level
+  const configWithTopLevel = {
+    ...config,
+    siteName: config.siteName || config.openGraph?.siteName || '',
+    siteUrl: config.siteUrl || ''
+  };
+
   return `/**
  * SEO Configuration
  * 
@@ -472,7 +474,7 @@ export function formatConfigForFile(config: SEOConfigData): string {
  * Update these values to match your brand and business.
  */
 
-export const seoConfig = ${formatObject(config)};
+export const seoConfig = ${formatObject(configWithTopLevel)};
 
 // Page-specific metadata templates
 export const pageMetadata = {

@@ -19,7 +19,7 @@ function getBaseUrl(request: Request): string {
   const url = new URL(request.url);
   return process.env.NODE_ENV === 'development' 
     ? `${url.protocol}//${url.host}` 
-    : seoConfig.siteUrl;
+    : (seoConfig as any).siteUrl;
 }
 
 /**

@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const type = searchParams.get('type');
-    const baseUrl = seoConfig.siteUrl;
+    const baseUrl = (seoConfig as any).siteUrl || process.env.NEXT_PUBLIC_SITE_URL || '';
 
     // Get sitemap index
     if (type === 'index') {

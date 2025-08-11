@@ -14,8 +14,9 @@ export default function robots(): MetadataRoute.Robots {
   // Get the site URL from config, with fallbacks
   const getSiteUrl = (): string => {
     // First try the config
-    if (seoConfig.siteUrl && seoConfig.siteUrl !== 'https://example.com') {
-      return seoConfig.siteUrl.replace(/\/$/, ''); // Remove trailing slash
+    const siteUrl = (seoConfig as any).siteUrl;
+    if (siteUrl && siteUrl !== 'https://example.com') {
+      return siteUrl.replace(/\/$/, ''); // Remove trailing slash
     }
     
     // Then try environment variable

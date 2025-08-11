@@ -7,7 +7,7 @@ import { loadPageSeoConfig } from '@/lib/page-seo-utils';
  * This includes homepage, privacy, terms, contact, etc.
  */
 export function sitemapPages(customBaseUrl?: string): MetadataRoute.Sitemap {
-  const baseUrl = customBaseUrl || seoConfig.siteUrl;
+  const baseUrl = customBaseUrl || (seoConfig as any).siteUrl;
   const sitemapConfig = seoConfig.sitemap;
 
   const staticRoutes = [

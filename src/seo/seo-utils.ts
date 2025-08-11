@@ -6,10 +6,11 @@ import { seoConfig } from './seo.config';
  */
 function getSiteUrl(): string {
   // Check if siteUrl exists and is valid
-  if (seoConfig.siteUrl) {
+  const configSiteUrl = (seoConfig as any).siteUrl;
+  if (configSiteUrl) {
     try {
-      new URL(seoConfig.siteUrl);
-      return seoConfig.siteUrl;
+      new URL(configSiteUrl);
+      return configSiteUrl;
     } catch {
       // Invalid URL, continue to fallback
     }
@@ -52,7 +53,7 @@ export function generateMetadata({
   
   // Handle empty config values gracefully
   const configFull = seoConfig as any;
-  const siteName = seoConfig.siteName || 'Website';
+  const siteName = (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName || 'Website';
   const defaultTitle = configFull.defaultTitle || siteName;
   const titleTemplate = seoConfig.titleTemplate || '{pageName} | {siteName}';
   
@@ -88,7 +89,7 @@ export function generateMetadata({
       title: openGraph?.title || metaTitle,
       description: openGraph?.description || metaDescription,
       url: openGraph?.url || siteUrl,
-      siteName: seoConfig.siteName || siteName,
+      siteName: siteName,
       type: (openGraph as any)?.type || seoConfig.openGraph.type || 'website',
       locale: (openGraph as any)?.locale || seoConfig.openGraph.locale || 'en_US',
       images: openGraph?.images || (seoConfig.openGraph.defaultImage ? [
@@ -96,7 +97,7 @@ export function generateMetadata({
           url: seoConfig.openGraph.defaultImage,
           width: seoConfig.openGraph.imageWidth || 1200,
           height: seoConfig.openGraph.imageHeight || 630,
-          alt: seoConfig.siteName || siteName,
+          alt: siteName,
         },
       ] : []),
       ...openGraph,
@@ -205,7 +206,8 @@ export function generateOrganizationSchema() {
 export function generateWebsiteSchema() {
   const configFull = seoConfig as any;
   // Return null if no site name is configured
-  if (!seoConfig.siteName?.trim()) {
+  const siteNameCheck = (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName;
+  if (!siteNameCheck?.trim()) {
     return null;
   }
   
@@ -213,9 +215,9 @@ export function generateWebsiteSchema() {
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: seoConfig.siteName,
+    name: siteNameCheck,
     url: siteUrl,
-    description: configFull.defaultDescription || `Welcome to ${seoConfig.siteName}`,
+    description: configFull.defaultDescription || `Welcome to ${siteNameCheck}`,
   };
 
   // Only add publisher if company name exists and is not empty

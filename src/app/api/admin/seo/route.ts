@@ -220,7 +220,7 @@ export async function GET(request: NextRequest) {
     const configWithAll = seoConfig as any;
     return NextResponse.json({
       config: {
-        siteName: seoConfig.siteName,
+        siteName: (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName || 'Website',
         siteUrl: siteUrl,
         defaultTitle: configWithAll.defaultTitle,
         defaultDescription: configWithAll.defaultDescription,

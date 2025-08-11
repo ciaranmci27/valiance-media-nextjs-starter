@@ -17,7 +17,7 @@ import { seoConfig } from './seo.config';
  * - Follows SEO best practices
  */
 export default function sitemapIndex(): MetadataRoute.Sitemap {
-  const baseUrl = seoConfig.siteUrl;
+  const baseUrl = (seoConfig as any).siteUrl;
   const lastModified = new Date();
 
   return [
