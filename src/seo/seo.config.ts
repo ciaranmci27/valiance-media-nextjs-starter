@@ -6,59 +6,15 @@
  */
 
 export const seoConfig = {
-  siteName: '',
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || '',
-  company: {
-    name: '',
-    legalName: '',
-    foundingDate: '',
-    email: '',
-    phone: '',
-    address: {
-      streetAddress: '',
-      addressLocality: '',
-      addressRegion: '',
-      postalCode: '',
-      addressCountry: ''
-    }
-  },
-  defaultTitle: '',
+  siteName: 'Valiance Media',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.valiancemedia.com',
   titleTemplate: '{pageName} | {siteName}',
-  defaultDescription: '',
-  defaultKeywords: [],
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: '',
     defaultImage: '/images/og-default.jpg',
     imageWidth: 1200,
     imageHeight: 630
-  },
-  alternates: {
-    canonical: '',
-    languages: {
-      'en-US': ''
-    }
-  },
-  social: {
-    twitter: '',
-    facebook: '',
-    instagram: '',
-    linkedin: '',
-    youtube: '',
-    github: ''
-  },
-  verification: {
-    google: '',
-    bing: '',
-    yandex: '',
-    pinterest: ''
-  },
-  analytics: {
-    googleAnalyticsId: '',
-    facebookPixelId: '',
-    hotjarId: '',
-    clarityId: ''
   },
   robots: {
     index: true,
