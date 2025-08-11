@@ -7,7 +7,6 @@
  * - /sitemap-blog.xml (blog posts)
  * - /sitemap-categories.xml (blog categories)
  * 
- * The new structure follows SEO best practices and is similar to Yoast SEO.
  */
 
 // Re-export the sitemap index as the default sitemap

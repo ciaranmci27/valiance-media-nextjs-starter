@@ -651,7 +651,7 @@ ${pages.map(page => `  <url>
                   <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs">
                     /sitemap.xml
                   </code>{' '}
-                  references all sub-sitemaps, following SEO best practices similar to Yoast SEO.
+                  references all sub-sitemaps, following SEO best practices.
                 </span>
               </p>
             </div>

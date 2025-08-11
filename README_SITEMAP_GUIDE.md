@@ -1,6 +1,6 @@
 # Sitemap Structure
 
-This project uses a professional sitemap index structure similar to Yoast SEO for optimal search engine optimization.
+This project uses a professional sitemap index structure for optimal search engine optimization.
 
 The sitemap system is centrally managed in the `src/seo/` directory to keep the app directory clean and organized.
 
@@ -23,7 +23,7 @@ The sitemap system is centrally managed in the `src/seo/` directory to keep the 
 1. **Better Organization** - Search engines can prioritize different content types
 2. **Faster Crawling** - Search engines can crawl specific content types independently
 3. **Performance** - Smaller, focused sitemaps load faster
-4. **Industry Standard** - Follows WordPress/Yoast SEO best practices
+4. **Industry Standard** - Follows SEO best practices
 5. **Scalability** - Easy to add new content types (products, services, etc.)
 
 ### Technical Benefits

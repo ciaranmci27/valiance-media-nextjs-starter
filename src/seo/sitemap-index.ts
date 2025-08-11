@@ -3,7 +3,7 @@ import { seoConfig } from './seo.config';
 
 /**
  * Sitemap Index - Main sitemap.xml that references other sitemaps
- * This creates a structure similar to Yoast SEO:
+ * This creates a state of the art structure:
  * 
  * /sitemap.xml (index)
  * ├── /sitemap-pages.xml
