@@ -46,7 +46,8 @@ export async function GET() {
     }
 
     // Check if company name is empty
-    if (!seoConfig.company?.name || seoConfig.company.name === '') {
+    const configWithCompany = seoConfig as any;
+    if (!configWithCompany.company?.name || configWithCompany.company.name === '') {
       warnings.push({
         type: 'warning',
         message: 'Company information is not configured. This affects schema markup and search appearance.',
@@ -58,7 +59,7 @@ export async function GET() {
     }
 
     // Check if default title is empty
-    if (!seoConfig.defaultTitle || seoConfig.defaultTitle === '') {
+    if (!configWithCompany.defaultTitle || configWithCompany.defaultTitle === '') {
       warnings.push({
         type: 'warning',
         message: 'Default page title is not set. Pages without custom titles will have no title.',
@@ -70,7 +71,7 @@ export async function GET() {
     }
 
     // Check if default description is empty
-    if (!seoConfig.defaultDescription || seoConfig.defaultDescription === '') {
+    if (!configWithCompany.defaultDescription || configWithCompany.defaultDescription === '') {
       warnings.push({
         type: 'warning',
         message: 'Default meta description is not set. This affects search result snippets.',

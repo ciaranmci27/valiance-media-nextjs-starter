@@ -19,10 +19,11 @@ function AnalyticsContent() {
   const searchParams = useSearchParams();
 
   // Get analytics IDs from seo config (which can be managed via Settings page)
-  const googleAnalyticsId = seoConfig.analytics?.googleAnalyticsId || '';
-  const facebookPixelId = seoConfig.analytics?.facebookPixelId || '';
-  const hotjarId = seoConfig.analytics?.hotjarId || '';
-  const clarityId = seoConfig.analytics?.clarityId || '';
+  const configWithAnalytics = seoConfig as any;
+  const googleAnalyticsId = configWithAnalytics.analytics?.googleAnalyticsId || '';
+  const facebookPixelId = configWithAnalytics.analytics?.facebookPixelId || '';
+  const hotjarId = configWithAnalytics.analytics?.hotjarId || '';
+  const clarityId = configWithAnalytics.analytics?.clarityId || '';
 
   // Google Analytics pageview tracking
   useEffect(() => {

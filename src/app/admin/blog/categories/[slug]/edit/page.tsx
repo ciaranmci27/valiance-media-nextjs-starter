@@ -145,7 +145,7 @@ export default function EditCategoryPage() {
       }
     }
 
-    const siteName = seoConfig.openGraph.siteName || 'Your Site';
+    const siteName = seoConfig.siteName || (seoConfig.openGraph as any)?.siteName || 'Your Site';
     
     // Use category template if available, otherwise use default
     const titleTemplate = seoConfig.titleTemplate || '{pageName} | {siteName}';

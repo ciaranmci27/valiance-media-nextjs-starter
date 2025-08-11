@@ -174,10 +174,11 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       .replace('{siteTagline}', siteTagline);
 
     // Use excerpt as description if available, otherwise use the template description
-    const seoDescription = formData.excerpt || seoConfig.defaultDescription?.replace('{pageName}', formData.title).replace('{siteName}', siteName).replace('{siteTagline}', siteTagline) || `Read our article about ${formData.title}`;
+    const configFull = seoConfig as any;
+    const seoDescription = formData.excerpt || configFull.defaultDescription?.replace('{pageName}', formData.title).replace('{siteName}', siteName).replace('{siteTagline}', siteTagline) || `Read our article about ${formData.title}`;
 
     // Use the keywords from the SEO template configuration
-    const blogPostKeywords = seoConfig.defaultKeywords || [];
+    const blogPostKeywords = configFull.defaultKeywords || [];
 
     setFormData(prev => ({
       ...prev,

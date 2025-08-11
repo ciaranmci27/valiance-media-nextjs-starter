@@ -73,11 +73,12 @@ export async function GET(request: NextRequest) {
         // Get metadata from pageMetadata object if key exists
         const pageMeta = (pageMetadata as any)[metaKey];
         
+        const configAny = seoConfig as any;
         return {
           path: route.path,
-          title: pageConfig?.seo?.title || pageMeta?.title || route.title || seoConfig.defaultTitle,
-          description: pageConfig?.seo?.description || pageMeta?.description || seoConfig.defaultDescription,
-          keywords: pageConfig?.seo?.keywords || pageMeta?.keywords || seoConfig.defaultKeywords,
+          title: pageConfig?.seo?.title || pageMeta?.title || route.title || configAny.defaultTitle,
+          description: pageConfig?.seo?.description || pageMeta?.description || configAny.defaultDescription,
+          keywords: pageConfig?.seo?.keywords || pageMeta?.keywords || configAny.defaultKeywords,
           ogImage: pageConfig?.openGraph?.images?.[0]?.url || seoConfig.openGraph.defaultImage,
           ogTitle: pageConfig?.openGraph?.title || pageConfig?.seo?.title || pageMeta?.title || route.title,
           ogDescription: pageConfig?.openGraph?.description || pageConfig?.seo?.description || pageMeta?.description,
@@ -216,19 +217,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Default: return general SEO configuration
+    const configWithAll = seoConfig as any;
     return NextResponse.json({
       config: {
         siteName: seoConfig.siteName,
         siteUrl: siteUrl,
-        defaultTitle: seoConfig.defaultTitle,
-        defaultDescription: seoConfig.defaultDescription,
-        defaultKeywords: seoConfig.defaultKeywords,
-        social: seoConfig.social,
-        verification: seoConfig.verification,
-        analytics: seoConfig.analytics,
+        defaultTitle: configWithAll.defaultTitle,
+        defaultDescription: configWithAll.defaultDescription,
+        defaultKeywords: configWithAll.defaultKeywords,
+        social: configWithAll.social,
+        verification: configWithAll.verification,
+        analytics: configWithAll.analytics,
         schema: seoConfig.schema,
         robots: seoConfig.robots,
-        company: seoConfig.company,
+        company: configWithAll.company,
       }
     });
 

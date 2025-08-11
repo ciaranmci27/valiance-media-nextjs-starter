@@ -51,16 +51,17 @@ export function generateMetadata({
   const siteUrl = getSiteUrl();
   
   // Handle empty config values gracefully
+  const configFull = seoConfig as any;
   const siteName = seoConfig.siteName || 'Website';
-  const defaultTitle = seoConfig.defaultTitle || siteName;
+  const defaultTitle = configFull.defaultTitle || siteName;
   const titleTemplate = seoConfig.titleTemplate || '{pageName} | {siteName}';
   
   const metaTitle = title 
     ? titleTemplate.replace('{pageName}', String(title)).replace('{siteName}', siteName)
     : defaultTitle;
 
-  const metaDescription = description || seoConfig.defaultDescription || `Welcome to ${siteName}`;
-  const metaKeywords = keywords || seoConfig.defaultKeywords || [];
+  const metaDescription = description || configFull.defaultDescription || `Welcome to ${siteName}`;
+  const metaKeywords = keywords || configFull.defaultKeywords || [];
 
   const metadata: any = {
     metadataBase: new URL(siteUrl),
@@ -70,10 +71,10 @@ export function generateMetadata({
   };
 
   // Add company-related metadata only if company data exists and is not empty
-  if (seoConfig.company?.name && seoConfig.company.name.trim()) {
-    metadata.authors = [{ name: seoConfig.company.name }];
-    metadata.creator = seoConfig.company.name;
-    metadata.publisher = seoConfig.company.name;
+  if (configFull.company?.name && configFull.company.name.trim()) {
+    metadata.authors = [{ name: configFull.company.name }];
+    metadata.creator = configFull.company.name;
+    metadata.publisher = configFull.company.name;
   }
 
   return {
@@ -108,7 +109,7 @@ export function generateMetadata({
       ...twitter,
     },
     robots: robots || (seoConfig.robots as any),
-    alternates: alternates || (seoConfig.alternates?.canonical ? seoConfig.alternates : undefined),
+    alternates: alternates || (configFull.alternates?.canonical ? configFull.alternates : undefined),
     ...rest,
   };
 }
@@ -118,8 +119,9 @@ export function generateMetadata({
  * Returns null if company data is not configured
  */
 export function generateOrganizationSchema() {
+  const configFull = seoConfig as any;
   // Check if company data exists and has required fields (not empty strings)
-  if (!seoConfig.company?.name?.trim() || !seoConfig.company?.email?.trim()) {
+  if (!configFull.company?.name?.trim() || !configFull.company?.email?.trim()) {
     return null;
   }
 
@@ -127,67 +129,68 @@ export function generateOrganizationSchema() {
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: seoConfig.company.name,
+    name: configFull.company.name,
     url: siteUrl,
   };
 
   // Add optional fields only if they exist
-  if (seoConfig.company.legalName) {
-    schema.legalName = seoConfig.company.legalName;
+  if (configFull.company.legalName) {
+    schema.legalName = configFull.company.legalName;
   }
 
   // Add logo if it exists
   const logoPath = `${siteUrl}/logos/square-logo.png`;
   schema.logo = logoPath;
 
-  if (seoConfig.company.foundingDate) {
-    schema.foundingDate = seoConfig.company.foundingDate;
+  if (configFull.company.foundingDate) {
+    schema.foundingDate = configFull.company.foundingDate;
   }
 
   // Add contact point if phone or email exists
-  if (seoConfig.company.phone || seoConfig.company.email) {
+  if (configFull.company.phone || configFull.company.email) {
     schema.contactPoint = {
       '@type': 'ContactPoint',
       contactType: 'customer service',
     };
-    if (seoConfig.company.phone) {
-      schema.contactPoint.telephone = seoConfig.company.phone;
+    if (configFull.company.phone) {
+      schema.contactPoint.telephone = configFull.company.phone;
     }
-    if (seoConfig.company.email) {
-      schema.contactPoint.email = seoConfig.company.email;
+    if (configFull.company.email) {
+      schema.contactPoint.email = configFull.company.email;
     }
   }
 
   // Add address if any address fields exist
-  if (seoConfig.company.address) {
-    const addressFields = Object.entries(seoConfig.company.address).filter(
+  if (configFull.company.address) {
+    const addressFields = Object.entries(configFull.company.address).filter(
       ([_, value]) => value
     );
     if (addressFields.length > 0) {
       schema.address = {
         '@type': 'PostalAddress',
       };
-      if (seoConfig.company.address.streetAddress) {
-        schema.address.streetAddress = seoConfig.company.address.streetAddress;
+      if (configFull.company.address.streetAddress) {
+        schema.address.streetAddress = configFull.company.address.streetAddress;
       }
-      if (seoConfig.company.address.addressLocality) {
-        schema.address.addressLocality = seoConfig.company.address.addressLocality;
+      if (configFull.company.address.addressLocality) {
+        schema.address.addressLocality = configFull.company.address.addressLocality;
       }
-      if (seoConfig.company.address.addressRegion) {
-        schema.address.addressRegion = seoConfig.company.address.addressRegion;
+      if (configFull.company.address.addressRegion) {
+        schema.address.addressRegion = configFull.company.address.addressRegion;
       }
-      if (seoConfig.company.address.postalCode) {
-        schema.address.postalCode = seoConfig.company.address.postalCode;
+      if (configFull.company.address.postalCode) {
+        schema.address.postalCode = configFull.company.address.postalCode;
       }
-      if (seoConfig.company.address.addressCountry) {
-        schema.address.addressCountry = seoConfig.company.address.addressCountry;
+      if (configFull.company.address.addressCountry) {
+        schema.address.addressCountry = configFull.company.address.addressCountry;
       }
     }
   }
 
   // Add social media links if they exist
-  if (seoConfig.social) {
-    const socialLinks = Object.values(seoConfig.social).filter(Boolean);
+  const configWithSocial = seoConfig as any;
+  if (configWithSocial.social) {
+    const socialLinks = Object.values(configWithSocial.social).filter(Boolean);
     if (socialLinks.length > 0) {
       schema.sameAs = socialLinks;
     }
@@ -200,6 +203,7 @@ export function generateOrganizationSchema() {
  * Generate JSON-LD structured data for website
  */
 export function generateWebsiteSchema() {
+  const configFull = seoConfig as any;
   // Return null if no site name is configured
   if (!seoConfig.siteName?.trim()) {
     return null;
@@ -211,14 +215,14 @@ export function generateWebsiteSchema() {
     '@type': 'WebSite',
     name: seoConfig.siteName,
     url: siteUrl,
-    description: seoConfig.defaultDescription || `Welcome to ${seoConfig.siteName}`,
+    description: configFull.defaultDescription || `Welcome to ${seoConfig.siteName}`,
   };
 
   // Only add publisher if company name exists and is not empty
-  if (seoConfig.company?.name?.trim()) {
+  if (configFull.company?.name?.trim()) {
     schema.publisher = {
       '@type': 'Organization',
-      name: seoConfig.company.name,
+      name: configFull.company.name,
       logo: {
         '@type': 'ImageObject',
         url: `${siteUrl}/logos/square-logo.png`,
@@ -257,6 +261,7 @@ export function generateWebPageSchema({
   author?: string;
   image?: string;
 }) {
+  const configFull = seoConfig as any;
   const siteUrl = getSiteUrl();
   const schema: any = {
     '@context': 'https://schema.org',
@@ -269,18 +274,18 @@ export function generateWebPageSchema({
   };
 
   // Add author - use provided author or company name if available and not empty
-  if (author || seoConfig.company?.name?.trim()) {
+  if (author || configFull.company?.name?.trim()) {
     schema.author = {
       '@type': 'Organization',
-      name: author || seoConfig.company.name,
+      name: author || configFull.company.name,
     };
   }
 
   // Add publisher if company name exists and is not empty
-  if (seoConfig.company?.name?.trim()) {
+  if (configFull.company?.name?.trim()) {
     schema.publisher = {
       '@type': 'Organization',
-      name: seoConfig.company.name,
+      name: configFull.company.name,
       logo: {
         '@type': 'ImageObject',
         url: `${siteUrl}/logos/square-logo.png`,
@@ -323,6 +328,7 @@ export function generateProductSchema({
   rating?: number;
   reviewCount?: number;
 }) {
+  const configFull = seoConfig as any;
   const siteUrl = getSiteUrl();
   const schema: any = {
     '@context': 'https://schema.org',
@@ -340,18 +346,18 @@ export function generateProductSchema({
   };
 
   // Add brand - use provided brand or company name if available and not empty
-  if (brand || seoConfig.company?.name?.trim()) {
+  if (brand || configFull.company?.name?.trim()) {
     schema.brand = {
       '@type': 'Brand',
-      name: brand || seoConfig.company.name,
+      name: brand || configFull.company.name,
     };
   }
 
   // Add seller if company name exists and is not empty
-  if (seoConfig.company?.name?.trim()) {
+  if (configFull.company?.name?.trim()) {
     schema.offers.seller = {
       '@type': 'Organization',
-      name: seoConfig.company.name,
+      name: configFull.company.name,
     };
   }
 
@@ -415,7 +421,11 @@ export function generateCanonicalUrl(path: string = ''): string {
  * Generate alternate language links
  */
 export function generateAlternateLinks(currentPath: string = '') {
-  return Object.entries(seoConfig.alternates.languages).map(([lang, url]) => ({
+  const configWithAlternates = seoConfig as any;
+  if (!configWithAlternates.alternates?.languages) {
+    return [];
+  }
+  return Object.entries(configWithAlternates.alternates.languages).map(([lang, url]) => ({
     hrefLang: lang,
     href: `${url}${currentPath}`,
   }));

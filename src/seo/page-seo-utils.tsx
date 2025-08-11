@@ -35,13 +35,14 @@ export function generatePageMetadata({
     `${seoConfig.siteName}`;
   
   // Build description with fallback chain
+  const configWithDefaults = seoConfig as any;
   const description = pageConfig?.seo?.description || 
     fallbackDescription || 
-    seoConfig.defaultDescription;
+    configWithDefaults.defaultDescription;
   
   // Build keywords
   const keywords = pageConfig?.seo?.keywords?.join(', ') || 
-    seoConfig.defaultKeywords?.join(', ');
+    configWithDefaults.defaultKeywords?.join(', ');
   
   // Determine robots directive
   const robots = pageConfig?.seo?.noIndex === true 
@@ -56,7 +57,7 @@ export function generatePageMetadata({
     description,
     keywords,
     robots,
-    authors: [{ name: pageConfig?.metadata?.author || seoConfig.company.name }],
+    authors: [{ name: pageConfig?.metadata?.author || configWithDefaults.company?.name }],
     openGraph: {
       title,
       description,

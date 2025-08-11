@@ -114,10 +114,11 @@ export interface SEOConfigData {
 
 export function getCurrentConfig(): { config: SEOConfigData } {
   // Return the current configuration from the imported module with defaults for missing fields
+  const configAny = seoConfig as any;
   const configWithDefaults = {
     siteName: seoConfig.siteName || '',
     siteUrl: seoConfig.siteUrl || '',
-    company: seoConfig.company || {
+    company: configAny.company || {
       name: '',
       legalName: '',
       foundingDate: '',
@@ -131,19 +132,19 @@ export function getCurrentConfig(): { config: SEOConfigData } {
         addressCountry: ''
       }
     },
-    defaultTitle: seoConfig.defaultTitle || '',
+    defaultTitle: configAny.defaultTitle || '',
     titleTemplate: seoConfig.titleTemplate || '%s | Site Name',
-    defaultDescription: seoConfig.defaultDescription || '',
-    defaultKeywords: seoConfig.defaultKeywords || [],
-    openGraph: seoConfig.openGraph || {
-      type: 'website',
-      locale: 'en_US',
-      siteName: '',
-      defaultImage: '',
-      imageWidth: 1200,
-      imageHeight: 630
+    defaultDescription: configAny.defaultDescription || '',
+    defaultKeywords: configAny.defaultKeywords || [],
+    openGraph: {
+      type: seoConfig.openGraph?.type || 'website',
+      locale: seoConfig.openGraph?.locale || 'en_US',
+      siteName: (seoConfig.openGraph as any)?.siteName || seoConfig.siteName || '',
+      defaultImage: seoConfig.openGraph?.defaultImage || '',
+      imageWidth: seoConfig.openGraph?.imageWidth || 1200,
+      imageHeight: seoConfig.openGraph?.imageHeight || 630
     },
-    social: seoConfig.social || {
+    social: configAny.social || {
       twitter: '',
       linkedin: '',
       github: '',
@@ -151,13 +152,13 @@ export function getCurrentConfig(): { config: SEOConfigData } {
       facebook: '',
       youtube: ''
     },
-    verification: seoConfig.verification || {
+    verification: configAny.verification || {
       google: '',
       bing: '',
       yandex: '',
       pinterest: ''
     },
-    analytics: seoConfig.analytics || {
+    analytics: configAny.analytics || {
       googleAnalyticsId: '',
       facebookPixelId: '',
       hotjarId: '',
@@ -195,7 +196,7 @@ export function getCurrentConfig(): { config: SEOConfigData } {
         customRules: ''
       }
     },
-    alternates: seoConfig.alternates || {
+    alternates: configAny.alternates || {
       canonical: '',
       languages: {}
     },
@@ -367,6 +368,23 @@ export function formatConfigForFile(config: SEOConfigData): string {
         } else {
           continue;
         }
+      } else if (key === 'openGraph' && indent === 1) {
+        // Special handling for openGraph to ensure siteName is included
+        const openGraphData = value as any;
+        const openGraphEntries: string[] = [];
+        openGraphEntries.push(`${spaces}  type: '${openGraphData.type || 'website'}'`);
+        openGraphEntries.push(`${spaces}  locale: '${openGraphData.locale || 'en_US'}'`);
+        // Always include siteName in openGraph (use the one from openGraph or fallback to top-level siteName)
+        const ogSiteName = openGraphData.siteName || config.siteName || '';
+        if (ogSiteName) {
+          openGraphEntries.push(`${spaces}  siteName: '${ogSiteName}'`);
+        }
+        if (openGraphData.defaultImage) {
+          openGraphEntries.push(`${spaces}  defaultImage: '${openGraphData.defaultImage}'`);
+        }
+        openGraphEntries.push(`${spaces}  imageWidth: ${openGraphData.imageWidth || 1200}`);
+        openGraphEntries.push(`${spaces}  imageHeight: ${openGraphData.imageHeight || 630}`);
+        formattedValue = `{\n${openGraphEntries.join(',\n')}\n${spaces}}`;
       } else if (key === 'robots' && indent === 1) {
         // Special handling for robots configuration
         const robotsData = value as any;
