@@ -107,6 +107,21 @@ interface SEOConfigEditorProps {
   initialSection?: string;
 }
 
+const getDefaultSchema = () => ({
+  activeTypes: {
+    organization: false,
+    website: false,
+    localBusiness: false,
+    person: false,
+    breadcrumbs: false
+  },
+  organization: {},
+  website: {},
+  localBusiness: {},
+  person: {},
+  breadcrumbs: {}
+});
+
 export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigEditorProps = {}) {
   const [config, setConfig] = useState<SEOConfigData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -773,8 +788,14 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                       onChange={(checked) => setConfig({
                         ...config,
                         schema: {
-                          ...config.schema!,
-                          activeTypes: { ...config.schema?.activeTypes!, organization: checked }
+                          ...getDefaultSchema(),
+                          ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                          activeTypes: { 
+                            ...getDefaultSchema().activeTypes,
+                            ...(config.schema?.activeTypes || {}), 
+                            organization: checked 
+                          }
                         }
                       })}
                     />
@@ -791,8 +812,14 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                       onChange={(checked) => setConfig({
                         ...config,
                         schema: {
-                          ...config.schema!,
-                          activeTypes: { ...config.schema?.activeTypes!, localBusiness: checked }
+                          ...getDefaultSchema(),
+                          ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                          activeTypes: { 
+                            ...getDefaultSchema().activeTypes,
+                            ...(config.schema?.activeTypes || {}), 
+                            localBusiness: checked 
+                          }
                         }
                       })}
                     />
@@ -809,8 +836,14 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                       onChange={(checked) => setConfig({
                         ...config,
                         schema: {
-                          ...config.schema!,
-                          activeTypes: { ...config.schema?.activeTypes!, person: checked }
+                          ...getDefaultSchema(),
+                          ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                          activeTypes: { 
+                            ...getDefaultSchema().activeTypes,
+                            ...(config.schema?.activeTypes || {}), 
+                            person: checked 
+                          }
                         }
                       })}
                     />
@@ -829,11 +862,13 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                       onChange={(checked) => setConfig({
                         ...config,
                         schema: {
-                          ...config.schema!,
+                          ...getDefaultSchema(),
+                          ...getDefaultSchema(),
+                          ...(config.schema || {}),
                           organization: {
-                            ...config.schema?.organization!,
+                            ...(config.schema?.organization || {}),
                             contactPoint: {
-                              ...config.schema?.organization?.contactPoint!,
+                              ...(config.schema?.organization?.contactPoint || {}),
                               enabled: checked
                             }
                           }
@@ -856,8 +891,14 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                       onChange={(checked) => setConfig({
                         ...config,
                         schema: {
-                          ...config.schema!,
-                          activeTypes: { ...config.schema?.activeTypes!, breadcrumbs: checked }
+                          ...getDefaultSchema(),
+                          ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                          activeTypes: { 
+                            ...getDefaultSchema().activeTypes,
+                            ...(config.schema?.activeTypes || {}), 
+                            breadcrumbs: checked 
+                          }
                         }
                       })}
                     />
@@ -877,8 +918,14 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                       onChange={(checked) => setConfig({
                         ...config,
                         schema: {
-                          ...config.schema!,
-                          activeTypes: { ...config.schema?.activeTypes!, website: checked }
+                          ...getDefaultSchema(),
+                          ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                          activeTypes: { 
+                            ...getDefaultSchema().activeTypes,
+                            ...(config.schema?.activeTypes || {}), 
+                            website: checked 
+                          }
                         }
                       })}
                     />
@@ -908,8 +955,9 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                             onChange={(e) => setConfig({
                               ...config,
                               schema: {
-                                ...config.schema!,
-                                organization: { ...config.schema?.organization!, type: e.target.value }
+                                ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                                organization: { ...(config.schema?.organization || {}), type: e.target.value }
                               }
                             })}
                             className="input-field"
@@ -931,10 +979,11 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                             onChange={(e) => setConfig({
                               ...config,
                               schema: {
-                                ...config.schema!,
+                                ...getDefaultSchema(),
+                          ...(config.schema || {}),
                                 organization: {
-                                  ...config.schema?.organization!,
-                                  logo: { ...config.schema?.organization?.logo!, url: e.target.value }
+                                  ...(config.schema?.organization || {}),
+                                  logo: { ...(config.schema?.organization?.logo || {}), url: e.target.value }
                                 }
                               }
                             })}
@@ -953,9 +1002,10 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                           onChange={(e) => setConfig({
                             ...config,
                             schema: {
-                              ...config.schema!,
+                              ...getDefaultSchema(),
+                          ...(config.schema || {}),
                               organization: {
-                                ...config.schema?.organization!,
+                                ...(config.schema?.organization || {}),
                                 sameAs: e.target.value.split('\n').filter(Boolean)
                               }
                             }
@@ -991,11 +1041,12 @@ https://www.wikidata.org/wiki/Q12345"
                           onChange={(e) => setConfig({
                             ...config,
                             schema: {
-                              ...config.schema!,
+                              ...getDefaultSchema(),
+                          ...(config.schema || {}),
                               organization: {
-                                ...config.schema?.organization!,
+                                ...(config.schema?.organization || {}),
                                 contactPoint: {
-                                  ...config.schema?.organization?.contactPoint!,
+                                  ...(config.schema?.organization?.contactPoint || {}),
                                   contactType: e.target.value
                                 }
                               }
@@ -1021,11 +1072,12 @@ https://www.wikidata.org/wiki/Q12345"
                           onChange={(e) => setConfig({
                             ...config,
                             schema: {
-                              ...config.schema!,
+                              ...getDefaultSchema(),
+                          ...(config.schema || {}),
                               organization: {
-                                ...config.schema?.organization!,
+                                ...(config.schema?.organization || {}),
                                 contactPoint: {
-                                  ...config.schema?.organization?.contactPoint!,
+                                  ...(config.schema?.organization?.contactPoint || {}),
                                   telephone: e.target.value
                                 }
                               }
@@ -1052,13 +1104,14 @@ https://www.wikidata.org/wiki/Q12345"
                             setConfig({
                               ...config,
                               schema: {
-                                ...config.schema!,
+                                ...getDefaultSchema(),
+                          ...(config.schema || {}),
                                 organization: {
-                                  ...config.schema?.organization!,
+                                  ...(config.schema?.organization || {}),
                                   contactPoint: {
-                                    ...config.schema?.organization?.contactPoint!,
+                                    ...(config.schema?.organization?.contactPoint || {}),
                                     hoursAvailable: {
-                                      ...config.schema?.organization?.contactPoint?.hoursAvailable!,
+                                      ...(config.schema?.organization?.contactPoint?.hoursAvailable || {}),
                                       dayOfWeek
                                     }
                                   }
@@ -1082,11 +1135,12 @@ https://www.wikidata.org/wiki/Q12345"
                           onChange={(e) => setConfig({
                             ...config,
                             schema: {
-                              ...config.schema!,
+                              ...getDefaultSchema(),
+                          ...(config.schema || {}),
                               organization: {
-                                ...config.schema?.organization!,
+                                ...(config.schema?.organization || {}),
                                 contactPoint: {
-                                  ...config.schema?.organization?.contactPoint!,
+                                  ...(config.schema?.organization?.contactPoint || {}),
                                   areaServed: e.target.value
                                 }
                               }
@@ -1105,11 +1159,12 @@ https://www.wikidata.org/wiki/Q12345"
                           onChange={(e) => setConfig({
                             ...config,
                             schema: {
-                              ...config.schema!,
+                              ...getDefaultSchema(),
+                          ...(config.schema || {}),
                               organization: {
-                                ...config.schema?.organization!,
+                                ...(config.schema?.organization || {}),
                                 contactPoint: {
-                                  ...config.schema?.organization?.contactPoint!,
+                                  ...(config.schema?.organization?.contactPoint || {}),
                                   availableLanguage: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                                 }
                               }
@@ -1132,13 +1187,14 @@ https://www.wikidata.org/wiki/Q12345"
                               onChange={(e) => setConfig({
                                 ...config,
                                 schema: {
-                                  ...config.schema!,
+                                  ...getDefaultSchema(),
+                          ...(config.schema || {}),
                                   organization: {
-                                    ...config.schema?.organization!,
+                                    ...(config.schema?.organization || {}),
                                     contactPoint: {
-                                      ...config.schema?.organization?.contactPoint!,
+                                      ...(config.schema?.organization?.contactPoint || {}),
                                       hoursAvailable: {
-                                        ...config.schema?.organization?.contactPoint?.hoursAvailable!,
+                                        ...(config.schema?.organization?.contactPoint?.hoursAvailable || {}),
                                         opens: e.target.value
                                       }
                                     }
@@ -1157,13 +1213,14 @@ https://www.wikidata.org/wiki/Q12345"
                               onChange={(e) => setConfig({
                                 ...config,
                                 schema: {
-                                  ...config.schema!,
+                                  ...getDefaultSchema(),
+                          ...(config.schema || {}),
                                   organization: {
-                                    ...config.schema?.organization!,
+                                    ...(config.schema?.organization || {}),
                                     contactPoint: {
-                                      ...config.schema?.organization?.contactPoint!,
+                                      ...(config.schema?.organization?.contactPoint || {}),
                                       hoursAvailable: {
-                                        ...config.schema?.organization?.contactPoint?.hoursAvailable!,
+                                        ...(config.schema?.organization?.contactPoint?.hoursAvailable || {}),
                                         closes: e.target.value
                                       }
                                     }
@@ -1192,11 +1249,12 @@ https://www.wikidata.org/wiki/Q12345"
                           onChange={(e) => setConfig({
                             ...config,
                             schema: {
-                              ...config.schema!,
+                              ...getDefaultSchema(),
+                          ...(config.schema || {}),
                               website: {
-                                ...config.schema?.website!,
+                                ...(config.schema?.website || {}),
                                 potentialAction: {
-                                  ...config.schema?.website?.potentialAction!,
+                                  ...(config.schema?.website?.potentialAction || {}),
                                   searchUrlTemplate: e.target.value
                                 }
                               }
@@ -1216,11 +1274,12 @@ https://www.wikidata.org/wiki/Q12345"
                           onChange={(checked) => setConfig({
                             ...config,
                             schema: {
-                              ...config.schema!,
+                              ...getDefaultSchema(),
+                          ...(config.schema || {}),
                               website: {
-                                ...config.schema?.website!,
+                                ...(config.schema?.website || {}),
                                 potentialAction: {
-                                  ...config.schema?.website?.potentialAction!,
+                                  ...(config.schema?.website?.potentialAction || {}),
                                   enabled: checked
                                 }
                               }
@@ -1246,8 +1305,9 @@ https://www.wikidata.org/wiki/Q12345"
                             onChange={(e) => setConfig({
                               ...config,
                               schema: {
-                                ...config.schema!,
-                                localBusiness: { ...config.schema?.localBusiness!, type: e.target.value }
+                                ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                                localBusiness: { ...(config.schema?.localBusiness || {}), type: e.target.value }
                               }
                             })}
                             className="input-field"
@@ -1270,8 +1330,9 @@ https://www.wikidata.org/wiki/Q12345"
                             onChange={(e) => setConfig({
                               ...config,
                               schema: {
-                                ...config.schema!,
-                                localBusiness: { ...config.schema?.localBusiness!, priceRange: e.target.value }
+                                ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                                localBusiness: { ...(config.schema?.localBusiness || {}), priceRange: e.target.value }
                               }
                             })}
                             className="input-field"
@@ -1296,10 +1357,11 @@ https://www.wikidata.org/wiki/Q12345"
                               onChange={(e) => setConfig({
                                 ...config,
                                 schema: {
-                                  ...config.schema!,
+                                  ...getDefaultSchema(),
+                          ...(config.schema || {}),
                                   localBusiness: {
-                                    ...config.schema?.localBusiness!,
-                                    geo: { ...config.schema?.localBusiness?.geo!, latitude: e.target.value }
+                                    ...(config.schema?.localBusiness || {}),
+                                    geo: { ...(config.schema?.localBusiness?.geo || {}), latitude: e.target.value }
                                   }
                                 }
                               })}
@@ -1316,10 +1378,11 @@ https://www.wikidata.org/wiki/Q12345"
                               onChange={(e) => setConfig({
                                 ...config,
                                 schema: {
-                                  ...config.schema!,
+                                  ...getDefaultSchema(),
+                          ...(config.schema || {}),
                                   localBusiness: {
-                                    ...config.schema?.localBusiness!,
-                                    geo: { ...config.schema?.localBusiness?.geo!, longitude: e.target.value }
+                                    ...(config.schema?.localBusiness || {}),
+                                    geo: { ...(config.schema?.localBusiness?.geo || {}), longitude: e.target.value }
                                   }
                                 }
                               })}
@@ -1350,8 +1413,9 @@ https://www.wikidata.org/wiki/Q12345"
                             onChange={(e) => setConfig({
                               ...config,
                               schema: {
-                                ...config.schema!,
-                                person: { ...config.schema?.person!, name: e.target.value }
+                                ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                                person: { ...(config.schema?.person || {}), name: e.target.value }
                               }
                             })}
                             className="input-field"
@@ -1367,8 +1431,9 @@ https://www.wikidata.org/wiki/Q12345"
                             onChange={(e) => setConfig({
                               ...config,
                               schema: {
-                                ...config.schema!,
-                                person: { ...config.schema?.person!, jobTitle: e.target.value }
+                                ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                                person: { ...(config.schema?.person || {}), jobTitle: e.target.value }
                               }
                             })}
                             className="input-field"
@@ -1385,9 +1450,10 @@ https://www.wikidata.org/wiki/Q12345"
                           onChange={(e) => setConfig({
                             ...config,
                             schema: {
-                              ...config.schema!,
+                              ...getDefaultSchema(),
+                          ...(config.schema || {}),
                               person: {
-                                ...config.schema?.person!,
+                                ...(config.schema?.person || {}),
                                 knowsAbout: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                               }
                             }
@@ -1415,8 +1481,9 @@ https://www.wikidata.org/wiki/Q12345"
                             onChange={(e) => setConfig({
                               ...config,
                               schema: {
-                                ...config.schema!,
-                                breadcrumbs: { ...config.schema?.breadcrumbs!, homeLabel: e.target.value }
+                                ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                                breadcrumbs: { ...(config.schema?.breadcrumbs || {}), homeLabel: e.target.value }
                               }
                             })}
                             className="input-field"
@@ -1431,8 +1498,9 @@ https://www.wikidata.org/wiki/Q12345"
                             onChange={(e) => setConfig({
                               ...config,
                               schema: {
-                                ...config.schema!,
-                                breadcrumbs: { ...config.schema?.breadcrumbs!, separator: e.target.value }
+                                ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                                breadcrumbs: { ...(config.schema?.breadcrumbs || {}), separator: e.target.value }
                               }
                             })}
                             className="input-field"
@@ -1452,8 +1520,9 @@ https://www.wikidata.org/wiki/Q12345"
                           onChange={(checked) => setConfig({
                             ...config,
                             schema: {
-                              ...config.schema!,
-                              breadcrumbs: { ...config.schema?.breadcrumbs!, showCurrent: checked }
+                              ...getDefaultSchema(),
+                          ...(config.schema || {}),
+                              breadcrumbs: { ...(config.schema?.breadcrumbs || {}), showCurrent: checked }
                             }
                           })}
                         />
