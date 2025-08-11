@@ -6,12 +6,11 @@
  */
 
 export const seoConfig = {
-  siteName: 'Valiance Media',
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.valiancemedia.com',
   titleTemplate: '{pageName} | {siteName}',
   openGraph: {
     type: 'website',
     locale: 'en_US',
+    siteName: 'Valiance Media',
     defaultImage: '/images/og-default.jpg',
     imageWidth: 1200,
     imageHeight: 630
