@@ -349,17 +349,17 @@ function PagesListContent() {
                             disabled={isProduction}
                             style={{
                               padding: '6px 12px',
-                              background: isProduction ? 'var(--color-text-tertiary)' : 'var(--color-danger)',
+                              background: isProduction ? '#94A3B8' : '#DC2626',
                               color: 'white',
                               border: 'none',
-                              borderRadius: 'var(--radius-sm)',
+                              borderRadius: '4px',
                               fontSize: '14px',
                               cursor: isProduction ? 'not-allowed' : 'pointer',
                               transition: 'background 0.2s',
                               opacity: isProduction ? 0.5 : 1
                             }}
                             onMouseEnter={(e) => !isProduction && (e.currentTarget.style.background = '#B91C1C')}
-                            onMouseLeave={(e) => !isProduction && (e.currentTarget.style.background = 'var(--color-danger)')}
+                            onMouseLeave={(e) => !isProduction && (e.currentTarget.style.background = '#DC2626')}
                             title={isProduction ? 'Deletion disabled in production' : 'Delete page'}
                           >
                             Delete

@@ -197,10 +197,10 @@ export default function BlogCategoriesPage() {
                           }}
                           style={{
                             padding: '6px 12px',
-                            background: category.postCount > 0 ? '#6B7280' : 'var(--color-danger)',
+                            background: category.postCount > 0 ? '#6B7280' : '#DC2626',
                             color: 'white',
                             border: 'none',
-                            borderRadius: 'var(--radius-sm)',
+                            borderRadius: '4px',
                             fontSize: '14px',
                             cursor: category.postCount > 0 ? 'not-allowed' : 'pointer',
                             opacity: category.postCount > 0 ? 0.6 : 1,
@@ -215,7 +215,7 @@ export default function BlogCategoriesPage() {
                           }}
                           onMouseLeave={(e) => {
                             if (category.postCount === 0) {
-                              e.currentTarget.style.background = 'var(--color-danger)';
+                              e.currentTarget.style.background = '#DC2626';
                             } else {
                               e.currentTarget.style.background = '#6B7280';
                             }

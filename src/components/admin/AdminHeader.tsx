@@ -195,7 +195,7 @@ export function AdminHeader() {
                   onClick={() => setIsMenuOpen(false)}
                   className={`block px-4 py-2 rounded-lg text-md font-medium transition-colors ${
                     pathname === link.href
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-primary-light'
+                      ? 'bg-primary-50 dark:bg-primary-900/20 text-primary dark:text-primary-light'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >

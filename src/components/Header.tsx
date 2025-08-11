@@ -98,7 +98,7 @@ export function Header({
             {showCTA && (
               <Link
                 href={ctaHref}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 shadow-md"
+                className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 shadow-md"
               >
                 {ctaText}
               </Link>
@@ -156,7 +156,7 @@ export function Header({
               <Link
                 href={ctaHref}
                 onClick={handleNavClick}
-                className="block bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-full font-semibold text-center mt-8"
+                className="block bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-full font-semibold text-center mt-8"
               >
                 {ctaText}
               </Link>

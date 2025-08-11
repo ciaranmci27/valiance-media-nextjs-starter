@@ -36,7 +36,7 @@ export function BlogLayout({ post, relatedPosts = [], useFullUrl = false }: Blog
           {post.category && (
             <Link
               href={`/blog/${post.category}`}
-              className="inline-block text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 uppercase tracking-wide"
+              className="inline-block text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-4 uppercase tracking-wide"
             >
               {post.category}
             </Link>
@@ -89,11 +89,11 @@ export function BlogLayout({ post, relatedPosts = [], useFullUrl = false }: Blog
           className="prose prose-lg dark:prose-invert max-w-none mb-12 overflow-hidden
             prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
             prose-p:text-gray-700 dark:prose-p:text-gray-300
-            prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+            prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline
             prose-strong:text-gray-900 dark:prose-strong:text-white
             prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
             prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:text-gray-100 prose-pre:overflow-x-auto prose-pre:max-w-full
-            prose-blockquote:border-l-blue-600 dark:prose-blockquote:border-l-blue-400 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800/50 prose-blockquote:py-1 prose-blockquote:px-4
+            prose-blockquote:border-l-primary-600 dark:prose-blockquote:border-l-primary-400 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800/50 prose-blockquote:py-1 prose-blockquote:px-4
             prose-img:rounded-xl prose-img:shadow-lg
             [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_code]:break-words"
           dangerouslySetInnerHTML={{ __html: post.content }}
@@ -168,7 +168,7 @@ export function BlogLayout({ post, relatedPosts = [], useFullUrl = false }: Blog
                         </div>
                       )}
                       <div className="p-4">
-                        <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                        <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
                           {relatedPost.title}
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">

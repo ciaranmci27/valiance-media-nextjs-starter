@@ -562,7 +562,7 @@ export default function SettingsPage() {
                 )}
               </div>
 
-              <div className="p-4 bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg">
+              <div className="p-4 bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg">
                 <p className="text-body-sm">
                   <strong>Note:</strong> After adding environment variables, restart your development server for changes to take effect.
                 </p>
@@ -736,7 +736,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="p-4 bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg">
+              <div className="p-4 bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg">
                 <p className="text-body-sm">
                   <strong>How to get verification codes:</strong>
                 </p>
@@ -850,7 +850,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               
-              <div className="p-4 bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg">
+              <div className="p-4 bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg">
                 <p className="text-body-sm flex items-start gap-2">
                   <span>🔒</span>
                   <span>
@@ -887,7 +887,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Help Section */}
-        <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg">
+        <div className="mt-8 p-6 bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg">
           <h3 className="text-h4 mb-4" style={{ color: 'var(--color-text-primary)' }}>
             Important Notes
           </h3>

@@ -26,17 +26,17 @@
   --color-primary-dark: #1E40AF;
   --color-secondary: #60A5FA;
   
-  /* Blue palette (Valiance Media) */
-  --color-blue-50: #EFF6FF;
-  --color-blue-100: #DBEAFE;
-  --color-blue-200: #BFDBFE;
-  --color-blue-300: #93C5FD;
-  --color-blue-400: #60A5FA;
-  --color-blue-500: #3B82F6;
-  --color-blue-600: #2563EB;
-  --color-blue-700: #1D4ED8;
-  --color-blue-800: #1E40AF;
-  --color-blue-900: #1E3A8A;
+  /* Primary color palette - automatically derived from main primary color */
+  --color-primary-50: #EFF6FF;
+  --color-primary-100: #DBEAFE;
+  --color-primary-200: #BFDBFE;
+  --color-primary-300: #93C5FD;
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
+  --color-primary-700: #1D4ED8;
+  --color-primary-800: #1E40AF;
+  --color-primary-900: #1E3A8A;
   
   /* Secondary colors */
   --color-secondary-main: #60A5FA;
@@ -171,17 +171,17 @@
   --color-border-heavy: rgba(255, 255, 255, 0.3);
   --color-border-accent: #60A5FA;
   
-  /* Blue palette - Dark mode variants */
-  --color-blue-50: rgba(59, 130, 246, 0.1);
-  --color-blue-100: rgba(59, 130, 246, 0.2);
-  --color-blue-200: rgba(59, 130, 246, 0.3);
-  --color-blue-300: rgba(59, 130, 246, 0.4);
-  --color-blue-400: #60A5FA;
-  --color-blue-500: #3B82F6;
-  --color-blue-600: #2563EB;
-  --color-blue-700: #1D4ED8;
-  --color-blue-800: #1E40AF;
-  --color-blue-900: #1E3A8A;
+  /* Primary palette - Dark mode variants */
+  --color-primary-50: rgba(59, 130, 246, 0.1);
+  --color-primary-100: rgba(59, 130, 246, 0.2);
+  --color-primary-200: rgba(59, 130, 246, 0.3);
+  --color-primary-300: rgba(59, 130, 246, 0.4);
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
+  --color-primary-700: #1D4ED8;
+  --color-primary-800: #1E40AF;
+  --color-primary-900: #1E3A8A;
   
   /* Overlay colors - Dark mode */
   --color-overlay-light: rgba(255, 255, 255, 0.02);
@@ -324,7 +324,7 @@ body > * {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: var(--color-blue-50);
+  background: var(--color-primary-50);
 }
 
 [data-theme="dark"] .btn-secondary:hover:not(:disabled) {
@@ -356,7 +356,7 @@ body > * {
   outline: none;
   border-color: var(--color-border-accent);
   background: var(--color-surface);
-  box-shadow: 0 0 0 3px var(--color-blue-100);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
 }
 
 .input-field:hover:not(:focus):not(:disabled) {
@@ -502,16 +502,16 @@ select.input-field {
 /* Code */
 .code-inline {
   padding: 2px 6px;
-  background: var(--color-blue-50);
-  color: var(--color-blue-700);
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
   border-radius: var(--radius-sm);
   font-family: monospace;
   font-size: 0.875em;
 }
 
 [data-theme="dark"] .code-inline {
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--color-blue-400);
+  background: var(--color-primary-50);
+  color: var(--color-primary-400);
 }
 
 /* Badges */
@@ -561,11 +561,11 @@ select.input-field {
 }
 
 .hover-row:hover {
-  background: var(--color-blue-50);
+  background: var(--color-primary-50);
 }
 
 [data-theme="dark"] .hover-row:hover {
-  background: rgba(59, 130, 246, 0.05);
+  background: var(--color-primary-50);
 }
 
 /* Typography Classes */

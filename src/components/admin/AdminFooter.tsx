@@ -30,20 +30,20 @@ export function AdminFooter() {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.label}
                   </a>
                 ) : link.href === '#' ? (
                   <button
-                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.label}
                   </button>
                 ) : (
                   <Link
                     href={link.href}
-                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -88,20 +88,20 @@ export function AdminFooter() {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.label}
                   </a>
                 ) : link.href === '#' ? (
                   <button
-                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.label}
                   </button>
                 ) : (
                   <Link
                     href={link.href}
-                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   >
                     {link.label}
                   </Link>

@@ -278,11 +278,11 @@ export default function RedirectsManager() {
       </div>
 
       {/* Help Text */}
-      <div className="bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg p-4">
-        <h4 className="font-medium text-blue-900 dark:text-blue-400 mb-2">
+      <div className="bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg p-4">
+        <h4 className="font-medium text-primary-900 dark:text-primary-400 mb-2">
           About Redirects
         </h4>
-        <ul className="text-sm text-blue-800 dark:text-blue-400 space-y-1">
+        <ul className="text-sm text-primary-800 dark:text-primary-400 space-y-1">
           <li>• Redirects are automatically created when you change a published blog post's slug</li>
           <li>• Use permanent redirects (308) for content that has permanently moved</li>
           <li>• Use temporary redirects (307) for maintenance or temporary changes</li>

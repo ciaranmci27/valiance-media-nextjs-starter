@@ -250,7 +250,7 @@ export default function SocialMediaPreview({
       )}
 
       {/* Image Guidelines */}
-      <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-50/20 rounded-lg">
+      <div className="mt-4 p-4 bg-primary-50 dark:bg-primary-50 rounded-lg">
         <h4 className="font-medium text-sm mb-2">Image Guidelines</h4>
         <ul className="text-xs space-y-1 text-gray-600 dark:text-gray-400">
           <li>• <strong>Facebook & LinkedIn:</strong> 1200×630px (1.91:1 ratio) for best results</li>

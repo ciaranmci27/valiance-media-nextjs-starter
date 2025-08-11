@@ -648,16 +648,16 @@ function BlogListContent() {
                         onClick={() => deletePost(post.slug, post.category)}
                         style={{
                           padding: '6px 12px',
-                          background: 'var(--color-danger)',
+                          background: '#DC2626',
                           color: 'white',
                           border: 'none',
-                          borderRadius: 'var(--radius-sm)',
+                          borderRadius: '4px',
                           fontSize: '14px',
                           cursor: 'pointer',
                           transition: 'background 0.2s',
                         }}
                         onMouseEnter={(e) => e.currentTarget.style.background = '#B91C1C'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'var(--color-danger)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = '#DC2626'}
                       >
                         Delete
                       </button>

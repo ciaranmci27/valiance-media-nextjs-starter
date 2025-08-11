@@ -642,7 +642,7 @@ ${pages.map(page => `  <url>
             </div>
 
             {/* Help Info */}
-            <div className="p-4 bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg">
+            <div className="p-4 bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg">
               <p className="text-body-sm flex items-start gap-2">
                 <span>💡</span>
                 <span>
@@ -979,7 +979,7 @@ ${pages.map(page => `  <url>
               </div>
 
               {/* Schema Validation Tools */}
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg">
+              <div className="mt-6 p-4 bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg">
                 <h4 className="font-medium mb-3">🔍 Validation Tools</h4>
                 <div className="flex flex-wrap gap-3">
                   <a 

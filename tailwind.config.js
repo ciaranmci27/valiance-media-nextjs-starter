@@ -14,19 +14,17 @@ module.exports = {
           DEFAULT: 'var(--color-primary)',
           light: 'var(--color-primary-light)',
           dark: 'var(--color-primary-dark)',
-        },
-        // Map blue to primary colors for easy theming
-        blue: {
-          50: 'var(--color-blue-50)',
-          100: 'var(--color-blue-100)',
-          200: 'var(--color-blue-200)',
-          300: 'var(--color-blue-300)',
-          400: 'var(--color-blue-400)',
-          500: 'var(--color-blue-500)',
-          600: 'var(--color-blue-600)',
-          700: 'var(--color-blue-700)',
-          800: 'var(--color-blue-800)',
-          900: 'var(--color-blue-900)',
+          // Extended primary palette for all use cases
+          50: 'var(--color-primary-50)',
+          100: 'var(--color-primary-100)',
+          200: 'var(--color-primary-200)',
+          300: 'var(--color-primary-300)',
+          400: 'var(--color-primary-400)',
+          500: 'var(--color-primary-500)',
+          600: 'var(--color-primary-600)',
+          700: 'var(--color-primary-700)',
+          800: 'var(--color-primary-800)',
+          900: 'var(--color-primary-900)',
         },
         // 3-Layer Background System
         background: {
