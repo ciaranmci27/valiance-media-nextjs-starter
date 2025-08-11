@@ -79,7 +79,7 @@ export function Header({
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors font-medium"
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors font-medium text-md"
                 >
                   {link.label}
                 </a>
@@ -87,7 +87,7 @@ export function Header({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors font-medium"
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors font-medium text-md"
                 >
                   {link.label}
                 </Link>
@@ -137,7 +137,7 @@ export function Header({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleNavClick}
-                  className="block text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors font-medium text-lg"
+                  className="block text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors font-medium text-md"
                 >
                   {link.label}
                 </a>
@@ -146,7 +146,7 @@ export function Header({
                   key={link.href}
                   href={link.href}
                   onClick={handleNavClick}
-                  className="block text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors font-medium text-lg"
+                  className="block text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors font-medium text-md"
                 >
                   {link.label}
                 </Link>

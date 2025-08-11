@@ -91,7 +91,7 @@ export function AdminHeader() {
   return (
     <header 
       className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
+        isScrolled || isMenuOpen
           ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/30 dark:border-gray-700/30' 
           : 'bg-transparent border-b border-transparent'
       }`}
@@ -110,7 +110,7 @@ export function AdminHeader() {
               height={40}
               className="h-8 w-auto"
             />
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 ml-2 pl-2 border-l border-gray-300 dark:border-gray-600">
+            <span className="text-md font-medium text-gray-500 dark:text-gray-400 ml-2 pl-2 border-l border-gray-300 dark:border-gray-600">
               Admin
             </span>
           </Link>
@@ -121,7 +121,7 @@ export function AdminHeader() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-colors ${
+                className={`text-md font-medium transition-colors ${
                   pathname === link.href
                     ? 'text-primary dark:text-primary-light'
                     : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light'
@@ -138,7 +138,7 @@ export function AdminHeader() {
             <a
               href="/"
               target="_blank"
-              className="hidden sm:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
+              className="hidden sm:flex items-center gap-2 text-md text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -152,7 +152,7 @@ export function AdminHeader() {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 text-md font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -193,7 +193,7 @@ export function AdminHeader() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`block px-4 py-2 rounded-lg text-md font-medium transition-colors ${
                     pathname === link.href
                       ? 'bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-primary-light'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -207,7 +207,7 @@ export function AdminHeader() {
                 <a
                   href="/"
                   target="_blank"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -220,7 +220,7 @@ export function AdminHeader() {
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

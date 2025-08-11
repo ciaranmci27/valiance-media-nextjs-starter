@@ -109,7 +109,7 @@ export default function SlugChangeWarningModal({
           <div className={`border rounded-lg p-4 ${
             isCircularRedirect 
               ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-              : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+              : 'bg-blue-50 dark:bg-blue-50/20 border-blue-200 dark:border-gray-700'
           }`}>
             <div className="flex gap-3">
               <svg className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
@@ -133,7 +133,7 @@ export default function SlugChangeWarningModal({
                 <p className={`text-xs leading-relaxed ${
                   isCircularRedirect 
                     ? 'text-green-800 dark:text-green-200'
-                    : 'text-blue-800 dark:text-blue-200'
+                    : 'text-blue-800 dark:text-blue-100'
                 }`}>
                   {isCircularRedirect 
                     ? 'A redirect from the new URL to the old URL already exists. Removing it will restore the original URL without creating circular redirects, keeping your redirect configuration clean.'

@@ -476,11 +476,11 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
             {activeSection === 'templates' && (
               <div className="space-y-6">
                 <h3 className="text-h3 mb-4">Default SEO Templates</h3>
-                <div className="bg-blue-50 dark:bg-primary/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                <div className="bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-blue-800 dark:text-blue-400 mb-2">
                     Default SEO templates that automatically apply to new content when custom SEO is not provided.
                   </p>
-                  <p className="text-xs text-blue-700 dark:text-blue-300">
+                  <p className="text-xs text-blue-700 dark:text-blue-400">
                     <strong>Available variables:</strong> {'{pageName}'} = current page/post/category name | {'{siteName}'} = your site name | {'{siteTagline}'} = your tagline
                   </p>
                 </div>
@@ -891,8 +891,8 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                     <h4 className="text-h4 mb-4">🏢 Organization Schema</h4>
                     
                     {/* Info box about auto-population */}
-                    <div className="bg-blue-50 dark:bg-primary/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
-                      <p className="text-xs text-blue-800 dark:text-blue-200">
+                    <div className="bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg p-3 mb-4">
+                      <p className="text-xs text-blue-800 dark:text-blue-400">
                         ℹ️ Basic organization info (name, address, phone, email) is automatically pulled from the <strong>Organization</strong> tab.
                         Configure additional schema-specific settings below.
                       </p>
@@ -1464,8 +1464,8 @@ https://www.wikidata.org/wiki/Q12345"
                 )}
 
                 {/* Preview Information */}
-                <div className="p-4 bg-blue-50 dark:bg-primary/20 rounded-lg">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                <div className="p-4 bg-blue-50 dark:bg-blue-50/20 rounded-lg">
+                  <p className="text-sm text-blue-800 dark:text-blue-400">
                     💡 <strong>Tip:</strong> After configuring schema, validate your structured data using Google's{' '}
                     <a 
                       href="https://search.google.com/test/rich-results" 

@@ -604,7 +604,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
           {/* Save Status */}
           {saveStatus !== 'idle' && (
             <div className={`p-3 rounded-lg mb-4 ${
-              saveStatus === 'saving' ? 'bg-blue-50 dark:bg-primary/20 text-blue-700 dark:text-blue-300' :
+              saveStatus === 'saving' ? 'bg-blue-50 dark:bg-gray-800/60 text-blue-700 dark:text-blue-200' :
               saveStatus === 'saved' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' :
               'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
             }`}>
@@ -624,7 +624,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 min-w-[150px] px-6 py-4 border-b-2 transition-all ${
                   activeTab === tab.id
-                    ? 'border-primary bg-blue-50 dark:bg-primary/20'
+                    ? 'border-primary bg-blue-50 dark:bg-gray-800/60'
                     : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
@@ -850,7 +850,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                   )}
                 </div>
 
-                <div className="p-4 bg-blue-50 dark:bg-primary/20 rounded-lg">
+                <div className="p-4 bg-blue-50 dark:bg-gray-800/60 rounded-lg">
                   <p className="text-sm">
                     <strong>💡 Tip:</strong> Use high-quality images that relate to your content. 
                     The featured image appears in blog listings and social media shares.
@@ -1154,7 +1154,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
         </div>
 
         {/* Help Sidebar */}
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-primary/20 rounded-lg">
+        <div className="mt-6 p-4 bg-blue-50 dark:bg-gray-800/60 rounded-lg">
           <h3 className="font-medium mb-2">Quick Tips</h3>
           <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
             <li>• Required fields are marked with an asterisk (*)</li>

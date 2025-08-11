@@ -715,7 +715,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         {activeTab === 'opengraph' && (
           <div className="card p-6">
             <div className="space-y-6">
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-6">
+              <div className="p-4 bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg mb-6">
                 <p className="text-sm text-gray-700 dark:text-gray-300">
                   Open Graph tags control how your page appears when shared on social media platforms.
                 </p>
@@ -876,7 +876,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         {activeTab === 'schema' && (
           <div className="card p-6">
             <div className="space-y-6">
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-6">
+              <div className="p-4 bg-blue-50 dark:bg-blue-50/20 border border-blue-200 dark:border-gray-700 rounded-lg mb-6">
                 <h3 className="text-lg font-medium mb-2 text-gray-900 dark:text-gray-100">Structured Data Schema</h3>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
                   Configure structured data schemas for this page. These schemas help search engines understand 
