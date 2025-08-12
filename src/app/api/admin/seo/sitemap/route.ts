@@ -4,6 +4,8 @@ import { sitemapBlogPosts } from '@/seo/sitemap-blog-posts';
 import { sitemapCategories } from '@/seo/sitemap-blog-categories';
 import { seoConfig } from '@/seo/seo.config';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
