@@ -53,6 +53,26 @@ function PagesListContent() {
     }
   };
   
+  const rescanPages = async () => {
+    setIsRefreshing(true);
+    try {
+      // First regenerate the pages config file
+      const rescanResponse = await fetch('/api/admin/rescan-pages', {
+        method: 'POST'
+      });
+      
+      if (!rescanResponse.ok) {
+        throw new Error('Failed to rescan pages');
+      }
+      
+      // Then fetch the updated pages list
+      await fetchPages();
+    } catch (error) {
+      console.error('Error rescanning pages:', error);
+      setIsRefreshing(false);
+    }
+  };
+  
   const getFilteredCount = (filterType: string) => {
     switch (filterType) {
       case 'all':
@@ -203,10 +223,7 @@ function PagesListContent() {
             </button>
             
             <button
-              onClick={() => {
-                setIsRefreshing(true);
-                fetchPages();
-              }}
+              onClick={rescanPages}
               disabled={isRefreshing}
               style={{
                 padding: '12px 24px',

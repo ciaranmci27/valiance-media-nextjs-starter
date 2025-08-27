@@ -12,16 +12,6 @@
       "isClientComponent": false
     },
     {
-      "slug": "auth/confirm-email",
-      "title": "Confirm Email",
-      "path": "/auth/confirm-email",
-      "category": "general",
-      "featured": false,
-      "draft": false,
-      "isHomePage": false,
-      "isClientComponent": false
-    },
-    {
       "slug": "privacy",
       "title": "Privacy Policy - Valiance Media",
       "path": "/privacy",
@@ -29,16 +19,6 @@
       "featured": false,
       "draft": false,
       "lastModified": "2025-08-08",
-      "isHomePage": false,
-      "isClientComponent": false
-    },
-    {
-      "slug": "auth/reset-password",
-      "title": "Reset Password",
-      "path": "/auth/reset-password",
-      "category": "general",
-      "featured": false,
-      "draft": false,
       "isHomePage": false,
       "isClientComponent": false
     },

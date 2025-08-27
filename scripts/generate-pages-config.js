@@ -38,10 +38,20 @@ function isClientComponent(pagePath) {
       return false;
     }
     
-    // Check for explicit 'use client' directive
-    if (content.trimStart().startsWith("'use client'") || 
-        content.trimStart().startsWith('"use client"')) {
-      return true;
+    // Check for explicit 'use client' directive (handling comments)
+    // Remove single-line comments and check first non-comment line
+    const lines = content.split('\n');
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      // Skip empty lines and comments
+      if (!trimmedLine || trimmedLine.startsWith('//')) continue;
+      // Check if this line has 'use client'
+      if (trimmedLine === "'use client'" || trimmedLine === '"use client"' ||
+          trimmedLine.startsWith("'use client';") || trimmedLine.startsWith('"use client";')) {
+        return true;
+      }
+      // If we hit a non-comment, non-use-client line, stop checking
+      break;
     }
     
     // Check for React hooks
