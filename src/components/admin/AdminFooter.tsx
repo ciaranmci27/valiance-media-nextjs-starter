@@ -68,7 +68,7 @@ export function AdminFooter() {
           {/* Copyright */}
           <div className="text-center sm:text-left">
             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
-              © {currentYear} {seoConfig.siteName || 'Valiance Media'} LLC. All rights reserved.
+              © {currentYear} {seoConfig.siteName || 'Valiance Media'}. All rights reserved.
             </p>
           </div>
         </div>
@@ -77,7 +77,7 @@ export function AdminFooter() {
         <div className="hidden lg:flex lg:justify-between lg:items-center">
           {/* Copyright - Left Side */}
           <p className="text-gray-600 dark:text-gray-400 text-sm">
-            © {currentYear} {seoConfig.siteName || 'Valiance Media'} LLC. All rights reserved.
+            © {currentYear} {seoConfig.siteName || 'Valiance Media'}. All rights reserved.
           </p>
           
           {/* Links & Theme Toggle - Right Side */}

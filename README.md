@@ -48,7 +48,13 @@ A production-ready Next.js boilerplate with built-in SEO optimization, content m
 - **Comprehensive Admin Dashboard**: Multi-tab interface with Overview, Content, and System management
 - **Visual Blog Editor**: Rich text editor with formatting tools, image management, and SEO fields
 - **GitHub CMS Integration**: Production-ready GitHub API for serverless deployments
-- **Page Management System**: CRUD operations for static pages with individual SEO settings
+- **Advanced Page Management**: 
+  - CRUD operations for static pages with individual SEO settings
+  - Automatic detection of static vs dynamic (client) components
+  - Support for nested page structures (e.g., `/auth/login`, `/docs/api/reference`)
+  - Visual indicators for page types in admin panel
+  - Read-only SEO fields for client components
+  - "Rescan Pages" feature to discover newly added pages
 - **Category Management**: Full category system with descriptions, slugs, and post counting
 - **Draft/Published Workflow**: Complete content workflow with featured content highlighting
 - **Content Organization**: Tags, categories, reading time, and author management
@@ -71,6 +77,8 @@ A production-ready Next.js boilerplate with built-in SEO optimization, content m
 - **Design System**: Comprehensive typography and spacing system
 - **Edge-Compatible Auth**: Authentication system optimized for edge runtime with security features
 - **API Documentation**: Well-structured RESTful endpoints
+- **Dynamic Configuration**: All branding dynamically pulls from central SEO config
+- **Production Build Tools**: Automatic page configuration generation for deployment
 
 ### Production Ready
 - **Performance Optimized**: 95+ Lighthouse scores, optimized for Core Web Vitals
@@ -126,6 +134,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 5. **Update the SEO configuration:**
 - Edit `src/seo/seo.config.ts` with your company information
 - Update site URL, social media links, and verification codes
+- All branding throughout the app automatically uses this configuration
 
 6. **Generate favicon assets:**
 - Go to [favicon.io/favicon-converter/](https://favicon.io/favicon-converter/)
@@ -351,6 +360,9 @@ export const seoConfig = {
 │   │   ├── github-cms.ts # GitHub integration
 │   │   └── redirects.ts  # Redirect management
 │   └── middleware.ts     # Auth middleware
+├── scripts/
+│   ├── generate-routes.js    # Generates routes for middleware
+│   └── generate-pages-config.js # Scans and catalogs all pages
 ```
 
 ## 🚢 Deployment
@@ -359,7 +371,7 @@ export const seoConfig = {
 1. Push your code to GitHub
 2. Import your repository on [Vercel](https://vercel.com)
 3. Add all environment variables in Vercel dashboard
-4. Deploy
+4. Deploy (build scripts automatically run to catalog pages)
 
 ### Production Content Management
 
