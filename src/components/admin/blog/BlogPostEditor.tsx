@@ -840,7 +840,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                       <div className="max-w-2xl mx-auto">
                         <img 
                           src={formData.image} 
-                          alt={formData.imageAlt || 'Featured image preview'}
+                          alt={formData.imageAlt || `${seoConfig.siteName} blog featured image`}
                           className="w-full rounded-lg shadow-lg"
                           onError={(e) => {
                             e.currentTarget.src = '/logos/horizontal-logo.png';

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from '@/styles/ThemeProvider';
 import { useRouter, usePathname } from 'next/navigation';
+import { seoConfig } from '@/seo/seo.config';
 
 export function AdminHeader() {
   const { mode } = useTheme();
@@ -105,7 +106,7 @@ export function AdminHeader() {
           <Link href="/admin" className="flex items-center space-x-2">
             <Image
               src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-              alt="Valiance Media"
+              alt={`${seoConfig.siteName} Admin Logo`}
               width={150}
               height={40}
               className="h-8 w-auto"

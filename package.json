@@ -12,7 +12,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/generate-routes.js && next build",
+    "build": "node scripts/generate-routes.js && node scripts/generate-pages-config.js && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -20,6 +20,7 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
     "generate-routes": "node scripts/generate-routes.js",
+    "generate-pages": "node scripts/generate-pages-config.js",
     "setup-auth": "npx tsx scripts/setup-auth.ts"
   },
   "dependencies": {

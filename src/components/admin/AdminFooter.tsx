@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from '@/styles/ThemeProvider';
+import { seoConfig } from '@/seo/seo.config';
 
 export function AdminFooter() {
   const { mode, toggleTheme } = useTheme();
@@ -67,7 +68,7 @@ export function AdminFooter() {
           {/* Copyright */}
           <div className="text-center sm:text-left">
             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
-              © {currentYear} Valiance Media LLC. All rights reserved.
+              © {currentYear} {seoConfig.siteName || 'Valiance Media'} LLC. All rights reserved.
             </p>
           </div>
         </div>
@@ -76,7 +77,7 @@ export function AdminFooter() {
         <div className="hidden lg:flex lg:justify-between lg:items-center">
           {/* Copyright - Left Side */}
           <p className="text-gray-600 dark:text-gray-400 text-sm">
-            © {currentYear} Valiance Media LLC. All rights reserved.
+            © {currentYear} {seoConfig.siteName || 'Valiance Media'} LLC. All rights reserved.
           </p>
           
           {/* Links & Theme Toggle - Right Side */}

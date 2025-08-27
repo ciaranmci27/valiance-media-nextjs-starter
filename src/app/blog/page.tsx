@@ -4,10 +4,11 @@ import { PageWrapper } from '@/components/admin/PageWrapper';
 import { BlogCard } from '@/components/admin/BlogCard';
 import { loadBlogPosts, loadCategories } from '@/lib/blog-utils';
 import Link from 'next/link';
+import { seoConfig } from '@/seo/seo.config';
 
 export const metadata: Metadata = {
-  title: 'Blog - Valiance Media',
-  description: 'Insights, tutorials, and updates from the Valiance Media team.',
+  title: `Blog - ${seoConfig.siteName || 'Valiance Media'}`,
+  description: `Insights, tutorials, and updates from the ${seoConfig.siteName || 'Valiance Media'} team.`,
 };
 
 export default async function BlogPage() {
@@ -27,7 +28,7 @@ export default async function BlogPage() {
           Our Blog
         </h1>
         <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-          Insights, tutorials, and updates from the Valiance Media team
+          Insights, tutorials, and updates from the {seoConfig.siteName || 'Valiance Media'} team
         </p>
       </div>
 

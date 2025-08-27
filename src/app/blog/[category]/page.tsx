@@ -5,6 +5,7 @@ import { PageWrapper } from '@/components/admin/PageWrapper';
 import { BlogCard } from '@/components/admin/BlogCard';
 import { loadPostsByCategory, loadCategories, loadPost, loadBlogPosts } from '@/lib/blog-utils';
 import Link from 'next/link';
+import { seoConfig } from '@/seo/seo.config';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -39,8 +40,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const category = categories.find(cat => cat.slug === resolvedParams.category);
   if (category) {
     return {
-      title: `${category.name} - Valiance Media Blog`,
-      description: category.description || `Browse all ${category.name} articles from the Valiance Media blog.`,
+      title: `${category.name} - ${seoConfig.siteName || 'Valiance Media'} Blog`,
+      description: category.description || `Browse all ${category.name} articles from the ${seoConfig.siteName || 'Valiance Media'} blog.`,
     };
   }
   
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const post = await loadPost(resolvedParams.category);
   if (post) {
     return {
-      title: post.seo?.title || `${post.title} - Valiance Media Blog`,
+      title: post.seo?.title || `${post.title} - ${seoConfig.siteName || 'Valiance Media'} Blog`,
       description: post.seo?.description || post.excerpt,
       keywords: post.seo?.keywords?.join(', ') || post.tags?.join(', '),
       robots: post.excludeFromSearch || post.draft ? 'noindex, nofollow' : 'index, follow',

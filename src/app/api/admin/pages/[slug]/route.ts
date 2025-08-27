@@ -7,7 +7,8 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const { slug: encodedSlug } = await params;
+    const slug = decodeURIComponent(encodedSlug);
     const page = await getPageBySlug(slug);
     
     if (!page) {
@@ -33,7 +34,8 @@ export async function PUT(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const { slug: encodedSlug } = await params;
+    const slug = decodeURIComponent(encodedSlug);
     const body = await request.json();
     
     // If slug is changing and it's not the home page, handle the rename
@@ -63,7 +65,8 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const { slug: encodedSlug } = await params;
+    const slug = decodeURIComponent(encodedSlug);
     if (slug === 'home') {
       return NextResponse.json(
         { error: 'Cannot delete the home page' },

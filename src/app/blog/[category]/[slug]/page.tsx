@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { BlogLayout } from '@/components/admin/BlogLayout';
 import { loadPost, loadBlogPosts, getRelatedPosts, loadCategories } from '@/lib/blog-utils';
+import { seoConfig } from '@/seo/seo.config';
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   }
   
   return {
-    title: post.seo?.title || `${post.title} - Valiance Media Blog`,
+    title: post.seo?.title || `${post.title} - ${seoConfig.siteName || 'Valiance Media'} Blog`,
     description: post.seo?.description || post.excerpt,
     keywords: post.seo?.keywords?.join(', ') || post.tags?.join(', '),
     robots: post.excludeFromSearch || post.draft ? 'noindex, nofollow' : 'index, follow',

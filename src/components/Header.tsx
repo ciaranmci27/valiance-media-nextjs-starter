@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from '@/styles/ThemeProvider';
+import { seoConfig } from '@/seo/seo.config';
 
 interface NavLink {
   href: string;
@@ -62,7 +63,7 @@ export function Header({
           <Link href="/" className="flex items-center">
             <Image
               src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-              alt="Valiance Media"
+              alt={`${seoConfig.siteName} Logo`}
               width={200}
               height={40}
               className="h-10 w-auto"

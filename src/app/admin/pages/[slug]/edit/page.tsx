@@ -7,7 +7,8 @@ import { Page } from '@/lib/page-types';
 
 export default function EditPagePage() {
   const params = useParams();
-  const slug = params.slug as string;
+  const encodedSlug = params.slug as string;
+  const slug = decodeURIComponent(encodedSlug);
   const [page, setPage] = useState<Page | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +19,7 @@ export default function EditPagePage() {
 
   const fetchPage = async () => {
     try {
-      const response = await fetch(`/api/admin/pages/${slug}`);
+      const response = await fetch(`/api/admin/pages/${encodeURIComponent(slug)}`);
       if (response.ok) {
         const data = await response.json();
         setPage(data.page);

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from '@/styles/ThemeProvider';
+import { seoConfig } from '@/seo/seo.config';
 
 interface FooterLink {
   label: string;
@@ -125,7 +126,7 @@ export function Footer({
             <Link href="/" className="inline-block mt-8 mb-4">
               <Image
                 src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-                alt="Company Logo"
+                alt={`${seoConfig.siteName} Logo`}
                 width={180}
                 height={36}
                 className="h-9 w-auto"
@@ -195,7 +196,7 @@ export function Footer({
             <Link href="/" className="inline-block mb-4">
               <Image
                 src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-                alt="Company Logo"
+                alt={`${seoConfig.siteName} Logo`}
                 width={180}
                 height={36}
                 className="h-9 w-auto"

@@ -7,25 +7,51 @@
       "category": "homepage",
       "featured": true,
       "draft": false,
-      "isHomePage": true
+      "lastModified": "2024-01-01",
+      "isHomePage": true,
+      "isClientComponent": false
+    },
+    {
+      "slug": "auth/confirm-email",
+      "title": "Confirm Email",
+      "path": "/auth/confirm-email",
+      "category": "general",
+      "featured": false,
+      "draft": false,
+      "isHomePage": false,
+      "isClientComponent": false
     },
     {
       "slug": "privacy",
-      "title": "Privacy Policy",
+      "title": "Privacy Policy - Valiance Media",
       "path": "/privacy",
       "category": "legal",
       "featured": false,
       "draft": false,
-      "isHomePage": false
+      "lastModified": "2025-08-08",
+      "isHomePage": false,
+      "isClientComponent": false
+    },
+    {
+      "slug": "auth/reset-password",
+      "title": "Reset Password",
+      "path": "/auth/reset-password",
+      "category": "general",
+      "featured": false,
+      "draft": false,
+      "isHomePage": false,
+      "isClientComponent": false
     },
     {
       "slug": "terms-of-service",
-      "title": "Terms of Service",
+      "title": "Terms of Service - Valiance Media",
       "path": "/terms-of-service",
       "category": "legal",
       "featured": false,
       "draft": false,
-      "isHomePage": false
+      "lastModified": "2024-01-01",
+      "isHomePage": false,
+      "isClientComponent": false
     }
   ]
 }

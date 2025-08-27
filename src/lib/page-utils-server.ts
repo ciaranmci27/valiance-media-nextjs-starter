@@ -4,12 +4,119 @@ import { Page, PageSEOConfig, PageListItem } from './page-types';
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
+import { seoConfig as globalSeoConfig } from '@/seo/seo.config';
 
 const APP_DIR = path.join(process.cwd(), 'src', 'app');
 const PAGES_CONFIG_PATH = path.join(process.cwd(), 'public', 'pages-config.json');
 
 // Directories to exclude from page scanning
 const EXCLUDED_DIRS = ['admin', 'api', 'blog', '_components', '_utils'];
+
+// Helper function to check if a page is a client component
+async function isClientComponent(pagePath: string): Promise<boolean> {
+  try {
+    const content = await fs.readFile(pagePath, 'utf-8');
+    
+    // Check for explicit 'use client' directive
+    if (content.trimStart().startsWith("'use client'") || 
+        content.trimStart().startsWith('"use client"')) {
+      return true;
+    }
+    
+    // Check for React hooks (useState, useEffect, useCallback, useMemo, etc.)
+    const hasHooks = /\b(useState|useEffect|useCallback|useMemo|useReducer|useContext|useRef|useLayoutEffect|useImperativeHandle|useDebugValue|useDeferredValue|useTransition|useId|useSearchParams|useRouter|usePathname|useParams)\s*\(/g.test(content);
+    if (hasHooks) {
+      return true;
+    }
+    
+    // Check for event handlers (onClick, onChange, onSubmit, etc.)
+    const hasEventHandlers = /\bon[A-Z]\w*\s*=\s*[\{\(]/g.test(content);
+    if (hasEventHandlers) {
+      return true;
+    }
+    
+    // Check for browser-only APIs
+    const hasBrowserAPIs = /\b(window\.|document\.|localStorage\.|sessionStorage\.|navigator\.|location\.|history\.)/g.test(content);
+    if (hasBrowserAPIs) {
+      return true;
+    }
+    
+    // Check for form handling and interactivity keywords
+    const hasInteractivity = /\b(handleSubmit|handleClick|handleChange|setLoading|setError|setData|setValue)\s*[\(\=]/g.test(content);
+    if (hasInteractivity) {
+      return true;
+    }
+    
+    // Check for common client-side libraries
+    const hasClientLibraries = /from\s+['"](@supabase\/supabase-js|firebase|axios|react-hook-form|framer-motion|react-query|swr|react-spring)/g.test(content);
+    if (hasClientLibraries) {
+      return true;
+    }
+    
+    // Check for Next.js client-side imports
+    const hasClientImports = /from\s+['"]next\/(router|navigation)['"]/.test(content);
+    if (hasClientImports) {
+      return true;
+    }
+    
+    // If none of the above, it's likely a static component
+    return false;
+  } catch (error) {
+    return false;
+  }
+}
+
+// Helper function to recursively scan directories for pages
+async function scanDirectoryForPages(dir: string, basePath: string = ''): Promise<PageListItem[]> {
+  const pages: PageListItem[] = [];
+  
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      // Skip excluded directories and special directories (_, [, ()
+      if (entry.isDirectory() && 
+          !EXCLUDED_DIRS.includes(entry.name) && 
+          !entry.name.startsWith('_') && 
+          !entry.name.startsWith('[') && 
+          !entry.name.startsWith('(')) {
+        
+        const entryPath = path.join(dir, entry.name);
+        const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
+        const pagePath = path.join(entryPath, 'page.tsx');
+        
+        try {
+          // Check if this directory has a page.tsx
+          await fs.access(pagePath);
+          const seoConfig = await getPageSEOConfig(relativePath);
+          const isClient = await isClientComponent(pagePath);
+          
+          pages.push({
+            slug: relativePath,
+            title: seoConfig?.seo?.title?.replace(` - ${globalSeoConfig.siteName}`, '') || formatTitle(entry.name),
+            path: `/${relativePath}`,
+            lastModified: seoConfig?.metadata?.lastModified,
+            category: seoConfig?.metadata?.category || 'general',
+            featured: seoConfig?.metadata?.featured ?? false,
+            draft: seoConfig?.metadata?.draft ?? false,
+            isHomePage: false,
+            isClientComponent: isClient
+          });
+        } catch {
+          // No page.tsx in this directory, continue scanning
+        }
+        
+        // Recursively scan subdirectories
+        const subPages = await scanDirectoryForPages(entryPath, relativePath);
+        pages.push(...subPages);
+      }
+    }
+  } catch (error) {
+    // Directory doesn't exist or can't be read
+  }
+  
+  return pages;
+}
 
 // Get all pages from configuration file
 export async function getAllPages(): Promise<PageListItem[]> {
@@ -49,12 +156,16 @@ export async function getAllPages(): Promise<PageListItem[]> {
     const rootHomePath = path.join(APP_DIR, 'page.tsx');
     try {
       // Prefer route-group home if present, otherwise fallback to root
+      let homePagePath = groupedHomePath;
       try {
         await fs.access(groupedHomePath);
       } catch {
         await fs.access(rootHomePath);
+        homePagePath = rootHomePath;
       }
       const homeSeoConfig = await getPageSEOConfig('');
+      const isHomeClient = await isClientComponent(homePagePath);
+      
       pages.push({
         slug: 'home',
         title: 'Home', // Always show "Home" for the homepage
@@ -63,70 +174,30 @@ export async function getAllPages(): Promise<PageListItem[]> {
         category: homeSeoConfig?.metadata?.category,
         featured: homeSeoConfig?.metadata?.featured,
         draft: homeSeoConfig?.metadata?.draft,
-        isHomePage: true
+        isHomePage: true,
+        isClientComponent: isHomeClient
       });
     } catch (error) {
       console.log('Home page not found');
     }
     
-    // Scan for other pages in (pages) directory
-    const pagesDir = path.join(APP_DIR, '(pages)');
-    try {
-      const entries = await fs.readdir(pagesDir, { withFileTypes: true });
+    // Use recursive scanning for development
+    if (process.env.NODE_ENV === 'development') {
+      // Scan (pages) directory recursively
+      const pagesDir = path.join(APP_DIR, '(pages)');
+      const scannedPages = await scanDirectoryForPages(pagesDir);
+      pages.push(...scannedPages);
       
-      for (const entry of entries) {
-        if (entry.isDirectory() && !EXCLUDED_DIRS.includes(entry.name) && !entry.name.startsWith('_') && !entry.name.startsWith('[') && !entry.name.startsWith('(')) {
-          const pagePath = path.join(pagesDir, entry.name, 'page.tsx');
-          
-          try {
-            await fs.access(pagePath);
-            const seoConfig = await getPageSEOConfig(entry.name);
-            
-            pages.push({
-              slug: entry.name,
-              title: seoConfig?.seo?.title?.replace(' - Valiance Media', '') || formatTitle(entry.name),
-              path: `/${entry.name}`,
-              lastModified: seoConfig?.metadata?.lastModified,
-              category: seoConfig?.metadata?.category,
-              featured: seoConfig?.metadata?.featured,
-              draft: seoConfig?.metadata?.draft,
-              isHomePage: false
-            });
-          } catch (error) {
-            // Page.tsx doesn't exist in this directory
-          }
-        }
-      }
-    } catch (error) {
-      // (pages) directory might not exist yet
-      console.log('(pages) directory not found, scanning root app directory');
-    }
-    
-    // Also scan root app directory for backwards compatibility
-    const rootEntries = await fs.readdir(APP_DIR, { withFileTypes: true });
-    
-    for (const entry of rootEntries) {
-      if (entry.isDirectory() && !EXCLUDED_DIRS.includes(entry.name) && !entry.name.startsWith('_') && !entry.name.startsWith('[') && !entry.name.startsWith('(')) {
-        const pagePath = path.join(APP_DIR, entry.name, 'page.tsx');
-        
-        try {
-          await fs.access(pagePath);
-          const seoConfig = await getPageSEOConfig(entry.name);
-          
-          pages.push({
-            slug: entry.name,
-            title: seoConfig?.seo?.title?.replace(' - Valiance Media', '') || formatTitle(entry.name),
-            path: `/${entry.name}`,
-            lastModified: seoConfig?.metadata?.lastModified,
-            category: seoConfig?.metadata?.category,
-            featured: seoConfig?.metadata?.featured,
-            draft: seoConfig?.metadata?.draft,
-            isHomePage: false
-          });
-        } catch (error) {
-          // Page.tsx doesn't exist in this directory
-        }
-      }
+      // Also scan root app directory for backwards compatibility
+      const rootPages = await scanDirectoryForPages(APP_DIR);
+      // Filter out duplicates and pages already in (pages)
+      const uniqueRootPages = rootPages.filter(rootPage => 
+        !pages.some(page => page.slug === rootPage.slug)
+      );
+      pages.push(...uniqueRootPages);
+    } else {
+      // Use static pages-config.json in production
+      // This part is already handled above with PAGES_CONFIG_PATH
     }
     
     // Sort by title
@@ -173,13 +244,37 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
     // Get SEO config
     const seoConfig = await getPageSEOConfig(isHomePage ? '' : slug);
     
+    // Check if it's a client component
+    const isClient = await isClientComponent(pagePath);
+    
+    // Determine the title based on whether it's a dynamic page without SEO config
+    let pageTitle = 'Home';
+    if (!isHomePage) {
+      if (seoConfig?.seo?.title) {
+        pageTitle = seoConfig.seo.title.replace(` - ${globalSeoConfig.siteName}`, '');
+      } else if (isClient) {
+        // For dynamic pages without SEO config, format slug nicely
+        pageTitle = slug
+          .split('/')
+          .map(part => part
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+          )
+          .join(' / ');
+      } else {
+        pageTitle = formatTitle(slug);
+      }
+    }
+    
     const page: Page = {
       slug: isHomePage ? 'home' : slug,
       path: isHomePage ? '/' : `/${slug}`,
-      title: isHomePage ? 'Home' : (seoConfig?.seo?.title?.replace(' - Valiance Media', '') || formatTitle(slug)),
+      title: pageTitle,
       content,
       ...(seoConfig ? { seoConfig } : {}),
       isHomePage,
+      isClientComponent: isClient,
       exists: true
     };
     return page;
@@ -221,6 +316,57 @@ export async function getPageSEOConfig(slug: string): Promise<PageSEOConfig | nu
   }
 }
 
+// Helper function to recursively scan directories for pages config
+async function scanDirectoryForPagesConfig(dir: string, basePath: string = ''): Promise<PageListItem[]> {
+  const pages: PageListItem[] = [];
+  
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      // Skip excluded directories and special directories (_, [, ()
+      if (entry.isDirectory() && 
+          !EXCLUDED_DIRS.includes(entry.name) && 
+          !entry.name.startsWith('_') && 
+          !entry.name.startsWith('[') && 
+          !entry.name.startsWith('(')) {
+        
+        const entryPath = path.join(dir, entry.name);
+        const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
+        const pagePath = path.join(entryPath, 'page.tsx');
+        
+        try {
+          // Check if this directory has a page.tsx
+          await fs.access(pagePath);
+          const seoConfig = await getPageSEOConfig(relativePath);
+          const isClient = await isClientComponent(pagePath);
+          
+          pages.push({
+            slug: relativePath,
+            title: seoConfig?.seo?.title?.replace(` - ${globalSeoConfig.siteName}`, '') || formatTitle(entry.name),
+            path: `/${relativePath}`,
+            category: seoConfig?.metadata?.category || 'general',
+            featured: seoConfig?.metadata?.featured ?? false,
+            draft: seoConfig?.metadata?.draft ?? false,
+            isHomePage: false,
+            isClientComponent: isClient
+          });
+        } catch {
+          // No page.tsx in this directory, continue scanning
+        }
+        
+        // Recursively scan subdirectories
+        const subPages = await scanDirectoryForPagesConfig(entryPath, relativePath);
+        pages.push(...subPages);
+      }
+    }
+  } catch (error) {
+    // Directory doesn't exist or can't be read
+  }
+  
+  return pages;
+}
+
 // Update pages configuration file
 async function updatePagesConfig(): Promise<void> {
   try {
@@ -231,12 +377,16 @@ async function updatePagesConfig(): Promise<void> {
     const rootHomePath = path.join(APP_DIR, 'page.tsx');
     try {
       // Prefer route-group home if present, otherwise fallback to root
+      let homePagePath = groupedHomePath;
       try {
         await fs.access(groupedHomePath);
       } catch {
         await fs.access(rootHomePath);
+        homePagePath = rootHomePath;
       }
       const homeSeoConfig = await getPageSEOConfig('');
+      const isHomeClient = await isClientComponent(homePagePath);
+      
       pages.push({
         slug: 'home',
         title: 'Home',
@@ -244,42 +394,17 @@ async function updatePagesConfig(): Promise<void> {
         category: homeSeoConfig?.metadata?.category || 'general',
         featured: homeSeoConfig?.metadata?.featured ?? true,
         draft: homeSeoConfig?.metadata?.draft ?? false,
-        isHomePage: true
+        isHomePage: true,
+        isClientComponent: isHomeClient
       });
     } catch (error) {
       // Home page not found
     }
     
-    // Scan (pages) directory
+    // Scan (pages) directory recursively
     const pagesDir = path.join(APP_DIR, '(pages)');
-    try {
-      const entries = await fs.readdir(pagesDir, { withFileTypes: true });
-      
-      for (const entry of entries) {
-        if (entry.isDirectory() && !EXCLUDED_DIRS.includes(entry.name) && !entry.name.startsWith('_') && !entry.name.startsWith('[') && !entry.name.startsWith('(')) {
-          const pagePath = path.join(pagesDir, entry.name, 'page.tsx');
-          
-          try {
-            await fs.access(pagePath);
-            const seoConfig = await getPageSEOConfig(entry.name);
-            
-            pages.push({
-              slug: entry.name,
-              title: seoConfig?.seo?.title?.replace(' - Valiance Media', '') || formatTitle(entry.name),
-              path: `/${entry.name}`,
-              category: seoConfig?.metadata?.category || 'general',
-              featured: seoConfig?.metadata?.featured ?? false,
-              draft: seoConfig?.metadata?.draft ?? false,
-              isHomePage: false
-            });
-          } catch (error) {
-            // Page.tsx doesn't exist in this directory
-          }
-        }
-      }
-    } catch (error) {
-      // (pages) directory might not exist yet
-    }
+    const scannedPages = await scanDirectoryForPagesConfig(pagesDir);
+    pages.push(...scannedPages)
     
     // Write to config file
     const config = { pages };
@@ -306,9 +431,8 @@ export async function savePage(slug: string, content: string, seoConfig: PageSEO
     
     await fs.mkdir(homeDir, { recursive: true });
     await fs.writeFile(pagePath, content, 'utf-8');
-    if (seoConfig) {
-      await fs.writeFile(seoPath, JSON.stringify(seoConfig, null, 2), 'utf-8');
-    }
+    // Always write seo-config.json, even for dynamic pages (they need it for title in admin)
+    await fs.writeFile(seoPath, JSON.stringify(seoConfig, null, 2), 'utf-8');
   } else {
     // For other pages, create directory in (pages) if needed
     const pageDir = path.join(APP_DIR, '(pages)', slug);
@@ -320,11 +444,35 @@ export async function savePage(slug: string, content: string, seoConfig: PageSEO
     
     // Write files
     await fs.writeFile(pagePath, content, 'utf-8');
+    // Always write seo-config.json, even for dynamic pages (they need it for title in admin)
     await fs.writeFile(seoPath, JSON.stringify(seoConfig, null, 2), 'utf-8');
   }
   
   // Update pages configuration file
   await updatePagesConfig();
+}
+
+// Helper function to check if a directory has any subdirectories with page.tsx files
+async function hasOtherPagesInParentDir(parentDir: string): Promise<boolean> {
+  try {
+    const entries = await fs.readdir(parentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        const pagePath = path.join(parentDir, entry.name, 'page.tsx');
+        try {
+          await fs.access(pagePath);
+          return true; // Found another page in this directory
+        } catch {
+          // Check subdirectories recursively
+          const hasPages = await hasOtherPagesInParentDir(path.join(parentDir, entry.name));
+          if (hasPages) return true;
+        }
+      }
+    }
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 // Delete page
@@ -342,25 +490,55 @@ export async function deletePage(slug: string): Promise<void> {
   const pagesDir = path.join(APP_DIR, '(pages)', slug);
   const rootDir = path.join(APP_DIR, slug);
   
+  let deletedFromPages = false;
+  
   // Try to delete from (pages) first
   try {
     await fs.rm(pagesDir, { recursive: true, force: true });
-    // Update pages configuration file after successful deletion
-    await updatePagesConfig();
-    return;
+    deletedFromPages = true;
   } catch (error) {
     // Try root directory
+    try {
+      await fs.rm(rootDir, { recursive: true, force: true });
+    } catch (error) {
+      console.error(`Error deleting page ${slug}:`, error);
+      throw error;
+    }
   }
   
-  try {
-    // Remove the entire directory from root
-    await fs.rm(rootDir, { recursive: true, force: true });
-    // Update pages configuration file after successful deletion
-    await updatePagesConfig();
-  } catch (error) {
-    console.error(`Error deleting page ${slug}:`, error);
-    throw error;
+  // Clean up empty parent directories if the deleted page was in a subdirectory
+  if (slug.includes('/')) {
+    const parts = slug.split('/');
+    parts.pop(); // Remove the deleted page
+    
+    while (parts.length > 0) {
+      const parentPath = deletedFromPages
+        ? path.join(APP_DIR, '(pages)', ...parts)
+        : path.join(APP_DIR, ...parts);
+      
+      const hasOtherPages = await hasOtherPagesInParentDir(parentPath);
+      
+      if (!hasOtherPages) {
+        try {
+          // Check if directory is empty before removing
+          const entries = await fs.readdir(parentPath);
+          if (entries.length === 0) {
+            await fs.rmdir(parentPath); // Remove empty directory
+          } else {
+            break; // Directory has other files
+          }
+        } catch {
+          break; // Can't remove directory or it doesn't exist
+        }
+      } else {
+        break; // Directory has other pages
+      }
+      parts.pop(); // Move up to next parent
+    }
   }
+  
+  // Update pages configuration file after successful deletion
+  await updatePagesConfig();
 }
 
 // Generate slug from title
@@ -383,8 +561,14 @@ function formatTitle(slug: string): string {
 // Generate default page content
 export function generateDefaultPageContent(title: string, template: string = 'default'): string {
   const componentName = title.replace(/[^a-zA-Z0-9]/g, '');
+  const slug = generateSlug(title);
   
-  return `export default function ${componentName}Page() {
+  return `// THIS IS REQUIRED FOR SEO CONFIG - DO NOT REMOVE
+// Every page must have this metadata export to load its seo-config.json
+import { generateStaticMetadata } from '@/lib/generate-static-metadata';
+export const metadata = generateStaticMetadata('${slug}');
+
+export default function ${componentName}Page() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
       <h1>Welcome to Your Next.js Boilerplate</h1>
@@ -399,8 +583,8 @@ export function generateDefaultSEOConfig(slug: string, title: string): PageSEOCo
   return {
     slug,
     seo: {
-      title: `${title} - Valiance Media`,
-      description: `${title} page for Valiance Media`,
+      title: `${title} - ${globalSeoConfig.siteName}`,
+      description: `${title} page for ${globalSeoConfig.siteName}`,
       keywords: [slug, title.toLowerCase()],
       noIndex: false
     },

@@ -34,6 +34,7 @@ export interface Page {
   content?: string; // The actual page.tsx content
   seoConfig?: PageSEOConfig;
   isHomePage?: boolean;
+  isClientComponent?: boolean;
   exists: boolean;
 }
 
@@ -46,4 +47,5 @@ export interface PageListItem {
   featured?: boolean;
   draft?: boolean;
   isHomePage?: boolean;
+  isClientComponent?: boolean;
 }

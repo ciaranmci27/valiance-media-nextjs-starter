@@ -10,6 +10,7 @@ import { generateSlug } from '@/lib/page-utils-client';
 import SocialMediaPreview from '@/components/admin/seo/SocialMediaPreview';
 import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
 import { PageSchema } from '@/components/admin/seo/schema-types';
+import { seoConfig as globalSeoConfig } from '@/seo/seo.config';
 
 interface PageEditorProps {
   initialPage?: Page;
@@ -22,7 +23,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
   const [showSlugWarning, setShowSlugWarning] = useState(false);
   const [pendingSlug, setPendingSlug] = useState('');
   const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo' | 'opengraph' | 'advanced' | 'schema'>('content');
-  const [isEditingCode, setIsEditingCode] = useState(true); // Default to editing mode for better UX
+  const [isEditingCode, setIsEditingCode] = useState(isNew); // Edit mode for new pages, preview for existing
   
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
@@ -50,8 +51,21 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
 
   useEffect(() => {
     if (initialPage) {
-      setTitle(initialPage.title || '');
-      setPreviousTitle(initialPage.title || '');
+      // For dynamic pages without SEO config, derive title from slug
+      let pageTitle = initialPage.title || '';
+      if (initialPage.isClientComponent && !initialPage.seoConfig && initialPage.slug) {
+        // Convert slug to title case: "auth/sign-in" -> "Auth / Sign In"
+        pageTitle = initialPage.slug
+          .split('/')
+          .map(part => part
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+          )
+          .join(' / ');
+      }
+      setTitle(pageTitle);
+      setPreviousTitle(pageTitle);
       setSlug(initialPage.slug || '');
       setContent(initialPage.content || '');
       if (initialPage.seoConfig) {
@@ -69,6 +83,11 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         setChangefreq(config.sitemap?.changeFrequency || 'monthly');
         setSchemas(config.schemas || []);
         // Note: ogTitle, ogDescription, ogImage would need to be added to PageSEOConfig if needed
+      }
+      
+      // Reset active tab if on SEO tab but page is dynamic
+      if (initialPage.isClientComponent && ['seo', 'opengraph', 'schema', 'advanced'].includes(activeTab)) {
+        setActiveTab('content');
       }
     }
   }, [initialPage]);
@@ -162,7 +181,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
       const seoConfig: PageSEOConfig = {
         slug: pageSlug,
         seo: {
-          title: seoTitle || `${title} - Valiance Media`,
+          title: seoTitle || `${title} - ${globalSeoConfig.siteName || 'Valiance Media'}`,
           description: seoDescription,
           keywords: seoKeywords,
           noIndex: robots.includes('noindex'),
@@ -261,6 +280,35 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
           </h1>
         </div>
 
+        {/* Dynamic Page Warning */}
+        {initialPage?.isClientComponent && (
+          <div style={{
+            padding: 'var(--spacing-md)',
+            background: 'rgba(251, 146, 60, 0.1)',
+            border: '1px solid rgba(251, 146, 60, 0.3)',
+            borderRadius: 'var(--radius-md)',
+            marginBottom: 'var(--spacing-lg)',
+            display: 'flex',
+            gap: 'var(--spacing-sm)',
+            alignItems: 'flex-start'
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(251, 146, 60)" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px' }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <div style={{ flex: 1 }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'rgb(251, 146, 60)', marginBottom: '4px' }}>
+                Dynamic Page (Client Component)
+              </h4>
+              <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: 0 }}>
+                This page uses client-side features (React hooks, event handlers, or browser APIs) and cannot use custom SEO metadata. 
+                SEO settings are disabled for this page. The page will use default metadata from your root layout.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Tab Navigation */}
         <div style={{ 
           borderBottom: '1px solid var(--color-border-light)',
@@ -286,57 +334,61 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
             >
               Content
             </button>
-            <button
-              onClick={() => setActiveTab('seo')}
-              style={{
-                padding: '12px 0',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === 'seo' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                color: activeTab === 'seo' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                cursor: 'pointer',
-                fontSize: '15px',
-                fontWeight: '500',
-                marginBottom: '-1px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              SEO
-            </button>
-            <button
-              onClick={() => setActiveTab('opengraph')}
-              style={{
-                padding: '12px 0',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === 'opengraph' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                color: activeTab === 'opengraph' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                cursor: 'pointer',
-                fontSize: '15px',
-                fontWeight: '500',
-                marginBottom: '-1px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Social
-            </button>
-            <button
-              onClick={() => setActiveTab('schema')}
-              style={{
-                padding: '12px 0',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === 'schema' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                color: activeTab === 'schema' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                cursor: 'pointer',
-                fontSize: '15px',
-                fontWeight: '500',
-                marginBottom: '-1px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Schema
-            </button>
+            {!initialPage?.isClientComponent && (
+              <>
+                <button
+                  onClick={() => setActiveTab('seo')}
+                  style={{
+                    padding: '12px 0',
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: activeTab === 'seo' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                    color: activeTab === 'seo' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    cursor: 'pointer',
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    marginBottom: '-1px',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  SEO
+                </button>
+                <button
+                  onClick={() => setActiveTab('opengraph')}
+                  style={{
+                    padding: '12px 0',
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: activeTab === 'opengraph' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                    color: activeTab === 'opengraph' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    cursor: 'pointer',
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    marginBottom: '-1px',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Social
+                </button>
+                <button
+                  onClick={() => setActiveTab('schema')}
+                  style={{
+                    padding: '12px 0',
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: activeTab === 'schema' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                    color: activeTab === 'schema' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    cursor: 'pointer',
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    marginBottom: '-1px',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Schema
+                </button>
+              </>
+            )}
             <button
               onClick={() => setActiveTab('settings')}
               style={{
@@ -354,25 +406,55 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
             >
               Settings
             </button>
-            <button
-              onClick={() => setActiveTab('advanced')}
-              style={{
-                padding: '12px 0',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === 'advanced' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                color: activeTab === 'advanced' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                cursor: 'pointer',
-                fontSize: '15px',
-                fontWeight: '500',
-                marginBottom: '-1px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Advanced
-            </button>
+            {!initialPage?.isClientComponent && (
+              <button
+                onClick={() => setActiveTab('advanced')}
+                style={{
+                  padding: '12px 0',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === 'advanced' ? '2px solid var(--color-primary)' : '2px solid transparent',
+                  color: activeTab === 'advanced' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: '15px',
+                  fontWeight: '500',
+                  marginBottom: '-1px',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Advanced
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Dynamic Page Warning Banner */}
+        {initialPage?.isClientComponent && (
+          <div style={{
+            padding: 'var(--spacing-md)',
+            background: 'rgba(251, 146, 60, 0.1)',
+            border: '1px solid rgba(251, 146, 60, 0.3)',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            gap: 'var(--spacing-sm)',
+            marginBottom: 'var(--spacing-md)'
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(251, 146, 60)" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <div>
+              <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: 'rgb(234, 88, 12)' }}>
+                Dynamic Page (Client Component)
+              </h4>
+              <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+                This page uses client-side features and cannot use custom SEO metadata. 
+                SEO settings are disabled. The page will use default metadata from root layout.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Content Tab */}
         {activeTab === 'content' && (
@@ -382,16 +464,22 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
               {/* Title - 70% */}
               <div className="form-group">
                 <label className="form-label form-label-required">
-                  Page Title
+                  Page Title {initialPage?.isClientComponent && 
+                    <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
+                      (Read-only for dynamic pages)
+                    </span>}
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="Enter page title"
-                  disabled={initialPage?.isHomePage}
+                  disabled={initialPage?.isHomePage || initialPage?.isClientComponent}
                   className="input-field"
-                  style={initialPage?.isHomePage ? { opacity: 0.6 } : {}}
+                  style={(initialPage?.isHomePage || initialPage?.isClientComponent) ? 
+                    { opacity: 0.6, cursor: 'not-allowed' } : {}}
+                  title={initialPage?.isClientComponent ? 
+                    'Dynamic pages derive their title from the slug' : ''}
                 />
               </div>
 
@@ -399,7 +487,10 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
               <div className="form-group" style={{ minWidth: 0, overflow: 'hidden' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-xs)' }}>
                   <label className="form-label form-label-required" style={{ marginBottom: 0 }}>
-                    Page Slug
+                    Page Slug {initialPage?.isClientComponent && 
+                      <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
+                        (Read-only)
+                      </span>}
                   </label>
                   <span style={{ 
                     fontSize: '12px',
@@ -417,9 +508,14 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                   <input
                     type="text"
                     value={slug}
-                    onChange={(e) => handleSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                    placeholder="page-url-slug"
+                    onChange={(e) => handleSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-\/]/g, '-'))}
+                    placeholder="page-slug or subdir/page-slug"
+                    disabled={initialPage?.isClientComponent}
                     className="input-field input-field-mono"
+                    style={initialPage?.isClientComponent ? 
+                      { opacity: 0.6, cursor: 'not-allowed' } : {}}
+                    title={initialPage?.isClientComponent ? 
+                      'Dynamic pages cannot change their slug' : ''}
                   />
                 ) : (
                   <input

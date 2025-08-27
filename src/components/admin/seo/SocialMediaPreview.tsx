@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { seoConfig } from '@/seo/seo.config';
 
 interface SocialMediaPreviewProps {
   title: string;
@@ -78,7 +79,7 @@ export default function SocialMediaPreview({
                 {!imageError ? (
                   <img
                     src={imageUrl}
-                    alt="OG Image Preview"
+                    alt={`${seoConfig.siteName} Open Graph preview image`}
                     className={`w-full h-full object-cover ${imageLoading ? 'opacity-0' : 'opacity-100'} transition-opacity`}
                     onLoad={() => setImageLoading(false)}
                     onError={() => {
@@ -133,7 +134,7 @@ export default function SocialMediaPreview({
                   {!imageError ? (
                     <img
                       src={imageUrl}
-                      alt="Twitter Card Preview"
+                      alt={`${seoConfig.siteName} Twitter card preview image`}
                       className={`w-full h-full object-cover ${imageLoading ? 'opacity-0' : 'opacity-100'} transition-opacity`}
                       onLoad={() => setImageLoading(false)}
                       onError={() => {
@@ -171,7 +172,7 @@ export default function SocialMediaPreview({
                     {!imageError ? (
                       <img
                         src={imageUrl}
-                        alt="Twitter Card Preview"
+                        alt={`${seoConfig.siteName} Twitter card preview image`}
                         className="w-full h-full object-cover"
                         onError={() => setImageError(true)}
                       />
@@ -219,7 +220,7 @@ export default function SocialMediaPreview({
                 {!imageError ? (
                   <img
                     src={imageUrl}
-                    alt="LinkedIn Preview"
+                    alt={`${seoConfig.siteName} LinkedIn preview image`}
                     className={`w-full h-full object-cover ${imageLoading ? 'opacity-0' : 'opacity-100'} transition-opacity`}
                     onLoad={() => setImageLoading(false)}
                     onError={() => {

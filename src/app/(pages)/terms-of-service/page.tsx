@@ -1,25 +1,14 @@
-'use client';
+// THIS IS REQUIRED FOR SEO CONFIG - DO NOT REMOVE
+// Every page must have this metadata export to load its seo-config.json
+import { generateStaticMetadata } from '@/lib/generate-static-metadata';
+export const metadata = generateStaticMetadata('terms-of-service');
 
 import Link from "next/link";
 import { PageWrapper } from "@/components/admin/PageWrapper";
-import { SEO } from "@/seo";
-import { pageMetadata } from "@/seo/seo.config";
 
 export default function TermsOfService() {
   return (
     <PageWrapper>
-      <SEO 
-        pageData={{
-          title: "Terms of Service",
-          description: pageMetadata.terms.description,
-          dateModified: "December 2024",
-        }}
-        breadcrumbs={[
-          { name: "Home", url: "https://valiancemedia.com" },
-          { name: "Terms of Service", url: "https://valiancemedia.com/terms-of-service" }
-        ]}
-      />
-      
       {/* Main Content */}
       <main className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">

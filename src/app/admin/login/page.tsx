@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { seoConfig } from '@/seo/seo.config';
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -50,7 +51,7 @@ export default function AdminLogin() {
             <div className="mb-2 flex justify-center">
               <Image
                 src="/logos/horizontal-logo.png"
-                alt="Valiance Media"
+                alt={`${seoConfig.siteName} Logo`}
                 width={160}
                 height={50}
                 priority
