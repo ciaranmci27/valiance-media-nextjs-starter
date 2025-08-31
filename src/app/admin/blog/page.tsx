@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import SearchInput from '@/components/admin/SearchInput';
 
 interface BlogPost {
   slug: string;
@@ -32,6 +33,7 @@ function BlogListContent() {
   const [activeFilter, setActiveFilter] = useState(filter);
   const [categories, setCategories] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchPosts();
@@ -41,7 +43,7 @@ function BlogListContent() {
   useEffect(() => {
     // Apply filter when posts or filters change
     applyFilter();
-  }, [posts, filter, categoryFilter, tagFilter]);
+  }, [posts, filter, categoryFilter, tagFilter, searchQuery]);
   
   useEffect(() => {
     // Update active filter when URL changes
@@ -140,8 +142,25 @@ function BlogListContent() {
       );
     }
     
+    // Apply search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(post => 
+        post.title.toLowerCase().includes(query) ||
+        post.excerpt.toLowerCase().includes(query) ||
+        post.slug.toLowerCase().includes(query) ||
+        (post.category && post.category.toLowerCase().includes(query)) ||
+        (post.author?.name && post.author.name.toLowerCase().includes(query)) ||
+        (post.tags && post.tags.some(tag => tag.toLowerCase().includes(query)))
+      );
+    }
+    
     setFilteredPosts(filtered);
   };
+  
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
   
   const handleFilterChange = (newFilter: string) => {
     router.push(`/admin/blog?filter=${newFilter}`);
@@ -181,72 +200,84 @@ function BlogListContent() {
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
-      <div style={{ marginBottom: 'var(--spacing-xl)' }}>
-        <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-md)' }}>
-          Blog Posts
-        </h1>
-        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)' }}>
-          Manage your blog content. Create, edit, and organize your posts.
-        </p>
-        
-        <div style={{ display: 'flex', gap: '12px' }}>
-        <button
-            onClick={() => router.push('/admin/blog-post')}
-            style={{
-              padding: '12px 24px',
-              background: 'var(--color-primary)',
-              color: 'white',
-              border: 'none',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Create New Post
-          </button>
-          <button
-            onClick={() => router.push('/admin/blog/categories')}
-            style={{
-              padding: '12px 24px',
-              background: 'transparent',
-              color: 'var(--color-primary)',
-              border: '2px solid var(--color-primary)',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            Manage Categories
-          </button>
+        {/* Header Section with 2-column layout */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'flex-start',
+          marginBottom: 'var(--spacing-xl)',
+          gap: 'var(--spacing-lg)'
+        }}>
+          {/* Left Column: Title */}
+          <div style={{ flex: 1 }}>
+            <h1 className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
+              Blog Posts
+            </h1>
+          </div>
+          
+          {/* Right Column: Action Buttons */}
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+            <button
+              onClick={() => router.push('/admin/blog-post')}
+              style={{
+                padding: '12px 24px',
+                background: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                whiteSpace: 'nowrap',
+                height: '48px'
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Create New Post
+            </button>
+            <button
+              onClick={() => router.push('/admin/blog/categories')}
+              style={{
+                padding: '10px 22px',
+                background: 'transparent',
+                color: 'var(--color-primary)',
+                border: '2px solid var(--color-primary)',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                whiteSpace: 'nowrap',
+                height: '48px'
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              Manage Categories
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Combined Filter Bar */}
+      {/* Filter Bar with Search */}
       <div style={{ 
         display: 'flex', 
         alignItems: 'center',
+        justifyContent: 'space-between',
         gap: '16px', 
         marginBottom: 'var(--spacing-md)',
         borderBottom: '1px solid var(--color-border-light)',
-        paddingBottom: '2px',
-        flexWrap: 'wrap'
+        paddingBottom: '2px'
       }}>
-        {/* Status Filter Tabs */}
+        {/* Left side: Status Filter Tabs */}
         <div style={{ display: 'flex', gap: '24px' }}>
           <button
             onClick={() => handleFilterChange('all')}
@@ -314,178 +345,115 @@ function BlogListContent() {
           </button>
         </div>
         
-        {/* Divider */}
-        <div style={{ 
-          width: '1px', 
-          height: '24px', 
-          background: 'var(--color-border-light)',
-          marginBottom: '-2px'
-        }} />
-        
-        {/* Filter Dropdowns */}
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '-2px' }}>
-          {/* Category Dropdown */}
-          <select
-            value={categoryFilter || ''}
-            onChange={(e) => {
-              const params = new URLSearchParams(searchParams.toString());
-              if (e.target.value) {
-                params.set('category', e.target.value);
-              } else {
-                params.delete('category');
-              }
-              router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
-            }}
-            style={{
-              padding: '4px 8px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border-light)',
-              background: categoryFilter ? 'rgba(59, 130, 246, 0.1)' : 'var(--color-surface)',
-              color: categoryFilter ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="">All Categories</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>
-                {cat.replace(/-/g, ' ').charAt(0).toUpperCase() + cat.replace(/-/g, ' ').slice(1)}
-              </option>
-            ))}
-          </select>
-          
-          {/* Tag Dropdown */}
-          <select
-            value={tagFilter || ''}
-            onChange={(e) => {
-              const params = new URLSearchParams(searchParams.toString());
-              if (e.target.value) {
-                params.set('tag', e.target.value);
-              } else {
-                params.delete('tag');
-              }
-              router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
-            }}
-            style={{
-              padding: '4px 8px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border-light)',
-              background: tagFilter ? 'rgba(34, 197, 94, 0.1)' : 'var(--color-surface)',
-              color: tagFilter ? 'var(--color-success)' : 'var(--color-text-secondary)',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="">All Tags</option>
-            {tags.map(tag => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))}
-          </select>
+        {/* Right side: Search bar */}
+        <div style={{ maxWidth: '320px' }}>
+          <SearchInput 
+            placeholder="Search posts..."
+            onSearch={handleSearch}
+            className="w-full"
+          />
         </div>
-        
-        {/* Active Filters Pills */}
-        {(categoryFilter || tagFilter) && (
-          <>
-            <div style={{ 
-              width: '1px', 
-              height: '24px', 
-              background: 'var(--color-border-light)',
-              marginBottom: '-2px'
-            }} />
-            
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '-2px' }}>
-              {categoryFilter && (
-                <span style={{
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  color: 'var(--color-primary)',
-                  padding: '2px 8px',
-                  borderRadius: 'var(--radius-full)',
-                  border: '1px solid rgba(59, 130, 246, 0.2)',
-                  fontSize: '12px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  {categoryFilter.replace(/-/g, ' ')}
-                  <button
-                    onClick={() => {
-                      const params = new URLSearchParams(searchParams.toString());
-                      params.delete('category');
-                      router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'inherit',
-                      cursor: 'pointer',
-                      padding: '0',
-                      display: 'inline-flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                </span>
-              )}
-              
-              {tagFilter && (
-                <span style={{
-                  background: 'rgba(34, 197, 94, 0.1)',
-                  color: 'var(--color-success)',
-                  padding: '2px 8px',
-                  borderRadius: 'var(--radius-full)',
-                  border: '1px solid rgba(34, 197, 94, 0.2)',
-                  fontSize: '12px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  {tagFilter}
-                  <button
-                    onClick={() => {
-                      const params = new URLSearchParams(searchParams.toString());
-                      params.delete('tag');
-                      router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'inherit',
-                      cursor: 'pointer',
-                      padding: '0',
-                      display: 'inline-flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                </span>
-              )}
-              
+      </div>
+      
+      {/* Active Filters Pills - keeping these separate below the main bar */}
+      {(categoryFilter || tagFilter) && (
+        <div style={{ 
+          display: 'flex', 
+          gap: '8px', 
+          alignItems: 'center', 
+          marginBottom: 'var(--spacing-md)',
+          flexWrap: 'wrap'
+        }}>
+          {categoryFilter && (
+            <span style={{
+              background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+              color: 'var(--color-primary)',
+              padding: '4px 12px',
+              borderRadius: 'var(--radius-full)',
+              border: '1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)',
+              fontSize: '12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              {categoryFilter.replace(/-/g, ' ')}
               <button
-                onClick={() => router.push('/admin/blog')}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.delete('category');
+                  router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
+                }}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'var(--color-text-tertiary)',
-                  padding: '2px 4px',
-                  fontSize: '12px',
+                  color: 'inherit',
                   cursor: 'pointer',
-                  textDecoration: 'underline'
+                  padding: '0',
+                  display: 'inline-flex',
+                  alignItems: 'center'
                 }}
               >
-                Clear
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
-            </div>
-          </>
-        )}
-      </div>
+            </span>
+          )}
+          
+          {tagFilter && (
+            <span style={{
+              background: 'color-mix(in srgb, var(--color-success) 10%, transparent)',
+              color: 'var(--color-success)',
+              padding: '4px 12px',
+              borderRadius: 'var(--radius-full)',
+              border: '1px solid color-mix(in srgb, var(--color-success) 25%, transparent)',
+              fontSize: '12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              {tagFilter}
+              <button
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.delete('tag');
+                  router.push(`/admin/blog${params.toString() ? '?' + params.toString() : ''}`);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'inherit',
+                  cursor: 'pointer',
+                  padding: '0',
+                  display: 'inline-flex',
+                  alignItems: 'center'
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </span>
+          )}
+          
+          <button
+            onClick={() => router.push('/admin/blog')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--color-text-tertiary)',
+              padding: '2px 4px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
+          >
+            Clear All
+          </button>
+        </div>
+      )}
 
       <div style={{
         background: 'var(--color-surface)',
@@ -524,9 +492,29 @@ function BlogListContent() {
                   textAlign: 'center',
                   color: 'var(--color-text-secondary)'
                 }}>
-                  {filter === 'all' 
-                    ? 'No blog posts found. Create your first post to get started.' 
-                    : `No ${filter === 'drafts' ? 'draft' : filter} posts found.`}
+                  {searchQuery ? (
+                    <>
+                      <p style={{ marginBottom: 'var(--spacing-sm)' }}>No posts found matching "{searchQuery}"</p>
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        style={{
+                          padding: '8px 16px',
+                          background: 'var(--color-primary)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 'var(--radius-md)',
+                          fontSize: '14px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Clear Search
+                      </button>
+                    </>
+                  ) : filter === 'all' ? (
+                    'No blog posts found. Create your first post to get started.'
+                  ) : (
+                    `No ${filter === 'drafts' ? 'draft' : filter} posts found.`
+                  )}
                 </td>
               </tr>
             ) : (
@@ -540,6 +528,25 @@ function BlogListContent() {
                       <div style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
                         {post.excerpt.substring(0, 80)}...
                       </div>
+                      {post.tags && post.tags.length > 0 && (
+                        <div style={{ marginTop: '4px', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          {post.tags.map(tag => (
+                            <span 
+                              key={tag}
+                              style={{
+                                padding: '2px 6px',
+                                background: 'color-mix(in srgb, var(--color-success) 10%, transparent)',
+                                color: 'var(--color-success)',
+                                borderRadius: 'var(--radius-sm)',
+                                fontSize: '11px',
+                                fontWeight: '500'
+                              }}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
@@ -547,7 +554,7 @@ function BlogListContent() {
                       fontSize: '13px', 
                       fontFamily: 'monospace',
                       color: 'var(--color-primary)',
-                      background: 'rgba(59, 130, 246, 0.1)',
+                      background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
                       padding: '2px 6px',
                       borderRadius: 'var(--radius-sm)'
                     }}>

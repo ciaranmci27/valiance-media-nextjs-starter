@@ -202,7 +202,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
       
       const endpoint = isNew 
         ? '/api/admin/pages'
-        : `/api/admin/pages/${initialPage?.slug}`;
+        : `/api/admin/pages/${encodeURIComponent(initialPage?.slug || '')}`;
       
       const method = isNew ? 'POST' : 'PUT';
       

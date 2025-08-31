@@ -70,15 +70,23 @@ export default function BlogCategoriesPage() {
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <div style={{ marginBottom: 'var(--spacing-xl)' }}>
-          <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-md)' }}>
-            Blog Categories
-          </h1>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)' }}>
-            Manage your blog categories. Organize your content into meaningful groups.
-          </p>
+        {/* Header Section with 2-column layout */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'flex-start',
+          marginBottom: 'var(--spacing-xl)',
+          gap: 'var(--spacing-lg)'
+        }}>
+          {/* Left Column: Title */}
+          <div style={{ flex: 1 }}>
+            <h1 className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
+              Blog Categories
+            </h1>
+          </div>
           
-          <div style={{ display: 'flex', gap: '12px' }}>
+          {/* Right Column: Action Button */}
+          <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
             <button
               onClick={() => router.push('/admin/blog/categories/new')}
               style={{
@@ -92,7 +100,8 @@ export default function BlogCategoriesPage() {
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                height: '48px'
               }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

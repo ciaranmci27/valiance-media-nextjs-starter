@@ -968,9 +968,17 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                     <SocialMediaPreview
                       title={formData.seo.title || formData.title}
                       description={formData.seo.description || formData.excerpt}
-                      imageUrl={formData.seo.image || formData.image}
-                      url={`https://example.com/blog/${slug || generateSlug(formData.title)}`}
-                      siteName="Your Site Name"
+                      imageUrl={(() => {
+                        const image = formData.seo.image || formData.image;
+                        if (!image) return '';
+                        if (image.startsWith('http')) return image;
+                        const currentOrigin = typeof window !== 'undefined' 
+                          ? window.location.origin 
+                          : '';
+                        return `${currentOrigin}${image}`;
+                      })()}
+                      url={`${typeof window !== 'undefined' ? window.location.origin : ''}/blog/${slug || generateSlug(formData.title)}`}
+                      siteName={seoConfig.siteName}
                     />
                   </div>
                 )}

@@ -371,6 +371,127 @@ export interface ItemListSchema extends BaseSchema {
   numberOfItems?: number;
 }
 
+// Quiz Schema
+export interface QuizSchema extends BaseSchema {
+  type: 'Quiz';
+  name?: string;
+  description?: string;
+  educationalLevel?: string;
+  timeRequired?: string;
+  isAccessibleForFree?: boolean;
+  numberOfQuestions?: number;
+  about?: string | { type: 'Thing'; name: string };
+}
+
+// QAPage Schema (different from FAQPage)
+export interface QAPageSchema extends BaseSchema {
+  type: 'QAPage';
+  name?: string;
+  mainEntity?: {
+    type: 'Question';
+    name: string;
+    acceptedAnswer?: {
+      type: 'Answer';
+      text: string;
+    };
+  };
+}
+
+// ContactPage Schema
+export interface ContactPageSchema extends BaseSchema {
+  type: 'ContactPage';
+  name?: string;
+  description?: string;
+  telephone?: string;
+  email?: string;
+  address?: {
+    streetAddress?: string;
+    addressLocality?: string;
+    addressRegion?: string;
+    postalCode?: string;
+    addressCountry?: string;
+  };
+}
+
+// AboutPage Schema
+export interface AboutPageSchema extends BaseSchema {
+  type: 'AboutPage';
+  name?: string;
+  description?: string;
+  foundingDate?: string;
+  founders?: Array<{
+    name: string;
+    url?: string;
+  }>;
+}
+
+// ProfilePage Schema
+export interface ProfilePageSchema extends BaseSchema {
+  type: 'ProfilePage';
+  name?: string;
+  jobTitle?: string;
+  description?: string;
+  sameAs?: string[];
+}
+
+// SearchResultsPage Schema
+export interface SearchResultsPageSchema extends BaseSchema {
+  type: 'SearchResultsPage';
+  name?: string;
+  mainContentOfPage?: {
+    resultsCount?: number;
+    searchQuery?: string;
+  };
+}
+
+// MedicalWebPage Schema
+export interface MedicalWebPageSchema extends BaseSchema {
+  type: 'MedicalWebPage';
+  name?: string;
+  aspect?: string;
+  lastReviewed?: string;
+  reviewedBy?: {
+    name: string;
+    type?: 'Person' | 'Organization';
+  };
+}
+
+// SpecialAnnouncement Schema
+export interface SpecialAnnouncementSchema extends BaseSchema {
+  type: 'SpecialAnnouncement';
+  name?: string;
+  text?: string;
+  datePosted?: string;
+  expires?: string;
+  spatialCoverage?: string | string[];
+}
+
+// LiveBlogPosting Schema
+export interface LiveBlogPostingSchema extends BaseSchema {
+  type: 'LiveBlogPosting';
+  headline?: string;
+  coverageStartTime?: string;
+  coverageEndTime?: string;
+  liveBlogUpdate?: Array<{
+    headline?: string;
+    articleBody: string;
+    datePublished: string;
+  }>;
+}
+
+// Dataset Schema
+export interface DatasetSchema extends BaseSchema {
+  type: 'Dataset';
+  name?: string;
+  description?: string;
+  temporalCoverage?: string;
+  license?: string;
+  distribution?: Array<{
+    contentUrl: string;
+    encodingFormat: string;
+  }>;
+}
+
 // Union type for all schemas
 export type PageSchema = 
   | ArticleSchema
@@ -387,7 +508,17 @@ export type PageSchema =
   | ReviewSchema
   | AggregateRatingSchema
   | CollectionPageSchema
-  | ItemListSchema;
+  | ItemListSchema
+  | QuizSchema
+  | QAPageSchema
+  | ContactPageSchema
+  | AboutPageSchema
+  | ProfilePageSchema
+  | SearchResultsPageSchema
+  | MedicalWebPageSchema
+  | SpecialAnnouncementSchema
+  | LiveBlogPostingSchema
+  | DatasetSchema;
 
 // Schema availability by page type
 export const SCHEMAS_BY_PAGE_TYPE = {
@@ -400,6 +531,7 @@ export const SCHEMAS_BY_PAGE_TYPE = {
     'VideoObject',
     'Recipe',
     'Review',
+    'LiveBlogPosting',
   ],
   category: [
     'CollectionPage',
@@ -415,6 +547,15 @@ export const SCHEMAS_BY_PAGE_TYPE = {
     'JobPosting',
     'HowTo',
     'VideoObject',
+    'Quiz',
+    'QAPage',
+    'ContactPage',
+    'AboutPage',
+    'ProfilePage',
+    'SearchResultsPage',
+    'MedicalWebPage',
+    'SpecialAnnouncement',
+    'Dataset',
   ],
   product: [
     'Product',
@@ -517,5 +658,54 @@ export const SCHEMA_TEMPLATES: Record<string, Partial<PageSchema>> = {
     type: 'ItemList',
     enabled: false,
     itemListElement: [],
+  },
+  Quiz: {
+    type: 'Quiz',
+    enabled: false,
+    isAccessibleForFree: true,
+  },
+  QAPage: {
+    type: 'QAPage',
+    enabled: false,
+  },
+  ContactPage: {
+    type: 'ContactPage',
+    enabled: false,
+  },
+  AboutPage: {
+    type: 'AboutPage',
+    enabled: false,
+  },
+  ProfilePage: {
+    type: 'ProfilePage',
+    enabled: false,
+  },
+  SearchResultsPage: {
+    type: 'SearchResultsPage',
+    enabled: false,
+  },
+  MedicalWebPage: {
+    type: 'MedicalWebPage',
+    enabled: false,
+  },
+  SpecialAnnouncement: {
+    type: 'SpecialAnnouncement',
+    enabled: false,
+  },
+  LiveBlogPosting: {
+    type: 'LiveBlogPosting',
+    enabled: false,
+    liveBlogUpdate: [],
+  },
+  Dataset: {
+    type: 'Dataset',
+    enabled: false,
+    distribution: [],
+  },
+  AggregateRating: {
+    type: 'AggregateRating',
+    enabled: false,
+    ratingValue: 0,
+    reviewCount: 0,
   },
 };

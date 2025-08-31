@@ -25,7 +25,20 @@ import {
   CourseSchema,
   JobPostingSchema,
   SoftwareApplicationSchema,
-  ReviewSchema
+  ReviewSchema,
+  QuizSchema,
+  QAPageSchema,
+  ContactPageSchema,
+  AboutPageSchema,
+  ProfilePageSchema,
+  SearchResultsPageSchema,
+  MedicalWebPageSchema,
+  SpecialAnnouncementSchema,
+  LiveBlogPostingSchema,
+  DatasetSchema,
+  CollectionPageSchema,
+  ItemListSchema,
+  AggregateRatingSchema
 } from './schema-types';
 
 interface PageSchemaEditorProps {
@@ -172,6 +185,70 @@ export default function PageSchemaEditor({
           onChange={(updated) => updateSchema(index, updated)}
         />;
       
+      case 'Quiz':
+        return <QuizSchemaForm 
+          schema={schema as QuizSchema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
+      case 'QAPage':
+        return <QAPageSchemaForm 
+          schema={schema as QAPageSchema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
+      case 'ContactPage':
+        return <ContactPageSchemaForm 
+          schema={schema as ContactPageSchema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
+      case 'AboutPage':
+        return <AboutPageSchemaForm 
+          schema={schema as AboutPageSchema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
+      case 'ProfilePage':
+        return <ProfilePageSchemaForm 
+          schema={schema as ProfilePageSchema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
+      case 'LiveBlogPosting':
+        return <LiveBlogPostingSchemaForm 
+          schema={schema as LiveBlogPostingSchema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
+      case 'MedicalWebPage':
+        return <MedicalWebPageSchemaForm 
+          schema={schema as MedicalWebPageSchema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
+      case 'SpecialAnnouncement':
+        return <SpecialAnnouncementSchemaForm 
+          schema={schema as SpecialAnnouncementSchema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
+      case 'Dataset':
+        return <DatasetSchemaForm 
+          schema={schema as DatasetSchema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
+      case 'CollectionPage':
+      case 'ItemList':
+      case 'SearchResultsPage':
+      case 'AggregateRating':
+        // These schemas are typically auto-generated or have minimal fields
+        return <GenericSchemaForm 
+          schema={schema} 
+          onChange={(updated) => updateSchema(index, updated)}
+        />;
+      
       default:
         return <div className="text-sm text-gray-500">Schema editor not yet implemented for {schema.type}</div>;
     }
@@ -192,10 +269,23 @@ export default function PageSchemaEditor({
       Course: '🎓',
       JobPosting: '💼',
       SoftwareApplication: '💻',
+      MobileApplication: '📱',
+      WebApplication: '🌐',
       Service: '🛠️',
       Review: '⭐',
       CollectionPage: '📚',
       ItemList: '📃',
+      Quiz: '🎯',
+      QAPage: '💬',
+      ContactPage: '📞',
+      AboutPage: 'ℹ️',
+      ProfilePage: '👤',
+      SearchResultsPage: '🔍',
+      MedicalWebPage: '⚕️',
+      SpecialAnnouncement: '📢',
+      LiveBlogPosting: '🔴',
+      Dataset: '📊',
+      AggregateRating: '⭐',
     };
     return icons[type] || '📄';
   };
@@ -1493,6 +1583,568 @@ function ReviewSchemaForm({
           className={INPUT_CLASS}
         />
       </div>
+    </div>
+  );
+}
+
+// Quiz Schema Form Component
+function QuizSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: QuizSchema; 
+  onChange: (schema: QuizSchema) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className={LABEL_CLASS}>Quiz Name</label>
+          <input
+            type="text"
+            value={schema.name || ''}
+            onChange={(e) => onChange({ ...schema, name: e.target.value })}
+            className={INPUT_CLASS}
+            placeholder="Quiz Title"
+          />
+        </div>
+        <div>
+          <label className={LABEL_CLASS}>Educational Level</label>
+          <input
+            type="text"
+            value={schema.educationalLevel || ''}
+            onChange={(e) => onChange({ ...schema, educationalLevel: e.target.value })}
+            className={INPUT_CLASS}
+            placeholder="All levels"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Description</label>
+        <textarea
+          value={schema.description || ''}
+          onChange={(e) => onChange({ ...schema, description: e.target.value })}
+          className={INPUT_CLASS}
+          rows={2}
+          placeholder="Describe what the quiz is about"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label className={LABEL_CLASS}>Time Required (e.g., PT2M)</label>
+          <input
+            type="text"
+            value={schema.timeRequired || ''}
+            onChange={(e) => onChange({ ...schema, timeRequired: e.target.value })}
+            className={INPUT_CLASS}
+            placeholder="PT2M"
+          />
+        </div>
+        <div>
+          <label className={LABEL_CLASS}>Number of Questions</label>
+          <input
+            type="number"
+            value={schema.numberOfQuestions || ''}
+            onChange={(e) => onChange({ ...schema, numberOfQuestions: parseInt(e.target.value) || undefined })}
+            className={INPUT_CLASS}
+            placeholder="10"
+          />
+        </div>
+        <div className="flex items-end">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={schema.isAccessibleForFree ?? true}
+              onChange={(e) => onChange({ ...schema, isAccessibleForFree: e.target.checked })}
+              className="rounded"
+            />
+            <span className="text-sm">Free to access</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Quiz Topic</label>
+        <input
+          type="text"
+          value={typeof schema.about === 'string' ? schema.about : schema.about?.name || ''}
+          onChange={(e) => onChange({ 
+            ...schema, 
+            about: e.target.value
+          })}
+          className={INPUT_CLASS}
+          placeholder="Quiz topic or subject"
+        />
+      </div>
+    </div>
+  );
+}
+
+// QAPage Schema Form Component
+function QAPageSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: QAPageSchema; 
+  onChange: (schema: QAPageSchema) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={LABEL_CLASS}>Question</label>
+        <input
+          type="text"
+          value={schema.mainEntity?.name || ''}
+          onChange={(e) => onChange({ 
+            ...schema, 
+            mainEntity: { ...schema.mainEntity, type: 'Question', name: e.target.value }
+          })}
+          className={INPUT_CLASS}
+          placeholder="What is the main question being answered?"
+        />
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Accepted Answer</label>
+        <textarea
+          value={schema.mainEntity?.acceptedAnswer?.text || ''}
+          onChange={(e) => onChange({ 
+            ...schema, 
+            mainEntity: { 
+              ...schema.mainEntity, 
+              type: 'Question',
+              name: schema.mainEntity?.name || '',
+              acceptedAnswer: { type: 'Answer', text: e.target.value }
+            }
+          })}
+          className={INPUT_CLASS}
+          rows={3}
+          placeholder="The best answer to the question"
+        />
+      </div>
+    </div>
+  );
+}
+
+// ContactPage Schema Form Component
+function ContactPageSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: ContactPageSchema; 
+  onChange: (schema: ContactPageSchema) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className={LABEL_CLASS}>Organization Name</label>
+          <input
+            type="text"
+            value={schema.name || ''}
+            onChange={(e) => onChange({ ...schema, name: e.target.value })}
+            className={INPUT_CLASS}
+            placeholder="Your Company"
+          />
+        </div>
+        <div>
+          <label className={LABEL_CLASS}>Phone Number</label>
+          <input
+            type="tel"
+            value={schema.telephone || ''}
+            onChange={(e) => onChange({ ...schema, telephone: e.target.value })}
+            className={INPUT_CLASS}
+            placeholder="+1-555-123-4567"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Email</label>
+        <input
+          type="email"
+          value={schema.email || ''}
+          onChange={(e) => onChange({ ...schema, email: e.target.value })}
+          className={INPUT_CLASS}
+          placeholder="contact@example.com"
+        />
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Description</label>
+        <textarea
+          value={schema.description || ''}
+          onChange={(e) => onChange({ ...schema, description: e.target.value })}
+          className={INPUT_CLASS}
+          rows={2}
+          placeholder="Brief description of the contact page"
+        />
+      </div>
+    </div>
+  );
+}
+
+// AboutPage Schema Form Component
+function AboutPageSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: AboutPageSchema; 
+  onChange: (schema: AboutPageSchema) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={LABEL_CLASS}>Organization/Person Name</label>
+        <input
+          type="text"
+          value={schema.name || ''}
+          onChange={(e) => onChange({ ...schema, name: e.target.value })}
+          className={INPUT_CLASS}
+          placeholder="Your Company"
+        />
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Description</label>
+        <textarea
+          value={schema.description || ''}
+          onChange={(e) => onChange({ ...schema, description: e.target.value })}
+          className={INPUT_CLASS}
+          rows={3}
+          placeholder="Brief description about the organization"
+        />
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Founding Date</label>
+        <input
+          type="text"
+          value={schema.foundingDate || ''}
+          onChange={(e) => onChange({ ...schema, foundingDate: e.target.value })}
+          className={INPUT_CLASS}
+          placeholder="YYYY or YYYY-MM-DD"
+        />
+      </div>
+    </div>
+  );
+}
+
+// ProfilePage Schema Form Component
+function ProfilePageSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: ProfilePageSchema; 
+  onChange: (schema: ProfilePageSchema) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className={LABEL_CLASS}>Person Name</label>
+          <input
+            type="text"
+            value={schema.name || ''}
+            onChange={(e) => onChange({ ...schema, name: e.target.value })}
+            className={INPUT_CLASS}
+            placeholder="John Doe"
+          />
+        </div>
+        <div>
+          <label className={LABEL_CLASS}>Job Title</label>
+          <input
+            type="text"
+            value={schema.jobTitle || ''}
+            onChange={(e) => onChange({ ...schema, jobTitle: e.target.value })}
+            className={INPUT_CLASS}
+            placeholder="Software Engineer"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Bio/Description</label>
+        <textarea
+          value={schema.description || ''}
+          onChange={(e) => onChange({ ...schema, description: e.target.value })}
+          className={INPUT_CLASS}
+          rows={3}
+          placeholder="Brief bio about the person"
+        />
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Social Media Links (comma-separated)</label>
+        <input
+          type="text"
+          value={schema.sameAs?.join(', ') || ''}
+          onChange={(e) => onChange({ 
+            ...schema, 
+            sameAs: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+          })}
+          className={INPUT_CLASS}
+          placeholder="https://twitter.com/username, https://linkedin.com/in/username"
+        />
+      </div>
+    </div>
+  );
+}
+
+// LiveBlogPosting Schema Form Component
+function LiveBlogPostingSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: LiveBlogPostingSchema; 
+  onChange: (schema: LiveBlogPostingSchema) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={LABEL_CLASS}>Headline</label>
+        <input
+          type="text"
+          value={schema.headline || ''}
+          onChange={(e) => onChange({ ...schema, headline: e.target.value })}
+          className={INPUT_CLASS}
+          placeholder="Live Coverage: Event Name"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className={LABEL_CLASS}>Coverage Start Time</label>
+          <input
+            type="datetime-local"
+            value={schema.coverageStartTime || ''}
+            onChange={(e) => onChange({ ...schema, coverageStartTime: e.target.value })}
+            className={INPUT_CLASS}
+          />
+        </div>
+        <div>
+          <label className={LABEL_CLASS}>Coverage End Time</label>
+          <input
+            type="datetime-local"
+            value={schema.coverageEndTime || ''}
+            onChange={(e) => onChange({ ...schema, coverageEndTime: e.target.value })}
+            className={INPUT_CLASS}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// MedicalWebPage Schema Form Component
+function MedicalWebPageSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: MedicalWebPageSchema; 
+  onChange: (schema: MedicalWebPageSchema) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={LABEL_CLASS}>Page Name</label>
+        <input
+          type="text"
+          value={schema.name || ''}
+          onChange={(e) => onChange({ ...schema, name: e.target.value })}
+          className={INPUT_CLASS}
+          placeholder="Medical/Health Page Title"
+        />
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Medical Aspect</label>
+        <select
+          value={schema.aspect || ''}
+          onChange={(e) => onChange({ ...schema, aspect: e.target.value })}
+          className={INPUT_CLASS}
+        >
+          <option value="">Select aspect...</option>
+          <option value="Symptoms">Symptoms</option>
+          <option value="Diagnosis">Diagnosis</option>
+          <option value="Treatment">Treatment</option>
+          <option value="Prevention">Prevention</option>
+          <option value="Causes">Causes</option>
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className={LABEL_CLASS}>Last Reviewed Date</label>
+          <input
+            type="date"
+            value={schema.lastReviewed || ''}
+            onChange={(e) => onChange({ ...schema, lastReviewed: e.target.value })}
+            className={INPUT_CLASS}
+          />
+        </div>
+        <div>
+          <label className={LABEL_CLASS}>Reviewed By</label>
+          <input
+            type="text"
+            value={schema.reviewedBy?.name || ''}
+            onChange={(e) => onChange({ 
+              ...schema, 
+              reviewedBy: { name: e.target.value, type: 'Person' }
+            })}
+            className={INPUT_CLASS}
+            placeholder="Dr. Jane Doe"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// SpecialAnnouncement Schema Form Component
+function SpecialAnnouncementSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: SpecialAnnouncementSchema; 
+  onChange: (schema: SpecialAnnouncementSchema) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={LABEL_CLASS}>Announcement Title</label>
+        <input
+          type="text"
+          value={schema.name || ''}
+          onChange={(e) => onChange({ ...schema, name: e.target.value })}
+          className={INPUT_CLASS}
+          placeholder="Important Update"
+        />
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Announcement Text</label>
+        <textarea
+          value={schema.text || ''}
+          onChange={(e) => onChange({ ...schema, text: e.target.value })}
+          className={INPUT_CLASS}
+          rows={3}
+          placeholder="Details of the announcement"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className={LABEL_CLASS}>Date Posted</label>
+          <input
+            type="datetime-local"
+            value={schema.datePosted || ''}
+            onChange={(e) => onChange({ ...schema, datePosted: e.target.value })}
+            className={INPUT_CLASS}
+          />
+        </div>
+        <div>
+          <label className={LABEL_CLASS}>Expires</label>
+          <input
+            type="datetime-local"
+            value={schema.expires || ''}
+            onChange={(e) => onChange({ ...schema, expires: e.target.value })}
+            className={INPUT_CLASS}
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Spatial Coverage (comma-separated)</label>
+        <input
+          type="text"
+          value={Array.isArray(schema.spatialCoverage) ? schema.spatialCoverage.join(', ') : schema.spatialCoverage || ''}
+          onChange={(e) => onChange({ 
+            ...schema, 
+            spatialCoverage: e.target.value.includes(',') 
+              ? e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+              : e.target.value
+          })}
+          className={INPUT_CLASS}
+          placeholder="USA, Canada, Europe"
+        />
+      </div>
+    </div>
+  );
+}
+
+// Dataset Schema Form Component
+function DatasetSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: DatasetSchema; 
+  onChange: (schema: DatasetSchema) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={LABEL_CLASS}>Dataset Name</label>
+        <input
+          type="text"
+          value={schema.name || ''}
+          onChange={(e) => onChange({ ...schema, name: e.target.value })}
+          className={INPUT_CLASS}
+          placeholder="Dataset Title"
+        />
+      </div>
+
+      <div>
+        <label className={LABEL_CLASS}>Description</label>
+        <textarea
+          value={schema.description || ''}
+          onChange={(e) => onChange({ ...schema, description: e.target.value })}
+          className={INPUT_CLASS}
+          rows={2}
+          placeholder="Brief description of the dataset"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className={LABEL_CLASS}>Temporal Coverage</label>
+          <input
+            type="text"
+            value={schema.temporalCoverage || ''}
+            onChange={(e) => onChange({ ...schema, temporalCoverage: e.target.value })}
+            className={INPUT_CLASS}
+            placeholder="2020/2024 or 2020-01-01/2024-12-31"
+          />
+        </div>
+        <div>
+          <label className={LABEL_CLASS}>License</label>
+          <input
+            type="text"
+            value={schema.license || ''}
+            onChange={(e) => onChange({ ...schema, license: e.target.value })}
+            className={INPUT_CLASS}
+            placeholder="CC-BY-4.0, MIT, etc."
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Generic Schema Form Component for simple schemas
+function GenericSchemaForm({ 
+  schema, 
+  onChange 
+}: { 
+  schema: PageSchema; 
+  onChange: (schema: PageSchema) => void;
+}) {
+  return (
+    <div className="text-sm text-gray-600 dark:text-gray-400">
+      <p>This schema type is automatically generated based on page content.</p>
+      <p className="mt-2">No additional configuration needed.</p>
     </div>
   );
 }

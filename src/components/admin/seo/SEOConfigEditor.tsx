@@ -713,11 +713,16 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                     <SocialMediaPreview
                       title={config.defaultTitle || config.siteName}
                       description={config.defaultDescription}
-                      imageUrl={config.openGraph.defaultImage.startsWith('http') 
-                        ? config.openGraph.defaultImage 
-                        : config.openGraph.defaultImage 
-                          ? `${config.siteUrl}${config.openGraph.defaultImage}` 
-                          : ''}
+                      imageUrl={(() => {
+                        if (!config.openGraph.defaultImage) return '';
+                        if (config.openGraph.defaultImage.startsWith('http')) {
+                          return config.openGraph.defaultImage;
+                        }
+                        const currentOrigin = typeof window !== 'undefined' 
+                          ? window.location.origin 
+                          : config.siteUrl;
+                        return `${currentOrigin}${config.openGraph.defaultImage}`;
+                      })()}
                       url={config.siteUrl}
                       siteName={config.siteName}
                       twitterCard={'summary_large_image' as any}

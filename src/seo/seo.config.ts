@@ -11,7 +11,7 @@ export const seoConfig = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    defaultImage: '/images/og-default.jpg',
+    defaultImage: '/logos/og-default-logo.png',
     imageWidth: 1200,
     imageHeight: 630
   },
