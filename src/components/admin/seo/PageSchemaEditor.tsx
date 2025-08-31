@@ -250,7 +250,7 @@ export default function PageSchemaEditor({
         />;
       
       default:
-        return <div className="text-sm text-gray-500">Schema editor not yet implemented for {schema.type}</div>;
+        return <div className="text-sm text-gray-500">Schema editor not yet implemented for {(schema as any).type || 'unknown'}</div>;
     }
   };
 
