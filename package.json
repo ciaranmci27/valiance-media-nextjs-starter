@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/ensure-page-seo.js && node scripts/generate-routes.js && node scripts/generate-pages-config.js && next build",
+    "build": "node scripts/ensure-page-seo.js && node scripts/generate-sitemap-pages.js && node scripts/generate-routes.js && node scripts/generate-pages-config.js && next build",
     "ensure-seo": "node scripts/ensure-page-seo.js",
     "start": "next start",
     "lint": "next lint",
@@ -29,6 +29,7 @@
     "type-check": "tsc --noEmit",
     "generate-routes": "node scripts/generate-routes.js",
     "generate-pages": "node scripts/generate-pages-config.js",
+    "generate-sitemap": "node scripts/generate-sitemap-pages.js",
     "setup-auth": "npx tsx scripts/setup-auth.ts"
   },
   "dependencies": {

@@ -1,0 +1,96 @@
+{
+  "generated": "2025-09-01T23:44:44.471Z",
+  "staticRoutes": [
+    {
+      "route": "",
+      "priority": 1,
+      "changeFrequency": "weekly",
+      "hasConfig": true,
+      "isClientComponent": false
+    },
+    {
+      "route": "/blog",
+      "priority": 0.9,
+      "changeFrequency": "daily",
+      "hasConfig": false,
+      "isClientComponent": false
+    },
+    {
+      "route": "/terms-of-service",
+      "priority": 0.6,
+      "changeFrequency": "yearly",
+      "hasConfig": true,
+      "isClientComponent": false
+    },
+    {
+      "route": "/privacy",
+      "priority": 0.5,
+      "changeFrequency": "monthly",
+      "hasConfig": true,
+      "isClientComponent": false
+    }
+  ],
+  "excludedRoutes": [
+    {
+      "route": "/admin/blog/categories/new",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/blog/categories",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/blog",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/blog-post",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/categories",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/login",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/pages/new",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/pages",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/seo/edit",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/seo",
+      "reason": "Admin route"
+    },
+    {
+      "route": "/admin/settings",
+      "reason": "Admin route"
+    }
+  ],
+  "dynamicRoutes": [
+    "/admin/blog/categories/[slug]/edit",
+    "/admin/blog-post/[slug]",
+    "/admin/pages/[slug]/edit",
+    "/blog/[category]",
+    "/blog/[category]/[slug]"
+  ],
+  "stats": {
+    "total": 21,
+    "included": 4,
+    "excluded": 12,
+    "dynamic": 5
+  }
+}

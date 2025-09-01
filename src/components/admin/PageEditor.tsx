@@ -44,6 +44,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
   const [robots, setRobots] = useState('index, follow');
   const [priority, setPriority] = useState(0.5);
   const [changefreq, setChangefreq] = useState<'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'>('monthly');
+  const [excludeFromSitemap, setExcludeFromSitemap] = useState(false);
   const [schemas, setSchemas] = useState<PageSchema[]>([]);
   const [showOGPreview, setShowOGPreview] = useState(false);
   const [hasManuallyEditedSlug, setHasManuallyEditedSlug] = useState(false);
@@ -84,6 +85,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         setRobots(`${indexPart}, ${followPart}`);
         setPriority(config.sitemap?.priority || 0.5);
         setChangefreq(config.sitemap?.changeFrequency || 'monthly');
+        setExcludeFromSitemap(config.sitemap?.exclude || false);
         setSchemas(config.schemas || []);
         // Note: ogTitle, ogDescription, ogImage would need to be added to PageSEOConfig if needed
       }
@@ -193,7 +195,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
           image: ogImage
         },
         sitemap: {
-          exclude: robots.includes('noindex'),
+          exclude: excludeFromSitemap || robots.includes('noindex'),
           priority: priority,
           changeFrequency: changefreq
         },
@@ -952,6 +954,25 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                     How often the page content changes
                   </p>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <label className="text-label block">Exclude from Sitemap</label>
+                  <p className="text-xs mt-1 text-gray-500">
+                    Prevent this page from appearing in the sitemap.xml
+                  </p>
+                  {robots.includes('noindex') && (
+                    <p className="text-xs mt-1 text-amber-600">
+                      Note: Page is already excluded due to noindex setting
+                    </p>
+                  )}
+                </div>
+                <Switch
+                  checked={excludeFromSitemap}
+                  onChange={setExcludeFromSitemap}
+                  disabled={robots.includes('noindex')}
+                />
               </div>
 
               <div>
