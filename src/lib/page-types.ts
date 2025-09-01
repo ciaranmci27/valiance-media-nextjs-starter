@@ -9,6 +9,7 @@ export interface PageSEOConfig {
     description: string;
     keywords?: string[];
     noIndex?: boolean;
+    noFollow?: boolean;
     canonical?: string;
     image?: string;
   };

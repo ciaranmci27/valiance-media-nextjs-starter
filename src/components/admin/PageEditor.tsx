@@ -78,7 +78,10 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         setSeoDescription(config.seo?.description || '');
         setSeoKeywords(config.seo?.keywords || []);
         setCanonicalUrl(config.seo?.canonical || '');
-        setRobots(config.seo?.noIndex ? 'noindex, nofollow' : 'index, follow');
+        // Set robots based on noIndex and noFollow
+        const indexPart = config.seo?.noIndex ? 'noindex' : 'index';
+        const followPart = config.seo?.noFollow ? 'nofollow' : 'follow';
+        setRobots(`${indexPart}, ${followPart}`);
         setPriority(config.sitemap?.priority || 0.5);
         setChangefreq(config.sitemap?.changeFrequency || 'monthly');
         setSchemas(config.schemas || []);
@@ -185,6 +188,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
           description: seoDescription,
           keywords: seoKeywords,
           noIndex: robots.includes('noindex'),
+          noFollow: robots.includes('nofollow'),
           canonical: canonicalUrl,
           image: ogImage
         },

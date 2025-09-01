@@ -461,7 +461,8 @@ export async function savePage(slug: string, content: string | undefined, seoCon
       ...seoConfig,
       seo: {
         ...seoConfig.seo,
-        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false)
+        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false),
+        noFollow: isClientComponent ? true : (seoConfig.seo?.noFollow || false)
       },
       sitemap: {
         ...seoConfig.sitemap,
@@ -545,7 +546,8 @@ export async function savePage(slug: string, content: string | undefined, seoCon
       ...seoConfig,
       seo: {
         ...seoConfig.seo,
-        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false)
+        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false),
+        noFollow: isClientComponent ? true : (seoConfig.seo?.noFollow || false)
       },
       sitemap: {
         ...seoConfig.sitemap,
@@ -707,7 +709,8 @@ export function generateDefaultSEOConfig(slug: string, title: string): PageSEOCo
       title: `${title} - ${globalSeoConfig.siteName}`,
       description: `${title} page for ${globalSeoConfig.siteName}`,
       keywords: [slug, title.toLowerCase()],
-      noIndex: false
+      noIndex: false,
+      noFollow: false
     },
     sitemap: {
       exclude: false,
