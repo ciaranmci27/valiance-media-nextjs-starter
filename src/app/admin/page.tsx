@@ -77,7 +77,7 @@ export default function AdminDashboard() {
       
       // Check pages
       const pagesResponse = await fetch('/api/admin/pages');
-      const pages = pagesResponse.ok ? await pagesResponse.json() : [];
+      const pagesData = pagesResponse.ok ? await pagesResponse.json() : { pages: [] };
       
       setSystemStatus({
         githubConnected: !!(envData.github?.token && envData.github?.owner && envData.github?.repo),
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
         analyticsEnabled: !!(analyticsData.googleAnalyticsId || analyticsData.facebookPixelId),
         seoOptimized: true,
         sitemapGenerated: true,
-        totalPages: pages.length || 5
+        totalPages: pagesData.pages?.length || 0  // Correctly access pages array and use 0 as fallback
       });
     } catch (error) {
       console.error('Error checking system status:', error);

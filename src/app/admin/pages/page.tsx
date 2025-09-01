@@ -149,24 +149,52 @@ function PagesListContent() {
     const grouped: Record<string, PageListItem[]> = {};
     const topLevel: PageListItem[] = [];
     
-    filteredPages.forEach(page => {
-      const parts = page.slug.split('/');
-      
-      // If it has 3 or more parts (e.g., quiz/archetype/start), group it
-      if (parts.length >= 3) {
-        const parentPath = parts.slice(0, 2).join('/'); // e.g., "quiz/archetype"
-        if (!grouped[parentPath]) {
-          grouped[parentPath] = [];
+    // When filtering (not 'all'), show a flat list unless parent/children both match
+    if (filter !== 'all') {
+      // For filtered views, only group if the parent also matches the filter
+      filteredPages.forEach(page => {
+        const parts = page.slug.split('/');
+        
+        // Check if this is a nested page (3+ parts)
+        if (parts.length >= 3) {
+          const parentPath = parts.slice(0, 2).join('/');
+          // Check if the parent is also in the filtered results
+          const parentInResults = filteredPages.some(p => p.slug === parentPath);
+          
+          if (parentInResults) {
+            // Parent matches filter too, so group them
+            if (!grouped[parentPath]) {
+              grouped[parentPath] = [];
+            }
+            grouped[parentPath].push(page);
+          } else {
+            // Parent doesn't match filter, show child as top-level
+            topLevel.push(page);
+          }
+        } else {
+          // Top level or single nested pages
+          topLevel.push(page);
         }
-        grouped[parentPath].push(page);
-      } else {
-        // Top level or single nested pages
-        topLevel.push(page);
-      }
-    });
+      });
+    } else {
+      // For 'all' view, always group nested pages under their parents
+      filteredPages.forEach(page => {
+        const parts = page.slug.split('/');
+        
+        if (parts.length >= 3) {
+          const parentPath = parts.slice(0, 2).join('/');
+          if (!grouped[parentPath]) {
+            grouped[parentPath] = [];
+          }
+          grouped[parentPath].push(page);
+        } else {
+          topLevel.push(page);
+        }
+      });
+    }
     
     return { grouped, topLevel };
-  }, [filteredPages]);
+  }, [filteredPages, filter]);
   
   const toggleGroup = (groupKey: string) => {
     setExpandedGroups(prev => {

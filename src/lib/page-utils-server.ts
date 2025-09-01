@@ -200,8 +200,13 @@ export async function getAllPages(): Promise<PageListItem[]> {
       // This part is already handled above with PAGES_CONFIG_PATH
     }
     
+    // Remove duplicates (keeping the first occurrence)
+    const uniquePages = pages.filter((page, index, self) =>
+      index === self.findIndex(p => p.slug === page.slug)
+    );
+    
     // Sort by title
-    return pages.sort((a, b) => a.title.localeCompare(b.title));
+    return uniquePages.sort((a, b) => a.title.localeCompare(b.title));
   } catch (error) {
     console.error('Error getting pages:', error);
     return [];
@@ -415,7 +420,7 @@ async function updatePagesConfig(): Promise<void> {
 }
 
 // Save page
-export async function savePage(slug: string, content: string, seoConfig: PageSEOConfig): Promise<void> {
+export async function savePage(slug: string, content: string | undefined, seoConfig: PageSEOConfig): Promise<void> {
   // Check if we're in production
   if (process.env.NODE_ENV === 'production') {
     throw new Error('Page editing is not available in production. Please edit pages locally and redeploy.');
@@ -430,22 +435,131 @@ export async function savePage(slug: string, content: string, seoConfig: PageSEO
     const seoPath = path.join(homeDir, 'seo-config.json');
     
     await fs.mkdir(homeDir, { recursive: true });
-    await fs.writeFile(pagePath, content, 'utf-8');
-    // Always write seo-config.json, even for dynamic pages (they need it for title in admin)
-    await fs.writeFile(seoPath, JSON.stringify(seoConfig, null, 2), 'utf-8');
+    
+    // Only write content if provided (not undefined/empty)
+    if (content && content.trim()) {
+      await fs.writeFile(pagePath, content, 'utf-8');
+    }
+    
+    // Read the actual content for checks (use provided content or read from file)
+    let actualContent = content;
+    if (!actualContent) {
+      try {
+        actualContent = await fs.readFile(pagePath, 'utf-8');
+      } catch {
+        actualContent = '';
+      }
+    }
+    
+    // Check if this is a client component (has 'use client' directive at the top)
+    const isClientComponent = actualContent.trimStart().startsWith("'use client'") || 
+                             actualContent.trimStart().startsWith('"use client"');
+    
+    // Always write SEO config for admin metadata tracking
+    // For dynamic pages, automatically set noindex and exclude from sitemap
+    const configToSave = {
+      ...seoConfig,
+      seo: {
+        ...seoConfig.seo,
+        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false),
+        noFollow: isClientComponent ? true : (seoConfig.seo?.noFollow || false)
+      },
+      sitemap: {
+        ...seoConfig.sitemap,
+        exclude: isClientComponent ? true : (seoConfig.sitemap?.exclude || false)
+      },
+      metadata: {
+        ...seoConfig.metadata,
+        isClientComponent // Track this in the config
+      }
+    };
+    
+    await fs.writeFile(seoPath, JSON.stringify(configToSave, null, 2), 'utf-8');
   } else {
-    // For other pages, create directory in (pages) if needed
-    const pageDir = path.join(APP_DIR, '(pages)', slug);
+    // First, try to find where the page currently exists
+    const slugParts = slug.split('/');
+    
+    // List of possible locations to check (same as in getPageBySlug)
+    const possibleLocations = [
+      path.join(APP_DIR, '(pages)', ...slugParts),
+      path.join(APP_DIR, '(pages)', '(auth)', ...slugParts),
+      path.join(APP_DIR, ...slugParts),
+    ];
+    
+    // Special handling for auth pages
+    if (slugParts[0] === 'signup' || slugParts[0] === 'reset-password' || slugParts[0] === 'confirm-email') {
+      // Prioritize (auth) route group for auth pages
+      possibleLocations.unshift(path.join(APP_DIR, '(pages)', '(auth)', ...slugParts));
+    }
+    
+    // Find the existing page location
+    let pageDir = '';
+    for (const location of possibleLocations) {
+      try {
+        await fs.access(path.join(location, 'page.tsx'));
+        pageDir = location;
+        break;
+      } catch {
+        // Continue to next location
+      }
+    }
+    
+    // If page doesn't exist yet, create it in the appropriate location
+    if (!pageDir) {
+      // For auth pages, create in (auth) route group
+      if (slugParts[0] === 'signup' || slugParts[0] === 'reset-password' || slugParts[0] === 'confirm-email') {
+        pageDir = path.join(APP_DIR, '(pages)', '(auth)', ...slugParts);
+      } else {
+        // Default location for new pages
+        pageDir = path.join(APP_DIR, '(pages)', ...slugParts);
+      }
+    }
+    
     const pagePath = path.join(pageDir, 'page.tsx');
     const seoPath = path.join(pageDir, 'seo-config.json');
     
     // Create directory if it doesn't exist
     await fs.mkdir(pageDir, { recursive: true });
     
-    // Write files
-    await fs.writeFile(pagePath, content, 'utf-8');
-    // Always write seo-config.json, even for dynamic pages (they need it for title in admin)
-    await fs.writeFile(seoPath, JSON.stringify(seoConfig, null, 2), 'utf-8');
+    // Only write content if provided (not undefined/empty)
+    if (content && content.trim()) {
+      await fs.writeFile(pagePath, content, 'utf-8');
+    }
+    
+    // Read the actual content for checks (use provided content or read from file)
+    let actualContent = content;
+    if (!actualContent) {
+      try {
+        actualContent = await fs.readFile(pagePath, 'utf-8');
+      } catch {
+        actualContent = '';
+      }
+    }
+    
+    // Check if this is a client component (has 'use client' directive at the top)
+    const isClientComponent = actualContent.trimStart().startsWith("'use client'") || 
+                             actualContent.trimStart().startsWith('"use client"');
+    
+    // Always write SEO config for admin metadata tracking
+    // For dynamic pages, automatically set noindex and exclude from sitemap
+    const configToSave = {
+      ...seoConfig,
+      seo: {
+        ...seoConfig.seo,
+        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false),
+        noFollow: isClientComponent ? true : (seoConfig.seo?.noFollow || false)
+      },
+      sitemap: {
+        ...seoConfig.sitemap,
+        exclude: isClientComponent ? true : (seoConfig.sitemap?.exclude || false)
+      },
+      metadata: {
+        ...seoConfig.metadata,
+        isClientComponent // Track this in the config
+      }
+    };
+    
+    await fs.writeFile(seoPath, JSON.stringify(configToSave, null, 2), 'utf-8');
   }
   
   // Update pages configuration file
@@ -486,54 +600,62 @@ export async function deletePage(slug: string): Promise<void> {
     throw new Error('Page deletion is not available in production. Please delete pages locally and redeploy.');
   }
   
-  // First try (pages) directory, then fall back to root
-  const pagesDir = path.join(APP_DIR, '(pages)', slug);
-  const rootDir = path.join(APP_DIR, slug);
+  // Find where the page actually exists (similar to savePage logic)
+  const slugParts = slug.split('/');
+  const possibleLocations = [
+    path.join(APP_DIR, '(pages)', ...slugParts),
+    path.join(APP_DIR, '(pages)', '(auth)', ...slugParts),
+    path.join(APP_DIR, ...slugParts),
+  ];
   
-  let deletedFromPages = false;
+  // Special handling for auth pages
+  if (slugParts[0] === 'signup' || slugParts[0] === 'reset-password' || slugParts[0] === 'confirm-email') {
+    possibleLocations.unshift(path.join(APP_DIR, '(pages)', '(auth)', ...slugParts));
+  }
   
-  // Try to delete from (pages) first
-  try {
-    await fs.rm(pagesDir, { recursive: true, force: true });
-    deletedFromPages = true;
-  } catch (error) {
-    // Try root directory
+  // Find and delete the page from its actual location
+  let deleted = false;
+  for (const location of possibleLocations) {
     try {
-      await fs.rm(rootDir, { recursive: true, force: true });
-    } catch (error) {
-      console.error(`Error deleting page ${slug}:`, error);
-      throw error;
+      await fs.access(path.join(location, 'page.tsx'));
+      await fs.rm(location, { recursive: true, force: true });
+      deleted = true;
+      break;
+    } catch {
+      // Continue to next location
     }
   }
   
-  // Clean up empty parent directories if the deleted page was in a subdirectory
-  if (slug.includes('/')) {
+  if (!deleted) {
+    throw new Error(`Page '${slug}' not found`);
+  }
+  
+  // Clean up empty parent directories if this was a nested page
+  if (deleted && slug.includes('/')) {
     const parts = slug.split('/');
-    parts.pop(); // Remove the deleted page
+    parts.pop(); // Remove the last part (the page we just deleted)
     
+    // Work backwards through parent directories
     while (parts.length > 0) {
-      const parentPath = deletedFromPages
-        ? path.join(APP_DIR, '(pages)', ...parts)
-        : path.join(APP_DIR, ...parts);
+      const parentPath = path.join(APP_DIR, '(pages)', ...parts);
       
+      // Check if this parent directory has other pages
       const hasOtherPages = await hasOtherPagesInParentDir(parentPath);
       
       if (!hasOtherPages) {
+        // Directory is empty (no other pages), safe to delete
         try {
-          // Check if directory is empty before removing
-          const entries = await fs.readdir(parentPath);
-          if (entries.length === 0) {
-            await fs.rmdir(parentPath); // Remove empty directory
-          } else {
-            break; // Directory has other files
-          }
+          await fs.rmdir(parentPath);
         } catch {
-          break; // Can't remove directory or it doesn't exist
+          // Directory might have other non-page files, that's okay
+          break;
         }
       } else {
-        break; // Directory has other pages
+        // Directory has other pages, stop cleaning up
+        break;
       }
-      parts.pop(); // Move up to next parent
+      
+      parts.pop(); // Move up to next parent directory
     }
   }
   

@@ -214,7 +214,10 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         body: JSON.stringify({
           title,
           slug: pageSlug,
-          content: content || undefined, // Let the backend generate default content if empty
+          // For dynamic pages (client components), don't send content unless it's been modified
+          content: initialPage?.isClientComponent && content === initialPage?.content 
+            ? undefined  // Don't send unchanged content for dynamic pages
+            : content || undefined, // Let the backend generate default content if empty
           seoConfig,
           newSlug: !isNew && slug !== initialPage?.slug ? slug : undefined
         }),
@@ -226,10 +229,23 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         // Use router.replace for more reliable navigation
         router.replace('/admin/pages');
       } else {
-        const error = await response.json();
-        console.error('Save failed:', error);
+        let errorMessage = 'Unknown error';
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const error = await response.json();
+            errorMessage = error.error || errorMessage;
+          } else {
+            // If not JSON, it's likely an HTML error page
+            errorMessage = `Server error (${response.status})`;
+          }
+        } catch (parseError) {
+          console.error('Error parsing response:', parseError);
+          errorMessage = `Server error (${response.status})`;
+        }
+        console.error('Save failed:', errorMessage);
         setSaving(false);
-        alert(`Failed to save page: ${error.error || 'Unknown error'}`);
+        alert(`Failed to save page: ${errorMessage}`);
       }
     } catch (error) {
       console.error('Error saving page:', error);
