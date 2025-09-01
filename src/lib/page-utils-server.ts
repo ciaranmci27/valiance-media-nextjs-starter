@@ -461,8 +461,7 @@ export async function savePage(slug: string, content: string | undefined, seoCon
       ...seoConfig,
       seo: {
         ...seoConfig.seo,
-        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false),
-        noFollow: isClientComponent ? true : (seoConfig.seo?.noFollow || false)
+        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false)
       },
       sitemap: {
         ...seoConfig.sitemap,
@@ -546,8 +545,7 @@ export async function savePage(slug: string, content: string | undefined, seoCon
       ...seoConfig,
       seo: {
         ...seoConfig.seo,
-        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false),
-        noFollow: isClientComponent ? true : (seoConfig.seo?.noFollow || false)
+        noIndex: isClientComponent ? true : (seoConfig.seo?.noIndex || false)
       },
       sitemap: {
         ...seoConfig.sitemap,
