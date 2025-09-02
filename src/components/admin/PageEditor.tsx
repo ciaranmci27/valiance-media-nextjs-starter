@@ -82,7 +82,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         if (Array.isArray(keywords)) {
           setSeoKeywords(keywords);
         } else if (typeof keywords === 'string') {
-          setSeoKeywords(keywords.split(',').map(k => k.trim()).filter(k => k));
+          setSeoKeywords((keywords as string).split(',').map(k => k.trim()).filter(k => k));
         } else {
           setSeoKeywords([]);
         }
