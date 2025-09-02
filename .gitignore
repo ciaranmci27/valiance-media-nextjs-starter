@@ -150,3 +150,8 @@ settings.json
 # yarn.lock
 # pnpm-lock.yaml
 # bun.lockb
+
+# Generated files (created during build)
+/public/pages-config.json
+/src/seo/generated-sitemap-routes.json
+/src/middleware.ts

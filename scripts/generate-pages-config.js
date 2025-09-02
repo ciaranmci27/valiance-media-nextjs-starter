@@ -118,38 +118,50 @@ function scanDirectoryForPages(dir, basePath = '') {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     
     for (const entry of entries) {
-      if (entry.isDirectory() && 
-          !EXCLUDED_DIRS.includes(entry.name) && 
-          !entry.name.startsWith('_') && 
-          !entry.name.startsWith('[') && 
-          !entry.name.startsWith('(')) {
+      if (entry.isDirectory()) {
+        // Check if it's a route group (e.g., (auth), (pages))
+        const isRouteGroup = entry.name.startsWith('(') && entry.name.endsWith(')');
         
-        const fullPath = path.join(dir, entry.name);
-        const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
-        const pageTsxPath = path.join(fullPath, 'page.tsx');
-        const pageJsPath = path.join(fullPath, 'page.js');
+        // Skip excluded directories and special directories (but allow route groups)
+        const shouldSkip = EXCLUDED_DIRS.includes(entry.name) || 
+                          entry.name.startsWith('_') || 
+                          entry.name.startsWith('[');
         
-        // Check if this directory has a page file
-        if (fs.existsSync(pageTsxPath) || fs.existsSync(pageJsPath)) {
-          const seoConfig = getSEOConfig(fullPath);
-          const isClient = isClientComponent(fullPath);
+        if (!shouldSkip) {
+          const fullPath = path.join(dir, entry.name);
+          // For route groups, don't include them in the path
+          const relativePath = isRouteGroup 
+            ? basePath 
+            : (basePath ? `${basePath}/${entry.name}` : entry.name);
           
-          pages.push({
-            slug: relativePath,
-            title: seoConfig?.seo?.title || formatTitle(entry.name),
-            path: `/${relativePath}`,
-            category: seoConfig?.metadata?.category || 'general',
-            featured: seoConfig?.metadata?.featured || false,
-            draft: seoConfig?.metadata?.draft || false,
-            lastModified: seoConfig?.metadata?.lastModified,
-            isHomePage: false,
-            isClientComponent: isClient
-          });
+          // Only check for page files in non-route-group directories
+          if (!isRouteGroup) {
+            const pageTsxPath = path.join(fullPath, 'page.tsx');
+            const pageJsPath = path.join(fullPath, 'page.js');
+            
+            // Check if this directory has a page file
+            if (fs.existsSync(pageTsxPath) || fs.existsSync(pageJsPath)) {
+              const seoConfig = getSEOConfig(fullPath);
+              const isClient = isClientComponent(fullPath);
+              
+              pages.push({
+                slug: relativePath,
+                title: seoConfig?.seo?.title || formatTitle(entry.name),
+                path: `/${relativePath}`,
+                category: seoConfig?.metadata?.category || 'general',
+                featured: seoConfig?.metadata?.featured || false,
+                draft: seoConfig?.metadata?.draft || false,
+                lastModified: seoConfig?.metadata?.lastModified,
+                isHomePage: false,
+                isClientComponent: isClient
+              });
+            }
+          }
+          
+          // Recursively scan subdirectories (including route groups)
+          const subPages = scanDirectoryForPages(fullPath, relativePath);
+          pages.push(...subPages);
         }
-        
-        // Recursively scan subdirectories
-        const subPages = scanDirectoryForPages(fullPath, relativePath);
-        pages.push(...subPages);
       }
     }
   } catch (error) {
