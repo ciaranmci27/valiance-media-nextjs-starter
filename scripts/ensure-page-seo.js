@@ -70,11 +70,19 @@ async function ensureMetadata() {
   
   let updatedCount = 0;
   let skippedClientCount = 0;
+  let skippedDynamicCount = 0;
   let alreadyHasMetadataCount = 0;
   let oldStyleMetadataCount = 0;
   
   for (const filePath of pageFiles) {
     const content = fs.readFileSync(filePath, 'utf-8');
+    
+    // Skip dynamic routes (with [param] in the path)
+    if (filePath.includes('[') && filePath.includes(']')) {
+      console.log(`⏭️  Skipping dynamic route: ${filePath}`);
+      skippedDynamicCount++;
+      continue;
+    }
     
     // Skip client components
     if (isClientComponent(content)) {
@@ -140,6 +148,7 @@ export const metadata = generateStaticMetadata('${slug}');
   console.log(`
 Summary:
 - Total pages found: ${pageFiles.length}
+- Dynamic routes skipped: ${skippedDynamicCount}
 - Client components skipped: ${skippedClientCount}
 - Already had metadata: ${alreadyHasMetadataCount}
 - Updated with metadata: ${updatedCount}
