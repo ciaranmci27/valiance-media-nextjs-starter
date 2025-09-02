@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { seoConfig } from './seo.config';
 import { loadPageSeoConfig } from '@/lib/page-seo-utils';
+import { loadBlogPosts } from '@/lib/blog-utils';
 import fs from 'fs';
 import path from 'path';
 
@@ -45,9 +46,43 @@ export function sitemapPages(customBaseUrl?: string): MetadataRoute.Sitemap {
     staticRoutes = getFallbackStaticRoutes(sitemapConfig);
   }
 
+  // Special handling for /blog page - check if there are published posts
+  let hasPublishedBlogPosts = false;
+  try {
+    const allBlogPosts = loadBlogPosts();
+    
+    // Use the same filtering logic as sitemap-blog-posts.ts
+    const publishedBlogPosts = allBlogPosts.filter((post) => {
+      // Exclude drafts
+      if (post.draft) return false;
+      
+      // Exclude posts marked to exclude from search
+      if (post.excludeFromSearch) return false;
+      
+      // Exclude posts with example patterns in filename
+      const hasExcludedPattern = sitemapConfig.excludedBlogPatterns.some(pattern => 
+        post.slug.toLowerCase().includes(pattern.toLowerCase())
+      );
+      if (hasExcludedPattern) return false;
+      
+      return true;
+    });
+    
+    hasPublishedBlogPosts = publishedBlogPosts.length > 0;
+  } catch (error) {
+    console.warn('Error checking blog posts for sitemap:', error);
+    hasPublishedBlogPosts = false;
+  }
+
   // Filter and build sitemap entries with page-level configuration support
   return staticRoutes
     .filter(({ route }) => {
+      // Special rule: Exclude /blog if no published posts exist
+      if (route === '/blog' && !hasPublishedBlogPosts) {
+        console.log('Excluding /blog from sitemap - no published posts found');
+        return false;
+      }
+      
       // Check global exclusions
       if (sitemapConfig.excludedPages.includes(route)) return false;
       

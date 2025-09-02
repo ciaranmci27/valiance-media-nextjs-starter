@@ -49,6 +49,11 @@ function hasMetadataExport(content) {
          content.includes('export async function generateMetadata');
 }
 
+// Function to check if metadata uses the correct generateStaticMetadata pattern
+function hasCorrectMetadataPattern(content) {
+  return content.includes('generateStaticMetadata(');
+}
+
 // Function to check if file has 'use client' directive
 function isClientComponent(content) {
   const firstLine = content.trimStart();
@@ -66,6 +71,7 @@ async function ensureMetadata() {
   let updatedCount = 0;
   let skippedClientCount = 0;
   let alreadyHasMetadataCount = 0;
+  let oldStyleMetadataCount = 0;
   
   for (const filePath of pageFiles) {
     const content = fs.readFileSync(filePath, 'utf-8');
@@ -79,7 +85,15 @@ async function ensureMetadata() {
     
     // Check if already has metadata
     if (hasMetadataExport(content)) {
-      console.log(`✅ Already has metadata: ${filePath}`);
+      // Check if it's using the correct pattern
+      if (!hasCorrectMetadataPattern(content)) {
+        const slug = getSlugFromPath(filePath);
+        console.error(`❌ Invalid metadata in: ${filePath}`);
+        console.error(`   Must use: export const metadata = generateStaticMetadata('${slug || ''}');`);
+        oldStyleMetadataCount++;
+      } else {
+        console.log(`✅ Already has metadata: ${filePath}`);
+      }
       alreadyHasMetadataCount++;
       continue;
     }
@@ -130,6 +144,13 @@ Summary:
 - Already had metadata: ${alreadyHasMetadataCount}
 - Updated with metadata: ${updatedCount}
 `);
+
+  // Exit with error if old-style metadata was found
+  if (oldStyleMetadataCount > 0) {
+    console.error(`\n❌ Build failed: ${oldStyleMetadataCount} page(s) with incompatible metadata exports.`);
+    console.error(`All pages must use generateStaticMetadata() for SEO to work correctly.\n`);
+    process.exit(1);
+  }
 }
 
 // Run the script

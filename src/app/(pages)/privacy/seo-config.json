@@ -4,7 +4,10 @@
     "title": "Privacy Policy - Valiance Media",
     "description": "",
     "keywords": [],
-    "noIndex": false
+    "noIndex": false,
+    "noFollow": false,
+    "canonical": "",
+    "image": ""
   },
   "sitemap": {
     "exclude": false,
@@ -14,6 +17,8 @@
   "metadata": {
     "category": "legal",
     "featured": false,
-    "lastModified": "2025-08-08"
-  }
+    "lastModified": "2025-09-02",
+    "isClientComponent": false
+  },
+  "schemas": []
 }

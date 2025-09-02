@@ -1,0 +1,17 @@
+{
+  "seo": {
+    "title": "Blog",
+    "description": "Insights, tutorials, and updates from our team",
+    "keywords": "blog, articles, tutorials, insights, updates",
+    "noIndex": false,
+    "noFollow": false
+  },
+  "sitemap": {
+    "priority": 0.9,
+    "changeFrequency": "daily",
+    "exclude": false
+  },
+  "metadata": {
+    "lastModified": "2025-09-02T00:00:00.000Z"
+  }
+}

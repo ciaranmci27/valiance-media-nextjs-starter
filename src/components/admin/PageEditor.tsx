@@ -77,7 +77,15 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         });
         setSeoTitle(config.seo?.title || '');
         setSeoDescription(config.seo?.description || '');
-        setSeoKeywords(config.seo?.keywords || []);
+        // Handle keywords as either string or array
+        const keywords = config.seo?.keywords;
+        if (Array.isArray(keywords)) {
+          setSeoKeywords(keywords);
+        } else if (typeof keywords === 'string') {
+          setSeoKeywords(keywords.split(',').map(k => k.trim()).filter(k => k));
+        } else {
+          setSeoKeywords([]);
+        }
         setCanonicalUrl(config.seo?.canonical || '');
         // Set robots based on noIndex and noFollow
         const indexPart = config.seo?.noIndex ? 'noindex' : 'index';

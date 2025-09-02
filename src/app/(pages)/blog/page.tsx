@@ -1,15 +1,14 @@
+// THIS IS REQUIRED FOR SEO CONFIG - DO NOT REMOVE
+// Every page must have this metadata export to load its seo-config.json
+import { generateStaticMetadata } from '@/lib/generate-static-metadata';
+export const metadata = generateStaticMetadata('blog');
+
 import React from 'react';
-import { Metadata } from 'next';
 import { PageWrapper } from '@/components/admin/PageWrapper';
 import { BlogCard } from '@/components/admin/BlogCard';
 import { loadBlogPosts, loadCategories } from '@/lib/blog-utils';
 import Link from 'next/link';
 import { seoConfig } from '@/seo/seo.config';
-
-export const metadata: Metadata = {
-  title: `Blog - ${seoConfig.siteName || 'Valiance Media'}`,
-  description: `Insights, tutorials, and updates from the ${seoConfig.siteName || 'Valiance Media'} team.`,
-};
 
 export default async function BlogPage() {
   const [allPosts, categories] = await Promise.all([

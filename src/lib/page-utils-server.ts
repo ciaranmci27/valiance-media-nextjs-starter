@@ -74,41 +74,54 @@ async function scanDirectoryForPages(dir: string, basePath: string = ''): Promis
     const entries = await fs.readdir(dir, { withFileTypes: true });
     
     for (const entry of entries) {
-      // Skip excluded directories and special directories (_, [, ()
-      if (entry.isDirectory() && 
-          !EXCLUDED_DIRS.includes(entry.name) && 
-          !entry.name.startsWith('_') && 
-          !entry.name.startsWith('[') && 
-          !entry.name.startsWith('(')) {
-        
-        const entryPath = path.join(dir, entry.name);
-        const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
-        const pagePath = path.join(entryPath, 'page.tsx');
-        
-        try {
-          // Check if this directory has a page.tsx
-          await fs.access(pagePath);
-          const seoConfig = await getPageSEOConfig(relativePath);
-          const isClient = await isClientComponent(pagePath);
-          
-          pages.push({
-            slug: relativePath,
-            title: seoConfig?.seo?.title?.replace(` - ${globalSeoConfig.siteName}`, '') || formatTitle(entry.name),
-            path: `/${relativePath}`,
-            lastModified: seoConfig?.metadata?.lastModified,
-            category: seoConfig?.metadata?.category || 'general',
-            featured: seoConfig?.metadata?.featured ?? false,
-            draft: seoConfig?.metadata?.draft ?? false,
-            isHomePage: false,
-            isClientComponent: isClient
-          });
-        } catch {
-          // No page.tsx in this directory, continue scanning
+      const entryPath = path.join(dir, entry.name);
+      
+      if (entry.isDirectory()) {
+        // Handle route groups (directories starting with parentheses)
+        if (entry.name.startsWith('(') && entry.name.endsWith(')')) {
+          // For route groups, scan inside but don't add to the path
+          const subPages = await scanDirectoryForPages(entryPath, basePath);
+          pages.push(...subPages);
+          continue;
         }
         
-        // Recursively scan subdirectories
-        const subPages = await scanDirectoryForPages(entryPath, relativePath);
-        pages.push(...subPages);
+        // Skip excluded directories and special directories (_, [)
+        // But allow 'blog' if it's inside (pages) directory
+        const isInPagesGroup = dir.includes('(pages)');
+        const shouldExclude = !isInPagesGroup && EXCLUDED_DIRS.includes(entry.name);
+        
+        if (!shouldExclude && 
+            !entry.name.startsWith('_') && 
+            !entry.name.startsWith('[')) {
+          
+          const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
+          const pagePath = path.join(entryPath, 'page.tsx');
+        
+          try {
+            // Check if this directory has a page.tsx
+            await fs.access(pagePath);
+            const seoConfig = await getPageSEOConfig(relativePath);
+            const isClient = await isClientComponent(pagePath);
+            
+            pages.push({
+              slug: relativePath,
+              title: seoConfig?.seo?.title?.replace(` - ${globalSeoConfig.siteName}`, '') || formatTitle(entry.name),
+              path: `/${relativePath}`,
+              lastModified: seoConfig?.metadata?.lastModified,
+              category: seoConfig?.metadata?.category || 'general',
+              featured: seoConfig?.metadata?.featured ?? false,
+              draft: seoConfig?.metadata?.draft ?? false,
+              isHomePage: false,
+              isClientComponent: isClient
+            });
+          } catch {
+            // No page.tsx in this directory, continue scanning
+          }
+          
+          // Recursively scan subdirectories
+          const subPages = await scanDirectoryForPages(entryPath, relativePath);
+          pages.push(...subPages);
+        }
       }
     }
   } catch (error) {
@@ -121,12 +134,13 @@ async function scanDirectoryForPages(dir: string, basePath: string = ''): Promis
 // Get all pages from configuration file
 export async function getAllPages(): Promise<PageListItem[]> {
   try {
-    // Try to read from pages configuration file first (works in production)
-    if (fsSync.existsSync(PAGES_CONFIG_PATH)) {
+    // In production, use the static pages-config.json
+    // In development, always scan the filesystem dynamically
+    if (process.env.NODE_ENV === 'production' && fsSync.existsSync(PAGES_CONFIG_PATH)) {
       const configContent = await fs.readFile(PAGES_CONFIG_PATH, 'utf-8');
       const config = JSON.parse(configContent);
       
-      // Enrich with SEO config data if available in development
+      // Enrich with SEO config data if available
       const enrichedPages = await Promise.all(config.pages.map(async (page: PageListItem) => {
         try {
           const seoConfig = await getPageSEOConfig(page.slug === 'home' ? '' : page.slug);
@@ -148,7 +162,7 @@ export async function getAllPages(): Promise<PageListItem[]> {
       return enrichedPages;
     }
     
-    // Fallback to filesystem scanning (development only)
+    // Always scan filesystem in development
     const pages: PageListItem[] = [];
     
     // Add home page (supports either root page.tsx or route-group (pages)/(home)/page.tsx)
@@ -181,24 +195,18 @@ export async function getAllPages(): Promise<PageListItem[]> {
       console.log('Home page not found');
     }
     
-    // Use recursive scanning for development
-    if (process.env.NODE_ENV === 'development') {
-      // Scan (pages) directory recursively
-      const pagesDir = path.join(APP_DIR, '(pages)');
-      const scannedPages = await scanDirectoryForPages(pagesDir);
-      pages.push(...scannedPages);
-      
-      // Also scan root app directory for backwards compatibility
-      const rootPages = await scanDirectoryForPages(APP_DIR);
-      // Filter out duplicates and pages already in (pages)
-      const uniqueRootPages = rootPages.filter(rootPage => 
-        !pages.some(page => page.slug === rootPage.slug)
-      );
-      pages.push(...uniqueRootPages);
-    } else {
-      // Use static pages-config.json in production
-      // This part is already handled above with PAGES_CONFIG_PATH
-    }
+    // Scan (pages) directory recursively
+    const pagesDir = path.join(APP_DIR, '(pages)');
+    const scannedPages = await scanDirectoryForPages(pagesDir);
+    pages.push(...scannedPages);
+    
+    // Also scan root app directory for backwards compatibility
+    const rootPages = await scanDirectoryForPages(APP_DIR);
+    // Filter out duplicates and pages already in (pages)
+    const uniqueRootPages = rootPages.filter(rootPage => 
+      !pages.some(page => page.slug === rootPage.slug)
+    );
+    pages.push(...uniqueRootPages);
     
     // Remove duplicates (keeping the first occurrence)
     const uniquePages = pages.filter((page, index, self) =>

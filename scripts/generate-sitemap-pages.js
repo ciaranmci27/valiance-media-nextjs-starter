@@ -136,9 +136,6 @@ async function generateSitemapRoutes() {
     if (route === '') {
       priority = 1.0;
       changeFrequency = 'daily';
-    } else if (route === '/blog') {
-      priority = 0.9;
-      changeFrequency = 'daily';
     } else if (route.startsWith('/quiz')) {
       priority = 0.8;
       changeFrequency = 'weekly';
