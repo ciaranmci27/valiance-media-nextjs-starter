@@ -61,7 +61,7 @@ export default function UrlChangeWarningModal({
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+              <h3 className="text-lg font-semibold text-text-primary">
                 {isCircularRedirect ? 'Circular Redirect Detected' : 'URL Change Warning'}
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
@@ -75,8 +75,8 @@ export default function UrlChangeWarningModal({
         
         {/* Content */}
         <div className="p-6 space-y-4">
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-            {isCircularRedirect 
+          <p className="text-sm leading-relaxed text-text-secondary">
+            {isCircularRedirect
               ? `${getChangeDescription()} back to its original URL. Since a redirect already exists from the new URL to the old URL, clicking "Remove Circular Redirect" will delete that existing redirect instead of creating a new one. This keeps your redirects clean and organized.`
               : `${getChangeDescription()}, which will modify the URL of this published blog post. This can impact SEO and break existing links.`}
           </p>
