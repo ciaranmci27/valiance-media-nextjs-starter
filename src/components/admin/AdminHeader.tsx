@@ -90,11 +90,11 @@ export function AdminHeader() {
   };
 
   return (
-    <header 
-      className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
+    <header
+      className={`fixed left-0 right-0 z-50 transition-all duration-300 backdrop-blur-lg ${
         isScrolled || isMenuOpen
-          ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/30 dark:border-gray-700/30' 
-          : 'bg-transparent border-b border-transparent'
+          ? 'header-scrolled'
+          : 'bg-transparent'
       }`}
       style={{
         top: hasBanner ? '40px' : '0px'

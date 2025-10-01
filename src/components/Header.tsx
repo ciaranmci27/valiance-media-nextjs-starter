@@ -50,10 +50,10 @@ export function Header({
   };
 
   return (
-    <header 
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+    <header
+      className={`fixed top-0 w-full z-50 transition-all duration-300 backdrop-blur-lg ${
         isScrolled || !transparent || isMenuOpen
-          ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg' 
+          ? 'header-scrolled'
           : 'bg-transparent'
       }`}
     >

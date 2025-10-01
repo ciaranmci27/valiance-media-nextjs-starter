@@ -18,6 +18,18 @@
   animation: slide-in 0.3s ease-out;
 }
 
+/* Header scrolled state with design system colors */
+.header-scrolled {
+  background-color: rgba(250, 251, 252, 0.8); /* Fallback for older browsers */
+  background-color: color-mix(in srgb, var(--color-background) 80%, transparent);
+}
+
+[data-theme="dark"] .header-scrolled,
+.dark .header-scrolled {
+  background-color: rgba(15, 23, 42, 0.8); /* Fallback for older browsers */
+  background-color: color-mix(in srgb, var(--color-background) 80%, transparent);
+}
+
 /* Valiance Media Design System CSS Variables */
 :root {
   /* Light theme colors */
