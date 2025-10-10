@@ -34,7 +34,7 @@ export const seoConfig = {
       {
         userAgent: '*',
         allow: ['/'],
-        disallow: ['/api/', '/admin/', '/_next/', '/private/', '*.json', '/*?*'],
+        disallow: ['/api/', '/admin/', '/_next/', '/private/', '*.json'],
         crawlDelay: 0
       },
       {
@@ -76,11 +76,11 @@ export const seoConfig = {
   },
   schema: {
     activeTypes: {
-      organization: false,
-      website: false,
+      organization: true,
+      website: true,
       localBusiness: false,
       person: false,
-      breadcrumbs: false
+      breadcrumbs: true
     },
     organization: {
       enabled: true,

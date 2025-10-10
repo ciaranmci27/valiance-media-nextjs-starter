@@ -475,22 +475,70 @@ function PagesListContent() {
           overflow: 'hidden',
           boxShadow: 'var(--shadow-sm)'
         }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
             <thead>
-              <tr style={{ background: 'var(--color-surface-secondary)' }}>
-                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-                  Title
+              <tr style={{
+                borderBottom: '1px solid var(--color-border-light)',
+                background: 'var(--color-surface-secondary, rgba(0, 0, 0, 0.02))'
+              }}>
+                <th style={{
+                  padding: 'var(--spacing-md)',
+                  textAlign: 'left',
+                  color: 'var(--color-text-secondary)',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  width: '31%'
+                }}>
+                  Page Title
                 </th>
-                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-                  Path
+                <th style={{
+                  padding: 'var(--spacing-md)',
+                  textAlign: 'left',
+                  color: 'var(--color-text-secondary)',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  width: '22%'
+                }}>
+                  Route Path
                 </th>
-                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-                  Type
+                <th style={{
+                  padding: 'var(--spacing-md)',
+                  textAlign: 'left',
+                  color: 'var(--color-text-secondary)',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  width: '18%'
+                }}>
+                  Route Type
                 </th>
-                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                <th style={{
+                  padding: 'var(--spacing-md)',
+                  textAlign: 'left',
+                  color: 'var(--color-text-secondary)',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  width: '11%'
+                }}>
                   Category
                 </th>
-                <th style={{ padding: 'var(--spacing-md)', textAlign: 'right', fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                <th style={{
+                  padding: 'var(--spacing-md)',
+                  textAlign: 'right',
+                  color: 'var(--color-text-secondary)',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  width: '18%'
+                }}>
                   Actions
                 </th>
               </tr>
@@ -532,58 +580,64 @@ function PagesListContent() {
                             }
                           }}
                         >
-                          <td style={{ padding: 'var(--spacing-md)' }}>
-                            <div>
-                              <div style={{ 
-                                color: 'var(--color-text-primary)', 
-                                fontWeight: '500', 
-                                marginBottom: '4px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                              }}>
+                          <td style={{ padding: 'var(--spacing-md)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <div style={{
+                              color: 'var(--color-text-primary)',
+                              fontWeight: '500',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              overflow: 'hidden'
+                            }} title={page.title}>
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {page.title}
-                                {isParentOfGroup && (
-                                  <div style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    padding: '3px 10px',
-                                    borderRadius: '12px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    background: 'color-mix(in srgb, var(--color-primary) 15%, transparent)',
-                                    color: 'var(--color-primary)'
-                                  }}>
-                                    <svg 
-                                      width="12" 
-                                      height="12" 
-                                      viewBox="0 0 24 24" 
-                                      fill="none" 
-                                      stroke="currentColor" 
-                                      strokeWidth="2.5"
-                                      style={{
-                                        transform: isExpanded ? 'rotate(90deg)' : 'none',
-                                        transition: 'transform 0.2s'
-                                      }}
-                                    >
-                                      <polyline points="9 18 15 12 9 6" />
-                                    </svg>
-                                    <span>{groupedChildren.length} pages</span>
-                                  </div>
-                                )}
-                              </div>
+                              </span>
+                              {isParentOfGroup && (
+                                <div style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  padding: '3px 10px',
+                                  borderRadius: '12px',
+                                  fontSize: '11px',
+                                  fontWeight: '600',
+                                  background: 'color-mix(in srgb, var(--color-primary) 8%, transparent)',
+                                  color: 'color-mix(in srgb, var(--color-primary) 85%, var(--color-text-secondary))',
+                                  flexShrink: 0
+                                }} title={`This group contains ${groupedChildren.length + 1} pages (including parent)`}>
+                                  <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    style={{
+                                      transform: isExpanded ? 'rotate(90deg)' : 'none',
+                                      transition: 'transform 0.2s'
+                                    }}
+                                  >
+                                    <polyline points="9 18 15 12 9 6" />
+                                  </svg>
+                                  <span>{groupedChildren.length + 1} pages</span>
+                                </div>
+                              )}
                             </div>
                           </td>
-                          <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
-                            <code style={{ 
-                              fontSize: '13px', 
+                          <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <code style={{
+                              fontSize: '13px',
                               fontFamily: 'monospace',
                               color: 'var(--color-primary)',
                               background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
                               padding: '2px 6px',
-                              borderRadius: 'var(--radius-sm)'
-                            }}>
+                              borderRadius: 'var(--radius-sm)',
+                              display: 'inline-block',
+                              maxWidth: '100%',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }} title={page.path}>
                               {page.path}
                             </code>
                           </td>
@@ -596,18 +650,17 @@ function PagesListContent() {
                               borderRadius: 'var(--radius-sm)',
                               fontSize: '12px',
                               fontWeight: '500',
-                              background: page.isClientComponent 
-                                ? 'rgba(251, 146, 60, 0.1)' 
+                              background: page.isDynamicRoute
+                                ? 'rgba(251, 146, 60, 0.1)'
                                 : 'rgba(34, 197, 94, 0.1)',
-                              color: page.isClientComponent 
-                                ? 'rgb(234, 88, 12)' 
+                              color: page.isDynamicRoute
+                                ? 'rgb(234, 88, 12)'
                                 : 'rgb(22, 163, 74)'
                             }}>
-                              {page.isClientComponent ? (
+                              {page.isDynamicRoute ? (
                                 <>
-                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                                   </svg>
                                   Dynamic
                                 </>
@@ -647,24 +700,27 @@ function PagesListContent() {
                               >
                                 Edit
                               </button>
-                              <a
-                                href={page.path}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                  padding: '6px 12px',
-                                  background: 'var(--color-info)',
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: 'var(--radius-sm)',
-                                  fontSize: '14px',
-                                  cursor: 'pointer',
-                                  textDecoration: 'none',
-                                  display: 'inline-block'
-                                }}
-                              >
-                                View
-                              </a>
+                              {!page.isDynamicRoute && (
+                                <a
+                                  href={page.path}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    padding: '6px 12px',
+                                    background: 'var(--color-info)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: 'var(--radius-sm)',
+                                    fontSize: '14px',
+                                    cursor: 'pointer',
+                                    textDecoration: 'none',
+                                    display: 'inline-block'
+                                  }}
+                                  title="View this page in a new tab"
+                                >
+                                  View
+                                </a>
+                              )}
                               {!page.isHomePage && (
                                 <button
                                   onClick={() => deletePage(page.slug)}
@@ -693,42 +749,47 @@ function PagesListContent() {
                         
                         {/* Render grouped children if expanded */}
                         {isParentOfGroup && isExpanded && groupedChildren.map((childPage, index) => (
-                          <tr key={childPage.slug} style={{ 
-                            borderBottom: index === groupedChildren.length - 1 
-                              ? '1px solid var(--color-border-light)' 
+                          <tr key={childPage.slug} style={{
+                            borderBottom: index === groupedChildren.length - 1
+                              ? '1px solid var(--color-border-light)'
                               : '1px solid var(--color-border-lighter)',
                             background: 'color-mix(in srgb, var(--color-primary) 3%, transparent)',
                             animation: 'slideDown 0.2s ease-out'
                           }}>
-                            <td style={{ padding: 'var(--spacing-md)', paddingLeft: 'calc(var(--spacing-md) + 24px)' }}>
-                              <div>
-                                <div style={{ 
-                                  color: 'var(--color-text-primary)', 
-                                  fontWeight: '500', 
-                                  marginBottom: '4px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px'
-                                }}>
-                                  <span style={{
-                                    color: 'var(--color-text-tertiary)',
-                                    fontSize: '16px',
-                                    marginRight: '4px',
-                                    fontFamily: 'monospace'
-                                  }}>└</span>
+                            <td style={{ padding: 'var(--spacing-md)', paddingLeft: 'calc(var(--spacing-md) + 24px)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <div style={{
+                                color: 'var(--color-text-primary)',
+                                fontWeight: '500',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                overflow: 'hidden'
+                              }} title={childPage.title}>
+                                <span style={{
+                                  color: 'var(--color-text-tertiary)',
+                                  fontSize: '16px',
+                                  fontFamily: 'monospace',
+                                  flexShrink: 0
+                                }}>└</span>
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                   {childPage.title}
-                                </div>
+                                </span>
                               </div>
                             </td>
-                            <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
-                              <code style={{ 
-                                fontSize: '13px', 
+                            <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <code style={{
+                                fontSize: '13px',
                                 fontFamily: 'monospace',
                                 color: 'var(--color-primary)',
                                 background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
                                 padding: '2px 6px',
-                                borderRadius: 'var(--radius-sm)'
-                              }}>
+                                borderRadius: 'var(--radius-sm)',
+                                display: 'inline-block',
+                                maxWidth: '100%',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }} title={childPage.path}>
                                 {childPage.path}
                               </code>
                             </td>
@@ -741,18 +802,17 @@ function PagesListContent() {
                                 borderRadius: 'var(--radius-sm)',
                                 fontSize: '12px',
                                 fontWeight: '500',
-                                background: childPage.isClientComponent 
-                                  ? 'rgba(251, 146, 60, 0.1)' 
+                                background: childPage.isDynamicRoute
+                                  ? 'rgba(251, 146, 60, 0.1)'
                                   : 'rgba(34, 197, 94, 0.1)',
-                                color: childPage.isClientComponent 
-                                  ? 'rgb(234, 88, 12)' 
+                                color: childPage.isDynamicRoute
+                                  ? 'rgb(234, 88, 12)'
                                   : 'rgb(22, 163, 74)'
                               }}>
-                                {childPage.isClientComponent ? (
+                                {childPage.isDynamicRoute ? (
                                   <>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                                     </svg>
                                     Dynamic
                                   </>
@@ -792,24 +852,27 @@ function PagesListContent() {
                                 >
                                   Edit
                                 </button>
-                                <a
-                                  href={childPage.path}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    padding: '6px 12px',
-                                    background: 'var(--color-info)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: 'var(--radius-sm)',
-                                    fontSize: '14px',
-                                    cursor: 'pointer',
-                                    textDecoration: 'none',
-                                    display: 'inline-block'
-                                  }}
-                                >
-                                  View
-                                </a>
+                                {!childPage.isDynamicRoute && (
+                                  <a
+                                    href={childPage.path}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      padding: '6px 12px',
+                                      background: 'var(--color-info)',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: 'var(--radius-sm)',
+                                      fontSize: '14px',
+                                      cursor: 'pointer',
+                                      textDecoration: 'none',
+                                      display: 'inline-block'
+                                    }}
+                                    title="View this page in a new tab"
+                                  >
+                                    View
+                                  </a>
+                                )}
                                 {!childPage.isHomePage && (
                                   <button
                                     onClick={() => deletePage(childPage.slug)}

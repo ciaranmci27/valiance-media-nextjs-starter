@@ -31,6 +31,8 @@ export interface PageSeoConfig {
     category?: string;
     tags?: string[];
     lastModified?: string;
+    adminTitle?: string; // Short, clean title for CMS backend display
+    contentType?: string; // Type of content (e.g., 'programmatic-seo' for pages with dedicated sitemaps)
   };
   
   // Open Graph metadata
@@ -83,5 +85,7 @@ export interface PageSeoConfigRaw {
     category?: string;
     tags?: string[];
     lastModified?: string;
+    adminTitle?: string; // Short, clean title for CMS backend display
+    contentType?: string; // Type of content (e.g., 'programmatic-seo' for pages with dedicated sitemaps)
   };
 }

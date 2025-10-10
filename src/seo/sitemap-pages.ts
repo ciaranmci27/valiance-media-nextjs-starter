@@ -82,14 +82,22 @@ export function sitemapPages(customBaseUrl?: string): MetadataRoute.Sitemap {
         console.log('Excluding /blog from sitemap - no published posts found');
         return false;
       }
-      
+
       // Check global exclusions
       if (sitemapConfig.excludedPages.includes(route)) return false;
-      
-      // Check page-level exclusions
+
+      // Load page configuration
       const pageConfig = loadPageSeoConfig(route === '' ? '/' : route);
+
+      // Exclude programmatic SEO content (it has its own dedicated sitemap)
+      if (pageConfig?.metadata?.contentType === 'programmatic-seo') {
+        console.log(`Excluding ${route} from pages sitemap - has dedicated programmatic sitemap`);
+        return false;
+      }
+
+      // Check page-level exclusions
       if (pageConfig?.sitemap?.exclude === true) return false;
-      
+
       return true;
     })
     .map(({ route, defaultPriority, defaultChangeFreq }) => {

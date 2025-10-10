@@ -24,6 +24,9 @@ export interface PageSEOConfig {
     template?: string;
     featured?: boolean;
     draft?: boolean;
+    adminTitle?: string; // Short, clean title for CMS backend display (optional)
+    author?: string; // Content author
+    contentType?: string; // Type of content (e.g., 'programmatic-seo' for pages with dedicated sitemaps)
   };
   schemas?: PageSchema[];
 }
@@ -49,4 +52,6 @@ export interface PageListItem {
   draft?: boolean;
   isHomePage?: boolean;
   isClientComponent?: boolean;
+  isDynamicRoute?: boolean; // true if route has dynamic segments like [slug]
+  priority?: number; // sitemap priority (0.0 to 1.0)
 }

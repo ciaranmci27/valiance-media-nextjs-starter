@@ -85,39 +85,44 @@ async function scanDirectoryForPages(dir: string, basePath: string = ''): Promis
           continue;
         }
         
-        // Skip excluded directories and special directories (_, [)
+        // Skip excluded directories and special directories (_)
         // But allow 'blog' if it's inside (pages) directory
         const isInPagesGroup = dir.includes('(pages)');
         const shouldExclude = !isInPagesGroup && EXCLUDED_DIRS.includes(entry.name);
-        
-        if (!shouldExclude && 
-            !entry.name.startsWith('_') && 
-            !entry.name.startsWith('[')) {
-          
+
+        // Detect dynamic routes (directories with [slug] pattern)
+        const isDynamicRoute = entry.name.includes('[') && entry.name.includes(']');
+
+        if (!shouldExclude && !entry.name.startsWith('_')) {
+
           const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
           const pagePath = path.join(entryPath, 'page.tsx');
-        
+
           try {
             // Check if this directory has a page.tsx
             await fs.access(pagePath);
             const seoConfig = await getPageSEOConfig(relativePath);
             const isClient = await isClientComponent(pagePath);
-            
+
             pages.push({
               slug: relativePath,
-              title: seoConfig?.seo?.title?.replace(` - ${globalSeoConfig.siteName}`, '') || formatTitle(entry.name),
+              title: seoConfig?.metadata?.adminTitle ||
+                    seoConfig?.seo?.title?.replace(` - ${globalSeoConfig.siteName}`, '') ||
+                    formatTitle(entry.name),
               path: `/${relativePath}`,
               lastModified: seoConfig?.metadata?.lastModified,
               category: seoConfig?.metadata?.category || 'general',
               featured: seoConfig?.metadata?.featured ?? false,
               draft: seoConfig?.metadata?.draft ?? false,
               isHomePage: false,
-              isClientComponent: isClient
+              isClientComponent: isClient,
+              isDynamicRoute: isDynamicRoute,
+              priority: seoConfig?.sitemap?.priority
             });
           } catch {
             // No page.tsx in this directory, continue scanning
           }
-          
+
           // Recursively scan subdirectories
           const subPages = await scanDirectoryForPages(entryPath, relativePath);
           pages.push(...subPages);
@@ -147,10 +152,14 @@ export async function getAllPages(): Promise<PageListItem[]> {
           if (seoConfig) {
             return {
               ...page,
+              title: seoConfig.metadata?.adminTitle ||
+                    seoConfig.seo?.title?.replace(` - ${globalSeoConfig.siteName}`, '') ||
+                    page.title,
               lastModified: seoConfig.metadata?.lastModified || page.lastModified,
               category: seoConfig.metadata?.category || page.category,
               featured: seoConfig.metadata?.featured ?? page.featured,
-              draft: seoConfig.metadata?.draft ?? page.draft
+              draft: seoConfig.metadata?.draft ?? page.draft,
+              priority: seoConfig.sitemap?.priority
             };
           }
         } catch (error) {
@@ -189,7 +198,9 @@ export async function getAllPages(): Promise<PageListItem[]> {
         featured: homeSeoConfig?.metadata?.featured,
         draft: homeSeoConfig?.metadata?.draft,
         isHomePage: true,
-        isClientComponent: isHomeClient
+        isClientComponent: isHomeClient,
+        isDynamicRoute: false,
+        priority: homeSeoConfig?.sitemap?.priority || 1.0
       });
     } catch (error) {
       console.log('Home page not found');
@@ -212,9 +223,23 @@ export async function getAllPages(): Promise<PageListItem[]> {
     const uniquePages = pages.filter((page, index, self) =>
       index === self.findIndex(p => p.slug === page.slug)
     );
-    
-    // Sort by title
-    return uniquePages.sort((a, b) => a.title.localeCompare(b.title));
+
+    // Sort by priority (descending), then by title (ascending)
+    return uniquePages.sort((a, b) => {
+      // Homepage always first
+      if (a.isHomePage) return -1;
+      if (b.isHomePage) return 1;
+
+      // Sort by priority if both have it (higher priority first)
+      const aPriority = a.priority ?? 0.5;
+      const bPriority = b.priority ?? 0.5;
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority;
+      }
+
+      // If priorities are equal, sort alphabetically by title
+      return a.title.localeCompare(b.title);
+    });
   } catch (error) {
     console.error('Error getting pages:', error);
     return [];
@@ -337,37 +362,43 @@ async function scanDirectoryForPagesConfig(dir: string, basePath: string = ''): 
     const entries = await fs.readdir(dir, { withFileTypes: true });
     
     for (const entry of entries) {
-      // Skip excluded directories and special directories (_, [, ()
-      if (entry.isDirectory() && 
-          !EXCLUDED_DIRS.includes(entry.name) && 
-          !entry.name.startsWith('_') && 
-          !entry.name.startsWith('[') && 
+      // Skip excluded directories and special directories (_, (), but NOT [)
+      // Detect dynamic routes (directories with [slug] pattern)
+      const isDynamicRoute = entry.name.includes('[') && entry.name.includes(']');
+
+      if (entry.isDirectory() &&
+          !EXCLUDED_DIRS.includes(entry.name) &&
+          !entry.name.startsWith('_') &&
           !entry.name.startsWith('(')) {
-        
+
         const entryPath = path.join(dir, entry.name);
         const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
         const pagePath = path.join(entryPath, 'page.tsx');
-        
+
         try {
           // Check if this directory has a page.tsx
           await fs.access(pagePath);
           const seoConfig = await getPageSEOConfig(relativePath);
           const isClient = await isClientComponent(pagePath);
-          
+
           pages.push({
             slug: relativePath,
-            title: seoConfig?.seo?.title?.replace(` - ${globalSeoConfig.siteName}`, '') || formatTitle(entry.name),
+            title: seoConfig?.metadata?.adminTitle ||
+                  seoConfig?.seo?.title?.replace(` - ${globalSeoConfig.siteName}`, '') ||
+                  formatTitle(entry.name),
             path: `/${relativePath}`,
             category: seoConfig?.metadata?.category || 'general',
             featured: seoConfig?.metadata?.featured ?? false,
             draft: seoConfig?.metadata?.draft ?? false,
             isHomePage: false,
-            isClientComponent: isClient
+            isClientComponent: isClient,
+            isDynamicRoute: isDynamicRoute,
+            priority: seoConfig?.sitemap?.priority
           });
         } catch {
           // No page.tsx in this directory, continue scanning
         }
-        
+
         // Recursively scan subdirectories
         const subPages = await scanDirectoryForPagesConfig(entryPath, relativePath);
         pages.push(...subPages);
@@ -408,7 +439,9 @@ async function updatePagesConfig(): Promise<void> {
         featured: homeSeoConfig?.metadata?.featured ?? true,
         draft: homeSeoConfig?.metadata?.draft ?? false,
         isHomePage: true,
-        isClientComponent: isHomeClient
+        isClientComponent: isHomeClient,
+        isDynamicRoute: false,
+        priority: homeSeoConfig?.sitemap?.priority || 1.0
       });
     } catch (error) {
       // Home page not found

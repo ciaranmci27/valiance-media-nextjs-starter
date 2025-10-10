@@ -52,9 +52,12 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
 
   useEffect(() => {
     if (initialPage) {
-      // For dynamic pages without SEO config, derive title from slug
+      // Prioritize adminTitle from SEO config if it exists
       let pageTitle = initialPage.title || '';
-      if (initialPage.isClientComponent && !initialPage.seoConfig && initialPage.slug) {
+
+      if (initialPage.seoConfig?.metadata?.adminTitle) {
+        pageTitle = initialPage.seoConfig.metadata.adminTitle;
+      } else if (initialPage.isClientComponent && !initialPage.seoConfig && initialPage.slug) {
         // Convert slug to title case: "auth/sign-in" -> "Auth / Sign In"
         pageTitle = initialPage.slug
           .split('/')
@@ -209,6 +212,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         },
         metadata: {
           ...metadata,
+          adminTitle: title, // Save admin title for CMS display
           lastModified: new Date().toISOString().split('T')[0]
         },
         schemas: schemas
@@ -494,7 +498,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
               {/* Title - 70% */}
               <div className="form-group">
                 <label className="form-label form-label-required">
-                  Page Title {initialPage?.isClientComponent && 
+                  Admin Title {initialPage?.isClientComponent &&
                     <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
                       (Read-only for dynamic pages)
                     </span>}
@@ -503,14 +507,17 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                   type="text"
                   value={title}
                   onChange={(e) => handleTitleChange(e.target.value)}
-                  placeholder="Enter page title"
+                  placeholder="Clean name for CMS display (e.g., 'Privacy Policy')"
                   disabled={initialPage?.isHomePage || initialPage?.isClientComponent}
                   className="input-field"
-                  style={(initialPage?.isHomePage || initialPage?.isClientComponent) ? 
+                  style={(initialPage?.isHomePage || initialPage?.isClientComponent) ?
                     { opacity: 0.6, cursor: 'not-allowed' } : {}}
-                  title={initialPage?.isClientComponent ? 
-                    'Dynamic pages derive their title from the slug' : ''}
+                  title={initialPage?.isClientComponent ?
+                    'Dynamic pages derive their title from the slug' : 'Short, clean name shown in the CMS pages list'}
                 />
+                <p style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', marginTop: '4px' }}>
+                  This is the short name displayed in the CMS. Use the SEO tab for the full search engine title.
+                </p>
               </div>
 
               {/* Slug - 30% */}
@@ -781,18 +788,18 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
           <div className="card p-6">
             <div className="space-y-6">
               <div>
-                <label className="text-label block mb-2">Page Title</label>
+                <label className="text-label block mb-2">SEO Title</label>
                 <input
                   type="text"
                   value={seoTitle}
                   onChange={(e) => setSeoTitle(e.target.value)}
                   className="input-field"
                   maxLength={60}
-                  placeholder={title || "Page title for search results"}
+                  placeholder={title ? `${title} | Your Site Name` : "Full SEO-optimized title for search results"}
                 />
                 <div className="flex justify-between mt-1">
                   <p className="text-xs text-gray-500">
-                    Displayed in search results and browser tabs
+                    Full title shown in search results and browser tabs (include brand name for SEO)
                   </p>
                   <p className={`text-xs ${seoTitle.length > 60 ? 'text-red-500' : 'text-gray-500'}`}>
                     {seoTitle.length}/60
