@@ -98,8 +98,8 @@ export function Footer({
   ],
   showNewsletter = true,
   showBrandDescription = true,
-  brandDescription = 'Your company description here.',
-  copyrightText = `© ${new Date().getFullYear()} Your Company. All rights reserved.`,
+  brandDescription = seoConfig.defaultDescription || 'Your innovative solution for success.',
+  copyrightText = `© ${new Date().getFullYear()} ${seoConfig.company.legalName}. All rights reserved.`,
   bottomLinks = [
     { label: 'Privacy', href: '/privacy' },
     { label: 'Terms', href: '/terms-of-service' },

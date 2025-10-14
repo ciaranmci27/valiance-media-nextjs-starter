@@ -197,7 +197,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
       const seoConfig: PageSEOConfig = {
         slug: pageSlug,
         seo: {
-          title: seoTitle || `${title} - ${globalSeoConfig.siteName || 'Valiance Media'}`,
+          title: seoTitle || `${title} - ${globalSeoConfig.siteName}`,
           description: seoDescription,
           keywords: seoKeywords,
           noIndex: robots.includes('noindex'),
@@ -795,7 +795,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                   onChange={(e) => setSeoTitle(e.target.value)}
                   className="input-field"
                   maxLength={60}
-                  placeholder={title ? `${title} | Your Site Name` : "Full SEO-optimized title for search results"}
+                  placeholder={title ? `${title} | ${globalSeoConfig.siteName}` : "Full SEO-optimized title for search results"}
                 />
                 <div className="flex justify-between mt-1">
                   <p className="text-xs text-gray-500">
@@ -889,7 +889,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                   value={ogImage}
                   onChange={(e) => setOgImage(e.target.value)}
                   className="input-field"
-                  placeholder="https://example.com/image.jpg"
+                  placeholder={`${globalSeoConfig.siteUrl || 'https://example.com'}/image.jpg`}
                 />
                 <div className="flex justify-between items-center mt-1">
                   <p className="text-xs text-gray-500">
@@ -914,7 +914,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                     description={ogDescription || seoDescription}
                     imageUrl={ogImage}
                     url={`/${slug || 'page'}`}
-                    siteName="Your Site"
+                    siteName={globalSeoConfig.siteName}
                   />
                 </div>
               )}
@@ -1014,7 +1014,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                   value={canonicalUrl}
                   onChange={(e) => setCanonicalUrl(e.target.value)}
                   className="input-field"
-                  placeholder={`https://example.com/${slug || 'page'}`}
+                  placeholder={`${globalSeoConfig.siteUrl || 'https://example.com'}/${slug || 'page'}`}
                 />
                 <p className="text-xs mt-1 text-gray-500">
                   Specify the preferred URL for this content (leave empty for default)

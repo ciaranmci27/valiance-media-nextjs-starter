@@ -515,7 +515,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                           placeholder="{pageName} | {siteName}"
                           maxLength={60}
                         />
-                        <p className="text-xs text-gray-500 mt-1">Example: About Us | Your Company</p>
+                        <p className="text-xs text-gray-500 mt-1">Example: About Us | {config.siteName}</p>
                       </div>
                       <div>
                         <label className="text-label block mb-2">Description Template</label>
@@ -557,7 +557,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                           placeholder="{pageName} | Blog | {siteName}"
                           maxLength={60}
                         />
-                        <p className="text-xs text-gray-500 mt-1">Example: How to Start a Business | Blog | Your Company</p>
+                        <p className="text-xs text-gray-500 mt-1">Example: How to Start a Business | Blog | {config.siteName}</p>
                       </div>
                       <div>
                         <label className="text-label block mb-2">Description Template</label>
@@ -599,7 +599,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                           placeholder="{pageName} Articles | {siteName} Blog"
                           maxLength={60}
                         />
-                        <p className="text-xs text-gray-500 mt-1">Example: Technology Articles | Your Company Blog</p>
+                        <p className="text-xs text-gray-500 mt-1">Example: Technology Articles | {config.siteName} Blog</p>
                       </div>
                       <div>
                         <label className="text-label block mb-2">Description Template</label>

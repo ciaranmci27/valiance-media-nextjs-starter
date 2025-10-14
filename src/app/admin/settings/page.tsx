@@ -465,7 +465,7 @@ export default function SettingsPage() {
                       value={settings.email.fromName}
                       onChange={(e) => handleInputChange('email', 'fromName', e.target.value)}
                       className="input-field"
-                      placeholder="Your Site Name"
+                      placeholder="Site Name"
                     />
                     <p className="text-xs text-gray-500 mt-1">Display name for emails</p>
                   </div>

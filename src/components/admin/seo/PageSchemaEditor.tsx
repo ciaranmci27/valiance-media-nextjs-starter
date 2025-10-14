@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { seoConfig } from '@/seo/seo.config';
 
 // Consistent input styling for dark mode support
 const INPUT_CLASS = 'w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors';
@@ -1746,7 +1747,7 @@ function ContactPageSchemaForm({
             value={schema.name || ''}
             onChange={(e) => onChange({ ...schema, name: e.target.value })}
             className={INPUT_CLASS}
-            placeholder="Your Company"
+            placeholder={seoConfig.siteName}
           />
         </div>
         <div>
@@ -1803,7 +1804,7 @@ function AboutPageSchemaForm({
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
           className={INPUT_CLASS}
-          placeholder="Your Company"
+          placeholder={seoConfig.siteName}
         />
       </div>
 

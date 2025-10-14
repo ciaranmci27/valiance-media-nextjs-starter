@@ -163,7 +163,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       }
     }
 
-    const siteName = (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName || 'Your Site';
+    const siteName = (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName || seoConfig.siteName;
     const siteTagline = (seoConfig as any).siteTagline || '';
     const titleTemplate = seoConfig.titleTemplate || '{pageName} | {siteName}';
     
