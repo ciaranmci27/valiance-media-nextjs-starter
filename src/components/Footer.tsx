@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from '@/styles/ThemeProvider';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig, pageMetadata } from '@/seo/seo.config';
 
 interface FooterLink {
   label: string;
@@ -98,8 +98,8 @@ export function Footer({
   ],
   showNewsletter = true,
   showBrandDescription = true,
-  brandDescription = seoConfig.defaultDescription || 'Your innovative solution for success.',
-  copyrightText = `© ${new Date().getFullYear()} ${seoConfig.company.legalName}. All rights reserved.`,
+  brandDescription = pageMetadata.home.description,
+  copyrightText = `© ${new Date().getFullYear()} ${seoConfig.siteName}. All rights reserved.`,
   bottomLinks = [
     { label: 'Privacy', href: '/privacy' },
     { label: 'Terms', href: '/terms-of-service' },
