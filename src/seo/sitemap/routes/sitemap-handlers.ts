@@ -6,7 +6,7 @@
  * location for all SEO-related routing.
  */
 
-import { seoConfig } from '../seo.config';
+import { seoConfig } from '../../seo.config';
 import { hasRealBlogPosts, hasRealBlogCategories } from '../sitemap-utils';
 import { sitemapPages } from '../sitemap-pages';
 import { sitemapBlogPosts } from '../sitemap-blog-posts';

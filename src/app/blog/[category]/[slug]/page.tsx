@@ -1,8 +1,8 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
-import { BlogLayout } from '@/components/admin/BlogLayout';
-import { loadPost, loadBlogPosts, getRelatedPosts, loadCategories } from '@/lib/blog-utils';
+import { BlogLayout } from '@/components/admin/blog/BlogLayout';
+import { loadPost, loadBlogPosts, getRelatedPosts, loadCategories } from '@/lib/blog/blog-utils';
 import { seoConfig } from '@/seo/seo.config';
 
 interface BlogPostPageProps {

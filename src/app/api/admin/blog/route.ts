@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { GitHubCMS } from '@/lib/github-api';
-import { getServerCMSConfig } from '@/lib/server-cms-config';
+import { GitHubCMS } from '@/lib/admin/github-api';
+import { getServerCMSConfig } from '@/lib/admin/server-cms-config';
 
 /**
  * Universal blog post API that automatically uses:

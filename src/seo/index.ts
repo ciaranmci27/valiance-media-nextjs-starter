@@ -2,7 +2,7 @@
 export * from './seo-utils';
 export * from './seo.config';
 export * from './SEO';
-export * from './StructuredData';
+export * from './structured-data/StructuredData';
 
 // Note: Server-only functions (sitemap functions and page-seo-utils) should be 
 // imported directly from their individual files in server components and route handlers.

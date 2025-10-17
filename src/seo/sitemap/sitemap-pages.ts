@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
-import { seoConfig } from './seo.config';
-import { loadPageSeoConfig } from '@/lib/page-seo-utils';
-import { loadBlogPosts } from '@/lib/blog-utils';
+import { seoConfig } from '../seo.config';
+import { loadPageSeoConfig } from '@/lib/seo/page-seo-utils';
+import { loadBlogPosts } from '@/lib/blog/blog-utils';
 import fs from 'fs';
 import path from 'path';
 
@@ -24,7 +24,7 @@ export function sitemapPages(customBaseUrl?: string): MetadataRoute.Sitemap {
 
   try {
     // Try to load dynamically generated routes
-    const generatedRoutesPath = path.join(process.cwd(), 'src', 'seo', 'generated-sitemap-routes.json');
+    const generatedRoutesPath = path.join(process.cwd(), 'src', 'seo', 'sitemap', 'generated-sitemap-routes.json');
     
     if (fs.existsSync(generatedRoutesPath)) {
       const generatedData = JSON.parse(fs.readFileSync(generatedRoutesPath, 'utf-8'));

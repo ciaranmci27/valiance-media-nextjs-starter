@@ -1,4 +1,4 @@
-import { handleSitemapIndex } from '@/seo/routes/sitemap-handlers';
+import { handleSitemapIndex } from '@/seo/sitemap/routes/sitemap-handlers';
 
 /**
  * Main Sitemap Route

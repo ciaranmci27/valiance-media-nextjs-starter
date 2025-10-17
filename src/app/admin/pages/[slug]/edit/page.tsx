@@ -2,8 +2,8 @@
 
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import PageEditor from '@/components/admin/PageEditor';
-import { Page } from '@/lib/page-types';
+import PageEditor from '@/components/admin/editors/PageEditor';
+import { Page } from '@/lib/pages/page-types';
 
 export default function EditPagePage() {
   const params = useParams();

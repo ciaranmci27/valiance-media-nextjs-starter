@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import RichTextEditor from '@/components/admin/RichTextEditor';
-import TagInputImproved from '@/components/admin/TagInputImproved';
-import KeywordsInput from '@/components/admin/KeywordsInput';
+import RichTextEditor from '@/components/admin/editors/RichTextEditor';
+import TagInputImproved from '@/components/admin/inputs/TagInputImproved';
+import KeywordsInput from '@/components/admin/inputs/KeywordsInput';
 import SocialMediaPreview from '@/components/admin/seo/SocialMediaPreview';
-import UrlChangeWarningModal from '@/components/admin/UrlChangeWarningModal';
-import { getCMSConfig } from '@/lib/cms-config';
+import UrlChangeWarningModal from '@/components/admin/modals/UrlChangeWarningModal';
+import { getCMSConfig } from '@/lib/admin/cms-config';
 import { seoConfig } from '@/seo/seo.config';
 import { Switch } from '@/components/admin/ui/Switch';
 import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';

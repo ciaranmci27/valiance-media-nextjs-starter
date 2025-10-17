@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { lightTheme, darkTheme, ThemeMode, ThemeColors } from './themes';
+import { lightTheme, darkTheme, ThemeMode, ThemeColors } from '@/styles/themes';
 
 interface ThemeContextType {
   colors: ThemeColors;

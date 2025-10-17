@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sessionStore } from '@/lib/auth-store';
+import { sessionStore } from '@/lib/admin/auth-store';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -9,12 +9,6 @@ const SETTINGS_FILE = path.join(process.cwd(), 'settings.json');
 
 // Default settings
 const defaultSettings = {
-  email: {
-    provider: 'smtp',
-    fromEmail: '',
-    fromName: '',
-    replyTo: '',
-  },
   admin: {
     sessionTimeout: 60,
     maxLoginAttempts: 5,
@@ -58,15 +52,15 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const settings = await request.json();
-    
+
     // Validate settings structure (analytics is handled separately)
-    if (!settings.email || !settings.admin) {
+    if (!settings.admin) {
       return NextResponse.json(
         { error: 'Invalid settings structure' },
         { status: 400 }
       );
     }
-    
+
     // Don't save analytics here - it's handled by the analytics endpoint
 
     // Save settings to file

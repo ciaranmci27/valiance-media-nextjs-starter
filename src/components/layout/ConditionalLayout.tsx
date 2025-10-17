@@ -2,10 +2,10 @@
 
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Header } from '../Header';
-import { AdminHeader } from './AdminHeader';
-import ConfigWarningBanner from './ConfigWarningBanner';
-import { Footer } from '../Footer';
+import { Header } from './Header';
+import { AdminHeader } from '@/components/admin/layout/AdminHeader';
+import ConfigWarningBanner from '@/components/admin/ConfigWarningBanner';
+import { Footer } from './Footer';
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -40,15 +40,12 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
       };
       
       checkBanner();
-      // Listen for changes to sessionStorage and re-check
-      const interval = setInterval(checkBanner, 1000);
-      
+
       // Listen for custom event when banner is dismissed or config changes
       const handleBannerChange = () => checkBanner();
       window.addEventListener('configBannerUpdate', handleBannerChange);
-      
+
       return () => {
-        clearInterval(interval);
         window.removeEventListener('configBannerUpdate', handleBannerChange);
       };
     } else {

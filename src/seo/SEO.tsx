@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { StructuredData } from './StructuredData';
+import { StructuredData } from './structured-data/StructuredData';
 import { 
   generateOrganizationSchema, 
   generateWebsiteSchema,

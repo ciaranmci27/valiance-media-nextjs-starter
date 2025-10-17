@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTheme } from '@/styles/ThemeProvider';
+import { useTheme } from '@/contexts/ThemeContext';
 import { seoConfig } from '@/seo/seo.config';
 
 interface NavLink {

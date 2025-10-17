@@ -29,10 +29,10 @@ export default function ConfigWarningBanner() {
     };
     
     window.addEventListener('focus', handleFocus);
-    
-    // Also re-check periodically
-    const interval = setInterval(checkAndUpdate, 5000);
-    
+
+    // Also re-check periodically (every 30 seconds)
+    const interval = setInterval(checkAndUpdate, 30000);
+
     return () => {
       window.removeEventListener('focus', handleFocus);
       clearInterval(interval);

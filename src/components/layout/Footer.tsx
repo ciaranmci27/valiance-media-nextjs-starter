@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTheme } from '@/styles/ThemeProvider';
+import { useTheme } from '@/contexts/ThemeContext';
 import { seoConfig, pageMetadata } from '@/seo/seo.config';
 
 interface FooterLink {

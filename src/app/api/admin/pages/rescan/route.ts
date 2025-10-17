@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllPages } from '@/lib/page-utils-server';
+import { getAllPages } from '@/lib/pages/page-utils-server';
 
 export async function POST() {
   try {

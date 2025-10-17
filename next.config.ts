@@ -22,6 +22,9 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // SEO Redirects are now handled in middleware.ts for instant updates
+  // Admin can manage redirects via dashboard without server restart
 };
 
 export default nextConfig;

@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
-import { seoConfig } from './seo.config';
-import { loadCategories, loadBlogPosts } from '@/lib/blog-utils';
+import { seoConfig } from '../seo.config';
+import { loadCategories, loadBlogPosts } from '@/lib/blog/blog-utils';
 
 /**
  * Categories Sitemap - Contains blog categories and blog index

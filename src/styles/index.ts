@@ -6,7 +6,7 @@
  */
 
 // Theme exports
-export { ThemeProvider, useTheme } from './ThemeProvider';
+export { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 export { lightTheme, darkTheme, themes } from './themes';
 export type { ThemeColors, ThemeMode } from './themes';
 

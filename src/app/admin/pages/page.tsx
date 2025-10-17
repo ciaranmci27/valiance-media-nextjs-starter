@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, Suspense, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { PageListItem } from '@/lib/page-types';
-import SearchInput from '@/components/admin/SearchInput';
+import { PageListItem } from '@/lib/pages/page-types';
+import SearchInput from '@/components/admin/ui/SearchInput';
 
 function PagesListContent() {
   const router = useRouter();

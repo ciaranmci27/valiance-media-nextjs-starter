@@ -121,7 +121,7 @@ async function ensureMetadata() {
     // Add metadata export
     const metadataImport = `// THIS IS REQUIRED FOR SEO CONFIG - DO NOT REMOVE
 // Every page must have this metadata export to load its seo-config.json
-import { generateStaticMetadata } from '@/lib/generate-static-metadata';
+import { generateStaticMetadata } from '@/lib/seo/generate-static-metadata';
 
 export const metadata = generateStaticMetadata('${slug}');
 

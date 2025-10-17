@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyAuthEdge } from '@/lib/auth-edge';
+import { verifyAuthEdge } from '@/lib/admin/auth-edge';
 
 // Valid routes generated at build time
 const validRoutes = new Set([

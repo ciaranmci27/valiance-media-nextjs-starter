@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyCredentials } from '@/lib/auth';
-import { sessionStore } from '@/lib/auth-store';
-import { lockoutStore } from '@/lib/lockout-store';
+import { verifyCredentials } from '@/lib/admin/auth';
+import { sessionStore } from '@/lib/admin/auth-store';
+import { lockoutStore } from '@/lib/admin/lockout-store';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -141,7 +141,7 @@ export async function DELETE(request: NextRequest) {
   
   if (token) {
     // Clear the session from the store
-    const { sessionStore } = await import('@/lib/auth-store');
+    const { sessionStore } = await import('@/lib/admin/auth-store');
     sessionStore.deleteSession(token);
   }
   

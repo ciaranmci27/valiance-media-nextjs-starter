@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { seoConfig } from './seo.config';
+import { seoConfig } from '../seo.config';
 
 /**
  * Sitemap Index - Main sitemap.xml that references other sitemaps

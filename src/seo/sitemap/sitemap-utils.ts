@@ -1,5 +1,5 @@
-import { loadBlogPosts } from '@/lib/blog-utils';
-import { seoConfig } from './seo.config';
+import { loadBlogPosts } from '@/lib/blog/blog-utils';
+import { seoConfig } from '../seo.config';
 
 /**
  * Utility functions for sitemap generation

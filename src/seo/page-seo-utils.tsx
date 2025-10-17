@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { loadPageSeoConfig } from '@/lib/page-seo-utils';
+import { loadPageSeoConfig } from '@/lib/seo/page-seo-utils';
 import { seoConfig } from '@/seo/seo.config';
 
 /**

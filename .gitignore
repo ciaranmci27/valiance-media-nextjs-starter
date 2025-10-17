@@ -153,5 +153,4 @@ settings.json
 
 # Generated files (created during build)
 /public/pages-config.json
-/src/seo/generated-sitemap-routes.json
-/src/middleware.ts
+/src/seo/sitemap/generated-sitemap-routes.json

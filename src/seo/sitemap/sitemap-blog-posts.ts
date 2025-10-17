@@ -1,12 +1,12 @@
 import { MetadataRoute } from 'next';
-import { seoConfig } from './seo.config';
-import { loadBlogPosts } from '@/lib/blog-utils';
+import { seoConfig } from '../seo.config';
+import { loadBlogPosts } from '@/lib/blog/blog-utils';
 
 /**
  * Blog Posts Sitemap - Contains all published blog posts
  * This includes individual blog post URLs with proper filtering
  */
-export function sitemapBlog(customBaseUrl?: string): MetadataRoute.Sitemap {
+export function sitemapBlogPosts(customBaseUrl?: string): MetadataRoute.Sitemap {
   const baseUrl = customBaseUrl || (seoConfig as any).siteUrl;
   const sitemapConfig = seoConfig.sitemap;
 
@@ -29,6 +29,12 @@ export function sitemapBlog(customBaseUrl?: string): MetadataRoute.Sitemap {
       
       return true;
     });
+
+    // Only return sitemap entries if there are actual user posts (not just examples)
+    if (publishedBlogPosts.length === 0) {
+      console.log('No published blog posts found, excluding from sitemap');
+      return [];
+    }
 
     return publishedBlogPosts.map((post) => {
       const postUrl = post.category 

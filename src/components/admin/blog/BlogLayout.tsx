@@ -3,8 +3,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { PageWrapper } from '@/components/admin/PageWrapper';
-import { BlogPost } from '@/lib/blog-types';
+import { PageWrapper } from '@/components/layout/PageWrapper';
+import { BlogPost } from '@/lib/blog/blog-types';
 
 interface BlogLayoutProps {
   post: BlogPost;

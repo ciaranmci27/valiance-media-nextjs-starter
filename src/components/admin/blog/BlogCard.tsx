@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { BlogPost, BlogCategory } from '@/lib/blog-types';
+import { BlogPost, BlogCategory } from '@/lib/blog/blog-types';
 
 interface BlogCardProps {
   post: BlogPost;

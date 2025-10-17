@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import SearchInput from '@/components/admin/SearchInput';
+import SearchInput from '@/components/admin/ui/SearchInput';
 
 interface BlogPost {
   slug: string;

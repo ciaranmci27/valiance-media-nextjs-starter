@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPageBySlug, savePage, deletePage } from '@/lib/page-utils-server';
+import { getPageBySlug, savePage, deletePage } from '@/lib/pages/page-utils-server';
 
 // GET - Fetch a single page by slug
 export async function GET(

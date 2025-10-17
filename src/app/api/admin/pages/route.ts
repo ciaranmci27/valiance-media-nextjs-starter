@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllPages, savePage, generateSlug, generateDefaultPageContent, generateDefaultSEOConfig } from '@/lib/page-utils-server';
+import { getAllPages, savePage, generateSlug, generateDefaultPageContent, generateDefaultSEOConfig } from '@/lib/pages/page-utils-server';
 
 // GET - Fetch all pages
 export async function GET() {

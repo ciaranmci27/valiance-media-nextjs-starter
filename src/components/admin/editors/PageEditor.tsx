@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Page, PageSEOConfig } from '@/lib/page-types';
-import CategoryInput from '@/components/admin/CategoryInput';
+import { Page, PageSEOConfig } from '@/lib/pages/page-types';
+import CategoryInput from '@/components/admin/inputs/CategoryInput';
 import { Switch } from '@/components/admin/ui/Switch';
-import SlugChangeWarningModal from '@/components/admin/SlugChangeWarningModal';
-import { generateSlug } from '@/lib/page-utils-client';
+import SlugChangeWarningModal from '@/components/admin/modals/SlugChangeWarningModal';
+import { generateSlug } from '@/lib/pages/page-utils-client';
 import SocialMediaPreview from '@/components/admin/seo/SocialMediaPreview';
 import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
 import { PageSchema } from '@/components/admin/seo/schema-types';
@@ -971,14 +971,14 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                 <div>
                   <label className="text-label block">Exclude from Sitemap</label>
-                  <p className="text-xs mt-1 text-gray-500">
+                  <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
                     Prevent this page from appearing in the sitemap.xml
                   </p>
                   {robots.includes('noindex') && (
-                    <p className="text-xs mt-1 text-amber-600">
+                    <p className="text-xs mt-1 text-amber-600 dark:text-amber-400">
                       Note: Page is already excluded due to noindex setting
                     </p>
                   )}

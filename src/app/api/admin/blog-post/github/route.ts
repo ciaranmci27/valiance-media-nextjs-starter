@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GitHubCMS } from '@/lib/github-api';
+import { GitHubCMS } from '@/lib/admin/github-api';
 
 // This endpoint uses GitHub API instead of local file system
 // Perfect for production deployments on Vercel/Netlify

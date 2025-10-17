@@ -1,9 +1,9 @@
-import { 
+import {
   handleSitemapIndex,
   handlePagesSitemap,
   handleBlogPostsSitemap,
   handleBlogCategoriesSitemap,
-} from '@/seo/routes/sitemap-handlers';
+} from '@/seo/sitemap/routes/sitemap-handlers';
 
 /**
  * Centralized Sitemap Route Handler

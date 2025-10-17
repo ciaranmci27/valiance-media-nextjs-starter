@@ -5,12 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface AppSettings {
-  email: {
-    provider: 'smtp' | 'sendgrid' | 'mailgun' | 'postmark' | 'resend';
-    fromEmail: string;
-    fromName: string;
-    replyTo: string;
-  };
   admin: {
     sessionTimeout: number;
     maxLoginAttempts: number;
@@ -34,12 +28,6 @@ export default function SettingsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('github');
   const [settings, setSettings] = useState<AppSettings>({
-    email: {
-      provider: 'smtp',
-      fromEmail: '',
-      fromName: '',
-      replyTo: '',
-    },
     admin: {
       sessionTimeout: 60,
       maxLoginAttempts: 5,
@@ -69,12 +57,6 @@ export default function SettingsPage() {
     repo: false,
   });
 
-  // Email env vars status
-  const [emailEnvStatus, setEmailEnvStatus] = useState({
-    configured: false,
-    provider: '',
-  });
-
   useEffect(() => {
     // Load settings from API
     fetchSettings();
@@ -92,7 +74,6 @@ export default function SettingsPage() {
         if (data.settings) {
           setSettings(prev => ({
             ...prev,
-            email: data.settings.email || prev.email,
             admin: data.settings.admin || prev.admin,
           }));
         }
@@ -133,7 +114,6 @@ export default function SettingsPage() {
       if (res.ok) {
         const data = await res.json();
         setGithubEnvStatus(data.github || { token: false, owner: false, repo: false });
-        setEmailEnvStatus(data.email || { configured: false, provider: '' });
       }
     } catch (error) {
       console.error('Error checking env variables:', error);
@@ -189,7 +169,6 @@ export default function SettingsPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: settings.email,
             admin: settings.admin
           })
         });
@@ -221,7 +200,6 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: 'github', label: 'GitHub Settings', icon: '🔗' },
-    { id: 'email', label: 'Email Settings', icon: '📧' },
     { id: 'analytics', label: 'Analytics', icon: '📊' },
     { id: 'verification', label: 'Verification', icon: '✅' },
     { id: 'admin', label: 'Admin & Security', icon: '🔒' },
@@ -398,174 +376,6 @@ export default function SettingsPage() {
                     </span>
                   </p>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'email' && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-h3 mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                  Email Configuration
-                </h2>
-                <p className="text-body mb-6" style={{ color: 'var(--color-text-secondary)' }}>
-                  Configure email sending for contact forms and notifications
-                </p>
-              </div>
-
-              {/* Email Status */}
-              {emailEnvStatus.configured && (
-                <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20">
-                  <p className="text-green-700 dark:text-green-300">
-                    ✓ Email provider configured: <strong>{emailEnvStatus.provider}</strong>
-                  </p>
-                </div>
-              )}
-
-              {/* Email Settings Form */}
-              <div className="space-y-4">
-                <div>
-                  <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                    Email Provider
-                  </label>
-                  <select
-                    value={settings.email.provider}
-                    onChange={(e) => handleInputChange('email', 'provider', e.target.value)}
-                    className="input-field"
-                  >
-                    <option value="smtp">SMTP</option>
-                    <option value="sendgrid">SendGrid</option>
-                    <option value="mailgun">Mailgun</option>
-                    <option value="postmark">Postmark</option>
-                    <option value="resend">Resend</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                      From Email
-                    </label>
-                    <input
-                      type="email"
-                      value={settings.email.fromEmail}
-                      onChange={(e) => handleInputChange('email', 'fromEmail', e.target.value)}
-                      className="input-field"
-                      placeholder="noreply@yoursite.com"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Default sender email address</p>
-                  </div>
-
-                  <div>
-                    <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                      From Name
-                    </label>
-                    <input
-                      type="text"
-                      value={settings.email.fromName}
-                      onChange={(e) => handleInputChange('email', 'fromName', e.target.value)}
-                      className="input-field"
-                      placeholder="Site Name"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Display name for emails</p>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                    Reply-To Email
-                  </label>
-                  <input
-                    type="email"
-                    value={settings.email.replyTo}
-                    onChange={(e) => handleInputChange('email', 'replyTo', e.target.value)}
-                    className="input-field"
-                    placeholder="support@yoursite.com"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Where replies should be sent</p>
-                </div>
-              </div>
-
-              {/* Provider-specific Instructions */}
-              <div className="border-t pt-6">
-                <h3 className="font-semibold mb-3">Provider Configuration</h3>
-                
-                {settings.email.provider === 'smtp' && (
-                  <div className="space-y-3">
-                    <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
-                      Add these environment variables to your <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">.env.local</code>:
-                    </p>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm space-y-2">
-                      <div>SMTP_HOST=smtp.gmail.com</div>
-                      <div>SMTP_PORT=587</div>
-                      <div>SMTP_USER=your-email@gmail.com</div>
-                      <div>SMTP_PASSWORD=your-app-password</div>
-                      <div>SMTP_SECURE=false <span className="text-gray-500"># true for port 465</span></div>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      For Gmail, use an App Password instead of your regular password. 
-                      Enable 2FA and generate an app password at myaccount.google.com/apppasswords
-                    </p>
-                  </div>
-                )}
-
-                {settings.email.provider === 'sendgrid' && (
-                  <div className="space-y-3">
-                    <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
-                      Add this environment variable to your <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">.env.local</code>:
-                    </p>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                      SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxx
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      Get your API key from SendGrid Dashboard → Settings → API Keys
-                    </p>
-                  </div>
-                )}
-
-                {settings.email.provider === 'mailgun' && (
-                  <div className="space-y-3">
-                    <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
-                      Add these environment variables to your <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">.env.local</code>:
-                    </p>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm space-y-2">
-                      <div>MAILGUN_API_KEY=key-xxxxxxxxxxxxxxxxxxxx</div>
-                      <div>MAILGUN_DOMAIN=mg.yoursite.com</div>
-                      <div>MAILGUN_REGION=US <span className="text-gray-500"># or EU</span></div>
-                    </div>
-                  </div>
-                )}
-
-                {settings.email.provider === 'postmark' && (
-                  <div className="space-y-3">
-                    <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
-                      Add this environment variable to your <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">.env.local</code>:
-                    </p>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                      POSTMARK_API_KEY=xxxxxxxxxxxxxxxxxxxx
-                    </div>
-                  </div>
-                )}
-
-                {settings.email.provider === 'resend' && (
-                  <div className="space-y-3">
-                    <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
-                      Add this environment variable to your <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">.env.local</code>:
-                    </p>
-                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                      RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      Get your API key from resend.com/api-keys
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-4 bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg">
-                <p className="text-body-sm">
-                  <strong>Note:</strong> After adding environment variables, restart your development server for changes to take effect.
-                </p>
               </div>
             </div>
           )}
@@ -863,8 +673,8 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Save Button - Only show for Email, Analytics, Verification, and Admin tabs */}
-          {(activeTab === 'email' || activeTab === 'analytics' || activeTab === 'verification' || activeTab === 'admin') && (
+          {/* Save Button - Only show for Analytics, Verification, and Admin tabs */}
+          {(activeTab === 'analytics' || activeTab === 'verification' || activeTab === 'admin') && (
             <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
               <div>
                 {saveMessage && (

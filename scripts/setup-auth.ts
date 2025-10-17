@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createPasswordHash, generateToken } from '../src/lib/auth';
+import { createPasswordHash, generateToken } from '../src/lib/admin/auth';
 import * as readline from 'readline';
 
 const rl = readline.createInterface({

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { seoConfig, pageMetadata } from '@/seo/seo.config';
-import { sitemapPages } from '@/seo/sitemap-pages';
-import { loadBlogPosts } from '@/lib/blog-utils';
-import { loadPageSeoConfig } from '@/lib/page-seo-utils';
-import { getCurrentConfig, formatConfigForFile } from '@/lib/seo-config-parser';
+import { sitemapPages } from '@/seo/sitemap/sitemap-pages';
+import { loadBlogPosts } from '@/lib/blog/blog-utils';
+import { loadPageSeoConfig } from '@/lib/seo/page-seo-utils';
+import { getCurrentConfig, formatConfigForFile } from '@/lib/seo/seo-config-parser';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
     // Get schema markup
     if (type === 'schema') {
       // Import the schema generator dynamically
-      const { schemaGenerator } = await import('@/lib/schema-generator');
+      const { schemaGenerator } = await import('@/lib/seo/schema-generator');
       
       // Generate all enabled schemas
       const schemas = schemaGenerator.generateSchemas();

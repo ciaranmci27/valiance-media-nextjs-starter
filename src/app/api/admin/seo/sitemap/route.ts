@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sitemapPages } from '@/seo/sitemap-pages';
-import { sitemapBlogPosts } from '@/seo/sitemap-blog-posts';
-import { sitemapCategories } from '@/seo/sitemap-blog-categories';
+import { sitemapPages } from '@/seo/sitemap/sitemap-pages';
+import { sitemapBlogPosts } from '@/seo/sitemap/sitemap-blog-posts';
+import { sitemapCategories } from '@/seo/sitemap/sitemap-blog-categories';
 import { seoConfig } from '@/seo/seo.config';
 
 export const dynamic = 'force-dynamic';

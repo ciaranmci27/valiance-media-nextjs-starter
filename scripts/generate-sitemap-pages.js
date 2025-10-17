@@ -168,7 +168,7 @@ async function generateSitemapRoutes() {
   staticRoutes.sort((a, b) => b.priority - a.priority);
   
   // Generate the output file
-  const outputPath = path.join(process.cwd(), 'src', 'seo', 'generated-sitemap-routes.json');
+  const outputPath = path.join(process.cwd(), 'src', 'seo', 'sitemap', 'generated-sitemap-routes.json');
   const output = {
     generated: new Date().toISOString(),
     staticRoutes,

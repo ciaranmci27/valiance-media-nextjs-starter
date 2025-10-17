@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { seoConfig } from '@/seo/seo.config';
-import SlugChangeWarningModal from '@/components/admin/SlugChangeWarningModal';
+import SlugChangeWarningModal from '@/components/admin/modals/SlugChangeWarningModal';
 import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
 import { PageSchema } from '@/components/admin/seo/schema-types';
 

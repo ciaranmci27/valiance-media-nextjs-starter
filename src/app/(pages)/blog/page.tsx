@@ -1,12 +1,12 @@
 // THIS IS REQUIRED FOR SEO CONFIG - DO NOT REMOVE
 // Every page must have this metadata export to load its seo-config.json
-import { generateStaticMetadata } from '@/lib/generate-static-metadata';
+import { generateStaticMetadata } from '@/lib/seo/generate-static-metadata';
 export const metadata = generateStaticMetadata('blog');
 
 import React from 'react';
-import { PageWrapper } from '@/components/admin/PageWrapper';
-import { BlogCard } from '@/components/admin/BlogCard';
-import { loadBlogPosts, loadCategories } from '@/lib/blog-utils';
+import { PageWrapper } from '@/components/layout/PageWrapper';
+import { BlogCard } from '@/components/admin/blog/BlogCard';
+import { loadBlogPosts, loadCategories } from '@/lib/blog/blog-utils';
 import Link from 'next/link';
 import { seoConfig } from '@/seo/seo.config';
 

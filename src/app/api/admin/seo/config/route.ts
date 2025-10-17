@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { getCurrentConfig, formatConfigForFile } from '@/lib/seo-config-parser';
+import { getCurrentConfig, formatConfigForFile } from '@/lib/seo/seo-config-parser';
 
 const execAsync = promisify(exec);
 const SEO_CONFIG_PATH = path.join(process.cwd(), 'src', 'seo', 'seo.config.ts');
