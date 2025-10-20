@@ -32,6 +32,12 @@
 
 /* Valiance Media Design System CSS Variables */
 :root {
+  /* iOS Safe Area Insets - Critical for proper viewport handling */
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+
   /* Light theme colors */
   --color-primary: #2563EB;
   --color-primary-light: #60A5FA;
@@ -222,6 +228,12 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+  /* Ensure full height including safe areas */
+  height: 100%;
+  /* Prevent iOS Safari from adding extra space */
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -233,8 +245,14 @@ body {
     sans-serif;
   line-height: 1.5;
   transition: background-color var(--transition-base), color var(--transition-base);
+  /* Use dynamic viewport height for iOS Safari URL bar support */
+  min-height: 100dvh;
+  /* Fallback for browsers that don't support dvh */
   min-height: 100vh;
   position: relative;
+  /* Extend background into safe areas on iOS */
+  padding: 0;
+  margin: 0;
 }
 
 /* Dark theme background color */
@@ -247,12 +265,16 @@ body {
 body::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
+  /* Extend into safe areas on iOS */
+  top: calc(-1 * var(--safe-area-inset-top));
+  left: calc(-1 * var(--safe-area-inset-left));
+  right: calc(-1 * var(--safe-area-inset-right));
+  bottom: calc(-1 * var(--safe-area-inset-bottom));
+  /* Use dynamic viewport units with safe area padding */
+  width: calc(100vw + var(--safe-area-inset-left) + var(--safe-area-inset-right));
+  height: calc(100dvh + var(--safe-area-inset-top) + var(--safe-area-inset-bottom));
+  /* Fallback for browsers that don't support dvh */
+  height: calc(100vh + var(--safe-area-inset-top) + var(--safe-area-inset-bottom));
   /* Light theme gradient - using blue theme */
   background: linear-gradient(
     135deg,
@@ -695,11 +717,6 @@ select.input-field::-ms-expand {
   .dark .multi-layer-bg::before {
     background: rgba(var(--gradient-primary-rgb), 0.15);
   }
-}
-
-/* Ensure proper viewport handling */
-html, body {
-  overflow-x: hidden;
 }
 
 /* Base heading styles */
