@@ -38,39 +38,28 @@ export function Footer({
     {
       title: 'Product',
       links: [
-        { label: 'Features', href: '#' },
-        { label: 'How It Works', href: '#' },
-        { label: 'Pricing', href: '#' },
-        { label: 'Download iOS', href: '#' },
-        { label: 'Download Android', href: '#' },
+        { label: 'Features', href: '#features' },
+        { label: 'Pricing', href: '#pricing' },
+        { label: 'Updates', href: '#' },
+        { label: 'Roadmap', href: '#' },
       ],
     },
     {
       title: 'Company',
       links: [
-        { label: 'About Us', href: '#' },
+        { label: 'About', href: '#about' },
         { label: 'Blog', href: '/blog' },
-        { label: 'Press Kit', href: '#' },
-        { label: 'Contact', href: '#' },
-        { label: 'Support', href: '#' },
+        { label: 'Careers', href: '#' },
+        { label: 'Contact', href: '#contact' },
       ],
     },
     {
       title: 'Resources',
       links: [
-        { label: 'Library', href: '#' },
-        { label: 'FAQ', href: '#' },
-        { label: 'API Docs', href: '#' },
+        { label: 'Documentation', href: '#' },
+        { label: 'Help Center', href: '#' },
+        { label: 'Community', href: '#' },
         { label: 'Status', href: '#' },
-      ],
-    },
-    {
-      title: 'Legal',
-      links: [
-        { label: 'Privacy Policy', href: '/privacy' },
-        { label: 'Terms of Service', href: '/terms-of-service' },
-        { label: 'Cookie Policy', href: '#' },
-        { label: 'GDPR', href: '#' },
       ],
     },
   ],
@@ -98,12 +87,12 @@ export function Footer({
   ],
   showNewsletter = true,
   showBrandDescription = true,
-  brandDescription = pageMetadata.home.description,
+  brandDescription = "Crafting digital experiences that drive growth and innovation. Your partner in building exceptional web solutions.",
   copyrightText = `© ${new Date().getFullYear()} ${seoConfig.siteName}. All rights reserved.`,
   bottomLinks = [
     { label: 'Privacy', href: '/privacy' },
     { label: 'Terms', href: '/terms-of-service' },
-    { label: 'Cookies', href: '#' },
+    { label: 'Cookies', href: '/cookies' },
   ],
 }: FooterProps) {
   const { mode, toggleTheme } = useTheme();
@@ -190,7 +179,7 @@ export function Footer({
         </div>
 
         {/* Desktop: Side-by-side Layout */}
-        <div className="hidden lg:grid lg:grid-cols-6 gap-8 lg:gap-12">
+        <div className="hidden lg:grid lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Brand Section - Takes 2 columns */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">

@@ -23,12 +23,12 @@ interface HeaderProps {
 export function Header({
   navLinks = [
     { href: '#features', label: 'Features' },
-    { href: '#how-it-works', label: 'How It Works' },
-    { href: '#testimonials', label: 'Testimonials' },
     { href: '#pricing', label: 'Pricing' },
+    { href: '#about', label: 'About' },
+    { href: '#contact', label: 'Contact' },
   ],
   showCTA = true,
-  ctaText = 'Download Now',
+  ctaText = 'Call to Action',
   ctaHref = '#download',
   transparent = true,
 }: HeaderProps) {

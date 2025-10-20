@@ -967,3 +967,69 @@ body::before {
   line-height: 1.2;
   font-weight: 600;
 }
+
+
+/* User Selection - Selective disable for better UX */
+@layer base {
+  /* Disable selection on interactive UI elements where selection feels wrong */
+  button,
+  [role="button"],
+  [role="tab"],
+  [role="tablist"],
+  [role="option"],
+  [role="listbox"],
+  [role="menu"],
+  [role="menuitem"],
+  [role="combobox"],
+  [role="switch"],
+  [role="tooltip"],
+  label,
+  nav a,
+  select option,
+  input[type="checkbox"],
+  input[type="radio"],
+  .badge,
+  .pill,
+  .tag,
+  .clickable-card,
+  [aria-label*="close"],
+  [aria-label*="dismiss"],
+  [role="button"][aria-expanded],
+  .accordion-header,
+  svg:not(.content-icon),
+  .icon {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+  }
+
+  /* Disable selection on placeholder text */
+  input::placeholder,
+  textarea::placeholder,
+  input::-webkit-input-placeholder,
+  textarea::-webkit-input-placeholder,
+  input::-moz-placeholder,
+  textarea::-moz-placeholder,
+  input:-ms-input-placeholder,
+  textarea:-ms-input-placeholder {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+  }
+
+  /* Ensure text content remains selectable for accessibility */
+  p,
+  h1, h2, h3, h4, h5, h6,
+  span:not(.badge):not(.pill):not(.tag),
+  div:not([role="button"]),
+  article,
+  section,
+  [role="article"],
+  .content,
+  pre,
+  code {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+  }
+}

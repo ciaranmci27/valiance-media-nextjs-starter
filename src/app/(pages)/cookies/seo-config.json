@@ -1,0 +1,24 @@
+{
+  "slug": "cookies",
+  "seo": {
+    "title": "Cookie Policy - Valiance Media",
+    "description": "Learn how Valiance Media uses cookies and similar technologies to improve your browsing experience and provide personalized services.",
+    "keywords": ["cookies", "cookie policy", "tracking", "privacy", "web analytics"],
+    "noIndex": false,
+    "noFollow": false,
+    "canonical": "",
+    "image": ""
+  },
+  "sitemap": {
+    "exclude": false,
+    "priority": 0.5,
+    "changeFrequency": "monthly"
+  },
+  "metadata": {
+    "category": "legal",
+    "featured": false,
+    "lastModified": "2024-12-01",
+    "isClientComponent": false
+  },
+  "schemas": []
+}
