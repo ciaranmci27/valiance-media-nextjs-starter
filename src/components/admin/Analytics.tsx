@@ -1,47 +1,14 @@
-'use client';
-
 import Script from 'next/script';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, Suspense } from 'react';
 import { seoConfig } from '@/seo/seo.config';
+import { AnalyticsTracking } from './AnalyticsTracking';
 
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void;
-    fbq?: (...args: any[]) => void;
-    hj?: (...args: any[]) => void;
-    clarity?: (...args: any[]) => void;
-  }
-}
+// Get analytics IDs from seo config (which can be managed via Settings page)
+const googleAnalyticsId = (seoConfig as any).analytics?.googleAnalyticsId || '';
+const facebookPixelId = (seoConfig as any).analytics?.facebookPixelId || '';
+const hotjarId = (seoConfig as any).analytics?.hotjarId || '';
+const clarityId = (seoConfig as any).analytics?.clarityId || '';
 
-function AnalyticsContent() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  // Get analytics IDs from seo config (which can be managed via Settings page)
-  const configWithAnalytics = seoConfig as any;
-  const googleAnalyticsId = configWithAnalytics.analytics?.googleAnalyticsId || '';
-  const facebookPixelId = configWithAnalytics.analytics?.facebookPixelId || '';
-  const hotjarId = configWithAnalytics.analytics?.hotjarId || '';
-  const clarityId = configWithAnalytics.analytics?.clarityId || '';
-
-  // Google Analytics pageview tracking
-  useEffect(() => {
-    if (googleAnalyticsId && window.gtag) {
-      const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
-      window.gtag('config', googleAnalyticsId, {
-        page_path: url,
-      });
-    }
-  }, [pathname, searchParams, googleAnalyticsId]);
-
-  // Facebook Pixel pageview tracking
-  useEffect(() => {
-    if (facebookPixelId && window.fbq) {
-      window.fbq('track', 'PageView');
-    }
-  }, [pathname, facebookPixelId]);
-
+export function Analytics() {
   return (
     <>
       {/* Google Analytics */}
@@ -64,20 +31,26 @@ function AnalyticsContent() {
 
       {/* Facebook Pixel */}
       {facebookPixelId && (
-        <Script id="facebook-pixel" strategy="afterInteractive">
-          {`
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${facebookPixelId}');
-            fbq('track', 'PageView');
-          `}
-        </Script>
+        <>
+          <Script id="facebook-pixel" strategy="afterInteractive">
+            {`
+              !function(f,b,e,v,n,t,s)
+              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+              n.queue=[];t=b.createElement(e);t.async=!0;
+              t.src=v;s=b.getElementsByTagName(e)[0];
+              s.parentNode.insertBefore(t,s)}(window, document,'script',
+              'https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init', '${facebookPixelId}');
+              fbq('track', 'PageView');
+            `}
+          </Script>
+          <noscript>
+            {`<img height="1" width="1" style="display:none"
+              src="https://www.facebook.com/tr?id=${facebookPixelId}&ev=PageView&noscript=1" />`}
+          </noscript>
+        </>
       )}
 
       {/* Hotjar */}
@@ -108,14 +81,9 @@ function AnalyticsContent() {
           `}
         </Script>
       )}
-    </>
-  );
-}
 
-export function Analytics() {
-  return (
-    <Suspense fallback={null}>
-      <AnalyticsContent />
-    </Suspense>
+      {/* Client-side pageview tracking */}
+      <AnalyticsTracking />
+    </>
   );
 }
