@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/ensure-page-seo.js && node scripts/generate-sitemap-pages.js && node scripts/generate-routes.js && node scripts/generate-pages-config.js && next build",
+    "build": "node scripts/ensure-page-seo.js && node scripts/generate-routes.js && node scripts/generate-pages-config.js && next build",
     "ensure-seo": "node scripts/ensure-page-seo.js",
     "start": "next start",
     "lint": "next lint",

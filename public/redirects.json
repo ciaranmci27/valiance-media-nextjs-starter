@@ -1,3 +1,10 @@
 {
-  "redirects": []
+  "redirects": [
+    {
+      "from": "/github",
+      "to": "https://github.com/ciaranmci27/valiance-media-nextjs-starter",
+      "permanent": true,
+      "createdAt": "2025-11-17T06:07:30.299Z"
+    }
+  ]
 }
