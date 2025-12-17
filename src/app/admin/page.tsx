@@ -30,7 +30,6 @@ interface DashboardStats {
 }
 
 interface SystemStatus {
-  githubConnected: boolean;
   emailConfigured: boolean;
   analyticsEnabled: boolean;
   seoOptimized: boolean;
@@ -42,7 +41,6 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
   const [systemStatus, setSystemStatus] = useState<SystemStatus>({
-    githubConnected: false,
     emailConfigured: false,
     analyticsEnabled: false,
     seoOptimized: false,
@@ -67,25 +65,20 @@ export default function AdminDashboard() {
 
   const checkSystemStatus = async () => {
     try {
-      // Check environment status from API
-      const envResponse = await fetch('/api/admin/settings/env-status');
-      const envData = envResponse.ok ? await envResponse.json() : { github: {}, email: {} };
-      
       // Check analytics from SEO config
       const analyticsResponse = await fetch('/api/admin/settings/analytics');
       const analyticsData = analyticsResponse.ok ? await analyticsResponse.json() : {};
-      
+
       // Check pages
       const pagesResponse = await fetch('/api/admin/pages');
       const pagesData = pagesResponse.ok ? await pagesResponse.json() : { pages: [] };
-      
+
       setSystemStatus({
-        githubConnected: !!(envData.github?.token && envData.github?.owner && envData.github?.repo),
-        emailConfigured: envData.email?.configured || false,
+        emailConfigured: false, // Email configuration not implemented in this boilerplate
         analyticsEnabled: !!(analyticsData.googleAnalyticsId || analyticsData.facebookPixelId),
         seoOptimized: true,
         sitemapGenerated: true,
-        totalPages: pagesData.pages?.length || 0  // Correctly access pages array and use 0 as fallback
+        totalPages: pagesData.pages?.length || 0
       });
     } catch (error) {
       console.error('Error checking system status:', error);
@@ -465,16 +458,8 @@ export default function AdminDashboard() {
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>GitHub</span>
-                      <span className={`badge ${systemStatus.githubConnected ? 'badge-success' : 'badge-error'}`}>
-                        {systemStatus.githubConnected ? 'Connected' : 'Not Connected'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>Email</span>
-                      <span className={`badge ${systemStatus.emailConfigured ? 'badge-success' : 'badge-warning'}`}>
-                        {systemStatus.emailConfigured ? 'Configured' : 'Not Configured'}
-                      </span>
+                      <span className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>Storage</span>
+                      <span className="badge badge-success">Local Files</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>Analytics</span>
@@ -613,13 +598,13 @@ export default function AdminDashboard() {
                 Configuration
               </h3>
               <div className="space-y-4">
-                <button 
+                <button
                   onClick={() => { router.push('/admin/settings'); setActiveTab('system'); }}
-                  className="w-full p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left" 
+                  className="w-full p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left"
                   style={{ borderColor: 'var(--color-border-light)' }}
                 >
                   <h4 className="text-body font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>All Settings</h4>
-                  <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>GitHub, Email, Analytics & Verification</p>
+                  <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>Analytics & Admin Configuration</p>
                 </button>
                 <Link href="/admin/seo" className="block p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800" style={{ borderColor: 'var(--color-border-light)' }}>
                   <h4 className="text-body font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>SEO Settings</h4>
@@ -637,30 +622,26 @@ export default function AdminDashboard() {
                 Quick Access
               </h3>
               <div className="space-y-4">
-                <button 
-                  onClick={() => { router.push('/admin/settings'); setTimeout(() => setActiveTab('github'), 100); }}
-                  className="w-full p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left" 
-                  style={{ borderColor: 'var(--color-border-light)' }}
-                >
-                  <h4 className="text-body font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>GitHub Integration</h4>
-                  <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>Content version control</p>
-                </button>
-                <button 
-                  onClick={() => { router.push('/admin/settings'); setTimeout(() => setActiveTab('analytics'), 100); }}
-                  className="w-full p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left" 
+                <button
+                  onClick={() => { router.push('/admin/settings'); }}
+                  className="w-full p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left"
                   style={{ borderColor: 'var(--color-border-light)' }}
                 >
                   <h4 className="text-body font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Analytics Setup</h4>
                   <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>Google Analytics, Hotjar, etc.</p>
                 </button>
-                <button 
-                  onClick={() => { router.push('/admin/settings'); setTimeout(() => setActiveTab('verification'), 100); }}
-                  className="w-full p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left" 
+                <button
+                  onClick={() => { router.push('/admin/settings'); }}
+                  className="w-full p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left"
                   style={{ borderColor: 'var(--color-border-light)' }}
                 >
-                  <h4 className="text-body font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Site Verification</h4>
-                  <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>Search console verification</p>
+                  <h4 className="text-body font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>Admin Settings</h4>
+                  <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>Security & session configuration</p>
                 </button>
+                <Link href="/admin/seo" className="block p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800" style={{ borderColor: 'var(--color-border-light)' }}>
+                  <h4 className="text-body font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>SEO Configuration</h4>
+                  <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>Meta tags, OpenGraph, etc.</p>
+                </Link>
               </div>
             </div>
 

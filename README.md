@@ -47,8 +47,8 @@ A production-ready Next.js boilerplate with built-in SEO optimization, content m
 ### Professional Content Management System
 - **Comprehensive Admin Dashboard**: Multi-tab interface with Overview, Content, and System management
 - **Visual Blog Editor**: Rich text editor with formatting tools, image management, and SEO fields
-- **GitHub CMS Integration**: Production-ready GitHub API for serverless deployments
-- **Advanced Page Management**: 
+- **Local File Storage**: Content saved to local files, commit via your IDE/git client
+- **Advanced Page Management**:
   - CRUD operations for static pages with individual SEO settings
   - Automatic detection of static vs dynamic (client) components
   - Support for nested page structures (e.g., `/auth/login`, `/docs/api/reference`)
@@ -91,9 +91,9 @@ A production-ready Next.js boilerplate with built-in SEO optimization, content m
 ## 📦 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn or pnpm
-- Git (for GitHub CMS features)
+- Git (for version control)
 
 ### Installation
 
@@ -163,7 +163,7 @@ Access the admin dashboard at [http://localhost:3000/admin](http://localhost:300
 - **Quick Actions**: Create new posts/pages, manage categories, access SEO settings
 - **Statistics Cards**: Total posts, published, drafts, pages count
 - **Recent Posts**: Quick access with inline editing capabilities
-- **System Status**: Real-time monitoring of GitHub, Email, Analytics, SEO configuration
+- **System Status**: Real-time monitoring of storage, Analytics, SEO configuration
 - **Categories Overview**: Visual breakdown with post counts
 - **Performance Metrics**: Publishing rates and content health scores
 
@@ -175,14 +175,14 @@ Access the admin dashboard at [http://localhost:3000/admin](http://localhost:300
 
 #### System Tab
 - **Configuration Center**: Access all system settings from one place
-- **Integration Management**: GitHub, Email, Analytics configuration
+- **Integration Management**: Analytics configuration
 - **Site Files**: Quick access to sitemap.xml and robots.txt
 - **Settings Page**: Comprehensive configuration interface
 
 ### Content Editor Features
 - **Rich Text Editing**: Headings, formatting, lists, links, images, code blocks
 - **SEO Optimization**: Meta title, description, keywords, schema markup
-- **Media Management**: Upload and manage images through GitHub integration
+- **Media Management**: Upload and manage images locally
 - **Draft System**: Save drafts and publish when ready
 - **Featured Content**: Highlight important posts
 - **Categories & Tags**: Organize content effectively
@@ -249,33 +249,7 @@ NEXT_PUBLIC_SITE_URL=https://yoursite.com
 # Admin Authentication (Required for Admin Access)
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD_HASH=hashed-password-here
-SESSION_SECRET=your-session-secret
-
-# GitHub CMS (For Production Content Management)
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
-GITHUB_OWNER=your-username
-GITHUB_REPO=your-repo-name
-GITHUB_BRANCH=main
-
-# Email Configuration (Choose One Provider)
-# SMTP
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-
-# OR SendGrid
-SENDGRID_API_KEY=SG.xxxxxxxxxxxxx
-
-# OR Mailgun
-MAILGUN_API_KEY=key-xxxxxxxxxxxxx
-MAILGUN_DOMAIN=mg.yourdomain.com
-
-# OR Postmark
-POSTMARK_API_KEY=xxxxxxxxxxxxx
-
-# OR Resend
-RESEND_API_KEY=re_xxxxxxxxxxxxx
+ADMIN_TOKEN=your-session-token
 
 # Analytics (Optional)
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
@@ -290,7 +264,7 @@ NEXT_PUBLIC_YANDEX_SITE_VERIFICATION=XXXXXXXXXX
 NEXT_PUBLIC_PINTEREST_SITE_VERIFICATION=XXXXXXXXXX
 
 # Development Options
-DISABLE_ADMIN_AUTH=true  # Disable auth in development
+DISABLE_ADMIN_AUTH=true  # Disable auth in development (never use in production)
 ```
 
 ### SEO Configuration
@@ -357,7 +331,6 @@ export const seoConfig = {
 │   ├── seo/              # SEO utilities
 │   ├── lib/              # Utility functions
 │   │   ├── auth.ts       # Authentication
-│   │   ├── github-cms.ts # GitHub integration
 │   │   └── redirects.ts  # Redirect management
 │   └── middleware.ts     # Auth middleware
 ├── scripts/
@@ -373,18 +346,19 @@ export const seoConfig = {
 3. Add all environment variables in Vercel dashboard
 4. Deploy (build scripts automatically run to catalog pages)
 
-### Production Content Management
+### Content Management Workflow
 
-For production environments, the GitHub CMS integration allows you to:
-- Create and edit content without database
-- Automatic deployments on content changes
-- Version control for all content
-- Works perfectly with Vercel/Netlify
+This boilerplate uses a local file-based content management approach:
+- Content is stored in `public/blog-content/` as JSON files
+- Make changes locally via the admin panel
+- Commit and push changes via your IDE or git client
+- Redeploy to see changes in production
 
-### Setting up GitHub CMS:
-1. Create a GitHub Personal Access Token
-2. Add token and repository details to environment variables
-3. Content changes will trigger automatic deployments
+This approach provides:
+- Full version control for all content
+- No database required
+- Simple deployment workflow
+- Works with any static hosting platform
 
 ## 📊 API Endpoints
 
@@ -395,17 +369,16 @@ For production environments, the GitHub CMS integration allows you to:
 - `GET /robots.txt` - Robots file
 
 ### Admin Endpoints (Protected)
-- `POST /api/admin/auth/login` - Admin login
-- `POST /api/admin/auth/logout` - Admin logout
+- `POST /api/admin/login` - Admin login
+- `DELETE /api/admin/login` - Admin logout
 - `GET /api/admin/dashboard` - Dashboard statistics
-- `POST /api/admin/blog-post` - Create blog post
-- `PUT /api/admin/blog-post` - Update blog post
-- `DELETE /api/admin/blog-post` - Delete blog post
+- `POST /api/admin/blog` - Create blog post
+- `PUT /api/admin/blog` - Update blog post
+- `DELETE /api/admin/blog` - Delete blog post
 - `GET /api/admin/pages` - List pages
 - `POST /api/admin/pages` - Create page
 - `GET /api/admin/seo` - SEO configuration
 - `PUT /api/admin/seo` - Update SEO settings
-- `GET /api/admin/settings/env-status` - Check environment variables
 - `POST /api/admin/redirects` - Manage redirects
 
 ## ⚡ Performance

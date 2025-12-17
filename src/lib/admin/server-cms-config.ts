@@ -1,57 +1,27 @@
 /**
  * Server-side CMS Configuration
- * Determines storage method based on deployment environment
- * This is used by API routes to decide whether to use local file system or GitHub API
+ * This boilerplate uses local file system storage for all blog content.
+ * Changes are saved to public/blog-content/ and can be committed via your IDE/git client.
  */
-
-/**
- * Detect if the application is running in production
- */
-export const isProduction = () => {
-  return process.env.NODE_ENV === 'production' && 
-         process.env.VERCEL_ENV === 'production' ||
-         process.env.NETLIFY === 'true' ||
-         process.env.RAILWAY_ENVIRONMENT === 'production' ||
-         process.env.RENDER === 'true' ||
-         process.env.FLY_APP_NAME !== undefined ||
-         process.env.DETA_RUNTIME === 'true';
-};
 
 /**
  * Check if we're in a local development environment
  */
 export const isDevelopment = () => {
-  return process.env.NODE_ENV === 'development' || 
-         process.env.NODE_ENV === 'test' ||
-         (!isProduction() && !process.env.NODE_ENV);
+  return process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 };
 
 /**
- * Check if GitHub integration is properly configured
+ * Check if we're in production
  */
-export const isGitHubConfigured = () => {
-  return !!(
-    process.env.GITHUB_TOKEN && 
-    process.env.GITHUB_OWNER && 
-    process.env.GITHUB_REPO
-  );
+export const isProduction = () => {
+  return process.env.NODE_ENV === 'production';
 };
 
 /**
- * Determine which storage method to use
+ * Get storage method - always local for this boilerplate
  */
 export const getStorageMethod = () => {
-  // In development, always use local file system
-  if (isDevelopment()) {
-    return 'local';
-  }
-  
-  // In production, use GitHub if configured, otherwise fall back to local
-  if (isProduction() && isGitHubConfigured()) {
-    return 'github';
-  }
-  
-  // Default to local if GitHub is not configured
   return 'local';
 };
 
@@ -59,20 +29,14 @@ export const getStorageMethod = () => {
  * Get server-side CMS configuration
  */
 export const getServerCMSConfig = () => {
-  const storageMethod = getStorageMethod();
-  
   return {
-    storageMethod,
-    useGitHub: storageMethod === 'github',
-    useLocalFileSystem: storageMethod === 'local',
-    isConfigured: storageMethod === 'github' ? isGitHubConfigured() : true,
+    storageMethod: 'local',
+    useLocalFileSystem: true,
+    isConfigured: true,
     environment: {
       nodeEnv: process.env.NODE_ENV,
       isProduction: isProduction(),
-      isDevelopment: isDevelopment(),
-      gitHubConfigured: isGitHubConfigured(),
-      vercelEnv: process.env.VERCEL_ENV,
-      netlify: process.env.NETLIFY === 'true'
+      isDevelopment: isDevelopment()
     }
   };
 };
@@ -82,7 +46,7 @@ export const getServerCMSConfig = () => {
  */
 export const logEnvironment = () => {
   const config = getServerCMSConfig();
-  console.log('[CMS Config] Environment Detection:', {
+  console.log('[CMS Config] Environment:', {
     storageMethod: config.storageMethod,
     environment: config.environment
   });
