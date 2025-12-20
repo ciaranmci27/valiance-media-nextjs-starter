@@ -140,7 +140,7 @@ export function generateOrganizationSchema() {
   }
 
   // Add logo if it exists
-  const logoPath = `${siteUrl}/logos/square-logo.png`;
+  const logoPath = `${siteUrl}/logos/og-default-logo.png`;
   schema.logo = logoPath;
 
   if (configFull.company.foundingDate) {
@@ -227,7 +227,7 @@ export function generateWebsiteSchema() {
       name: configFull.company.name,
       logo: {
         '@type': 'ImageObject',
-        url: `${siteUrl}/logos/square-logo.png`,
+        url: `${siteUrl}/logos/og-default-logo.png`,
       },
     };
   }
@@ -290,7 +290,7 @@ export function generateWebPageSchema({
       name: configFull.company.name,
       logo: {
         '@type': 'ImageObject',
-        url: `${siteUrl}/logos/square-logo.png`,
+        url: `${siteUrl}/logos/og-default-logo.png`,
       },
     };
   }
