@@ -9,6 +9,12 @@ export const seoConfig = {
   siteName: 'Valiance Media',
   siteUrl: 'https://example.com', // Update this to your actual site URL
   titleTemplate: '{pageName} | {siteName}',
+  analytics: {
+    googleAnalyticsId: '',
+    facebookPixelId: '',
+    hotjarId: '',
+    clarityId: '',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',

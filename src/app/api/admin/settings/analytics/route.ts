@@ -15,16 +15,28 @@ export async function GET() {
     const fileContent = await fs.readFile(SEO_CONFIG_PATH, 'utf-8');
     
     // Extract analytics values using regex
-    const extractValue = (pattern: RegExp): string => {
-      const match = fileContent.match(pattern);
-      return match && match[1] ? match[1] : '';
+    // Supports both formats:
+    // 1. Simple string: googleAnalyticsId: 'G-123'
+    // 2. Env var with fallback: googleAnalyticsId: process.env.XXX || 'G-123'
+    const extractValue = (key: string): string => {
+      // Try env var pattern first: key: process.env.XXX || 'value'
+      const envPattern = new RegExp(`${key}:\\s*process\\.env\\.[A-Z_]+\\s*\\|\\|\\s*['"]([^'"]*)['"]`);
+      const envMatch = fileContent.match(envPattern);
+      if (envMatch && envMatch[1]) return envMatch[1];
+
+      // Try simple string pattern: key: 'value' or key: "value"
+      const simplePattern = new RegExp(`${key}:\\s*['"]([^'"]*)['"]`);
+      const simpleMatch = fileContent.match(simplePattern);
+      if (simpleMatch && simpleMatch[1]) return simpleMatch[1];
+
+      return '';
     };
-    
+
     const analytics = {
-      googleAnalyticsId: extractValue(/googleAnalyticsId:\s*process\.env\.NEXT_PUBLIC_GA_ID\s*\|\|\s*['"]([^'"]*)['"]/),
-      facebookPixelId: extractValue(/facebookPixelId:\s*process\.env\.NEXT_PUBLIC_FB_PIXEL_ID\s*\|\|\s*['"]([^'"]*)['"]/),
-      hotjarId: extractValue(/hotjarId:\s*process\.env\.NEXT_PUBLIC_HOTJAR_ID\s*\|\|\s*['"]([^'"]*)['"]/),
-      clarityId: extractValue(/clarityId:\s*process\.env\.NEXT_PUBLIC_CLARITY_ID\s*\|\|\s*['"]([^'"]*)['"]/),
+      googleAnalyticsId: extractValue('googleAnalyticsId'),
+      facebookPixelId: extractValue('facebookPixelId'),
+      hotjarId: extractValue('hotjarId'),
+      clarityId: extractValue('clarityId'),
     };
     
     return NextResponse.json({ analytics });
@@ -52,18 +64,32 @@ export async function POST(request: NextRequest) {
     let fileContent = await fs.readFile(SEO_CONFIG_PATH, 'utf-8');
     
     // Update analytics values in the file
-    const updateValue = (key: string, envVar: string, value: string) => {
-      const pattern = new RegExp(
-        `(${key}:\\s*process\\.env\\.${envVar}\\s*\\|\\|\\s*)['"][^'"]*['"]`,
+    // Supports both formats:
+    // 1. Simple string: googleAnalyticsId: 'G-123'
+    // 2. Env var with fallback: googleAnalyticsId: process.env.XXX || 'G-123'
+    const updateValue = (key: string, value: string) => {
+      // Try env var pattern first: key: process.env.XXX || 'value'
+      const envPattern = new RegExp(
+        `(${key}:\\s*process\\.env\\.[A-Z_]+\\s*\\|\\|\\s*)['"][^'"]*['"]`,
         'g'
       );
-      fileContent = fileContent.replace(pattern, `$1'${value}'`);
+      if (fileContent.match(envPattern)) {
+        fileContent = fileContent.replace(envPattern, `$1'${value}'`);
+        return;
+      }
+
+      // Try simple string pattern: key: 'value' or key: "value"
+      const simplePattern = new RegExp(
+        `(${key}:\\s*)['"][^'"]*['"]`,
+        'g'
+      );
+      fileContent = fileContent.replace(simplePattern, `$1'${value}'`);
     };
-    
-    updateValue('googleAnalyticsId', 'NEXT_PUBLIC_GA_ID', analytics.googleAnalyticsId || '');
-    updateValue('facebookPixelId', 'NEXT_PUBLIC_FB_PIXEL_ID', analytics.facebookPixelId || '');
-    updateValue('hotjarId', 'NEXT_PUBLIC_HOTJAR_ID', analytics.hotjarId || '');
-    updateValue('clarityId', 'NEXT_PUBLIC_CLARITY_ID', analytics.clarityId || '');
+
+    updateValue('googleAnalyticsId', analytics.googleAnalyticsId || '');
+    updateValue('facebookPixelId', analytics.facebookPixelId || '');
+    updateValue('hotjarId', analytics.hotjarId || '');
+    updateValue('clarityId', analytics.clarityId || '');
     
     // Write updated content back to file
     await fs.writeFile(SEO_CONFIG_PATH, fileContent, 'utf-8');
