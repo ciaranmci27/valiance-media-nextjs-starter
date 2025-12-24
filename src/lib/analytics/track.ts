@@ -132,9 +132,8 @@ export function trackEvent(
 ): void {
   // Skip if user is excluded from analytics
   if (isAnalyticsExcluded()) {
-    if (options?.debug || isDev()) {
-      console.log('[Analytics Excluded] Event prevented:', eventName, params);
-    }
+    // Always log excluded events so users can verify exclusion is working
+    console.log('[Analytics] Event excluded:', eventName, params);
     return;
   }
 
@@ -159,9 +158,8 @@ export function trackEvent(
  */
 export function trackPageView(path?: string): void {
   if (isAnalyticsExcluded()) {
-    if (isDev()) {
-      console.log('[Analytics Excluded] PageView prevented:', path);
-    }
+    // Always log excluded page views so users can verify exclusion is working
+    console.log('[Analytics] Page view excluded:', path || window.location.pathname);
     return;
   }
 

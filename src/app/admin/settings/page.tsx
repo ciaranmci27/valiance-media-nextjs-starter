@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 
+// Detect if running in production (build-time constant)
+const isProduction = process.env.NODE_ENV === 'production';
+
 interface AppSettings {
   admin: {
     sessionTimeout: number;
@@ -223,9 +226,19 @@ export default function SettingsPage() {
                 <h2 className="text-h3 mb-2" style={{ color: 'var(--color-text-primary)' }}>
                   Analytics Configuration
                 </h2>
-                <p className="text-body mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+                <p className="text-body mb-4" style={{ color: 'var(--color-text-secondary)' }}>
                   Configure analytics and tracking services for your website
                 </p>
+                {isProduction && (
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg mb-6">
+                    <p className="text-body-sm flex items-start gap-2">
+                      <span className="text-amber-600 dark:text-amber-400">⚠</span>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>
+                        <strong>Read-Only in Production:</strong> Settings cannot be modified in production. To change these settings, edit <code className="px-1 py-0.5 bg-amber-100 dark:bg-amber-800/50 rounded text-xs">settings.json</code> locally and redeploy.
+                      </span>
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -239,6 +252,7 @@ export default function SettingsPage() {
                     onChange={(e) => handleInputChange('analytics', 'googleAnalyticsId', e.target.value)}
                     className="input-field"
                     placeholder="G-XXXXXXXXXX or UA-XXXXXXXXX-X"
+                    disabled={isProduction}
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Your Google Analytics 4 measurement ID or Universal Analytics tracking ID
@@ -255,6 +269,7 @@ export default function SettingsPage() {
                     onChange={(e) => handleInputChange('analytics', 'facebookPixelId', e.target.value)}
                     className="input-field"
                     placeholder="XXXXXXXXXXXXXXX"
+                    disabled={isProduction}
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Track conversions and build audiences for Facebook ads
@@ -271,6 +286,7 @@ export default function SettingsPage() {
                     onChange={(e) => handleInputChange('analytics', 'hotjarId', e.target.value)}
                     className="input-field"
                     placeholder="XXXXXXX"
+                    disabled={isProduction}
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Heatmaps and behavior analytics tracking
@@ -287,6 +303,7 @@ export default function SettingsPage() {
                     onChange={(e) => handleInputChange('analytics', 'clarityId', e.target.value)}
                     className="input-field"
                     placeholder="XXXXXXXXXX"
+                    disabled={isProduction}
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Free heatmaps and session recordings from Microsoft
@@ -322,8 +339,9 @@ export default function SettingsPage() {
                         checked={settings.analyticsExclusions.enabled}
                         onChange={(e) => handleInputChange('analyticsExclusions', 'enabled', e.target.checked)}
                         className="sr-only peer"
+                        disabled={isProduction}
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${isProduction ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
                     </label>
                   </div>
 
@@ -343,9 +361,9 @@ export default function SettingsPage() {
                         checked={settings.analyticsExclusions.excludeLocalhost}
                         onChange={(e) => handleInputChange('analyticsExclusions', 'excludeLocalhost', e.target.checked)}
                         className="sr-only peer"
-                        disabled={!settings.analyticsExclusions.enabled}
+                        disabled={isProduction || !settings.analyticsExclusions.enabled}
                       />
-                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${!settings.analyticsExclusions.enabled ? 'opacity-50' : ''}`}></div>
+                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${isProduction || !settings.analyticsExclusions.enabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
                     </label>
                   </div>
 
@@ -365,9 +383,9 @@ export default function SettingsPage() {
                         checked={settings.analyticsExclusions.excludeBots}
                         onChange={(e) => handleInputChange('analyticsExclusions', 'excludeBots', e.target.checked)}
                         className="sr-only peer"
-                        disabled={!settings.analyticsExclusions.enabled}
+                        disabled={isProduction || !settings.analyticsExclusions.enabled}
                       />
-                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${!settings.analyticsExclusions.enabled ? 'opacity-50' : ''}`}></div>
+                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${isProduction || !settings.analyticsExclusions.enabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
                     </label>
                   </div>
 
@@ -381,7 +399,7 @@ export default function SettingsPage() {
                       onChange={(e) => setExcludedIPsText(e.target.value)}
                       className="input-field min-h-[100px]"
                       placeholder="Enter IP addresses (one per line or comma-separated)&#10;Example:&#10;192.168.1.1&#10;10.0.0.5"
-                      disabled={!settings.analyticsExclusions.enabled}
+                      disabled={isProduction || !settings.analyticsExclusions.enabled}
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       Analytics will not be tracked for these IP addresses. Useful for excluding office/team IPs.
@@ -399,9 +417,19 @@ export default function SettingsPage() {
                 <h2 className="text-h3 mb-2" style={{ color: 'var(--color-text-primary)' }}>
                   Admin & Security Settings
                 </h2>
-                <p className="text-body mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+                <p className="text-body mb-4" style={{ color: 'var(--color-text-secondary)' }}>
                   Configure admin panel access and security features
                 </p>
+                {isProduction && (
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg mb-6">
+                    <p className="text-body-sm flex items-start gap-2">
+                      <span className="text-amber-600 dark:text-amber-400">⚠</span>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>
+                        <strong>Read-Only in Production:</strong> Settings cannot be modified in production. To change these settings, edit <code className="px-1 py-0.5 bg-amber-100 dark:bg-amber-800/50 rounded text-xs">settings.json</code> locally and redeploy.
+                      </span>
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -420,6 +448,7 @@ export default function SettingsPage() {
                       className="input-field w-32"
                       min="5"
                       max="1440"
+                      disabled={isProduction}
                     />
                     <span className="text-body" style={{ color: 'var(--color-text-secondary)' }}>minutes</span>
                   </div>
@@ -442,6 +471,7 @@ export default function SettingsPage() {
                     className="input-field w-32"
                     min="3"
                     max="10"
+                    disabled={isProduction}
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Lock account after this many failed login attempts (min: 3, max: 10 attempts)
@@ -463,6 +493,7 @@ export default function SettingsPage() {
                       className="input-field w-32"
                       min="5"
                       max="120"
+                      disabled={isProduction}
                     />
                     <span className="text-body" style={{ color: 'var(--color-text-secondary)' }}>minutes</span>
                   </div>
@@ -508,8 +539,9 @@ export default function SettingsPage() {
             </div>
             <button
               onClick={handleSave}
-              disabled={isSaving}
+              disabled={isSaving || isProduction}
               className="btn btn-primary"
+              title={isProduction ? 'Settings cannot be modified in production' : undefined}
             >
               {isSaving ? 'Saving...' : 'Save Settings'}
             </button>

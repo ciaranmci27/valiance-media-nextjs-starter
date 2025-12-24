@@ -44,9 +44,8 @@ export function useTrackEvent() {
   const trackEvent = useCallback(
     (eventName: string, params?: EventParams, options?: TrackEventOptions) => {
       if (isExcluded) {
-        if (options?.debug || process.env.NODE_ENV === 'development') {
-          console.log('[Analytics Excluded] Event prevented:', eventName, params);
-        }
+        // Always log excluded events so users can verify exclusion is working
+        console.log('[Analytics] Event excluded:', eventName, params);
         return;
       }
       trackEventFn(eventName, params, options);

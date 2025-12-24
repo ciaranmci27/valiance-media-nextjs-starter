@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 
 interface AnalyticsContextType {
   isExcluded: boolean;
@@ -49,16 +49,17 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
   const [userIP, setUserIP] = useState<string | null>(null);
   const [exclusionReason, setExclusionReason] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const hasLoggedRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
 
     const checkExclusion = async () => {
       try {
-        // Check session cache first
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        if (cached) {
-          try {
+        // Check session cache first (wrapped in try/catch for private browsing support)
+        try {
+          const cached = sessionStorage.getItem(CACHE_KEY);
+          if (cached) {
             const parsed: CachedExclusion = JSON.parse(cached);
             const age = Date.now() - parsed.timestamp;
             if (age < CACHE_DURATION_MS) {
@@ -68,15 +69,21 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
               setExclusionReason(parsed.exclusionReason);
               setIsLoading(false);
 
+              // Log exclusion status for debugging (once only, avoids React StrictMode double-logging)
+              if (parsed.isExcluded && !hasLoggedRef.current) {
+                hasLoggedRef.current = true;
+                console.log(`[Analytics] Traffic excluded (reason: ${parsed.exclusionReason}, ip: ${parsed.userIP})`);
+              }
+
               // Set global flag for non-React code
               if (typeof window !== 'undefined') {
                 (window as Window & { __ANALYTICS_EXCLUDED__?: boolean }).__ANALYTICS_EXCLUDED__ = parsed.isExcluded;
               }
               return;
             }
-          } catch {
-            // Invalid cache, continue to fetch
           }
+        } catch {
+          // sessionStorage blocked or invalid cache, continue to fetch
         }
 
         // Fetch exclusion status from API
@@ -87,18 +94,28 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
           setUserIP(data.ip);
           setExclusionReason(data.reason);
 
-          // Cache the result
-          const cacheData: CachedExclusion = {
-            isExcluded: data.isExcluded,
-            userIP: data.ip,
-            exclusionReason: data.reason,
-            timestamp: Date.now(),
-          };
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+          // Log exclusion status for debugging (once only, avoids React StrictMode double-logging)
+          if (data.isExcluded && !hasLoggedRef.current) {
+            hasLoggedRef.current = true;
+            console.log(`[Analytics] Traffic excluded (reason: ${data.reason}, ip: ${data.ip})`);
+          }
 
-          // Set global flag for non-React code
+          // Set global flag for non-React code (do this before cache in case cache fails)
           if (typeof window !== 'undefined') {
             (window as Window & { __ANALYTICS_EXCLUDED__?: boolean }).__ANALYTICS_EXCLUDED__ = data.isExcluded;
+          }
+
+          // Cache the result (wrapped in try/catch for private browsing support)
+          try {
+            const cacheData: CachedExclusion = {
+              isExcluded: data.isExcluded,
+              userIP: data.ip,
+              exclusionReason: data.reason,
+              timestamp: Date.now(),
+            };
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+          } catch {
+            // sessionStorage blocked, caching disabled but exclusion still works
           }
         }
       } catch (error) {
@@ -135,6 +152,10 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
  */
 export function clearAnalyticsCache() {
   if (typeof window !== 'undefined') {
-    sessionStorage.removeItem(CACHE_KEY);
+    try {
+      sessionStorage.removeItem(CACHE_KEY);
+    } catch {
+      // sessionStorage blocked, nothing to clear
+    }
   }
 }

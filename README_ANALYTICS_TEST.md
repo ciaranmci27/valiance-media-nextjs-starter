@@ -1,73 +1,150 @@
-# Analytics Testing Guide
+# Analytics Guide
 
-## How the Analytics Implementation Works
+## Overview
 
-The boilerplate now includes automatic analytics tracking that:
-1. **Only loads when configured** - Scripts are only injected if environment variables are set
-2. **Supports multiple platforms** - Google Analytics, Facebook Pixel, Hotjar, and Microsoft Clarity
-3. **Tracks page views automatically** - Updates on route changes in your Next.js app
-4. **Zero performance impact when disabled** - No scripts load if env vars are not set
+The boilerplate includes a comprehensive analytics system with:
+- **Multi-platform support**: Google Analytics, Facebook Pixel, Hotjar, Microsoft Clarity
+- **IP/Bot exclusions**: Exclude localhost, bots, and specific IPs from tracking
+- **Custom events utility**: Developer-friendly API for tracking events
+- **Admin configuration**: Manage settings via `/admin/settings`
 
-## Testing the Implementation
+## Configuration
 
-### 1. Without Environment Variables
-When no analytics environment variables are set:
-- No tracking scripts are loaded
-- No network requests to analytics services
-- No console errors
-- Zero performance impact
+Analytics are configured in two places:
 
-### 2. With Google Analytics
-Add to your `.env.local`:
+### 1. Analytics IDs (`seo.config.ts`)
+Configure your tracking IDs in the SEO config file or via Admin Settings > Analytics:
+- Google Analytics ID (G-XXXXXXXXXX)
+- Facebook Pixel ID
+- Hotjar ID
+- Microsoft Clarity ID
+
+### 2. Exclusion Settings (`settings.json`)
+Configure via Admin Settings > Analytics:
+- **Enable exclusions**: Master toggle
+- **Exclude localhost**: Don't track from development environments
+- **Exclude bots**: Don't track search engines, crawlers, social media bots
+- **Excluded IPs**: Specific IP addresses to exclude (e.g., office IPs)
+
+## Analytics Exclusions
+
+The exclusion system prevents tracking for:
+- **Localhost**: 127.0.0.1, ::1, localhost
+- **Bots**: Googlebot, Bingbot, Facebookexternalhit, etc.
+- **Custom IPs**: Any IPs you add in admin settings
+
+### How It Works
+1. On page load, client fetches `/api/analytics/check-exclusion`
+2. API checks user's IP, user-agent against exclusion rules
+3. If excluded, analytics scripts don't load at all
+4. Result is cached in sessionStorage for 5 minutes
+
+### Console Logging
+When traffic is excluded, you'll see in the browser console:
 ```
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
-```
-
-Then check browser DevTools:
-- Network tab: Should see requests to `googletagmanager.com`
-- Console: Should see no errors
-- Application > Scripts: Google Analytics script should be loaded
-
-### 3. With Facebook Pixel
-Add to your `.env.local`:
-```
-NEXT_PUBLIC_FB_PIXEL_ID=XXXXXXXXXX
-```
-
-Then check browser DevTools:
-- Network tab: Should see requests to `facebook.com`
-- Console: Should see "PageView" events being tracked
-
-### 4. With Multiple Analytics
-You can enable multiple analytics services simultaneously:
-```
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
-NEXT_PUBLIC_FB_PIXEL_ID=XXXXXXXXXX
-NEXT_PUBLIC_HOTJAR_ID=XXXXXXXXXX
-NEXT_PUBLIC_CLARITY_ID=XXXXXXXXXX
+[Analytics] Traffic excluded (reason: localhost, ip: ::1)
 ```
 
-## Vercel Deployment
-When deploying to Vercel:
-1. Go to your project settings
-2. Navigate to Environment Variables
-3. Add any analytics IDs you want to use
-4. Redeploy your application
+When events are excluded:
+```
+[Analytics] Event excluded: cta_click {button_id: "hero-btn"}
+```
 
-The analytics will automatically start working with your real IDs!
+## Custom Events Tracking
+
+### Using the React Hook (Recommended)
+```tsx
+import { useTrackEvent } from '@/lib/analytics';
+
+function ContactForm() {
+  const { trackEvent, trackLead, isExcluded } = useTrackEvent();
+
+  const handleSubmit = () => {
+    // Track a lead
+    trackLead('contact-form', 100, 'USD');
+
+    // Or track custom event
+    trackEvent('form_submit', { form_id: 'contact' });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {isExcluded && <small>Analytics disabled for your session</small>}
+      {/* form fields */}
+    </form>
+  );
+}
+```
+
+### Available Hook Methods
+- `trackEvent(name, params)` - Track to GA + FB Pixel
+- `trackGAEvent(name, params)` - Track to GA only
+- `trackFBEvent(name, params)` - Track to FB only
+- `trackLead(formId, value?, currency?)` - Lead generation
+- `trackPurchase(transactionId, value, currency, items?)` - Purchases
+- `trackSignUp(method?)` - Sign ups
+- `trackClick(buttonId, buttonText?)` - Button clicks
+
+### Outside React Components
+```typescript
+import { trackEvent, trackClick, trackPageView } from '@/lib/analytics';
+
+// Track custom events
+trackEvent('video_play', { video_id: 'intro' });
+trackClick('cta-hero', 'Get Started');
+trackPageView('/custom-page');
+```
+
+## Testing
+
+### 1. Verify Exclusion Works
+On localhost, you should see:
+- Console log: `[Analytics] Traffic excluded (reason: localhost, ip: ::1)`
+- No analytics network requests in DevTools
+- Scripts not loaded (check Elements tab)
+
+### 2. Verify Tracking Works (Production)
+With valid analytics IDs and non-excluded IP:
+- Network tab: Requests to googletagmanager.com, facebook.com, etc.
+- Console: No exclusion logs
+- Real-time reports in analytics dashboards
+
+### 3. Test Custom Events
+```javascript
+// In browser console (when not excluded)
+trackEvent('test_event', { test: true });
+```
+
+## Admin Settings
+
+Navigate to `/admin/settings` > Analytics tab:
+
+1. **Analytics IDs**: Enter your tracking IDs
+2. **Enable Exclusions**: Toggle the master switch
+3. **Exclude Localhost**: Recommended ON for development
+4. **Exclude Bots**: Recommended ON to filter crawlers
+5. **Excluded IPs**: Add office/team IPs (one per line)
+
+**Note**: Settings are saved to `settings.json` and must be committed to git to take effect in production. The admin panel is read-only in production.
 
 ## Implementation Details
 
-- **Location**: `src/components/Analytics.tsx`
-- **Integration**: Automatically included in `src/app/layout.tsx`
-- **Configuration**: Reads from `src/seo/seo.config.ts`
-- **Environment Variables**: All prefixed with `NEXT_PUBLIC_` for client-side access
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| Analytics | `src/components/admin/Analytics.tsx` | Loads tracking scripts |
+| AnalyticsTracking | `src/components/admin/AnalyticsTracking.tsx` | Page view tracking |
+| AnalyticsContext | `src/contexts/AnalyticsContext.tsx` | Exclusion state provider |
+| Check Exclusion API | `src/app/api/analytics/check-exclusion/route.ts` | Server-side exclusion check |
+| Tracking Utility | `src/lib/analytics/track.ts` | Event tracking functions |
+| React Hook | `src/lib/analytics/hooks.ts` | useTrackEvent hook |
 
 ## Features
 
-✅ Automatic page view tracking
-✅ SPA route change tracking
-✅ TypeScript support with proper type definitions
-✅ Suspense boundary for better loading
-✅ Uses Next.js Script component for optimal loading
-✅ Zero configuration required - just add env vars!
+- Automatic page view tracking on route changes
+- IP-based exclusion (localhost, custom IPs)
+- Bot/crawler detection and exclusion
+- Session caching for exclusion status
+- Console logging for debugging
+- TypeScript support
+- Works in private browsing mode
+- Production read-only admin settings

@@ -27,6 +27,8 @@ function AnalyticsTrackingContent() {
   // Google Analytics pageview tracking
   useEffect(() => {
     // Skip if user is excluded from analytics
+    // Note: This component won't render when excluded (Analytics returns null),
+    // but this check remains for safety
     if (isExcluded) {
       return;
     }

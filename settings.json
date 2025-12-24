@@ -1,0 +1,13 @@
+{
+  "admin": {
+    "sessionTimeout": 60,
+    "maxLoginAttempts": 5,
+    "lockoutDuration": 15
+  },
+  "analyticsExclusions": {
+    "enabled": true,
+    "excludedIPs": [],
+    "excludeLocalhost": true,
+    "excludeBots": true
+  }
+}
