@@ -14,6 +14,12 @@ interface AppSettings {
     hotjarId: string;
     clarityId: string;
   };
+  analyticsExclusions: {
+    enabled: boolean;
+    excludedIPs: string[];
+    excludeLocalhost: boolean;
+    excludeBots: boolean;
+  };
 }
 
 export default function SettingsPage() {
@@ -30,9 +36,16 @@ export default function SettingsPage() {
       hotjarId: '',
       clarityId: '',
     },
+    analyticsExclusions: {
+      enabled: true,
+      excludedIPs: [],
+      excludeLocalhost: true,
+      excludeBots: true,
+    },
   });
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [excludedIPsText, setExcludedIPsText] = useState('');
 
   useEffect(() => {
     fetchSettings();
@@ -63,6 +76,20 @@ export default function SettingsPage() {
           }));
         }
       }
+
+      // Fetch analytics exclusions settings
+      const exclusionsRes = await fetch('/api/admin/settings/analytics-exclusions');
+      if (exclusionsRes.ok) {
+        const data = await exclusionsRes.json();
+        if (data.analyticsExclusions) {
+          setSettings(prev => ({
+            ...prev,
+            analyticsExclusions: data.analyticsExclusions,
+          }));
+          // Set the text area value
+          setExcludedIPsText(data.analyticsExclusions.excludedIPs?.join('\n') || '');
+        }
+      }
     } catch (error) {
       console.error('Error fetching settings:', error);
     }
@@ -74,21 +101,48 @@ export default function SettingsPage() {
 
     try {
       if (activeTab === 'analytics') {
+        // Save analytics IDs
         const res = await fetch('/api/admin/settings/analytics', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ analytics: settings.analytics })
         });
 
-        if (res.ok) {
+        // Parse excluded IPs from text area
+        const excludedIPs = excludedIPsText
+          .split(/[\n,]/)
+          .map(ip => ip.trim())
+          .filter(ip => ip.length > 0);
+
+        // Save analytics exclusions
+        const exclusionsRes = await fetch('/api/admin/settings/analytics-exclusions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            analyticsExclusions: {
+              ...settings.analyticsExclusions,
+              excludedIPs,
+            }
+          })
+        });
+
+        if (res.ok && exclusionsRes.ok) {
           const data = await res.json();
+          // Clear the analytics cache so changes take effect immediately
+          sessionStorage.removeItem('analytics_exclusion_cache');
           setSaveMessage(data.message || 'Analytics configuration saved successfully!');
           if (data.warning) {
             setSaveMessage(data.message + ' Warning: ' + data.warning);
           }
         } else {
-          const errorData = await res.json();
-          setSaveMessage(errorData.error || 'Error saving analytics configuration.');
+          // Check which request failed and show appropriate error
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            setSaveMessage(errorData.error || 'Error saving analytics IDs.');
+          } else if (!exclusionsRes.ok) {
+            const errorData = await exclusionsRes.json().catch(() => ({}));
+            setSaveMessage(errorData.error || 'Error saving exclusion settings.');
+          }
         }
       } else {
         // For admin settings, use the general endpoint
@@ -240,14 +294,101 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <p className="text-body-sm flex items-start gap-2">
-                  <span>⚠️</span>
-                  <span>
-                    <strong>Domain Restrictions:</strong> Remember to add your production domain to each analytics
-                    platform's allowed domains list to prevent unauthorized tracking on other sites.
-                  </span>
-                </p>
+              {/* IP Exclusions Section */}
+              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                <div className="mb-6">
+                  <h3 className="text-h4 mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                    Analytics Exclusions
+                  </h3>
+                  <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                    Exclude specific IPs, localhost, or bots from being tracked by analytics
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Master Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <div>
+                      <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
+                        Enable Analytics Exclusions
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Master switch to enable/disable all exclusion rules
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={settings.analyticsExclusions.enabled}
+                        onChange={(e) => handleInputChange('analyticsExclusions', 'enabled', e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+
+                  {/* Localhost Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <div>
+                      <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
+                        Exclude Localhost
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Don't track analytics from localhost/development environments (127.0.0.1, ::1)
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={settings.analyticsExclusions.excludeLocalhost}
+                        onChange={(e) => handleInputChange('analyticsExclusions', 'excludeLocalhost', e.target.checked)}
+                        className="sr-only peer"
+                        disabled={!settings.analyticsExclusions.enabled}
+                      />
+                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${!settings.analyticsExclusions.enabled ? 'opacity-50' : ''}`}></div>
+                    </label>
+                  </div>
+
+                  {/* Bot Exclusion Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <div>
+                      <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
+                        Exclude Bots & Crawlers
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Don't track analytics from search engine bots, social media crawlers, and known scrapers
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={settings.analyticsExclusions.excludeBots}
+                        onChange={(e) => handleInputChange('analyticsExclusions', 'excludeBots', e.target.checked)}
+                        className="sr-only peer"
+                        disabled={!settings.analyticsExclusions.enabled}
+                      />
+                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${!settings.analyticsExclusions.enabled ? 'opacity-50' : ''}`}></div>
+                    </label>
+                  </div>
+
+                  {/* Excluded IPs */}
+                  <div>
+                    <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                      Excluded IP Addresses
+                    </label>
+                    <textarea
+                      value={excludedIPsText}
+                      onChange={(e) => setExcludedIPsText(e.target.value)}
+                      className="input-field min-h-[100px]"
+                      placeholder="Enter IP addresses (one per line or comma-separated)&#10;Example:&#10;192.168.1.1&#10;10.0.0.5"
+                      disabled={!settings.analyticsExclusions.enabled}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Analytics will not be tracked for these IP addresses. Useful for excluding office/team IPs.
+                    </p>
+                  </div>
+
+                </div>
               </div>
             </div>
           )}

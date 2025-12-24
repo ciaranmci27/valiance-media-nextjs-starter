@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AnalyticsProvider } from "@/contexts/AnalyticsContext";
 import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
 import { Analytics } from "@/components/admin/Analytics";
 import { generateMetadata } from "@/seo/seo-utils";
@@ -59,10 +60,12 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider>
-          <Analytics />
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
+          <AnalyticsProvider>
+            <Analytics />
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+          </AnalyticsProvider>
         </ThemeProvider>
       </body>
     </html>

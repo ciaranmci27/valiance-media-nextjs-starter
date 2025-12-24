@@ -1,14 +1,25 @@
+'use client';
+
 import Script from 'next/script';
 import { seoConfig } from '@/seo/seo.config';
+import { useAnalytics } from '@/contexts/AnalyticsContext';
 import { AnalyticsTracking } from './AnalyticsTracking';
 
 // Get analytics IDs from seo config (which can be managed via Settings page)
-const googleAnalyticsId = (seoConfig as any).analytics?.googleAnalyticsId || '';
-const facebookPixelId = (seoConfig as any).analytics?.facebookPixelId || '';
-const hotjarId = (seoConfig as any).analytics?.hotjarId || '';
-const clarityId = (seoConfig as any).analytics?.clarityId || '';
+const googleAnalyticsId = (seoConfig as unknown as { analytics?: { googleAnalyticsId?: string } }).analytics?.googleAnalyticsId || '';
+const facebookPixelId = (seoConfig as unknown as { analytics?: { facebookPixelId?: string } }).analytics?.facebookPixelId || '';
+const hotjarId = (seoConfig as unknown as { analytics?: { hotjarId?: string } }).analytics?.hotjarId || '';
+const clarityId = (seoConfig as unknown as { analytics?: { clarityId?: string } }).analytics?.clarityId || '';
 
 export function Analytics() {
+  const { isExcluded, isLoading } = useAnalytics();
+
+  // Don't load analytics scripts if user is excluded
+  // Also skip if still loading (to prevent flash of analytics before exclusion check completes)
+  if (isExcluded || isLoading) {
+    return null;
+  }
+
   return (
     <>
       {/* Google Analytics */}
