@@ -1,23 +1,39 @@
-// THIS IS REQUIRED FOR SEO CONFIG - DO NOT REMOVE
-// Every page must have this metadata export to load its seo-config.json
-import { generateStaticMetadata } from '@/lib/seo/generate-static-metadata';
-export const metadata = generateStaticMetadata('blog');
-
 import React from 'react';
+import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { BlogCard } from '@/components/admin/blog/BlogCard';
 import { loadBlogPosts, loadCategories } from '@/lib/blog/blog-utils';
 import Link from 'next/link';
 import { seoConfig } from '@/seo/seo.config';
+import { generateStaticMetadata } from '@/lib/seo/generate-static-metadata';
+
+// Dynamic metadata: use seo-config.json when posts exist, noindex when empty
+export async function generateMetadata(): Promise<Metadata> {
+  const allPosts = await loadBlogPosts();
+
+  // If no posts, return minimal metadata (page will 404 anyway)
+  if (allPosts.length === 0) {
+    return {
+      title: 'Blog',
+      robots: 'noindex, nofollow',
+    };
+  }
+
+  // Use the standard SEO config when blog has content
+  return generateStaticMetadata('blog');
+}
 
 export default async function BlogPage() {
   const [allPosts, categories] = await Promise.all([
     loadBlogPosts(),
     loadCategories(),
   ]);
-  
-  // Show all posts in a grid (no featured section for now)
-  // If you want featured posts, you can add a "featured": true field to blog posts
+
+  // If no blog posts exist, return 404 - don't show empty blog page
+  if (allPosts.length === 0) {
+    notFound();
+  }
 
   return (
     <PageWrapper className="py-8 sm:py-12 lg:py-16">
@@ -53,21 +69,13 @@ export default async function BlogPage() {
       )}
 
       {/* All Posts Grid */}
-      {allPosts.length > 0 ? (
-        <section>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {allPosts.map((post) => (
-              <BlogCard key={post.slug} post={post} categories={categories} />
-            ))}
-          </div>
-        </section>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-gray-600 dark:text-gray-400">
-            No blog posts yet. Add JSON files to the /public/blog-content directory to get started.
-          </p>
+      <section>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {allPosts.map((post) => (
+            <BlogCard key={post.slug} post={post} categories={categories} />
+          ))}
         </div>
-      )}
+      </section>
     </PageWrapper>
   );
 }
