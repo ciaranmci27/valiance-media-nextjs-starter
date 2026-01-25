@@ -1,13 +1,11 @@
 {
   "slug": "privacy",
   "seo": {
-    "title": "Privacy Policy - Valiance Media",
-    "description": "",
-    "keywords": [],
+    "title": "Privacy Policy",
+    "description": "Learn how we collect, use, and protect your personal information. Our privacy policy explains your rights and how we handle your data.",
+    "keywords": ["privacy policy", "data protection", "personal information", "GDPR", "privacy rights"],
     "noIndex": false,
-    "noFollow": false,
-    "canonical": "",
-    "image": ""
+    "noFollow": false
   },
   "sitemap": {
     "exclude": false,
@@ -16,9 +14,6 @@
   },
   "metadata": {
     "category": "legal",
-    "featured": false,
-    "lastModified": "2025-09-02",
-    "isClientComponent": false
-  },
-  "schemas": []
+    "lastModified": "2025-01-25"
+  }
 }

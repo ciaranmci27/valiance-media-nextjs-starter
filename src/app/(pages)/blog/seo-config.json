@@ -1,17 +1,19 @@
 {
+  "slug": "blog",
   "seo": {
     "title": "Blog",
-    "description": "Insights, tutorials, and updates from our team",
-    "keywords": "blog, articles, tutorials, insights, updates",
+    "description": "Explore our latest articles, tutorials, and insights. Stay updated with industry trends, best practices, and expert tips from our team.",
+    "keywords": ["blog", "articles", "tutorials", "insights", "updates", "guides"],
     "noIndex": false,
     "noFollow": false
   },
   "sitemap": {
+    "exclude": false,
     "priority": 0.9,
-    "changeFrequency": "daily",
-    "exclude": false
+    "changeFrequency": "daily"
   },
   "metadata": {
-    "lastModified": "2025-09-02T00:00:00.000Z"
+    "category": "content",
+    "lastModified": "2025-01-25"
   }
 }

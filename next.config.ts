@@ -3,13 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Ensure proper routing on Vercel
   trailingSlash: false,
-  
-  // Headers for better SEO and security
+
+  // Security and SEO headers
   async headers() {
     return [
       {
         source: '/(.*)',
         headers: [
+          // Security headers
           {
             key: 'X-Frame-Options',
             value: 'DENY',
@@ -17,6 +18,19 @@ const nextConfig: NextConfig = {
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          // Permissions Policy (formerly Feature-Policy)
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
       },
