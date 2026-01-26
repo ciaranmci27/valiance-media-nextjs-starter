@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { seoConfig } from '@/seo/seo.config';
+import { Logo } from '@/components/layout/Logo';
 
 export function AdminHeader() {
-  const { mode } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -104,12 +102,11 @@ export function AdminHeader() {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link href="/admin" className="flex items-center space-x-2">
-            <Image
-              src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-              alt={`${seoConfig.siteName} Admin Logo`}
+            <Logo
               width={150}
               height={40}
               className="h-8 w-auto"
+              alt={`${seoConfig.siteName} Admin Logo`}
             />
             <span className="text-md font-medium text-gray-500 dark:text-gray-400 ml-2 pl-2 border-l border-gray-300 dark:border-gray-600">
               Admin

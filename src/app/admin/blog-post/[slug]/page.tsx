@@ -62,7 +62,7 @@ export default function EditBlogPost() {
           title: post.title || '',
           excerpt: post.excerpt || '',
           content: post.content || '',
-          author: post.author || { name: '', image: '/logos/square-logo.png', bio: '' },
+          author: post.author || { name: '', image: '/favicon/android-chrome-512x512.png', bio: '' },
           category: post.category || '',
           tags: post.tags || [],
           image: post.image || '/logos/horizontal-logo.png',

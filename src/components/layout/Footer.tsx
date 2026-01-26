@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { seoConfig, pageMetadata } from '@/seo/seo.config';
+import { Logo } from './Logo';
 
 interface FooterLink {
   label: string;
@@ -113,13 +114,7 @@ export function Footer({
           {/* Brand Section - Full width on mobile */}
           <div className="text-center sm:text-left mb-8 sm:mb-12">
             <Link href="/" className="inline-block mt-8 mb-4">
-              <Image
-                src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-                alt={`${seoConfig.siteName} Logo`}
-                width={180}
-                height={36}
-                className="h-9 w-auto"
-              />
+              <Logo width={180} height={36} className="h-9 w-auto" />
             </Link>
             {showBrandDescription && (
               <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto sm:mx-0">
@@ -183,13 +178,7 @@ export function Footer({
           {/* Brand Section - Takes 2 columns */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
-              <Image
-                src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-                alt={`${seoConfig.siteName} Logo`}
-                width={180}
-                height={36}
-                className="h-9 w-auto"
-              />
+              <Logo width={180} height={36} className="h-9 w-auto" />
             </Link>
             {showBrandDescription && (
               <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-sm">

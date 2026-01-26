@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
-import { seoConfig } from '@/seo/seo.config';
+import { Logo } from './Logo';
 
 interface NavLink {
   href: string;
@@ -32,7 +30,6 @@ export function Header({
   ctaHref = '#download',
   transparent = true,
 }: HeaderProps) {
-  const { mode } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -61,14 +58,7 @@ export function Header({
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <Image
-              src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
-              alt={`${seoConfig.siteName} Logo`}
-              width={200}
-              height={40}
-              className="h-10 w-auto"
-              priority
-            />
+            <Logo priority />
           </Link>
 
           {/* Desktop Navigation */}
