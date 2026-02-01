@@ -27,8 +27,6 @@ export async function POST(request: NextRequest) {
                request.headers.get('x-client-ip') ||
                'unknown';
 
-    console.log('Login attempt for username:', username, 'from IP:', ip);
-
     if (!username || !password) {
       return NextResponse.json(
         { error: 'Username and password are required' },
@@ -47,7 +45,6 @@ export async function POST(request: NextRequest) {
     // Enforce max login attempts using persistent lockout store (IP-based)
     if (await lockoutStore.isLocked(ip)) {
       const remaining = await lockoutStore.getRemainingLockTime(ip);
-      console.log(`IP ${ip} is locked. Remaining time: ${remaining} seconds`);
       return NextResponse.json(
         { error: `Too many failed attempts. Try again in ${Math.ceil(remaining / 60)} minutes.` },
         { status: 429 }
@@ -58,7 +55,6 @@ export async function POST(request: NextRequest) {
     const token = await verifyCredentials(username, password);
 
     if (!token) {
-      console.log('Invalid credentials for username:', username);
       const { locked, remainingAttempts } = await lockoutStore.recordFailedAttempt(
         ip,
         username, 
@@ -76,13 +72,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Login successful for username:', username);
-    console.log('Token generated/retrieved:', token);
-
     // Double-check the IP isn't locked (race condition protection)
     if (await lockoutStore.isLocked(ip)) {
       const remaining = await lockoutStore.getRemainingLockTime(ip);
-      console.log(`IP ${ip} is locked (double-check). Remaining time: ${remaining} seconds`);
       return NextResponse.json(
         { error: `Too many failed attempts. Try again in ${Math.ceil(remaining / 60)} minutes.` },
         { status: 429 }
@@ -122,8 +114,6 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    console.log('Cookie set successfully');
-
     return response;
 
   } catch (error) {
@@ -140,8 +130,7 @@ export async function DELETE(request: NextRequest) {
   const token = request.cookies.get('admin-token')?.value;
   
   if (token) {
-    // Clear the session from the store
-    const { sessionStore } = await import('@/lib/admin/auth-store');
+    // Clear the session from the store (use already imported sessionStore)
     sessionStore.deleteSession(token);
   }
   

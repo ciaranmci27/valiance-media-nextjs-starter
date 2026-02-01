@@ -1,6 +1,15 @@
 // Edge-compatible authentication utilities
 // Uses Web Crypto API instead of Node.js crypto
 
+// Get the admin token secret, throwing an error in production if not set
+function getAdminTokenSecret(): string {
+  const secret = process.env.ADMIN_TOKEN;
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('ADMIN_TOKEN must be set in production environment');
+  }
+  return secret || 'default-dev-secret';
+}
+
 // Hash a string using Web Crypto API (Edge-compatible)
 async function hashString(text: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -29,19 +38,14 @@ export async function verifyAuthEdge(token: string): Promise<boolean> {
       
       // Create the expected token (same logic as in verifyCredentials)
       const expectedToken = await hashString(
-        `${validUsername}:${validPasswordHash}:${process.env.ADMIN_TOKEN || 'default-secret'}`
+        `${validUsername}:${validPasswordHash}:${getAdminTokenSecret()}`
       );
       
       return token === expectedToken;
 
     default:
-      // Default to simple verification
-      const defaultUsername = process.env.ADMIN_USERNAME || 'admin';
-      const defaultPasswordHash = process.env.ADMIN_PASSWORD_HASH || '';
-      const defaultToken = await hashString(
-        `${defaultUsername}:${defaultPasswordHash}:${process.env.ADMIN_TOKEN || 'default-secret'}`
-      );
-      
-      return token === defaultToken;
+      // Unknown provider - reject for security
+      console.error(`Unknown auth provider: ${authProvider}`);
+      return false;
   }
 }

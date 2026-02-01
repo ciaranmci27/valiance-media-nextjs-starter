@@ -30,7 +30,18 @@ export default function AdminLogin() {
 
       if (response.ok) {
         // Redirect to admin dashboard or previous page
-        const redirectTo = new URLSearchParams(window.location.search).get('from') || '/admin';
+        // Validate redirect URL to prevent open redirect attacks
+        const fromParam = new URLSearchParams(window.location.search).get('from');
+        let redirectTo = '/admin';
+        if (fromParam) {
+          // Only allow relative paths starting with / and no protocol
+          const isValidRedirect = fromParam.startsWith('/') &&
+                                  !fromParam.startsWith('//') &&
+                                  !fromParam.includes(':');
+          if (isValidRedirect) {
+            redirectTo = fromParam;
+          }
+        }
         router.push(redirectTo);
         router.refresh();
       } else {

@@ -38,9 +38,8 @@ class LockoutStore {
         await this.saveLockouts();
       }
       this.initialized = true;
-    } catch (error) {
+    } catch {
       // File doesn't exist or is invalid, start fresh
-      console.log('Starting with fresh lockout data');
       this.lockoutData = {};
       this.initialized = true;
     }
@@ -114,14 +113,7 @@ class LockoutStore {
     
     const remainingAttempts = Math.max(0, maxAttempts - lockout.attempts);
     const locked = lockout.attempts >= maxAttempts;
-    
-    console.log(`Failed attempt from ${key} for user ${username}:`, {
-      attempts: lockout.attempts,
-      maxAttempts,
-      locked,
-      remainingAttempts
-    });
-    
+
     return { locked, remainingAttempts };
   }
 
@@ -133,26 +125,17 @@ class LockoutStore {
     const lockout = this.lockoutData[key];
     
     if (!lockout || !lockout.lockedUntil) {
-      console.log(`No lockout found for IP ${key}`);
       return false;
     }
-    
+
     const now = new Date();
     const lockedUntil = new Date(lockout.lockedUntil);
-    
-    console.log(`Checking lockout for IP ${key}:`, {
-      now: now.toISOString(),
-      lockedUntil: lockedUntil.toISOString(),
-      isLocked: lockedUntil > now,
-      attemptedUsernames: lockout.failedUsernames
-    });
-    
+
     if (lockedUntil > now) {
       return true;
     }
-    
+
     // Lock expired, clean it up
-    console.log(`Lock expired for IP ${key}, cleaning up`);
     delete this.lockoutData[key];
     await this.saveLockouts();
     return false;

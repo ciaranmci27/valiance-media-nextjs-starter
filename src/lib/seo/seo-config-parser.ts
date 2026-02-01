@@ -477,39 +477,28 @@ export function formatConfigForFile(config: SEOConfigData): string {
 export const seoConfig = ${formatObject(configWithTopLevel)};
 
 // Page-specific metadata templates
-export const pageMetadata = {
-  home: {
-    title: 'Home',
-    description: 'Welcome to our website',
-    keywords: [],
-  },
-  about: {
-    title: 'About Us',
-    description: 'Learn more about our company',
-    keywords: [],
-  },
-  services: {
-    title: 'Our Services',
-    description: 'Explore our range of services',
-    keywords: [],
-  },
-  contact: {
-    title: 'Contact Us',
-    description: 'Get in touch with us',
-    keywords: [],
-  },
-  privacy: {
-    title: 'Privacy Policy',
-    description: 'Our privacy policy and data protection practices',
-    keywords: [],
-  },
-  terms: {
-    title: 'Terms of Service',
-    description: 'Terms and conditions for using our services',
-    keywords: [],
-  },
-};
+// Preserve existing pageMetadata from the imported config
+export const pageMetadata = ${formatPageMetadata(pageMetadata)};
 
 export default seoConfig;
 `;
+}
+
+// Helper function to format pageMetadata while preserving existing values
+function formatPageMetadata(metadata: typeof pageMetadata): string {
+  const entries: string[] = [];
+
+  for (const [key, value] of Object.entries(metadata)) {
+    const keywordsStr = value.keywords && value.keywords.length > 0
+      ? `[\n      ${value.keywords.map((k: string) => `'${k.replace(/'/g, "\\'")}'`).join(',\n      ')}\n    ]`
+      : '[]';
+
+    entries.push(`  ${key}: {
+    title: '${(value.title || '').replace(/'/g, "\\'")}',
+    description: '${(value.description || '').replace(/'/g, "\\'")}',
+    keywords: ${keywordsStr},
+  }`);
+  }
+
+  return `{\n${entries.join(',\n')}\n}`;
 }

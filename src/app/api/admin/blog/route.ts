@@ -7,6 +7,22 @@ import path from 'path';
  * Changes are saved to public/blog-content/ and can be committed via your IDE/git client.
  */
 
+// Validate slug to prevent path traversal attacks
+const VALID_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+function isValidSlug(slug: string): boolean {
+  if (!slug || typeof slug !== 'string') return false;
+  if (slug.length > 200) return false; // Reasonable max length
+  return VALID_SLUG_REGEX.test(slug);
+}
+
+function isValidCategory(category: string): boolean {
+  if (!category) return true; // Category is optional
+  if (typeof category !== 'string') return false;
+  if (category.length > 100) return false;
+  return VALID_SLUG_REGEX.test(category);
+}
+
 // POST - Create new blog post
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +30,21 @@ export async function POST(request: NextRequest) {
     const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
 
     const { slug, category, ...postData } = data;
+
+    // Validate slug and category to prevent path traversal
+    if (!isValidSlug(slug)) {
+      return NextResponse.json(
+        { error: 'Invalid slug format. Use only lowercase letters, numbers, and hyphens.' },
+        { status: 400 }
+      );
+    }
+    if (!isValidCategory(category)) {
+      return NextResponse.json(
+        { error: 'Invalid category format. Use only lowercase letters, numbers, and hyphens.' },
+        { status: 400 }
+      );
+    }
+
     let targetDir = blogContentDir;
 
     if (category) {
@@ -83,6 +114,33 @@ export async function PUT(request: NextRequest) {
     }
 
     const { slug, category, originalSlug, originalCategory, ...postData } = data;
+
+    // Validate slug and category to prevent path traversal
+    if (!isValidSlug(slug)) {
+      return NextResponse.json(
+        { error: 'Invalid slug format. Use only lowercase letters, numbers, and hyphens.' },
+        { status: 400 }
+      );
+    }
+    if (!isValidCategory(category)) {
+      return NextResponse.json(
+        { error: 'Invalid category format. Use only lowercase letters, numbers, and hyphens.' },
+        { status: 400 }
+      );
+    }
+    if (originalSlug && !isValidSlug(originalSlug)) {
+      return NextResponse.json(
+        { error: 'Invalid original slug format.' },
+        { status: 400 }
+      );
+    }
+    if (originalCategory && !isValidCategory(originalCategory)) {
+      return NextResponse.json(
+        { error: 'Invalid original category format.' },
+        { status: 400 }
+      );
+    }
+
     let targetDir = blogContentDir;
 
     if (category) {
@@ -136,6 +194,21 @@ export async function DELETE(request: NextRequest) {
     const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
 
     const { slug, category } = data;
+
+    // Validate slug and category to prevent path traversal
+    if (!isValidSlug(slug)) {
+      return NextResponse.json(
+        { error: 'Invalid slug format.' },
+        { status: 400 }
+      );
+    }
+    if (!isValidCategory(category)) {
+      return NextResponse.json(
+        { error: 'Invalid category format.' },
+        { status: 400 }
+      );
+    }
+
     let filePath: string;
 
     if (category) {
@@ -170,6 +243,20 @@ export async function GET(request: NextRequest) {
     if (!slug) {
       return NextResponse.json(
         { error: 'Slug parameter is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate slug and category to prevent path traversal
+    if (!isValidSlug(slug)) {
+      return NextResponse.json(
+        { error: 'Invalid slug format.' },
+        { status: 400 }
+      );
+    }
+    if (category && !isValidCategory(category)) {
+      return NextResponse.json(
+        { error: 'Invalid category format.' },
         { status: 400 }
       );
     }

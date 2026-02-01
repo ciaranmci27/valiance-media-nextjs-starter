@@ -103,6 +103,7 @@ export function Header({
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2"
               aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
             >
               <div className="w-6 h-6 flex flex-col justify-center space-y-1.5">
                 <span className={`block w-full h-0.5 bg-gray-700 dark:bg-gray-300 transition-transform ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />

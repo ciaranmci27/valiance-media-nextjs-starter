@@ -3,6 +3,15 @@ import crypto from 'crypto';
 // Authentication configuration and utilities
 // This is a flexible auth system that can be adapted to different providers
 
+// Get the admin token secret, throwing an error in production if not set
+function getAdminTokenSecret(): string {
+  const secret = process.env.ADMIN_TOKEN;
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('ADMIN_TOKEN must be set in production environment');
+  }
+  return secret || 'default-dev-secret';
+}
+
 export interface AuthConfig {
   provider: 'simple' | 'custom' | 'oauth';
   simpleAuth?: {
@@ -49,7 +58,7 @@ export async function verifyAuth(token: string): Promise<boolean> {
       // Create the expected token (same logic as in verifyCredentials)
       const expectedToken = crypto
         .createHash('sha256')
-        .update(`${validUsername}:${validPasswordHash}:${process.env.ADMIN_TOKEN || 'default-secret'}`)
+        .update(`${validUsername}:${validPasswordHash}:${getAdminTokenSecret()}`)
         .digest('hex');
       
       return token === expectedToken;
@@ -65,24 +74,10 @@ export async function verifyAuth(token: string): Promise<boolean> {
       return customVerification(token);
 
     default:
-      // Default to simple verification
-      const defaultUsername = process.env.ADMIN_USERNAME || 'admin';
-      const defaultPasswordHash = process.env.ADMIN_PASSWORD_HASH || '';
-      const defaultToken = crypto
-        .createHash('sha256')
-        .update(`${defaultUsername}:${defaultPasswordHash}:${process.env.ADMIN_TOKEN || 'default-secret'}`)
-        .digest('hex');
-      
-      return token === defaultToken;
+      // Unknown provider - reject for security
+      console.error(`Unknown auth provider: ${authProvider}`);
+      return false;
   }
-}
-
-// Hash a string (for API routes - Node.js environment)
-async function hashStringNode(text: string): Promise<string> {
-  return crypto
-    .createHash('sha256')
-    .update(text)
-    .digest('hex');
 }
 
 // Verify credentials for login
@@ -105,16 +100,14 @@ export async function verifyCredentials(username: string, password: string): Pro
       if (username === validUsername && passwordHash === validPasswordHash) {
         // Generate a deterministic token based on credentials
         // This must match the Edge version in auth-edge.ts
-        const token = await hashStringNode(
-          `${validUsername}:${validPasswordHash}:${process.env.ADMIN_TOKEN || 'default-secret'}`
-        );
-        
-        console.log('Login successful. Token created for:', username);
-        
+        const token = crypto
+          .createHash('sha256')
+          .update(`${validUsername}:${validPasswordHash}:${getAdminTokenSecret()}`)
+          .digest('hex');
+
         return token;
       }
-      
-      console.log('Login failed. Invalid credentials for:', username);
+
       return null;
 
     case 'custom':

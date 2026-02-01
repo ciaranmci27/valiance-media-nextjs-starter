@@ -83,8 +83,15 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   // Regular pages: with header/footer
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300">
+      {/* Skip to main content link for keyboard accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:outline-none"
+      >
+        Skip to main content
+      </a>
       <Header />
-      <main className="flex-1 pt-20 w-full relative z-10">
+      <main id="main-content" className="flex-1 pt-20 w-full relative z-10">
         {children}
       </main>
       <Footer />
