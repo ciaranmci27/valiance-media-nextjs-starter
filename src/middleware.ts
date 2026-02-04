@@ -24,13 +24,14 @@ interface Redirect {
 // In-memory cache for redirects (1 minute TTL)
 let redirectsCache: Redirect[] = [];
 let redirectsCacheTime = 0;
+let redirectsCacheInitialized = false;
 const CACHE_DURATION = 60000; // 1 minute
 
 async function getRedirects(request: NextRequest): Promise<Redirect[]> {
   const now = Date.now();
 
-  // Return cached redirects if still valid
-  if (redirectsCache.length > 0 && (now - redirectsCacheTime) < CACHE_DURATION) {
+  // Return cached redirects if still valid (even if empty array)
+  if (redirectsCacheInitialized && (now - redirectsCacheTime) < CACHE_DURATION) {
     return redirectsCache;
   }
 
@@ -47,6 +48,7 @@ async function getRedirects(request: NextRequest): Promise<Redirect[]> {
       const data = await response.json();
       redirectsCache = data.redirects || [];
       redirectsCacheTime = now;
+      redirectsCacheInitialized = true;
       return redirectsCache;
     }
   } catch (error) {
@@ -59,6 +61,15 @@ async function getRedirects(request: NextRequest): Promise<Redirect[]> {
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+
+  // ============================================================================
+  // Early Exit: Redirects API (Prevents Circular Dependency)
+  // ============================================================================
+  // MUST be checked BEFORE getRedirects() to prevent infinite loop
+  // getRedirects() fetches /api/redirects/list, which would trigger middleware again
+  if (path === '/api/redirects/list') {
+    return NextResponse.next();
+  }
 
   // ============================================================================
   // Admin-Managed SEO Redirects (Highest Priority - Runtime)
