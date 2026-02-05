@@ -101,8 +101,8 @@ export function Footer({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle newsletter submission
-    console.log('Newsletter signup:', email);
+    // TODO: Integrate with newsletter provider (e.g., Mailchimp, ConvertKit)
+    setEmail('');
   };
 
   return (

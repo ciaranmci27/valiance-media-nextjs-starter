@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       lockoutDuration: settings.admin?.lockoutDuration,
     });
 
-    // Return response and set/update timeout cookie used by middleware
+    // Return response and set/update timeout cookie used by proxy
     const response = NextResponse.json({ 
       success: true,
       message: 'Settings saved successfully'

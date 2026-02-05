@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/ensure-page-seo.js && node scripts/generate-routes.js && node scripts/generate-pages-config.js && node scripts/generate-sitemap-pages.js && next build",
+    "build": "node scripts/ensure-page-seo.js && node scripts/generate-pages-config.js && node scripts/generate-sitemap-pages.js && next build",
     "ensure-seo": "node scripts/ensure-page-seo.js",
     "start": "next start",
     "lint": "next lint",
@@ -27,7 +27,6 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
-    "generate-routes": "node scripts/generate-routes.js",
     "generate-pages": "node scripts/generate-pages-config.js",
     "generate-sitemap": "node scripts/generate-sitemap-pages.js",
     "setup-auth": "npx tsx scripts/setup-auth.ts"
@@ -44,7 +43,7 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.0.0",
-    "eslint-config-next": "15.4.8",
+    "eslint-config-next": "^16.1.6",
     "postcss": "^8.5.6",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.17",

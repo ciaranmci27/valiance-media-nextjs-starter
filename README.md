@@ -332,9 +332,8 @@ export const seoConfig = {
 │   ├── lib/              # Utility functions
 │   │   ├── auth.ts       # Authentication
 │   │   └── redirects.ts  # Redirect management
-│   └── middleware.ts     # Auth middleware
+│   └── proxy.ts          # Route proxy (auth, redirects, sitemap)
 ├── scripts/
-│   ├── generate-routes.js    # Generates routes for middleware
 │   └── generate-pages-config.js # Scans and catalogs all pages
 ```
 

@@ -3,9 +3,9 @@ import type { NextRequest } from 'next/server';
 import { verifyAuthEdge } from '@/lib/admin/auth-edge';
 
 /**
- * Minimal Middleware - Handles only essential requirements
+ * Minimal Proxy - Handles only essential requirements
  *
- * This middleware intentionally does NOT validate routes or assume which
+ * This proxy intentionally does NOT validate routes or assume which
  * pages exist. It trusts Next.js routing to handle page resolution and 404s.
  *
  * Only handles:
@@ -36,7 +36,7 @@ async function getRedirects(request: NextRequest): Promise<Redirect[]> {
   }
 
   try {
-    // Fetch from API endpoint (excluded from middleware, no circular dependency)
+    // Fetch from API endpoint (excluded from proxy, no circular dependency)
     const apiUrl = new URL('/api/redirects/list', request.url);
     const response = await fetch(apiUrl.toString(), {
       headers: {
@@ -53,20 +53,20 @@ async function getRedirects(request: NextRequest): Promise<Redirect[]> {
     }
   } catch (error) {
     // Fail gracefully - continue without redirects
-    console.error('Error fetching redirects in middleware:', error);
+    console.error('Error fetching redirects in proxy:', error);
   }
 
   return [];
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // ============================================================================
   // Early Exit: Redirects API (Prevents Circular Dependency)
   // ============================================================================
   // MUST be checked BEFORE getRedirects() to prevent infinite loop
-  // getRedirects() fetches /api/redirects/list, which would trigger middleware again
+  // getRedirects() fetches /api/redirects/list, which would trigger proxy again
   if (path === '/api/redirects/list') {
     return NextResponse.next();
   }
@@ -178,7 +178,7 @@ export const config = {
      * - favicon.ico (favicon file)
      *
      * Note: /api/admin routes ARE matched for authentication
-     * Other /api routes are excluded by the middleware logic itself
+     * Other /api routes are excluded by the proxy logic itself
      */
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],

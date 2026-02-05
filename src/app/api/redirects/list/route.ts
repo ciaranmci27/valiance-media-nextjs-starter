@@ -4,7 +4,7 @@ import path from 'path';
 
 /**
  * Public API endpoint to fetch redirects
- * This is used by middleware to load redirects at runtime
+ * This is used by proxy to load redirects at runtime
  * without causing circular dependencies
  */
 export async function GET() {

@@ -125,7 +125,7 @@ Navigate to `/admin/settings` > Analytics tab:
 4. **Exclude Bots**: Recommended ON to filter crawlers
 5. **Excluded IPs**: Add office/team IPs (one per line)
 
-**Note**: Settings are saved to `settings.json` and must be committed to git to take effect in production. The admin panel is read-only in production.
+**Note**: Settings are saved to `settings.json` locally (gitignored). For fresh setups, copy `settings.example.json` to `settings.json`. The admin panel is read-only in production — edit `settings.json` locally and redeploy.
 
 ## Implementation Details
 

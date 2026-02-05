@@ -153,11 +153,11 @@ ADMIN_AUTH_PROVIDER=custom
    }
    ```
 
-3. **Update middleware to use Clerk:**
+3. **Update proxy to use Clerk:**
    ```typescript
-   import { authMiddleware } from '@clerk/nextjs';
+   import { clerkMiddleware } from '@clerk/nextjs/server';
 
-   export default authMiddleware({
+   export default clerkMiddleware({
      publicRoutes: ['/'],
      ignoredRoutes: ['/api/public'],
    });
@@ -308,7 +308,7 @@ Most hosting providers also support environment variable updates without redeplo
 The authentication system is designed to be easily extensible. Key files to modify:
 
 - `/src/lib/auth.ts` - Core authentication logic
-- `/src/middleware.ts` - Route protection
+- `/src/proxy.ts` - Route protection
 - `/src/app/admin/login/page.tsx` - Login UI
 - `/src/app/api/admin/login/route.ts` - Login API endpoint
 
