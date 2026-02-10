@@ -16,9 +16,6 @@ export function AdminHeader() {
 
   // Check if config banner is present
   useEffect(() => {
-    // Start with banner assumed present to prevent slide-under
-    setHasBanner(true);
-    
     const checkBanner = () => {
       const wasDismissed = sessionStorage.getItem('configBannerDismissed');
       if (!wasDismissed) {

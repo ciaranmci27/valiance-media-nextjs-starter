@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createPasswordHash, generateToken } from '../src/lib/admin/auth';
+import { hashPassword, generateToken } from '../src/lib/admin/auth';
 import * as readline from 'readline';
 
 const rl = readline.createInterface({
@@ -32,12 +32,15 @@ async function setupAuth() {
 
   console.log('\n✅ Generating secure credentials...\n');
 
-  const passwordHash = createPasswordHash(password);
+  const passwordHash = await hashPassword(password);
+
+  // Escape $ characters so dotenv-expand doesn't interpret them as variable references
+  const escapedHash = passwordHash.replace(/\$/g, '\\$');
 
   console.log('\n📋 Copy these lines to your .env.local file:\n');
   console.log('# Admin Authentication');
   console.log(`ADMIN_USERNAME=${username}`);
-  console.log(`ADMIN_PASSWORD_HASH=${passwordHash}`);
+  console.log(`ADMIN_PASSWORD_HASH=${escapedHash}`);
   console.log(`ADMIN_TOKEN=${generateToken()}`);
   console.log('ADMIN_AUTH_PROVIDER=simple');
   console.log('\n# For development only (disables authentication):');

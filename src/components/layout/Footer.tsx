@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -27,7 +27,6 @@ interface SocialLink {
 interface FooterProps {
   sections?: FooterSection[];
   socialLinks?: SocialLink[];
-  showNewsletter?: boolean;
   showBrandDescription?: boolean;
   brandDescription?: string;
   copyrightText?: string;
@@ -86,7 +85,6 @@ export function Footer({
       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
     },
   ],
-  showNewsletter = true,
   showBrandDescription = true,
   brandDescription = "Crafting digital experiences that drive growth and innovation. Your partner in building exceptional web solutions.",
   copyrightText = `© ${new Date().getFullYear()} ${seoConfig.siteName}. All rights reserved.`,
@@ -97,13 +95,6 @@ export function Footer({
   ],
 }: FooterProps) {
   const { mode, toggleTheme } = useTheme();
-  const [email, setEmail] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Integrate with newsletter provider (e.g., Mailchimp, ConvertKit)
-    setEmail('');
-  };
 
   return (
     <footer className="relative border-t border-gray-200/30 dark:border-gray-700/30">
@@ -266,16 +257,21 @@ export function Footer({
                 </React.Fragment>
               ))}
               {/* Theme Toggle */}
-              <Image
-                src={mode === 'dark' ? '/images/light.png' : '/images/dark.png'}
-                alt={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-                width={24}
-                height={24}
+              <button
                 onClick={toggleTheme}
-                className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform ml-2"
-              />
+                aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                className="ml-2 p-0 bg-transparent border-0 cursor-pointer hover:scale-110 transition-transform"
+              >
+                <Image
+                  src={mode === 'dark' ? '/images/light.png' : '/images/dark.png'}
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                />
+              </button>
             </div>
-            
+
             {/* Copyright */}
             <div className="text-center sm:text-left">
               <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
@@ -315,14 +311,19 @@ export function Footer({
                 </React.Fragment>
               ))}
               {/* Theme Toggle */}
-              <Image
-                src={mode === 'dark' ? '/images/light.png' : '/images/dark.png'}
-                alt={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-                width={24}
-                height={24}
+              <button
                 onClick={toggleTheme}
-                className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform"
-              />
+                aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                className="p-0 bg-transparent border-0 cursor-pointer hover:scale-110 transition-transform"
+              >
+                <Image
+                  src={mode === 'dark' ? '/images/light.png' : '/images/dark.png'}
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                />
+              </button>
             </div>
           </div>
         </div>

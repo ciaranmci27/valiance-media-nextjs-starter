@@ -87,7 +87,11 @@
   --color-border-light: #F1F5F9;
   --color-border-medium: #E2E8F0;
   --color-border-heavy: #CBD5E1;
+  --color-border-dark: #94A3B8;
   --color-border-accent: #3B82F6;
+
+  /* Surface variants */
+  --color-surface-disabled: #F1F5F9;
   
   /* Semantic colors */
   --color-success: #10B981;
@@ -187,7 +191,11 @@
   --color-border-light: rgba(255, 255, 255, 0.1);
   --color-border-medium: rgba(255, 255, 255, 0.2);
   --color-border-heavy: rgba(255, 255, 255, 0.3);
+  --color-border-dark: rgba(255, 255, 255, 0.4);
   --color-border-accent: #60A5FA;
+
+  /* Surface variants */
+  --color-surface-disabled: rgba(255, 255, 255, 0.05);
   
   /* Primary palette - Dark mode variants */
   --color-primary-50: rgba(59, 130, 246, 0.1);
