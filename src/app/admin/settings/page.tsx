@@ -182,37 +182,57 @@ export default function SettingsPage() {
     }));
   };
 
-  const tabs = [
-    { id: 'analytics', label: 'Analytics', icon: '📊' },
-    { id: 'admin', label: 'Admin & Security', icon: '🔒' },
-  ];
-
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
-            Application Settings
+          <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: '4px' }}>
+            Settings
           </h1>
-          <p className="text-body-lg" style={{ color: 'var(--color-text-secondary)' }}>
-            Configure your application's core functionality and integrations
+          <p className="text-body-lg" style={{ color: 'var(--color-text-secondary)', margin: 0 }}>
+            Configure analytics, security, and integrations
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {tabs.map(tab => (
+        <div className="flex space-x-1 mb-8" style={{ borderBottom: '1px solid var(--color-border-light)' }}>
+          {[
+            {
+              id: 'analytics',
+              label: 'Analytics',
+              icon: (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 20V10M12 20V4M6 20v-6"/>
+                </svg>
+              ),
+            },
+            {
+              id: 'admin',
+              label: 'Admin & Security',
+              icon: (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              ),
+            },
+          ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                activeTab === tab.id
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-              }`}
+              className="flex items-center gap-2 px-5 py-3 text-body font-medium transition-all"
+              style={{
+                background: 'none',
+                border: 'none',
+                borderBottom: '2px solid',
+                borderBottomColor: activeTab === tab.id ? 'var(--color-primary)' : 'transparent',
+                color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                marginBottom: '-1px',
+                cursor: 'pointer',
+              }}
             >
-              <span className="mr-2">{tab.icon}</span>
+              {tab.icon}
               {tab.label}
             </button>
           ))}
@@ -230,11 +250,11 @@ export default function SettingsPage() {
                   Configure analytics and tracking services for your website
                 </p>
                 {isProduction && (
-                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg mb-6">
+                  <div className="p-4 rounded-lg mb-6" style={{ background: 'color-mix(in srgb, var(--color-warning) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--color-warning) 25%, transparent)' }}>
                     <p className="text-body-sm flex items-start gap-2">
-                      <span className="text-amber-600 dark:text-amber-400">⚠</span>
+                      <span style={{ color: 'var(--color-warning)' }}>⚠</span>
                       <span style={{ color: 'var(--color-text-secondary)' }}>
-                        <strong>Read-Only in Production:</strong> Settings cannot be modified in production. To change these settings, edit <code className="px-1 py-0.5 bg-amber-100 dark:bg-amber-800/50 rounded text-xs">settings.json</code> locally and redeploy.
+                        <strong>Read-Only in Production:</strong> Settings cannot be modified in production. To change these settings, edit <code className="px-1 py-0.5 rounded text-xs" style={{ background: 'color-mix(in srgb, var(--color-warning) 15%, transparent)' }}>settings.json</code> locally and redeploy.
                       </span>
                     </p>
                   </div>
@@ -312,7 +332,7 @@ export default function SettingsPage() {
               </div>
 
               {/* IP Exclusions Section */}
-              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+              <div className="mt-8 pt-8" style={{ borderTop: '1px solid var(--color-border-light)' }}>
                 <div className="mb-6">
                   <h3 className="text-h4 mb-2" style={{ color: 'var(--color-text-primary)' }}>
                     Analytics Exclusions
@@ -324,7 +344,7 @@ export default function SettingsPage() {
 
                 <div className="space-y-4">
                   {/* Master Toggle */}
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: 'var(--color-surface)' }}>
                     <div>
                       <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
                         Enable Analytics Exclusions
@@ -341,12 +361,12 @@ export default function SettingsPage() {
                         className="sr-only peer"
                         disabled={isProduction}
                       />
-                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${isProduction ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+                      <div className={`admin-toggle-track w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary ${isProduction ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
                     </label>
                   </div>
 
                   {/* Localhost Toggle */}
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: 'var(--color-surface)' }}>
                     <div>
                       <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
                         Exclude Localhost
@@ -363,12 +383,12 @@ export default function SettingsPage() {
                         className="sr-only peer"
                         disabled={isProduction || !settings.analyticsExclusions.enabled}
                       />
-                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${isProduction || !settings.analyticsExclusions.enabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+                      <div className={`admin-toggle-track w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary ${isProduction || !settings.analyticsExclusions.enabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
                     </label>
                   </div>
 
                   {/* Bot Exclusion Toggle */}
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: 'var(--color-surface)' }}>
                     <div>
                       <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
                         Exclude Bots & Crawlers
@@ -385,7 +405,7 @@ export default function SettingsPage() {
                         className="sr-only peer"
                         disabled={isProduction || !settings.analyticsExclusions.enabled}
                       />
-                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary ${isProduction || !settings.analyticsExclusions.enabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+                      <div className={`admin-toggle-track w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary ${isProduction || !settings.analyticsExclusions.enabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
                     </label>
                   </div>
 
@@ -421,11 +441,11 @@ export default function SettingsPage() {
                   Configure admin panel access and security features
                 </p>
                 {isProduction && (
-                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg mb-6">
+                  <div className="p-4 rounded-lg mb-6" style={{ background: 'color-mix(in srgb, var(--color-warning) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--color-warning) 25%, transparent)' }}>
                     <p className="text-body-sm flex items-start gap-2">
-                      <span className="text-amber-600 dark:text-amber-400">⚠</span>
+                      <span style={{ color: 'var(--color-warning)' }}>⚠</span>
                       <span style={{ color: 'var(--color-text-secondary)' }}>
-                        <strong>Read-Only in Production:</strong> Settings cannot be modified in production. To change these settings, edit <code className="px-1 py-0.5 bg-amber-100 dark:bg-amber-800/50 rounded text-xs">settings.json</code> locally and redeploy.
+                        <strong>Read-Only in Production:</strong> Settings cannot be modified in production. To change these settings, edit <code className="px-1 py-0.5 rounded text-xs" style={{ background: 'color-mix(in srgb, var(--color-warning) 15%, transparent)' }}>settings.json</code> locally and redeploy.
                       </span>
                     </p>
                   </div>
@@ -503,23 +523,23 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+              <div className="p-4 rounded-lg" style={{ background: 'color-mix(in srgb, var(--color-warning) 8%, transparent)' }}>
                 <p className="text-body-sm flex items-start gap-2">
                   <span>💡</span>
                   <span>
                     Authentication is handled through encrypted credentials set in environment variables.
-                    Use the setup script to generate credentials: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">npm run setup-auth</code>
+                    Use the setup script to generate credentials: <code className="px-1 rounded text-xs" style={{ background: 'var(--color-surface-elevated)' }}>npm run setup-auth</code>
                   </span>
                 </p>
               </div>
 
-              <div className="p-4 bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg">
+              <div className="p-4 rounded-lg" style={{ background: 'color-mix(in srgb, var(--color-primary) 6%, transparent)', border: '1px solid var(--color-border-light)' }}>
                 <p className="text-body-sm flex items-start gap-2">
                   <span>🔒</span>
                   <span>
                     <strong>Single Account System:</strong> This admin panel uses a single-account authentication system.
-                    Set your credentials using <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">ADMIN_USERNAME</code> and
-                    <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs ml-1">ADMIN_PASSWORD_HASH</code> environment variables.
+                    Set your credentials using <code className="px-1 rounded text-xs" style={{ background: 'var(--color-surface-elevated)' }}>ADMIN_USERNAME</code> and
+                    <code className="px-1 rounded text-xs ml-1" style={{ background: 'var(--color-surface-elevated)' }}>ADMIN_PASSWORD_HASH</code> environment variables.
                   </span>
                 </p>
               </div>
@@ -527,7 +547,7 @@ export default function SettingsPage() {
           )}
 
           {/* Save Button */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mt-8 pt-6" style={{ borderTop: '1px solid var(--color-border-light)' }}>
             <div>
               {saveMessage && (
                 <p className={`text-body-sm ${
@@ -549,7 +569,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Help Section */}
-        <div className="mt-8 p-6 bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg">
+        <div className="mt-8 p-6 rounded-lg" style={{ background: 'color-mix(in srgb, var(--color-primary) 6%, transparent)', border: '1px solid var(--color-border-light)' }}>
           <h3 className="text-h4 mb-4" style={{ color: 'var(--color-text-primary)' }}>
             Important Notes
           </h3>

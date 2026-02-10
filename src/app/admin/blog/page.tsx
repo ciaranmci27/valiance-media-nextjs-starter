@@ -191,8 +191,22 @@ function BlogListContent() {
 
   if (loading) {
     return (
-      <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
-        <p style={{ color: 'var(--color-text-secondary)' }}>Loading blog posts...</p>
+      <div className="min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-start mb-8">
+            <div className="skeleton" style={{ width: '180px', height: '36px' }} />
+            <div className="flex gap-3">
+              <div className="skeleton" style={{ width: '160px', height: '48px', borderRadius: 'var(--radius-md)' }} />
+              <div className="skeleton" style={{ width: '180px', height: '48px', borderRadius: 'var(--radius-md)' }} />
+            </div>
+          </div>
+          <div className="skeleton mb-6" style={{ width: '100%', height: '42px' }} />
+          <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="skeleton" style={{ height: '72px', marginBottom: '1px' }} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -201,22 +215,16 @@ function BlogListContent() {
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header Section with 2-column layout */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'flex-start',
-          marginBottom: 'var(--spacing-xl)',
-          gap: 'var(--spacing-lg)'
-        }}>
+        <div className="admin-page-header">
           {/* Left Column: Title */}
           <div style={{ flex: 1 }}>
             <h1 className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
               Blog Posts
             </h1>
           </div>
-          
+
           {/* Right Column: Action Buttons */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+          <div className="admin-page-header-actions">
             <button
               onClick={() => router.push('/admin/blog-post')}
               style={{
@@ -268,17 +276,9 @@ function BlogListContent() {
         </div>
 
       {/* Filter Bar with Search */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '16px', 
-        marginBottom: 'var(--spacing-md)',
-        borderBottom: '1px solid var(--color-border-light)',
-        paddingBottom: '2px'
-      }}>
+      <div className="admin-filter-bar">
         {/* Left side: Status Filter Tabs */}
-        <div style={{ display: 'flex', gap: '24px' }}>
+        <div className="admin-filter-tabs">
           <button
             onClick={() => handleFilterChange('all')}
             style={{
@@ -455,7 +455,7 @@ function BlogListContent() {
         </div>
       )}
 
-      <div style={{
+      <div className="admin-table-wrap" style={{
         background: 'var(--color-surface)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--color-border-light)',
@@ -467,7 +467,7 @@ function BlogListContent() {
               <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
                 Title
               </th>
-              <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+              <th className="mobile-hidden" style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
                 Slug
               </th>
               <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
@@ -520,7 +520,8 @@ function BlogListContent() {
             ) : (
               filteredPosts.map((post) => (
                 <tr key={`${post.category}-${post.slug}`} style={{ borderBottom: '1px solid var(--color-border-light)' }}>
-                  <td style={{ padding: 'var(--spacing-md)' }}>
+                  {/* Title — card headline on mobile */}
+                  <td className="cell-title" style={{ padding: 'var(--spacing-md)' }}>
                     <div>
                       <div style={{ color: 'var(--color-text-primary)', fontWeight: '500', marginBottom: '4px' }}>
                         {post.title}
@@ -531,7 +532,7 @@ function BlogListContent() {
                       {post.tags && post.tags.length > 0 && (
                         <div style={{ marginTop: '4px', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                           {post.tags.map(tag => (
-                            <span 
+                            <span
                               key={tag}
                               style={{
                                 padding: '2px 6px',
@@ -549,9 +550,10 @@ function BlogListContent() {
                       )}
                     </div>
                   </td>
-                  <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
-                    <code style={{ 
-                      fontSize: '13px', 
+                  {/* Slug — desktop only */}
+                  <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
+                    <code style={{
+                      fontSize: '13px',
                       fontFamily: 'monospace',
                       color: 'var(--color-primary)',
                       background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
@@ -561,12 +563,13 @@ function BlogListContent() {
                       {post.slug}
                     </code>
                   </td>
-                  <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
-                    {post.category ? post.category.split('-').map(word => 
+                  {/* Metadata: Category + Status + Date — inline chips on mobile */}
+                  <td className="cell-meta" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
+                    {post.category ? post.category.split('-').map(word =>
                       word.charAt(0).toUpperCase() + word.slice(1)
                     ).join(' ') : 'No category'}
                   </td>
-                  <td style={{ padding: 'var(--spacing-md)', textAlign: 'center' }}>
+                  <td className="cell-meta" style={{ padding: 'var(--spacing-md)', textAlign: 'center' }}>
                     {post.featured && (
                       <span style={{
                         display: 'inline-block',
@@ -610,14 +613,15 @@ function BlogListContent() {
                       </span>
                     )}
                   </td>
-                  <td style={{ padding: 'var(--spacing-md)', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-                    {new Date(post.publishedAt).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric', 
-                      year: 'numeric' 
+                  <td className="cell-meta" style={{ padding: 'var(--spacing-md)', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: '13px' }}>
+                    {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
                     })}
                   </td>
-                  <td style={{ padding: 'var(--spacing-md)', textAlign: 'center' }}>
+                  {/* Actions */}
+                  <td className="cell-actions" style={{ padding: 'var(--spacing-md)', textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                       <button
                         onClick={() => router.push(`/admin/blog-post/${post.slug}`)}
@@ -655,16 +659,16 @@ function BlogListContent() {
                         onClick={() => deletePost(post.slug, post.category)}
                         style={{
                           padding: '6px 12px',
-                          background: '#DC2626',
+                          background: 'var(--color-error, #DC2626)',
                           color: 'white',
                           border: 'none',
-                          borderRadius: '4px',
+                          borderRadius: 'var(--radius-sm)',
                           fontSize: '14px',
                           cursor: 'pointer',
-                          transition: 'background 0.2s',
+                          transition: 'opacity 0.2s',
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#B91C1C'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = '#DC2626'}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                       >
                         Delete
                       </button>
@@ -683,10 +687,21 @@ function BlogListContent() {
 
 export default function AdminBlogList() {
   return (
-    <Suspense 
+    <Suspense
       fallback={
-        <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
-          <p style={{ color: 'var(--color-text-secondary)' }}>Loading blog posts...</p>
+        <div className="min-h-screen py-8">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex justify-between items-start mb-8">
+              <div className="skeleton" style={{ width: '180px', height: '36px' }} />
+              <div className="flex gap-3">
+                <div className="skeleton" style={{ width: '160px', height: '48px', borderRadius: 'var(--radius-md)' }} />
+              </div>
+            </div>
+            <div className="skeleton mb-6" style={{ width: '100%', height: '42px' }} />
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="skeleton" style={{ height: '72px', marginBottom: '1px' }} />
+            ))}
+          </div>
         </div>
       }
     >

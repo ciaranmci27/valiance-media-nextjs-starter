@@ -238,29 +238,41 @@ function PagesListContent() {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading pages...</div>;
+    return (
+      <div className="min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-start mb-8">
+            <div className="skeleton" style={{ width: '120px', height: '36px' }} />
+            <div className="flex gap-3">
+              <div className="skeleton" style={{ width: '180px', height: '48px', borderRadius: 'var(--radius-md)' }} />
+              <div className="skeleton" style={{ width: '160px', height: '48px', borderRadius: 'var(--radius-md)' }} />
+            </div>
+          </div>
+          <div className="skeleton mb-6" style={{ width: '100%', height: '42px' }} />
+          <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="skeleton" style={{ height: '60px', marginBottom: '1px' }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header Section with 2-column layout */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'flex-start',
-          marginBottom: 'var(--spacing-xl)',
-          gap: 'var(--spacing-lg)'
-        }}>
+        <div className="admin-page-header">
           {/* Left Column: Title */}
           <div style={{ flex: 1 }}>
             <h1 className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
               Pages
             </h1>
           </div>
-          
+
           {/* Right Column: Action Buttons */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+          <div className="admin-page-header-actions">
             <button
               onClick={() => router.push('/admin/pages/new')}
               disabled={isProduction}
@@ -378,17 +390,9 @@ function PagesListContent() {
         `}</style>
 
         {/* Filter Bar with Search */}
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px', 
-          marginBottom: 'var(--spacing-md)',
-          borderBottom: '1px solid var(--color-border-light)',
-          paddingBottom: '2px'
-        }}>
+        <div className="admin-filter-bar">
           {/* Left side: Filter tabs */}
-          <div style={{ display: 'flex', gap: '24px' }}>
+          <div className="admin-filter-tabs">
             <button
               onClick={() => handleFilterChange('all')}
               style={{
@@ -469,7 +473,7 @@ function PagesListContent() {
           </div>
         </div>
 
-        <div style={{
+        <div className="admin-table-wrap" style={{
           background: 'var(--color-surface)',
           borderRadius: 'var(--radius-lg)',
           overflow: 'hidden',
@@ -493,7 +497,7 @@ function PagesListContent() {
                 }}>
                   Page Title
                 </th>
-                <th style={{
+                <th className="mobile-hidden" style={{
                   padding: 'var(--spacing-md)',
                   textAlign: 'left',
                   color: 'var(--color-text-secondary)',
@@ -517,7 +521,7 @@ function PagesListContent() {
                 }}>
                   Route Type
                 </th>
-                <th style={{
+                <th className="mobile-hidden" style={{
                   padding: 'var(--spacing-md)',
                   textAlign: 'left',
                   color: 'var(--color-text-secondary)',
@@ -580,7 +584,7 @@ function PagesListContent() {
                             }
                           }}
                         >
-                          <td style={{ padding: 'var(--spacing-md)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <td className="cell-title" style={{ padding: 'var(--spacing-md)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             <div style={{
                               color: 'var(--color-text-primary)',
                               fontWeight: '500',
@@ -624,7 +628,7 @@ function PagesListContent() {
                               )}
                             </div>
                           </td>
-                          <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             <code style={{
                               fontSize: '13px',
                               fontFamily: 'monospace',
@@ -641,7 +645,7 @@ function PagesListContent() {
                               {page.path}
                             </code>
                           </td>
-                          <td style={{ padding: 'var(--spacing-md)' }}>
+                          <td className="cell-meta" style={{ padding: 'var(--spacing-md)' }}>
                             <span style={{
                               display: 'inline-flex',
                               alignItems: 'center',
@@ -678,10 +682,10 @@ function PagesListContent() {
                               )}
                             </span>
                           </td>
-                          <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
+                          <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
                             {page.category || 'general'}
                           </td>
-                          <td style={{ padding: 'var(--spacing-md)' }}>
+                          <td className="cell-actions" style={{ padding: 'var(--spacing-md)' }}>
                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }} onClick={(e) => e.stopPropagation()}>
                               <button
                                 onClick={() => router.push(`/admin/pages/${encodeURIComponent(page.slug)}/edit`)}
@@ -756,7 +760,7 @@ function PagesListContent() {
                             background: 'color-mix(in srgb, var(--color-primary) 3%, transparent)',
                             animation: 'slideDown 0.2s ease-out'
                           }}>
-                            <td style={{ padding: 'var(--spacing-md)', paddingLeft: 'calc(var(--spacing-md) + 24px)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <td className="cell-title" style={{ padding: 'var(--spacing-md)', paddingLeft: 'calc(var(--spacing-md) + 24px)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               <div style={{
                                 color: 'var(--color-text-primary)',
                                 fontWeight: '500',
@@ -776,7 +780,7 @@ function PagesListContent() {
                                 </span>
                               </div>
                             </td>
-                            <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               <code style={{
                                 fontSize: '13px',
                                 fontFamily: 'monospace',
@@ -793,7 +797,7 @@ function PagesListContent() {
                                 {childPage.path}
                               </code>
                             </td>
-                            <td style={{ padding: 'var(--spacing-md)' }}>
+                            <td className="cell-meta" style={{ padding: 'var(--spacing-md)' }}>
                               <span style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -830,10 +834,10 @@ function PagesListContent() {
                                 )}
                               </span>
                             </td>
-                            <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
+                            <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
                               {childPage.category || 'general'}
                             </td>
-                            <td style={{ padding: 'var(--spacing-md)' }}>
+                            <td className="cell-actions" style={{ padding: 'var(--spacing-md)' }}>
                               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }} onClick={(e) => e.stopPropagation()}>
                                 <button
                                   onClick={() => router.push(`/admin/pages/${encodeURIComponent(childPage.slug)}/edit`)}
@@ -914,7 +918,23 @@ function PagesListContent() {
 
 export default function PagesPage() {
   return (
-    <Suspense fallback={<div className="text-center py-8">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen py-8">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex justify-between items-start mb-8">
+              <div className="skeleton" style={{ width: '120px', height: '36px' }} />
+              <div className="flex gap-3">
+                <div className="skeleton" style={{ width: '180px', height: '48px', borderRadius: 'var(--radius-md)' }} />
+              </div>
+            </div>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="skeleton" style={{ height: '60px', marginBottom: '1px' }} />
+            ))}
+          </div>
+        </div>
+      }
+    >
       <PagesListContent />
     </Suspense>
   );

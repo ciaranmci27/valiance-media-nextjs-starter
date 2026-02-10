@@ -134,19 +134,19 @@ export default function RedirectsManager() {
 
       {/* Status Messages */}
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg">
+        <div className="alert alert-error">
           {error}
         </div>
       )}
       {success && (
-        <div className="p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-lg">
+        <div className="alert alert-success">
           {success}
         </div>
       )}
 
       {/* Add Redirect Form */}
       {showAddForm && (
-        <form onSubmit={handleAddRedirect} className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg space-y-4">
+        <form onSubmit={handleAddRedirect} className="p-4 rounded-lg space-y-4" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-label block mb-2">From URL *</label>
@@ -204,67 +204,111 @@ export default function RedirectsManager() {
       )}
 
       {/* Redirects Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div style={{
+        background: 'var(--color-surface)',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--color-border-light)',
+        overflow: 'hidden'
+      }}>
         {redirects.length === 0 ? (
-          <div className="p-8 text-center">
-            <p className="text-gray-500 dark:text-gray-400">
+          <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
+            <p style={{ color: 'var(--color-text-secondary)' }}>
               No redirects configured yet.
             </p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+            <p style={{ color: 'var(--color-text-tertiary)', fontSize: '14px', marginTop: '8px' }}>
               Redirects will be automatically created when you change blog post slugs.
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-900/50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+          <div className="admin-table-wrap">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--color-border-light)' }}>
+                  <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     From
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     To
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="mobile-hidden" style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Created
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th style={{ padding: 'var(--spacing-md)', textAlign: 'right', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody>
                 {redirects.map((redirect) => (
-                  <tr key={redirect.from} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <code className="text-sm font-mono text-primary dark:text-primary-light">
+                  <tr key={redirect.from} className="hover-row" style={{ borderBottom: '1px solid var(--color-border-light)' }}>
+                    {/* From path — card headline on mobile */}
+                    <td className="cell-title" style={{ padding: 'var(--spacing-md)' }}>
+                      <code style={{
+                        fontSize: '13px',
+                        fontFamily: 'monospace',
+                        color: 'var(--color-primary)',
+                        background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+                        padding: '2px 6px',
+                        borderRadius: 'var(--radius-sm)'
+                      }}>
                         {redirect.from}
                       </code>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <code className="text-sm font-mono text-green-600 dark:text-green-400">
+                    {/* To path — metadata on mobile */}
+                    <td className="cell-meta" style={{ padding: 'var(--spacing-md)' }}>
+                      <span style={{ color: 'var(--color-text-tertiary)', fontSize: '12px', marginRight: '4px' }}>→</span>
+                      <code style={{
+                        fontSize: '13px',
+                        fontFamily: 'monospace',
+                        color: 'var(--color-success)',
+                        background: 'color-mix(in srgb, var(--color-success) 10%, transparent)',
+                        padding: '2px 6px',
+                        borderRadius: 'var(--radius-sm)'
+                      }}>
                         {redirect.to}
                       </code>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        redirect.permanent
-                          ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
-                          : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
-                      }`}>
+                    {/* Type badge — metadata on mobile */}
+                    <td className="cell-meta" style={{ padding: 'var(--spacing-md)' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        padding: '4px 8px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        borderRadius: 'var(--radius-full)',
+                        background: redirect.permanent
+                          ? 'color-mix(in srgb, var(--color-primary) 10%, transparent)'
+                          : 'color-mix(in srgb, var(--color-warning) 10%, transparent)',
+                        color: redirect.permanent
+                          ? 'var(--color-primary)'
+                          : 'var(--color-warning)'
+                      }}>
                         {redirect.permanent ? '308 Permanent' : '307 Temporary'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                    {/* Created date — desktop only */}
+                    <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', fontSize: '14px' }}>
                       {new Date(redirect.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                    {/* Actions */}
+                    <td className="cell-actions" style={{ padding: 'var(--spacing-md)', textAlign: 'right' }}>
                       <button
                         onClick={() => handleDeleteRedirect(redirect.from)}
-                        className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
+                        style={{
+                          padding: '6px 12px',
+                          background: 'var(--color-error, #DC2626)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 'var(--radius-sm)',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          transition: 'opacity 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                       >
                         Delete
                       </button>
@@ -278,12 +322,17 @@ export default function RedirectsManager() {
       </div>
 
       {/* Help Text */}
-      <div className="bg-primary-50 dark:bg-primary-50 border border-primary-200 dark:border-gray-700 rounded-lg p-4">
-        <h4 className="font-medium text-primary-900 dark:text-primary-400 mb-2">
+      <div style={{
+        background: 'color-mix(in srgb, var(--color-info) 8%, transparent)',
+        border: '1px solid color-mix(in srgb, var(--color-info) 20%, transparent)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--spacing-md)'
+      }}>
+        <h4 style={{ fontWeight: '500', color: 'var(--color-text-primary)', marginBottom: '8px' }}>
           About Redirects
         </h4>
-        <ul className="text-sm text-primary-800 dark:text-primary-400 space-y-1">
-          <li>• Redirects are automatically created when you change a published blog post's slug</li>
+        <ul style={{ fontSize: '14px', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <li>• Redirects are automatically created when you change a published blog post&apos;s slug</li>
           <li>• Use permanent redirects (308) for content that has permanently moved</li>
           <li>• Use temporary redirects (307) for maintenance or temporary changes</li>
           <li>• Redirects help preserve SEO rankings and prevent broken links</li>

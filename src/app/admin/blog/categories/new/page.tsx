@@ -277,7 +277,7 @@ export default function NewCategoryPage() {
                     placeholder="e.g., Technology"
                   />
                   {errors.name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                    <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.name}</p>
                   )}
                 </div>
 
@@ -309,7 +309,7 @@ export default function NewCategoryPage() {
                     placeholder="category-slug"
                   />
                   {errors.slug && (
-                    <p className="text-red-500 text-sm mt-1">{errors.slug}</p>
+                    <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.slug}</p>
                   )}
                 </div>
               </div>
@@ -334,8 +334,8 @@ export default function NewCategoryPage() {
           {/* SEO Tab */}
           {activeTab === 'seo' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-              <div className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg p-4 mb-6">
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+              <div className="rounded-lg p-4 mb-6" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}>
+                <p className="text-sm mb-3" style={{ color: 'var(--color-text-secondary)' }}>
                   You can apply the default category SEO template to quickly fill in the fields below.
                 </p>
                 <button
@@ -361,7 +361,7 @@ export default function NewCategoryPage() {
                   placeholder={formData.name || "Category SEO title"}
                   maxLength={60}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                   {formData.seo.title.length}/60 characters
                 </p>
               </div>
@@ -380,7 +380,7 @@ export default function NewCategoryPage() {
                   placeholder={formData.description || "Category SEO description"}
                   maxLength={160}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                   {formData.seo.description.length}/160 characters
                 </p>
               </div>
@@ -397,7 +397,7 @@ export default function NewCategoryPage() {
                   className="input-field"
                   placeholder="technology, tech news, software (comma-separated)"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                   Separate keywords with commas
                 </p>
               </div>
@@ -407,9 +407,9 @@ export default function NewCategoryPage() {
           {/* Schema Tab */}
           {activeTab === 'schema' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-              <div className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg p-4 mb-6">
-                <h3 className="text-lg font-medium mb-2 text-gray-900 dark:text-gray-100">Structured Data Schema</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
+              <div className="rounded-lg p-4 mb-6" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}>
+                <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>Structured Data Schema</h3>
+                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                   Configure structured data schemas for this category page. These schemas help search engines understand 
                   your content and can enable rich snippets in search results.
                 </p>
@@ -429,8 +429,8 @@ export default function NewCategoryPage() {
 
           {/* Error message */}
           {errors.submit && (
-            <div className="mt-6 p-3 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
-              <p className="text-red-700 dark:text-red-300">{errors.submit}</p>
+            <div className="mt-6 p-3 rounded" style={{ background: 'color-mix(in srgb, var(--color-error) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--color-error) 20%, transparent)' }}>
+              <p style={{ color: 'var(--color-error)' }}>{errors.submit}</p>
             </div>
           )}
 

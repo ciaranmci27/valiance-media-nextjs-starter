@@ -20,12 +20,9 @@ export default function EditPageSEO() {
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-5xl mx-auto px-4">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>Redirecting to page editor...</p>
-          </div>
-        </div>
+        <div className="skeleton" style={{ width: '200px', height: '36px', marginBottom: 'var(--spacing-lg)' }} />
+        <div className="skeleton" style={{ height: '44px', marginBottom: 'var(--spacing-lg)' }} />
+        <div className="skeleton" style={{ height: '300px', borderRadius: 'var(--radius-lg)' }} />
       </div>
     </div>
   );

@@ -91,14 +91,12 @@ export default function EditBlogPost() {
     return (
       <div className="min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
-                Loading blog post...
-              </p>
-            </div>
+          <div className="mb-8">
+            <div className="skeleton" style={{ width: '240px', height: '36px', marginBottom: '12px' }} />
+            <div className="skeleton" style={{ width: '360px', height: '20px' }} />
           </div>
+          <div className="skeleton" style={{ height: '44px', marginBottom: '24px' }} />
+          <div className="skeleton" style={{ height: '400px', borderRadius: 'var(--radius-lg)' }} />
         </div>
       </div>
     );

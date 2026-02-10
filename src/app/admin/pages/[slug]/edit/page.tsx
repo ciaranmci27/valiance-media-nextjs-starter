@@ -36,8 +36,15 @@ export default function EditPagePage() {
 
   if (loading) {
     return (
-      <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
-        <p style={{ color: 'var(--color-text-secondary)' }}>Loading page...</p>
+      <div className="min-h-screen py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="skeleton" style={{ width: '200px', height: '36px', marginBottom: 'var(--spacing-lg)' }} />
+          <div className="skeleton" style={{ height: '44px', marginBottom: 'var(--spacing-lg)' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+            <div className="skeleton" style={{ height: '72px', borderRadius: 'var(--radius-lg)' }} />
+            <div className="skeleton" style={{ height: '300px', borderRadius: 'var(--radius-lg)' }} />
+          </div>
+        </div>
       </div>
     );
   }

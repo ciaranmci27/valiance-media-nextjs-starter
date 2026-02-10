@@ -82,28 +82,36 @@ export default function ConfigWarningBanner() {
   return (
     <>
       {/* Fixed banner at top */}
-      <div className="fixed top-0 left-0 right-0 z-[60] bg-amber-50 dark:bg-amber-900/90 border-b border-amber-200 dark:border-amber-700">
+      <div
+        className="fixed top-0 left-0 right-0 z-[60]"
+        style={{
+          background: 'color-mix(in srgb, var(--color-warning) 8%, transparent)',
+          borderBottom: '1px solid color-mix(in srgb, var(--color-warning) 25%, transparent)',
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1">
-              <span className="text-amber-600 dark:text-amber-500">
+              <span style={{ color: 'var(--color-warning)' }}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </span>
-              <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-200 mb-0">
+              <p className="text-xs sm:text-sm mb-0" style={{ color: 'var(--color-text-primary)' }}>
                 <span className="font-medium">Setup Required:</span> Configure your Site Name and Site URL.
               </p>
               <Link
                 href="/admin/seo?section=basic"
-                className="text-xs sm:text-sm font-medium text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 underline"
+                className="text-xs sm:text-sm font-medium underline"
+                style={{ color: 'var(--color-warning)' }}
               >
                 Configure Now →
               </Link>
             </div>
             <button
               onClick={handleDismiss}
-              className="text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 p-1"
+              className="p-1"
+              style={{ color: 'var(--color-warning)' }}
               aria-label="Dismiss"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

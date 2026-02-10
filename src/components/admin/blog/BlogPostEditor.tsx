@@ -93,41 +93,35 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
   // Tab configuration
   const tabs = [
-    { 
-      id: 'content', 
-      label: 'Content', 
-      icon: '📝',
-      description: 'Main content, category and tags'
+    {
+      id: 'content',
+      label: 'Content',
+      icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>),
     },
-    { 
-      id: 'media', 
-      label: 'Featured Image', 
-      icon: '🖼️',
-      description: 'Hero image for the post'
+    {
+      id: 'media',
+      label: 'Featured Image',
+      icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>),
     },
-    { 
-      id: 'seo', 
-      label: 'SEO & Social', 
-      icon: '🔍',
-      description: 'Search and social optimization'
+    {
+      id: 'seo',
+      label: 'SEO & Social',
+      icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>),
     },
-    { 
-      id: 'schema', 
-      label: 'Schema', 
-      icon: '📊',
-      description: 'Structured data for rich snippets'
+    {
+      id: 'schema',
+      label: 'Schema',
+      icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>),
     },
-    { 
-      id: 'author', 
-      label: 'Author', 
-      icon: '👤',
-      description: 'Author information'
+    {
+      id: 'author',
+      label: 'Author',
+      icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>),
     },
-    { 
-      id: 'settings', 
-      label: 'Settings', 
-      icon: '⚙️',
-      description: 'Post visibility and options'
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>),
     }
   ];
 
@@ -590,10 +584,10 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
             
             {/* Completion Indicator */}
             <div className="text-right">
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              <div className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>
                 {completionPercentage}% Complete
               </div>
-              <div className="w-48 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="w-48 h-2 rounded-full overflow-hidden" style={{ background: 'var(--color-border-light)' }}>
                 <div 
                   className="h-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-300"
                   style={{ width: `${completionPercentage}%` }}
@@ -604,53 +598,52 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
           {/* Save Status */}
           {saveStatus !== 'idle' && (
-            <div className={`p-3 rounded-lg mb-4 ${
-              saveStatus === 'saving' ? 'bg-primary-50 dark:bg-gray-800/60 text-primary-700 dark:text-primary-200' :
-              saveStatus === 'saved' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' :
-              'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
-            }`}>
-              {saveStatus === 'saving' && '⏳ Saving...'}
-              {saveStatus === 'saved' && '✅ Post saved successfully! Redirecting...'}
-              {saveStatus === 'error' && '❌ Error saving post. Please try again.'}
+            <div
+              className="p-3 rounded-lg mb-4 text-sm font-medium"
+              style={{
+                background: saveStatus === 'saving' ? 'color-mix(in srgb, var(--color-primary) 8%, transparent)' :
+                  saveStatus === 'saved' ? 'color-mix(in srgb, var(--color-success) 8%, transparent)' :
+                  'color-mix(in srgb, var(--color-error) 8%, transparent)',
+                color: saveStatus === 'saving' ? 'var(--color-primary)' :
+                  saveStatus === 'saved' ? 'var(--color-success)' :
+                  'var(--color-error)',
+                border: `1px solid ${saveStatus === 'saving' ? 'color-mix(in srgb, var(--color-primary) 20%, transparent)' :
+                  saveStatus === 'saved' ? 'color-mix(in srgb, var(--color-success) 20%, transparent)' :
+                  'color-mix(in srgb, var(--color-error) 20%, transparent)'}`,
+              }}
+            >
+              {saveStatus === 'saving' && 'Saving...'}
+              {saveStatus === 'saved' && 'Post saved successfully! Redirecting...'}
+              {saveStatus === 'error' && 'Error saving post. Please try again.'}
             </div>
           )}
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
-          <div className="flex overflow-x-auto">
-            {tabs.map((tab, index) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 min-w-[150px] px-6 py-4 border-b-2 transition-all ${
-                  activeTab === tab.id
-                    ? 'border-primary bg-primary-50 dark:bg-gray-800/60'
-                    : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{tab.icon}</span>
-                    <span className={`font-medium ${
-                      activeTab === tab.id 
-                        ? 'text-primary dark:text-primary-light' 
-                        : 'text-gray-700 dark:text-gray-300'
-                    }`}>
-                      {tab.label}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {tab.description}
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
+        <div className="flex overflow-x-auto mb-6" style={{ borderBottom: '1px solid var(--color-border-light)' }}>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all whitespace-nowrap"
+              style={{
+                background: 'none',
+                border: 'none',
+                borderBottom: '2px solid',
+                borderBottomColor: activeTab === tab.id ? 'var(--color-primary)' : 'transparent',
+                color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                marginBottom: '-1px',
+                cursor: 'pointer',
+              }}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="card p-6">
           <form onSubmit={handleSubmit}>
             {/* Content Tab */}
             {activeTab === 'content' && (
@@ -672,7 +665,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                       placeholder="Enter a compelling title"
                     />
                     {errors.title && (
-                      <p className="text-sm text-red-500 mt-1">{errors.title}</p>
+                      <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.title}</p>
                     )}
                   </div>
 
@@ -706,7 +699,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                         Post Slug *
                       </label>
                       <span
-                        className="text-xs text-gray-500 font-mono block flex-1 min-w-0 truncate max-w-[140px] sm:max-w-[220px] md:max-w-[280px]"
+                        className="text-xs font-mono block flex-1 min-w-0 truncate max-w-[140px] sm:max-w-[220px] md:max-w-[280px]" style={{ color: 'var(--color-text-tertiary)' }}
                         title={getSlugPreview()}
                       >
                         {getSlugPreview()}
@@ -731,7 +724,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                       <label htmlFor="excerpt" className="text-label">
                         Excerpt *
                       </label>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
                         {formData.excerpt.length}/200
                       </span>
                     </div>
@@ -745,7 +738,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                       placeholder="Write a brief summary that will appear in blog listings"
                     />
                     {errors.excerpt && (
-                      <p className="text-sm text-red-500 mt-1">{errors.excerpt}</p>
+                      <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.excerpt}</p>
                     )}
                   </div>
                   
@@ -771,9 +764,9 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                     placeholder="Start writing your blog post content..."
                   />
                   {errors.content && (
-                    <p className="text-sm text-red-500 mt-1">{errors.content}</p>
+                    <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.content}</p>
                   )}
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                     Estimated reading time: {Math.ceil(formData.content.split(/\s+/).length / 200)} min
                   </p>
                 </div>
@@ -801,7 +794,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                           placeholder="/images/featured.jpg or https://example.com/image.jpg"
                         />
                         <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500">Recommended: 1200x630px</p>
+                          <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Recommended: 1200x630px</p>
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
                               type="checkbox"
@@ -809,7 +802,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                               onChange={(e) => setShowFeaturedPreview(e.target.checked)}
                               className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary/50"
                             />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Show preview</span>
+                            <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Show preview</span>
                           </label>
                         </div>
                       </div>
@@ -828,7 +821,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                         className="input-field"
                         placeholder="Describe the image for accessibility"
                       />
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                         Important for SEO and accessibility
                       </p>
                     </div>
@@ -851,9 +844,9 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                   )}
                 </div>
 
-                <div className="p-4 bg-primary-50 dark:bg-gray-800/60 rounded-lg">
-                  <p className="text-sm">
-                    <strong>💡 Tip:</strong> Use high-quality images that relate to your content. 
+                <div className="p-4 rounded-lg" style={{ background: 'color-mix(in srgb, var(--color-primary) 6%, transparent)', border: '1px solid color-mix(in srgb, var(--color-primary) 15%, transparent)' }}>
+                  <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                    <strong>Tip:</strong> Use high-quality images that relate to your content.
                     The featured image appears in blog listings and social media shares.
                   </p>
                 </div>
@@ -865,8 +858,8 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
               <div className="space-y-6">
                 <div>
                   <h3 className="text-h3 mb-4">Search Engine Optimization</h3>
-                  <div className="bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg p-4 mb-4">
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                  <div className="rounded-lg p-4 mb-4" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}>
+                    <p className="text-sm mb-3" style={{ color: 'var(--color-text-secondary)' }}>
                       {mode === 'create' 
                         ? 'You can apply the default blog post SEO template to quickly fill in the fields below.'
                         : 'Apply the SEO template to replace current SEO fields with template values.'}
@@ -895,7 +888,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                         placeholder={formData.title || "Leave empty to use post title"}
                         maxLength={60}
                       />
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                         {(formData.seo.title || formData.title).length}/60 characters
                       </p>
                     </div>
@@ -914,7 +907,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                         placeholder={formData.excerpt || "Leave empty to use excerpt"}
                         maxLength={160}
                       />
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                         {(formData.seo.description || formData.excerpt).length}/160 characters
                       </p>
                     </div>
@@ -947,7 +940,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                           placeholder="Leave empty to use featured image"
                         />
                         <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500">Recommended: 1200x630px for best results</p>
+                          <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Recommended: 1200x630px for best results</p>
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
                               type="checkbox"
@@ -955,7 +948,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                               onChange={(e) => setShowSEOPreview(e.target.checked)}
                               className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary/50"
                             />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Show preview</span>
+                            <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Show preview</span>
                           </label>
                         </div>
                       </div>
@@ -990,7 +983,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
               <div className="space-y-6">
                 <div>
                   <h3 className="text-h3 mb-4">Structured Data Schema</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                  <p className="text-sm mb-6" style={{ color: 'var(--color-text-secondary)' }}>
                     Configure structured data schemas to enhance how your content appears in search results.
                     These schemas help search engines better understand your content and can enable rich snippets.
                   </p>
@@ -1076,10 +1069,10 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                   <h3 className="text-h3 mb-4">Post Settings</h3>
                   
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div className="flex items-center justify-between p-4 rounded-lg" style={{ border: '1px solid var(--color-border-light)' }}>
                       <div>
                         <p className="font-medium">Featured Post</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                           Display this post prominently on the homepage
                         </p>
                       </div>
@@ -1089,10 +1082,10 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                       />
                     </div>
 
-                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div className="flex items-center justify-between p-4 rounded-lg" style={{ border: '1px solid var(--color-border-light)' }}>
                       <div>
                         <p className="font-medium">{mode === 'edit' && !initialData?.draft ? 'Unpublish to Draft' : 'Save as Draft'}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                           {mode === 'edit' && !initialData?.draft 
                             ? 'Move this published post back to draft status'
                             : 'Post will not be published publicly'}
@@ -1104,10 +1097,10 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                       />
                     </div>
 
-                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div className="flex items-center justify-between p-4 rounded-lg" style={{ border: '1px solid var(--color-border-light)' }}>
                       <div>
                         <p className="font-medium">Exclude from Search</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                           Hide this post from search engines
                         </p>
                       </div>
@@ -1119,9 +1112,9 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                   </div>
                 </div>
 
-                <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className="p-4 rounded-lg" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}>
                   <h4 className="font-medium mb-2">Publishing Notes</h4>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                  <ul className="text-sm space-y-1" style={{ color: 'var(--color-text-secondary)' }}>
                     <li>• Draft posts are only visible to administrators</li>
                     <li>• Featured posts appear at the top of blog listings</li>
                     <li>• Excluded posts won't appear in search engine results</li>
@@ -1132,7 +1125,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
             )}
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mt-8 pt-6" style={{ borderTop: '1px solid var(--color-border-light)' }}>
               <button
                 type="button"
                 onClick={() => router.push('/admin/blog')}
@@ -1163,9 +1156,9 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
         </div>
 
         {/* Help Sidebar */}
-        <div className="mt-6 p-4 bg-primary-50 dark:bg-gray-800/60 rounded-lg">
+        <div className="mt-6 p-4 rounded-lg" style={{ background: 'color-mix(in srgb, var(--color-primary) 6%, transparent)', border: '1px solid color-mix(in srgb, var(--color-primary) 15%, transparent)' }}>
           <h3 className="font-medium mb-2">Quick Tips</h3>
-          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+          <ul className="text-sm space-y-1" style={{ color: 'var(--color-text-secondary)' }}>
             <li>• Required fields are marked with an asterisk (*)</li>
             <li>• Your progress is shown at the top of the page</li>
             <li>• SEO settings help your post rank better in search results</li>

@@ -281,23 +281,35 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="flex gap-6">
-        {/* Sidebar Navigation */}
-        <div className="w-64 shrink-0">
-          <div className="sticky top-4">
-            <nav className="space-y-1">
+      <div className="seo-editor-layout">
+        {/* Sidebar Navigation (desktop) / Tab Bar (mobile) */}
+        <div className="seo-editor-sidebar">
+          <div className="seo-editor-sidebar-inner">
+            <nav className="seo-editor-nav">
               {sections.map(section => (
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3 ${
-                    activeSection === section.id
-                      ? 'bg-primary text-white'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-                  }`}
+                  style={{
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '12px 16px',
+                    borderRadius: 'var(--radius-lg)',
+                    transition: 'all 0.15s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    background: activeSection === section.id ? 'var(--color-primary)' : 'transparent',
+                    color: activeSection === section.id ? 'white' : 'var(--color-text-secondary)',
+                    fontWeight: activeSection === section.id ? '600' : '500',
+                    fontSize: '14px'
+                  }}
                 >
                   <span>{section.icon}</span>
-                  <span className="font-medium">{section.label}</span>
+                  <span>{section.label}</span>
                 </button>
               ))}
             </nav>

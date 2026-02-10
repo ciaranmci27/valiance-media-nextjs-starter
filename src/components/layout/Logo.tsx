@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { seoConfig } from '@/seo/seo.config';
@@ -11,6 +11,7 @@ interface LogoProps {
   className?: string;
   priority?: boolean;
   alt?: string;
+  inverted?: boolean;
 }
 
 const LOGO_PATH = '/logos/horizontal-logo.png';
@@ -22,15 +23,18 @@ export function Logo({
   className = 'h-10 w-auto',
   priority = false,
   alt,
+  inverted,
 }: LogoProps) {
   const { mode } = useTheme();
   const [useFallback, setUseFallback] = useState(false);
+  const useInverted = inverted ?? mode === 'dark';
 
-  // Determine which logo to use based on mode and fallback state
-  // Dark mode: try inverted first, fallback to regular
-  // Light mode: try regular first, fallback to inverted
-  const getPrimarySrc = () => mode === 'dark' ? LOGO_INVERTED_PATH : LOGO_PATH;
-  const getFallbackSrc = () => mode === 'dark' ? LOGO_PATH : LOGO_INVERTED_PATH;
+  // Reset fallback when the logo variant changes (theme toggle or navigation)
+  useEffect(() => {
+    setUseFallback(false);
+  }, [useInverted]);
+  const getPrimarySrc = () => useInverted ? LOGO_INVERTED_PATH : LOGO_PATH;
+  const getFallbackSrc = () => useInverted ? LOGO_PATH : LOGO_INVERTED_PATH;
 
   const src = useFallback ? getFallbackSrc() : getPrimarySrc();
 

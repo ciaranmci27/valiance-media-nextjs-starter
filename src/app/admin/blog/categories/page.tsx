@@ -54,12 +54,15 @@ export default function BlogCategoriesPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-6"></div>
-          <div className="space-y-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      <div className="min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-start mb-8">
+            <div className="skeleton" style={{ width: '200px', height: '36px' }} />
+            <div className="skeleton" style={{ width: '200px', height: '48px', borderRadius: 'var(--radius-md)' }} />
+          </div>
+          <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="skeleton" style={{ height: '64px', marginBottom: '1px' }} />
             ))}
           </div>
         </div>
@@ -71,22 +74,16 @@ export default function BlogCategoriesPage() {
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header Section with 2-column layout */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'flex-start',
-          marginBottom: 'var(--spacing-xl)',
-          gap: 'var(--spacing-lg)'
-        }}>
+        <div className="admin-page-header">
           {/* Left Column: Title */}
           <div style={{ flex: 1 }}>
             <h1 className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
               Blog Categories
             </h1>
           </div>
-          
+
           {/* Right Column: Action Button */}
-          <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
+          <div className="admin-page-header-actions">
             <button
               onClick={() => router.push('/admin/blog/categories/new')}
               style={{
@@ -113,7 +110,7 @@ export default function BlogCategoriesPage() {
           </div>
         </div>
 
-        <div style={{
+        <div className="admin-table-wrap" style={{
           background: 'var(--color-surface)',
           borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--color-border-light)',
@@ -125,10 +122,10 @@ export default function BlogCategoriesPage() {
                 <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
                   Name
                 </th>
-                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+                <th className="mobile-hidden" style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
                   Slug
                 </th>
-                <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+                <th className="mobile-hidden" style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
                   Description
                 </th>
                 <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
@@ -153,17 +150,19 @@ export default function BlogCategoriesPage() {
               ) : (
                 categories.map((category) => (
                   <tr key={category.slug} style={{ borderBottom: '1px solid var(--color-border-light)' }}>
-                    <td style={{ padding: 'var(--spacing-md)' }}>
-                      <div style={{ 
-                        color: 'var(--color-text-primary)', 
+                    {/* Name — card headline on mobile */}
+                    <td className="cell-title" style={{ padding: 'var(--spacing-md)' }}>
+                      <div style={{
+                        color: 'var(--color-text-primary)',
                         fontWeight: '500'
                       }}>
                         {category.name}
                       </div>
                     </td>
-                    <td style={{ padding: 'var(--spacing-md)' }}>
-                      <code style={{ 
-                        fontSize: '13px', 
+                    {/* Slug — desktop only */}
+                    <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)' }}>
+                      <code style={{
+                        fontSize: '13px',
                         fontFamily: 'monospace',
                         color: 'var(--color-primary)',
                         background: 'rgba(59, 130, 246, 0.1)',
@@ -173,13 +172,28 @@ export default function BlogCategoriesPage() {
                         {category.slug}
                       </code>
                     </td>
-                    <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
+                    {/* Description — desktop only */}
+                    <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
                       {category.description || 'No description'}
                     </td>
-                    <td style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
-                      {category.postCount} {category.postCount === 1 ? 'post' : 'posts'}
+                    {/* Post count — metadata chip on mobile */}
+                    <td className="cell-meta" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '2px 8px',
+                        background: 'color-mix(in srgb, var(--color-primary) 8%, transparent)',
+                        color: 'var(--color-primary)',
+                        borderRadius: 'var(--radius-full)',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}>
+                        {category.postCount} {category.postCount === 1 ? 'post' : 'posts'}
+                      </span>
                     </td>
-                    <td style={{ padding: 'var(--spacing-md)' }}>
+                    {/* Actions */}
+                    <td className="cell-actions" style={{ padding: 'var(--spacing-md)' }}>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button
                           onClick={() => router.push(`/admin/blog/categories/${category.slug}/edit`)}
@@ -206,28 +220,21 @@ export default function BlogCategoriesPage() {
                           }}
                           style={{
                             padding: '6px 12px',
-                            background: category.postCount > 0 ? '#6B7280' : '#DC2626',
+                            background: category.postCount > 0 ? 'var(--color-text-disabled)' : 'var(--color-error, #DC2626)',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '4px',
+                            borderRadius: 'var(--radius-sm)',
                             fontSize: '14px',
                             cursor: category.postCount > 0 ? 'not-allowed' : 'pointer',
                             opacity: category.postCount > 0 ? 0.6 : 1,
-                            transition: 'background 0.2s',
-                            position: 'relative'
+                            transition: 'opacity 0.2s',
                           }}
                           title={category.postCount > 0 ? `Cannot delete - contains ${category.postCount} ${category.postCount === 1 ? 'post' : 'posts'}` : 'Delete category'}
                           onMouseEnter={(e) => {
-                            if (category.postCount === 0) {
-                              e.currentTarget.style.background = '#B91C1C';
-                            }
+                            if (category.postCount === 0) e.currentTarget.style.opacity = '0.85';
                           }}
                           onMouseLeave={(e) => {
-                            if (category.postCount === 0) {
-                              e.currentTarget.style.background = '#DC2626';
-                            } else {
-                              e.currentTarget.style.background = '#6B7280';
-                            }
+                            e.currentTarget.style.opacity = category.postCount > 0 ? '0.6' : '1';
                           }}
                         >
                           Delete
@@ -244,11 +251,13 @@ export default function BlogCategoriesPage() {
 
     {/* Delete Confirmation Modal */}
       {deleteModalOpen && categoryToDelete && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Delete Category</h3>
-            <p className="mb-6">
-              Are you sure you want to delete the category "{categoryToDelete.name}"?
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{ background: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="card max-w-md w-full mx-4 p-6" style={{ background: 'var(--color-surface)' }}>
+            <h3 className="text-h5" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-md)' }}>
+              Delete Category
+            </h3>
+            <p className="text-body" style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)' }}>
+              Are you sure you want to delete the category &ldquo;{categoryToDelete.name}&rdquo;?
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -256,13 +265,24 @@ export default function BlogCategoriesPage() {
                   setDeleteModalOpen(false);
                   setCategoryToDelete(null);
                 }}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="btn btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--color-error, #DC2626)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 'var(--radius-md)',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.2s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
               >
                 Delete
               </button>
