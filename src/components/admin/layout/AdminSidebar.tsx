@@ -209,11 +209,11 @@ export function AdminSidebar({
                 tabIndex={!collapsed ? -1 : 0}
               >
                 <Image
-                  src="/favicon/favicon-32x32.png"
+                  src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
                   alt={seoConfig.siteName || 'Admin'}
                   width={32}
                   height={32}
-                  className="h-8 w-8 rounded-lg"
+                  className="h-8 w-8 rounded-lg object-contain"
                   priority
                 />
               </Link>
