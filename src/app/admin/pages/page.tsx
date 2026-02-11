@@ -4,12 +4,42 @@ import React, { useState, useEffect, Suspense, useCallback, useMemo } from 'reac
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PageListItem } from '@/lib/pages/page-types';
 import SearchInput from '@/components/admin/ui/SearchInput';
+import {
+  PlusIcon,
+  ArrowPathIcon,
+  PencilSquareIcon,
+  ArrowTopRightOnSquareIcon,
+  TrashIcon,
+  DocumentTextIcon,
+  BoltIcon,
+  ChevronRightIcon,
+  ExclamationTriangleIcon,
+  GlobeAltIcon,
+} from '@heroicons/react/24/outline';
+
+function PagesSkeleton() {
+  return (
+    <div className="max-w-7xl mx-auto flex flex-col gap-6">
+      <div className="hidden md:block">
+        <div className="skeleton" style={{ width: '120px', height: '36px', marginBottom: '8px' }} />
+        <div className="skeleton" style={{ width: '260px', height: '18px' }} />
+      </div>
+      <div className="flex gap-2">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="skeleton" style={{ width: '80px', height: '36px', borderRadius: 'var(--radius-full)' }} />
+        ))}
+      </div>
+      <div className="skeleton" style={{ width: '100%', height: '40px', borderRadius: 'var(--radius-full)' }} />
+      <div className="skeleton" style={{ height: '400px', borderRadius: 'var(--radius-xl, 16px)' }} />
+    </div>
+  );
+}
 
 function PagesListContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const filter = searchParams.get('filter') || 'all';
-  
+
   const [pages, setPages] = useState<PageListItem[]>([]);
   const [filteredPages, setFilteredPages] = useState<PageListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,11 +50,10 @@ function PagesListContent() {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    // Check if we're in production
     checkEnvironment();
     fetchPages();
   }, []);
-  
+
   const checkEnvironment = async () => {
     try {
       const response = await fetch('/api/admin/environment');
@@ -34,11 +63,11 @@ function PagesListContent() {
       console.error('Error checking environment:', error);
     }
   };
-  
+
   useEffect(() => {
     applyFilter();
   }, [pages, filter, searchQuery]);
-  
+
   useEffect(() => {
     setActiveFilter(filter);
   }, [filter]);
@@ -61,7 +90,7 @@ function PagesListContent() {
       const response = await fetch('/api/admin/pages/rescan', {
         method: 'POST',
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setPages(data.pages || []);
@@ -76,31 +105,20 @@ function PagesListContent() {
       setIsRefreshing(false);
     }
   };
-  
+
   const getFilteredCount = (filterType: string) => {
-    let count = 0;
     switch (filterType) {
-      case 'static':
-        count = pages.filter(page => !page.isClientComponent).length;
-        break;
-      case 'dynamic':
-        count = pages.filter(page => page.isClientComponent).length;
-        break;
-      case 'featured':
-        count = pages.filter(page => page.featured).length;
-        break;
+      case 'static': return pages.filter(page => !page.isClientComponent).length;
+      case 'dynamic': return pages.filter(page => page.isClientComponent).length;
+      case 'featured': return pages.filter(page => page.featured).length;
       case 'all':
-      default:
-        count = pages.length;
-        break;
+      default: return pages.length;
     }
-    return count;
   };
-  
+
   const applyFilter = () => {
     let filtered = [...pages];
-    
-    // Apply filter first
+
     switch (filter) {
       case 'static':
         filtered = pages.filter(page => !page.isClientComponent);
@@ -121,89 +139,69 @@ function PagesListContent() {
       default:
         break;
     }
-    
-    // Then apply search query
+
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(page => 
+      filtered = filtered.filter(page =>
         page.title.toLowerCase().includes(query) ||
         page.slug.toLowerCase().includes(query) ||
         page.path.toLowerCase().includes(query) ||
         (page.category && page.category.toLowerCase().includes(query))
       );
     }
-    
+
     setFilteredPages(filtered);
   };
-  
+
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
   }, []);
-  
+
   const handleFilterChange = (newFilter: string) => {
     router.push(`/admin/pages?filter=${newFilter}`);
   };
-  
-  // Group pages by their parent path (for pages with 2+ levels of nesting)
+
   const groupPages = useMemo(() => {
     const grouped: Record<string, PageListItem[]> = {};
     const topLevel: PageListItem[] = [];
-    
-    // When filtering (not 'all'), show a flat list unless parent/children both match
+
     if (filter !== 'all') {
-      // For filtered views, only group if the parent also matches the filter
       filteredPages.forEach(page => {
         const parts = page.slug.split('/');
-        
-        // Check if this is a nested page (3+ parts)
         if (parts.length >= 3) {
           const parentPath = parts.slice(0, 2).join('/');
-          // Check if the parent is also in the filtered results
           const parentInResults = filteredPages.some(p => p.slug === parentPath);
-          
           if (parentInResults) {
-            // Parent matches filter too, so group them
-            if (!grouped[parentPath]) {
-              grouped[parentPath] = [];
-            }
+            if (!grouped[parentPath]) grouped[parentPath] = [];
             grouped[parentPath].push(page);
           } else {
-            // Parent doesn't match filter, show child as top-level
             topLevel.push(page);
           }
         } else {
-          // Top level or single nested pages
           topLevel.push(page);
         }
       });
     } else {
-      // For 'all' view, always group nested pages under their parents
       filteredPages.forEach(page => {
         const parts = page.slug.split('/');
-        
         if (parts.length >= 3) {
           const parentPath = parts.slice(0, 2).join('/');
-          if (!grouped[parentPath]) {
-            grouped[parentPath] = [];
-          }
+          if (!grouped[parentPath]) grouped[parentPath] = [];
           grouped[parentPath].push(page);
         } else {
           topLevel.push(page);
         }
       });
     }
-    
+
     return { grouped, topLevel };
   }, [filteredPages, filter]);
-  
+
   const toggleGroup = (groupKey: string) => {
     setExpandedGroups(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(groupKey)) {
-        newSet.delete(groupKey);
-      } else {
-        newSet.add(groupKey);
-      }
+      if (newSet.has(groupKey)) newSet.delete(groupKey);
+      else newSet.add(groupKey);
       return newSet;
     });
   };
@@ -213,7 +211,7 @@ function PagesListContent() {
       alert('Cannot delete the home page');
       return;
     }
-    
+
     if (!confirm(`Are you sure you want to delete the page "${slug}"? This action cannot be undone.`)) {
       return;
     }
@@ -224,7 +222,6 @@ function PagesListContent() {
       });
 
       if (response.ok) {
-        // Remove the deleted page from the state
         setPages(pages.filter(p => p.slug !== slug));
         alert('Page deleted successfully');
       } else {
@@ -237,704 +234,235 @@ function PagesListContent() {
     }
   };
 
-  if (loading) {
+  if (loading) return <PagesSkeleton />;
+
+  const filters = [
+    { key: 'all', label: 'All' },
+    { key: 'static', label: 'Static' },
+    { key: 'dynamic', label: 'Dynamic' },
+    { key: 'featured', label: 'Featured' },
+  ];
+
+  const renderPageRow = (page: PageListItem, isChild = false) => {
+    const isParentOfGroup = Object.keys(groupPages.grouped).some(key => key === page.slug);
+    const groupedChildren = isParentOfGroup ? groupPages.grouped[page.slug] : [];
+    const isExpanded = expandedGroups.has(page.slug);
+
     return (
-      <div className="min-h-screen py-8">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-start mb-8">
-            <div className="skeleton" style={{ width: '120px', height: '36px' }} />
-            <div className="flex gap-3">
-              <div className="skeleton" style={{ width: '180px', height: '48px', borderRadius: 'var(--radius-md)' }} />
-              <div className="skeleton" style={{ width: '160px', height: '48px', borderRadius: 'var(--radius-md)' }} />
+      <React.Fragment key={page.slug}>
+        <div
+          className={`pages-row animate-fade-up ${isChild ? 'pages-row-child' : ''}`}
+          onClick={isParentOfGroup ? () => toggleGroup(page.slug) : undefined}
+          style={isParentOfGroup ? { cursor: 'pointer' } : undefined}
+        >
+          {/* Left: Page info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              {isChild && (
+                <span style={{ color: 'var(--color-text-disabled)', fontSize: '14px', fontFamily: 'monospace', flexShrink: 0 }}>
+                  └
+                </span>
+              )}
+              <h4 className="truncate" style={{ color: 'var(--color-text-primary)', fontSize: '14px', fontWeight: 600, margin: 0 }}>
+                {page.title}
+              </h4>
+              {isParentOfGroup && (
+                <button
+                  className="pages-group-toggle"
+                  onClick={(e) => { e.stopPropagation(); toggleGroup(page.slug); }}
+                >
+                  <ChevronRightIcon
+                    className="w-3 h-3"
+                    style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 200ms ease' }}
+                  />
+                  <span>{groupedChildren.length + 1}</span>
+                </button>
+              )}
             </div>
-          </div>
-          <div className="skeleton mb-6" style={{ width: '100%', height: '42px' }} />
-          <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="skeleton" style={{ height: '60px', marginBottom: '1px' }} />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Header Section with 2-column layout */}
-        <div className="admin-page-header">
-          {/* Left Column: Title */}
-          <div style={{ flex: 1 }}>
-            <h1 className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
-              Pages
-            </h1>
-          </div>
-
-          {/* Right Column: Action Buttons */}
-          <div className="admin-page-header-actions">
-            <button
-              onClick={() => router.push('/admin/pages/new')}
-              disabled={isProduction}
-              style={{
-                padding: '12px 24px',
-                background: isProduction ? 'var(--color-text-tertiary)' : 'var(--color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: isProduction ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                opacity: isProduction ? 0.5 : 1,
-                whiteSpace: 'nowrap',
-                height: '48px'
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              Create New Page
-            </button>
-            
-            <button
-              onClick={rescanPages}
-              disabled={isRefreshing}
-              style={{
-                padding: '10px 22px',
-                background: 'transparent',
-                color: 'var(--color-primary)',
-                border: '2px solid var(--color-primary)',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: isRefreshing ? 'wait' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                opacity: isRefreshing ? 0.5 : 1,
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap',
-                height: '48px'
-              }}
-              title="Rescan pages to find newly added pages"
-            >
-              <svg 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2"
-                style={{
-                  animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
-                }}
-              >
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
-              </svg>
-              Rescan Pages
-            </button>
-          </div>
-        </div>
-        
-        {/* Production Warning */}
-        {isProduction && (
-          <div style={{
-            padding: '16px',
-            background: 'rgba(251, 191, 36, 0.1)',
-            border: '1px solid rgba(251, 191, 36, 0.3)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: 'var(--spacing-lg)'
-          }}>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(251, 191, 36)" strokeWidth="2">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-              <div>
-                <p style={{ color: 'rgb(251, 191, 36)', fontWeight: '600', marginBottom: '4px' }}>
-                  Production Environment
-                </p>
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px', lineHeight: '1.5' }}>
-                  Page editing is not available in production. To modify pages, please edit them locally and redeploy your application. 
-                  This is a security best practice as production filesystems are typically read-only.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        <style jsx>{`
-          @keyframes spin {
-            from {
-              transform: rotate(0deg);
-            }
-            to {
-              transform: rotate(360deg);
-            }
-          }
-          @keyframes slideDown {
-            from {
-              opacity: 0;
-              transform: translateY(-10px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}</style>
-
-        {/* Filter Bar with Search */}
-        <div className="admin-filter-bar">
-          {/* Left side: Filter tabs */}
-          <div className="admin-filter-tabs">
-            <button
-              onClick={() => handleFilterChange('all')}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '8px 0',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: activeFilter === 'all' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                borderBottom: activeFilter === 'all' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                cursor: 'pointer',
-                marginBottom: '-2px',
-                transition: 'all 0.2s'
-              }}
-            >
-              All ({getFilteredCount('all')})
-            </button>
-            <button
-              onClick={() => handleFilterChange('static')}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '8px 0',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: activeFilter === 'static' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                borderBottom: activeFilter === 'static' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                cursor: 'pointer',
-                marginBottom: '-2px',
-                transition: 'all 0.2s'
-              }}
-            >
-              Static ({getFilteredCount('static')})
-            </button>
-            <button
-              onClick={() => handleFilterChange('dynamic')}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '8px 0',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: activeFilter === 'dynamic' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                borderBottom: activeFilter === 'dynamic' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                cursor: 'pointer',
-                marginBottom: '-2px',
-                transition: 'all 0.2s'
-              }}
-            >
-              Dynamic ({getFilteredCount('dynamic')})
-            </button>
-            <button
-              onClick={() => handleFilterChange('featured')}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '8px 0',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: activeFilter === 'featured' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                borderBottom: activeFilter === 'featured' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                cursor: 'pointer',
-                marginBottom: '-2px',
-                transition: 'all 0.2s'
-              }}
-            >
-              Featured ({getFilteredCount('featured')})
-            </button>
-          </div>
-          
-          {/* Right side: Search bar */}
-          <div style={{ maxWidth: '320px' }}>
-            <SearchInput 
-              placeholder="Search pages..."
-              onSearch={handleSearch}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        <div className="admin-table-wrap" style={{
-          background: 'var(--color-surface)',
-          borderRadius: 'var(--radius-lg)',
-          overflow: 'hidden',
-          boxShadow: 'var(--shadow-sm)'
-        }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-            <thead>
-              <tr style={{
-                borderBottom: '1px solid var(--color-border-light)',
-                background: 'var(--color-surface-secondary, rgba(0, 0, 0, 0.02))'
-              }}>
-                <th style={{
-                  padding: 'var(--spacing-md)',
-                  textAlign: 'left',
-                  color: 'var(--color-text-secondary)',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  width: '31%'
-                }}>
-                  Page Title
-                </th>
-                <th className="mobile-hidden" style={{
-                  padding: 'var(--spacing-md)',
-                  textAlign: 'left',
-                  color: 'var(--color-text-secondary)',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  width: '22%'
-                }}>
-                  Route Path
-                </th>
-                <th style={{
-                  padding: 'var(--spacing-md)',
-                  textAlign: 'left',
-                  color: 'var(--color-text-secondary)',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  width: '18%'
-                }}>
-                  Route Type
-                </th>
-                <th className="mobile-hidden" style={{
-                  padding: 'var(--spacing-md)',
-                  textAlign: 'left',
-                  color: 'var(--color-text-secondary)',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  width: '11%'
-                }}>
-                  Category
-                </th>
-                <th style={{
-                  padding: 'var(--spacing-md)',
-                  textAlign: 'right',
-                  color: 'var(--color-text-secondary)',
-                  fontWeight: '600',
-                  fontSize: '13px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  width: '18%'
-                }}>
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPages.length === 0 ? (
-                <tr>
-                  <td colSpan={5} style={{ padding: 'var(--spacing-lg)', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-                    No pages found
-                  </td>
-                </tr>
-              ) : (
+            <div className="flex items-center gap-2 flex-wrap" style={{ color: 'var(--color-text-tertiary)', fontSize: '12px' }}>
+              <code className="pages-path-code">{page.path}</code>
+              <span style={{ opacity: 0.3 }}>&middot;</span>
+              <span className={`pages-type-badge ${page.isClientComponent ? 'dynamic' : 'static'}`}>
+                {page.isClientComponent ? (
+                  <><BoltIcon className="w-3 h-3" /> Dynamic</>
+                ) : (
+                  <><DocumentTextIcon className="w-3 h-3" /> Static</>
+                )}
+              </span>
+              {page.category && (
                 <>
-                  {/* Render top-level pages and parent pages */}
-                  {groupPages.topLevel.map((page) => {
-                    // Check if this page is a parent of grouped pages
-                    const isParentOfGroup = Object.keys(groupPages.grouped).some(key => key === page.slug);
-                    const groupedChildren = isParentOfGroup ? groupPages.grouped[page.slug] : [];
-                    const isExpanded = expandedGroups.has(page.slug);
-                    
-                    return (
-                      <React.Fragment key={page.slug}>
-                        <tr 
-                          style={{ 
-                            borderBottom: '1px solid var(--color-border-light)',
-                            cursor: isParentOfGroup ? 'pointer' : 'default',
-                            transition: 'background 0.2s',
-                            background: isParentOfGroup && isExpanded ? 'color-mix(in srgb, var(--color-primary) 4%, transparent)' : 'transparent'
-                          }}
-                          onClick={isParentOfGroup ? () => toggleGroup(page.slug) : undefined}
-                          onMouseEnter={(e) => {
-                            if (isParentOfGroup) {
-                              e.currentTarget.style.background = isExpanded ? 'color-mix(in srgb, var(--color-primary) 6%, transparent)' : 'var(--color-surface-hover)';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (isParentOfGroup) {
-                              e.currentTarget.style.background = isExpanded ? 'color-mix(in srgb, var(--color-primary) 4%, transparent)' : 'transparent';
-                            }
-                          }}
-                        >
-                          <td className="cell-title" style={{ padding: 'var(--spacing-md)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            <div style={{
-                              color: 'var(--color-text-primary)',
-                              fontWeight: '500',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                              overflow: 'hidden'
-                            }} title={page.title}>
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {page.title}
-                              </span>
-                              {isParentOfGroup && (
-                                <div style={{
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '6px',
-                                  padding: '3px 10px',
-                                  borderRadius: '12px',
-                                  fontSize: '11px',
-                                  fontWeight: '600',
-                                  background: 'color-mix(in srgb, var(--color-primary) 8%, transparent)',
-                                  color: 'color-mix(in srgb, var(--color-primary) 85%, var(--color-text-secondary))',
-                                  flexShrink: 0
-                                }} title={`This group contains ${groupedChildren.length + 1} pages (including parent)`}>
-                                  <svg
-                                    width="12"
-                                    height="12"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    style={{
-                                      transform: isExpanded ? 'rotate(90deg)' : 'none',
-                                      transition: 'transform 0.2s'
-                                    }}
-                                  >
-                                    <polyline points="9 18 15 12 9 6" />
-                                  </svg>
-                                  <span>{groupedChildren.length + 1} pages</span>
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            <code style={{
-                              fontSize: '13px',
-                              fontFamily: 'monospace',
-                              color: 'var(--color-primary)',
-                              background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
-                              padding: '2px 6px',
-                              borderRadius: 'var(--radius-sm)',
-                              display: 'inline-block',
-                              maxWidth: '100%',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }} title={page.path}>
-                              {page.path}
-                            </code>
-                          </td>
-                          <td className="cell-meta" style={{ padding: 'var(--spacing-md)' }}>
-                            <span style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              padding: '4px 8px',
-                              borderRadius: 'var(--radius-sm)',
-                              fontSize: '12px',
-                              fontWeight: '500',
-                              background: page.isDynamicRoute
-                                ? 'rgba(251, 146, 60, 0.1)'
-                                : 'rgba(34, 197, 94, 0.1)',
-                              color: page.isDynamicRoute
-                                ? 'rgb(234, 88, 12)'
-                                : 'rgb(22, 163, 74)'
-                            }}>
-                              {page.isDynamicRoute ? (
-                                <>
-                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                                  </svg>
-                                  Dynamic
-                                </>
-                              ) : (
-                                <>
-                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                    <polyline points="14 2 14 8 20 8"/>
-                                    <line x1="16" y1="13" x2="8" y2="13"/>
-                                    <line x1="16" y1="17" x2="8" y2="17"/>
-                                    <polyline points="10 9 9 9 8 9"/>
-                                  </svg>
-                                  Static
-                                </>
-                              )}
-                            </span>
-                          </td>
-                          <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
-                            {page.category || 'general'}
-                          </td>
-                          <td className="cell-actions" style={{ padding: 'var(--spacing-md)' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }} onClick={(e) => e.stopPropagation()}>
-                              <button
-                                onClick={() => router.push(`/admin/pages/${encodeURIComponent(page.slug)}/edit`)}
-                                disabled={isProduction}
-                                style={{
-                                  padding: '6px 12px',
-                                  background: isProduction ? 'var(--color-text-tertiary)' : 'var(--color-primary)',
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: 'var(--radius-sm)',
-                                  fontSize: '14px',
-                                  cursor: isProduction ? 'not-allowed' : 'pointer',
-                                  opacity: isProduction ? 0.5 : 1
-                                }}
-                                title={isProduction ? 'Editing disabled in production' : 'Edit page'}
-                              >
-                                Edit
-                              </button>
-                              {!page.isDynamicRoute && (
-                                <a
-                                  href={page.path}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    padding: '6px 12px',
-                                    background: 'var(--color-info)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: 'var(--radius-sm)',
-                                    fontSize: '14px',
-                                    cursor: 'pointer',
-                                    textDecoration: 'none',
-                                    display: 'inline-block'
-                                  }}
-                                  title="View this page in a new tab"
-                                >
-                                  View
-                                </a>
-                              )}
-                              {!page.isHomePage && (
-                                <button
-                                  onClick={() => deletePage(page.slug)}
-                                  disabled={isProduction}
-                                  style={{
-                                    padding: '6px 12px',
-                                    background: isProduction ? 'var(--color-text-tertiary)' : 'var(--color-danger)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: 'var(--radius-sm)',
-                                    fontSize: '14px',
-                                    cursor: isProduction ? 'not-allowed' : 'pointer',
-                                    transition: 'background 0.2s',
-                                    opacity: isProduction ? 0.5 : 1
-                                  }}
-                                  onMouseEnter={(e) => !isProduction && (e.currentTarget.style.background = '#B91C1C')}
-                                  onMouseLeave={(e) => !isProduction && (e.currentTarget.style.background = 'var(--color-danger)')}
-                                  title={isProduction ? 'Deletion disabled in production' : 'Delete page'}
-                                >
-                                  Delete
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                        
-                        {/* Render grouped children if expanded */}
-                        {isParentOfGroup && isExpanded && groupedChildren.map((childPage, index) => (
-                          <tr key={childPage.slug} style={{
-                            borderBottom: index === groupedChildren.length - 1
-                              ? '1px solid var(--color-border-light)'
-                              : '1px solid var(--color-border-lighter)',
-                            background: 'color-mix(in srgb, var(--color-primary) 3%, transparent)',
-                            animation: 'slideDown 0.2s ease-out'
-                          }}>
-                            <td className="cell-title" style={{ padding: 'var(--spacing-md)', paddingLeft: 'calc(var(--spacing-md) + 24px)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              <div style={{
-                                color: 'var(--color-text-primary)',
-                                fontWeight: '500',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                overflow: 'hidden'
-                              }} title={childPage.title}>
-                                <span style={{
-                                  color: 'var(--color-text-tertiary)',
-                                  fontSize: '16px',
-                                  fontFamily: 'monospace',
-                                  flexShrink: 0
-                                }}>└</span>
-                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {childPage.title}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              <code style={{
-                                fontSize: '13px',
-                                fontFamily: 'monospace',
-                                color: 'var(--color-primary)',
-                                background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
-                                padding: '2px 6px',
-                                borderRadius: 'var(--radius-sm)',
-                                display: 'inline-block',
-                                maxWidth: '100%',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }} title={childPage.path}>
-                                {childPage.path}
-                              </code>
-                            </td>
-                            <td className="cell-meta" style={{ padding: 'var(--spacing-md)' }}>
-                              <span style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                padding: '4px 8px',
-                                borderRadius: 'var(--radius-sm)',
-                                fontSize: '12px',
-                                fontWeight: '500',
-                                background: childPage.isDynamicRoute
-                                  ? 'rgba(251, 146, 60, 0.1)'
-                                  : 'rgba(34, 197, 94, 0.1)',
-                                color: childPage.isDynamicRoute
-                                  ? 'rgb(234, 88, 12)'
-                                  : 'rgb(22, 163, 74)'
-                              }}>
-                                {childPage.isDynamicRoute ? (
-                                  <>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                                    </svg>
-                                    Dynamic
-                                  </>
-                                ) : (
-                                  <>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                      <polyline points="14 2 14 8 20 8"/>
-                                      <line x1="16" y1="13" x2="8" y2="13"/>
-                                      <line x1="16" y1="17" x2="8" y2="17"/>
-                                      <polyline points="10 9 9 9 8 9"/>
-                                    </svg>
-                                    Static
-                                  </>
-                                )}
-                              </span>
-                            </td>
-                            <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
-                              {childPage.category || 'general'}
-                            </td>
-                            <td className="cell-actions" style={{ padding: 'var(--spacing-md)' }}>
-                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }} onClick={(e) => e.stopPropagation()}>
-                                <button
-                                  onClick={() => router.push(`/admin/pages/${encodeURIComponent(childPage.slug)}/edit`)}
-                                  disabled={isProduction}
-                                  style={{
-                                    padding: '6px 12px',
-                                    background: isProduction ? 'var(--color-text-tertiary)' : 'var(--color-primary)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: 'var(--radius-sm)',
-                                    fontSize: '14px',
-                                    cursor: isProduction ? 'not-allowed' : 'pointer',
-                                    opacity: isProduction ? 0.5 : 1
-                                  }}
-                                  title={isProduction ? 'Editing disabled in production' : 'Edit page'}
-                                >
-                                  Edit
-                                </button>
-                                {!childPage.isDynamicRoute && (
-                                  <a
-                                    href={childPage.path}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                      padding: '6px 12px',
-                                      background: 'var(--color-info)',
-                                      color: 'white',
-                                      border: 'none',
-                                      borderRadius: 'var(--radius-sm)',
-                                      fontSize: '14px',
-                                      cursor: 'pointer',
-                                      textDecoration: 'none',
-                                      display: 'inline-block'
-                                    }}
-                                    title="View this page in a new tab"
-                                  >
-                                    View
-                                  </a>
-                                )}
-                                {!childPage.isHomePage && (
-                                  <button
-                                    onClick={() => deletePage(childPage.slug)}
-                                    disabled={isProduction}
-                                    style={{
-                                      padding: '6px 12px',
-                                      background: isProduction ? 'var(--color-text-tertiary)' : 'var(--color-danger)',
-                                      color: 'white',
-                                      border: 'none',
-                                      borderRadius: 'var(--radius-sm)',
-                                      fontSize: '14px',
-                                      cursor: isProduction ? 'not-allowed' : 'pointer',
-                                      transition: 'background 0.2s',
-                                      opacity: isProduction ? 0.5 : 1
-                                    }}
-                                    onMouseEnter={(e) => !isProduction && (e.currentTarget.style.background = '#B91C1C')}
-                                    onMouseLeave={(e) => !isProduction && (e.currentTarget.style.background = 'var(--color-danger)')}
-                                    title={isProduction ? 'Deletion disabled in production' : 'Delete page'}
-                                  >
-                                    Delete
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </React.Fragment>
-                    );
-                  })}
+                  <span style={{ opacity: 0.3 }}>&middot;</span>
+                  <span className="posts-tag">{page.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>
                 </>
               )}
-            </tbody>
-          </table>
+            </div>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="pages-row-actions" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="pages-action-btn"
+              onClick={() => router.push(`/admin/pages/${encodeURIComponent(page.slug)}/edit`)}
+              disabled={isProduction}
+              title={isProduction ? 'Editing disabled in production' : 'Edit page'}
+            >
+              <PencilSquareIcon className="w-4 h-4" />
+              <span className="pages-action-label">Edit</span>
+            </button>
+            {!page.isDynamicRoute && (
+              <a
+                href={page.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pages-action-btn"
+                title="View page"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                <span className="pages-action-label">View</span>
+              </a>
+            )}
+            {!page.isHomePage && (
+              <button
+                className="pages-action-btn danger"
+                onClick={() => deletePage(page.slug)}
+                disabled={isProduction}
+                title={isProduction ? 'Deletion disabled in production' : 'Delete page'}
+              >
+                <TrashIcon className="w-4 h-4" />
+                <span className="pages-action-label">Delete</span>
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Grouped children */}
+        {isParentOfGroup && isExpanded && groupedChildren.map((child) => (
+          <React.Fragment key={child.slug}>
+            {renderPageRow(child, true)}
+          </React.Fragment>
+        ))}
+      </React.Fragment>
+    );
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto flex flex-col gap-6">
+      {/* Header — hidden on mobile */}
+      <div className="hidden md:block">
+        <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
+          Pages
+        </h1>
+        <p className="text-body-lg" style={{ color: 'var(--color-text-secondary)', margin: 0 }}>
+          Manage your site pages and routes
+        </p>
       </div>
+
+      {/* Production Warning */}
+      {isProduction && (
+        <div className="pages-production-warning animate-fade-up">
+          <ExclamationTriangleIcon className="w-5 h-5 shrink-0" style={{ color: 'var(--color-warning)' }} />
+          <div>
+            <p style={{ color: 'var(--color-warning)', fontWeight: 600, fontSize: '14px', margin: '0 0 2px' }}>
+              Production Environment
+            </p>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '13px', lineHeight: 1.5, margin: 0 }}>
+              Page editing is not available in production. Edit locally and redeploy.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Toolbar: Actions + Search */}
+      <div className="pages-toolbar animate-fade-up" style={{ animationDelay: '60ms' }}>
+        <div className="flex gap-2">
+          <button
+            className="dash-quick-action"
+            onClick={() => router.push('/admin/pages/new')}
+            disabled={isProduction}
+            style={isProduction ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+          >
+            <PlusIcon className="w-4 h-4" />
+            <span>New</span>
+          </button>
+          <button
+            className="dash-quick-action"
+            onClick={rescanPages}
+            disabled={isRefreshing}
+            style={isRefreshing ? { opacity: 0.5 } : undefined}
+          >
+            <ArrowPathIcon
+              className="w-4 h-4"
+              style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}
+            />
+            <span>Rescan</span>
+          </button>
+        </div>
+        <SearchInput
+          placeholder="Search pages..."
+          onSearch={handleSearch}
+          className="pages-search"
+        />
+      </div>
+
+      {/* Filter pills */}
+      <div className="pages-filter-bar animate-fade-up" style={{ animationDelay: '120ms' }}>
+        {filters.map((f) => (
+          <button
+            key={f.key}
+            className={`pages-filter-pill ${activeFilter === f.key ? 'active' : ''}`}
+            onClick={() => handleFilterChange(f.key)}
+          >
+            {f.label}
+            <span className="pages-filter-count">{getFilteredCount(f.key)}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Page list */}
+      <div className="dash-card animate-fade-up" style={{ padding: 0, animationDelay: '180ms' }}>
+        {/* Desktop column headers */}
+        <div className="pages-list-header">
+          <span>Page</span>
+          <span>Actions</span>
+        </div>
+
+        {filteredPages.length === 0 ? (
+          <div className="dash-empty-state" style={{ padding: '48px 16px' }}>
+            <GlobeAltIcon className="w-10 h-10" style={{ color: 'var(--color-text-disabled)', marginBottom: '8px' }} />
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px', margin: '0 0 4px' }}>
+              {searchQuery ? 'No pages match your search' : 'No pages found'}
+            </p>
+            {!searchQuery && (
+              <button
+                className="dash-card-link"
+                style={{ fontSize: '13px', background: 'none', border: 'none', cursor: 'pointer' }}
+                onClick={() => router.push('/admin/pages/new')}
+              >
+                Create your first page
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="pages-list">
+            {groupPages.topLevel.map((page) => renderPageRow(page))}
+          </div>
+        )}
+      </div>
+
+      <style jsx>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
 
 export default function PagesPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen py-8">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex justify-between items-start mb-8">
-              <div className="skeleton" style={{ width: '120px', height: '36px' }} />
-              <div className="flex gap-3">
-                <div className="skeleton" style={{ width: '180px', height: '48px', borderRadius: 'var(--radius-md)' }} />
-              </div>
-            </div>
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="skeleton" style={{ height: '60px', marginBottom: '1px' }} />
-            ))}
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<PagesSkeleton />}>
       <PagesListContent />
     </Suspense>
   );

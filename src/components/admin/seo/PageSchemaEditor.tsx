@@ -1,16 +1,38 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { seoConfig } from '@/seo/seo.config';
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  CodeBracketIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
+import { Select } from '@/components/admin/ui/Select';
 
-// Consistent input styling for dark mode support
-const INPUT_CLASS = 'w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors';
-const LABEL_CLASS = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
-const BUTTON_PRIMARY_CLASS = 'px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors shadow-sm';
-const BUTTON_DANGER_CLASS = 'text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm transition-colors';
-const SECTION_CLASS = 'bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3';
-const CARD_CLASS = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-2';
-import { 
+const BUTTON_PRIMARY_CLASS = 'admin-btn admin-btn-primary admin-btn-sm';
+const BUTTON_DANGER_CLASS = 'admin-btn admin-btn-danger admin-btn-sm';
+const LABEL_STYLE: React.CSSProperties = { color: 'var(--color-text-primary)' };
+
+const SECTION_STYLE: React.CSSProperties = {
+  border: '1px solid var(--color-border-light)',
+  borderRadius: 'var(--radius-lg)',
+  padding: '16px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+};
+
+const ITEM_CARD_STYLE: React.CSSProperties = {
+  border: '1px solid var(--color-border-medium)',
+  borderRadius: 'var(--radius-md)',
+  padding: '12px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
+};
+
+import {
   PageSchema, 
   SCHEMAS_BY_PAGE_TYPE, 
   SCHEMA_TEMPLATES,
@@ -251,7 +273,7 @@ export default function PageSchemaEditor({
         />;
       
       default:
-        return <div className="text-sm text-gray-500">Schema editor not yet implemented for {(schema as any).type || 'unknown'}</div>;
+        return <div style={{ fontSize: '13px', color: 'var(--color-text-tertiary)' }}>Schema editor not yet implemented for {(schema as any).type || 'unknown'}</div>;
     }
   };
 
@@ -291,66 +313,98 @@ export default function PageSchemaEditor({
     return icons[type] || '📄';
   };
 
+  const schemaOptions = useMemo(() =>
+    availableSchemas.map(type => ({
+      value: type,
+      label: `${getSchemaIcon(type)} ${type}`,
+    })),
+    [availableSchemas]
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Add Schema Dropdown */}
-      <div className="flex items-center gap-4">
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Add Schema:</label>
-        <select 
-          className="px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer shadow-sm"
-          onChange={(e) => {
-            if (e.target.value) {
-              addSchema(e.target.value);
-              e.target.value = '';
-            }
-          }}
-          value=""
-        >
-          <option value="">Select a schema type...</option>
-          {availableSchemas.map(type => (
-            <option key={type} value={type}>
-              {getSchemaIcon(type)} {type}
-            </option>
-          ))}
-        </select>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Add Schema */}
+      <Select
+        label="Add Schema"
+        options={schemaOptions}
+        placeholder="Select a schema type..."
+        helperText="Add structured data schemas to enable rich results in search engines"
+        onChange={(value) => {
+          if (value) {
+            addSchema(value);
+          }
+        }}
+      />
 
       {/* Active Schemas */}
       {activeSchemas.length > 0 && (
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {activeSchemas.map((schema, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm transition-all">
-              <div 
-                className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg"
+            <div
+              key={index}
+              style={{
+                border: '1px solid var(--color-border-medium)',
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+                transition: 'border-color 150ms ease',
+              }}
+            >
+              {/* Schema header */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '14px 16px',
+                  cursor: 'pointer',
+                  transition: 'background 150ms ease',
+                }}
                 onClick={() => setExpandedSchema(expandedSchema === schema.type ? null : schema.type)}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{getSchemaIcon(schema.type)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '20px', lineHeight: 1 }}>{getSchemaIcon(schema.type)}</span>
                   <div>
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{schema.type}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {schema.enabled ? '✓ Enabled' : 'Disabled'}
-                    </p>
+                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>
+                      {schema.type}
+                    </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                      <span
+                        className="dash-status-dot"
+                        style={{
+                          background: schema.enabled ? 'var(--color-success)' : 'var(--color-text-disabled)',
+                          width: '6px',
+                          height: '6px',
+                        }}
+                      />
+                      <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
+                        {schema.enabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       removeSchema(index);
                     }}
-                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-3 py-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    className="admin-btn admin-btn-danger admin-btn-sm"
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
+                    <TrashIcon className="w-3.5 h-3.5" />
                     Remove
                   </button>
-                  <span className="text-gray-400 dark:text-gray-500">
-                    {expandedSchema === schema.type ? '▼' : '▶'}
-                  </span>
+                  {expandedSchema === schema.type ? (
+                    <ChevronDownIcon className="w-4 h-4" style={{ color: 'var(--color-text-tertiary)', transition: 'transform 200ms ease' }} />
+                  ) : (
+                    <ChevronRightIcon className="w-4 h-4" style={{ color: 'var(--color-text-tertiary)', transition: 'transform 200ms ease' }} />
+                  )}
                 </div>
               </div>
-              
+
+              {/* Schema form content */}
               {expandedSchema === schema.type && (
-                <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg">
+                <div style={{ padding: '16px', borderTop: '1px solid var(--color-border-light)' }}>
                   {renderSchemaForm(schema, index)}
                 </div>
               )}
@@ -361,11 +415,41 @@ export default function PageSchemaEditor({
 
       {/* Preview JSON-LD */}
       {activeSchemas.length > 0 && (
-        <details className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm">
-          <summary className="cursor-pointer font-medium text-gray-900 dark:text-gray-100 hover:text-primary dark:hover:text-primary-light transition-colors">
+        <details
+          style={{
+            border: '1px solid var(--color-border-medium)',
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+          }}
+        >
+          <summary
+            style={{
+              padding: '14px 16px',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '14px',
+              color: 'var(--color-text-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <CodeBracketIcon className="w-4 h-4" style={{ color: 'var(--color-text-tertiary)' }} />
             Preview JSON-LD Output
           </summary>
-          <pre className="mt-4 p-4 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto text-xs text-gray-800 dark:text-gray-200">
+          <pre
+            style={{
+              padding: '16px',
+              borderTop: '1px solid var(--color-border-light)',
+              background: 'var(--color-surface)',
+              margin: 0,
+              overflowX: 'auto',
+              fontSize: '12px',
+              fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace",
+              color: 'var(--color-text-secondary)',
+              lineHeight: 1.6,
+            }}
+          >
             {JSON.stringify(activeSchemas.filter(s => s.enabled), null, 2)}
           </pre>
         </details>
@@ -386,43 +470,41 @@ function ArticleSchemaForm({
 }) {
   return (
     <div className="space-y-4">
-      <div>
-        <label className={LABEL_CLASS}>Article Type</label>
-        <select 
-          value={schema.type}
-          onChange={(e) => onChange({ ...schema, type: e.target.value as ArticleSchema['type'] })}
-          className={INPUT_CLASS}
-        >
-          <option value="Article">Article</option>
-          <option value="BlogPosting">Blog Posting</option>
-          <option value="NewsArticle">News Article</option>
-        </select>
-      </div>
+      <Select
+        label="Article Type"
+        value={schema.type}
+        onChange={(value) => onChange({ ...schema, type: value as ArticleSchema['type'] })}
+        options={[
+          { value: 'Article', label: 'Article' },
+          { value: 'BlogPosting', label: 'Blog Posting' },
+          { value: 'NewsArticle', label: 'News Article' },
+        ]}
+      />
 
       <div>
-        <label className={LABEL_CLASS}>Headline</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Headline</label>
         <input
           type="text"
           value={schema.headline || pageData?.title || ''}
           onChange={(e) => onChange({ ...schema, headline: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Article headline"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Alternative Headline</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Alternative Headline</label>
         <input
           type="text"
           value={schema.alternativeHeadline || ''}
           onChange={(e) => onChange({ ...schema, alternativeHeadline: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Optional alternative headline"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Author Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Author Name</label>
         <input
           type="text"
           value={schema.author?.name || pageData?.author || ''}
@@ -430,29 +512,29 @@ function ArticleSchemaForm({
             ...schema, 
             author: { ...schema.author, name: e.target.value }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Author name"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Word Count</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Word Count</label>
         <input
           type="number"
           value={schema.wordCount || ''}
           onChange={(e) => onChange({ ...schema, wordCount: parseInt(e.target.value) })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Number of words"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Reading Time</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Reading Time</label>
         <input
           type="text"
           value={schema.timeRequired || ''}
           onChange={(e) => onChange({ ...schema, timeRequired: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="e.g., PT5M (5 minutes)"
         />
       </div>
@@ -491,7 +573,7 @@ function FAQSchemaForm({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h4 className="font-medium text-gray-900 dark:text-gray-100">Questions & Answers</h4>
+        <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>Questions & Answers</h4>
         <button
           type="button"
           onClick={addQuestion}
@@ -502,23 +584,23 @@ function FAQSchemaForm({
       </div>
 
       {(schema.mainEntity || []).map((qa, index) => (
-        <div key={index} className={CARD_CLASS}>
+        <div key={index} style={ITEM_CARD_STYLE}>
           <div>
-            <label className={LABEL_CLASS}>Question {index + 1}</label>
+            <label className="text-label block mb-1" style={LABEL_STYLE}>Question {index + 1}</label>
             <input
               type="text"
               value={qa.question}
               onChange={(e) => updateQuestion(index, 'question', e.target.value)}
-              className={INPUT_CLASS}
+              className="input-field"
               placeholder="Enter question"
             />
           </div>
           <div>
-            <label className={LABEL_CLASS}>Answer</label>
+            <label className="text-label block mb-1" style={LABEL_STYLE}>Answer</label>
             <textarea
               value={qa.answer}
               onChange={(e) => updateQuestion(index, 'answer', e.target.value)}
-              className={INPUT_CLASS}
+              className="input-field"
               rows={3}
               placeholder="Enter answer"
             />
@@ -567,41 +649,41 @@ function HowToSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Guide Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Guide Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="How-to guide title"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Brief description"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Total Time (ISO 8601)</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Total Time (ISO 8601)</label>
         <input
           type="text"
           value={schema.totalTime || ''}
           onChange={(e) => onChange({ ...schema, totalTime: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="e.g., PT30M (30 minutes)"
         />
       </div>
 
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <h4 className="font-medium text-gray-900 dark:text-gray-100">Steps</h4>
+          <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>Steps</h4>
           <button
             type="button"
             onClick={addStep}
@@ -612,23 +694,23 @@ function HowToSchemaForm({
         </div>
 
         {(schema.step || []).map((step, index) => (
-          <div key={index} className={CARD_CLASS}>
+          <div key={index} style={ITEM_CARD_STYLE}>
             <div>
-              <label className={LABEL_CLASS}>Step {index + 1} Name</label>
+              <label className="text-label block mb-1" style={LABEL_STYLE}>Step {index + 1} Name</label>
               <input
                 type="text"
                 value={step.name}
                 onChange={(e) => updateStep(index, 'name', e.target.value)}
-                className={INPUT_CLASS}
+                className="input-field"
                 placeholder="Step name"
               />
             </div>
             <div>
-              <label className={LABEL_CLASS}>Instructions</label>
+              <label className="text-label block mb-1" style={LABEL_STYLE}>Instructions</label>
               <textarea
                 value={step.text}
                 onChange={(e) => updateStep(index, 'text', e.target.value)}
-                className={INPUT_CLASS}
+                className="input-field"
                 rows={2}
                 placeholder="Step instructions"
               />
@@ -658,67 +740,67 @@ function VideoSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Video Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Video Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Video title"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Video description"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Thumbnail URL</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Thumbnail URL</label>
         <input
           type="text"
           value={schema.thumbnailUrl || ''}
           onChange={(e) => onChange({ ...schema, thumbnailUrl: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="https://example.com/thumbnail.jpg"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Duration (ISO 8601)</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Duration (ISO 8601)</label>
         <input
           type="text"
           value={schema.duration || ''}
           onChange={(e) => onChange({ ...schema, duration: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="e.g., PT4M35S (4 minutes 35 seconds)"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Embed URL</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Embed URL</label>
         <input
           type="text"
           value={schema.embedUrl || ''}
           onChange={(e) => onChange({ ...schema, embedUrl: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="https://www.youtube.com/embed/VIDEO_ID"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Upload Date</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Upload Date</label>
         <input
           type="date"
           value={schema.uploadDate || ''}
           onChange={(e) => onChange({ ...schema, uploadDate: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
         />
       </div>
     </div>
@@ -736,22 +818,22 @@ function ProductSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Product Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Product Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Product name"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Product description"
         />
@@ -759,18 +841,18 @@ function ProductSchemaForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>SKU</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>SKU</label>
           <input
             type="text"
             value={schema.sku || ''}
             onChange={(e) => onChange({ ...schema, sku: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="SKU"
           />
         </div>
 
         <div>
-          <label className={LABEL_CLASS}>Brand</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Brand</label>
           <input
             type="text"
             value={schema.brand?.name || ''}
@@ -778,18 +860,18 @@ function ProductSchemaForm({
               ...schema, 
               brand: { name: e.target.value }
             })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="Brand name"
           />
         </div>
       </div>
 
-      <div className={SECTION_CLASS}>
-        <h4 className="font-medium text-gray-900 dark:text-gray-100">Pricing & Availability</h4>
+      <div style={SECTION_STYLE}>
+        <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>Pricing & Availability</h4>
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={LABEL_CLASS}>Price</label>
+            <label className="text-label block mb-1" style={LABEL_STYLE}>Price</label>
             <input
               type="number"
               value={schema.offers?.price || ''}
@@ -801,14 +883,14 @@ function ProductSchemaForm({
                   priceCurrency: schema.offers?.priceCurrency || 'USD'
                 } as ProductSchema['offers']
               })}
-              className={INPUT_CLASS}
+              className="input-field"
               placeholder="0.00"
               step="0.01"
             />
           </div>
 
           <div>
-            <label className={LABEL_CLASS}>Currency</label>
+            <label className="text-label block mb-1" style={LABEL_STYLE}>Currency</label>
             <input
               type="text"
               value={schema.offers?.priceCurrency || 'USD'}
@@ -819,39 +901,37 @@ function ProductSchemaForm({
                   priceCurrency: e.target.value
                 } as ProductSchema['offers']
               })}
-              className={INPUT_CLASS}
+              className="input-field"
               placeholder="USD"
             />
           </div>
         </div>
 
-        <div>
-          <label className={LABEL_CLASS}>Availability</label>
-          <select
-            value={schema.offers?.availability || 'InStock'}
-            onChange={(e) => onChange({ 
-              ...schema, 
-              offers: { 
-                ...schema.offers,
-                availability: e.target.value as 'InStock' | 'OutOfStock' | 'PreOrder' | 'BackOrder'
-              } as ProductSchema['offers']
-            })}
-            className={INPUT_CLASS}
-          >
-            <option value="InStock">In Stock</option>
-            <option value="OutOfStock">Out of Stock</option>
-            <option value="PreOrder">Pre-Order</option>
-            <option value="BackOrder">Back Order</option>
-          </select>
-        </div>
+        <Select
+          label="Availability"
+          value={schema.offers?.availability || 'InStock'}
+          onChange={(value) => onChange({
+            ...schema,
+            offers: {
+              ...schema.offers,
+              availability: value as 'InStock' | 'OutOfStock' | 'PreOrder' | 'BackOrder'
+            } as ProductSchema['offers']
+          })}
+          options={[
+            { value: 'InStock', label: 'In Stock' },
+            { value: 'OutOfStock', label: 'Out of Stock' },
+            { value: 'PreOrder', label: 'Pre-Order' },
+            { value: 'BackOrder', label: 'Back Order' },
+          ]}
+        />
       </div>
 
-      <div className={SECTION_CLASS}>
-        <h4 className="font-medium text-gray-900 dark:text-gray-100">Rating</h4>
+      <div style={SECTION_STYLE}>
+        <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>Rating</h4>
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={LABEL_CLASS}>Rating Value</label>
+            <label className="text-label block mb-1" style={LABEL_STYLE}>Rating Value</label>
             <input
               type="number"
               value={schema.aggregateRating?.ratingValue || ''}
@@ -863,7 +943,7 @@ function ProductSchemaForm({
                   reviewCount: schema.aggregateRating?.reviewCount || 0
                 }
               })}
-              className={INPUT_CLASS}
+              className="input-field"
               placeholder="4.5"
               min="0"
               max="5"
@@ -872,7 +952,7 @@ function ProductSchemaForm({
           </div>
 
           <div>
-            <label className={LABEL_CLASS}>Review Count</label>
+            <label className="text-label block mb-1" style={LABEL_STYLE}>Review Count</label>
             <input
               type="number"
               value={schema.aggregateRating?.reviewCount || ''}
@@ -884,7 +964,7 @@ function ProductSchemaForm({
                   reviewCount: parseInt(e.target.value)
                 }
               })}
-              className={INPUT_CLASS}
+              className="input-field"
               placeholder="0"
               min="0"
             />
@@ -906,22 +986,22 @@ function EventSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Event Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Event Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Event name"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Event description"
         />
@@ -929,52 +1009,48 @@ function EventSchemaForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Start Date</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Start Date</label>
           <input
             type="datetime-local"
             value={schema.startDate || ''}
             onChange={(e) => onChange({ ...schema, startDate: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
           />
         </div>
 
         <div>
-          <label className={LABEL_CLASS}>End Date</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>End Date</label>
           <input
             type="datetime-local"
             value={schema.endDate || ''}
             onChange={(e) => onChange({ ...schema, endDate: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
           />
         </div>
       </div>
 
-      <div>
-        <label className={LABEL_CLASS}>Event Status</label>
-        <select
-          value={schema.eventStatus || 'EventScheduled'}
-          onChange={(e) => onChange({ ...schema, eventStatus: e.target.value as EventSchema['eventStatus'] })}
-          className={INPUT_CLASS}
-        >
-          <option value="EventScheduled">Scheduled</option>
-          <option value="EventCancelled">Cancelled</option>
-          <option value="EventPostponed">Postponed</option>
-          <option value="EventRescheduled">Rescheduled</option>
-        </select>
-      </div>
+      <Select
+        label="Event Status"
+        value={schema.eventStatus || 'EventScheduled'}
+        onChange={(value) => onChange({ ...schema, eventStatus: value as EventSchema['eventStatus'] })}
+        options={[
+          { value: 'EventScheduled', label: 'Scheduled' },
+          { value: 'EventCancelled', label: 'Cancelled' },
+          { value: 'EventPostponed', label: 'Postponed' },
+          { value: 'EventRescheduled', label: 'Rescheduled' },
+        ]}
+      />
 
-      <div>
-        <label className={LABEL_CLASS}>Attendance Mode</label>
-        <select
-          value={schema.eventAttendanceMode || 'OfflineEventAttendanceMode'}
-          onChange={(e) => onChange({ ...schema, eventAttendanceMode: e.target.value as EventSchema['eventAttendanceMode'] })}
-          className={INPUT_CLASS}
-        >
-          <option value="OfflineEventAttendanceMode">In-Person</option>
-          <option value="OnlineEventAttendanceMode">Online</option>
-          <option value="MixedEventAttendanceMode">Hybrid</option>
-        </select>
-      </div>
+      <Select
+        label="Attendance Mode"
+        value={schema.eventAttendanceMode || 'OfflineEventAttendanceMode'}
+        onChange={(value) => onChange({ ...schema, eventAttendanceMode: value as EventSchema['eventAttendanceMode'] })}
+        options={[
+          { value: 'OfflineEventAttendanceMode', label: 'In-Person' },
+          { value: 'OnlineEventAttendanceMode', label: 'Online' },
+          { value: 'MixedEventAttendanceMode', label: 'Hybrid' },
+        ]}
+      />
     </div>
   );
 }
@@ -1030,22 +1106,22 @@ function RecipeSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Recipe Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Recipe Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Recipe name"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Recipe description"
         />
@@ -1053,34 +1129,34 @@ function RecipeSchemaForm({
 
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Prep Time</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Prep Time</label>
           <input
             type="text"
             value={schema.prepTime || ''}
             onChange={(e) => onChange({ ...schema, prepTime: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="PT15M"
           />
         </div>
 
         <div>
-          <label className={LABEL_CLASS}>Cook Time</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Cook Time</label>
           <input
             type="text"
             value={schema.cookTime || ''}
             onChange={(e) => onChange({ ...schema, cookTime: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="PT30M"
           />
         </div>
 
         <div>
-          <label className={LABEL_CLASS}>Yield</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Yield</label>
           <input
             type="text"
             value={schema.recipeYield || ''}
             onChange={(e) => onChange({ ...schema, recipeYield: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="4 servings"
           />
         </div>
@@ -1088,7 +1164,7 @@ function RecipeSchemaForm({
 
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <h4 className="font-medium text-gray-900 dark:text-gray-100">Ingredients</h4>
+          <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>Ingredients</h4>
           <button
             type="button"
             onClick={addIngredient}
@@ -1099,20 +1175,22 @@ function RecipeSchemaForm({
         </div>
 
         {(schema.recipeIngredient || []).map((ingredient, index) => (
-          <div key={index} className="flex gap-2 items-center">
+          <div key={index} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <input
               type="text"
               value={ingredient}
               onChange={(e) => updateIngredient(index, e.target.value)}
-              className="flex-1 px-3 py-2 border rounded-lg"
+              className="input-field"
+              style={{ flex: 1 }}
               placeholder="e.g., 2 cups flour"
             />
             <button
               type="button"
               onClick={() => removeIngredient(index)}
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-2 transition-colors"
+              className="admin-btn admin-btn-danger admin-btn-sm"
+              style={{ flexShrink: 0 }}
             >
-              ✕
+              <TrashIcon className="w-3.5 h-3.5" />
             </button>
           </div>
         ))}
@@ -1120,7 +1198,7 @@ function RecipeSchemaForm({
 
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <h4 className="font-medium text-gray-900 dark:text-gray-100">Instructions</h4>
+          <h4 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>Instructions</h4>
           <button
             type="button"
             onClick={addInstruction}
@@ -1131,13 +1209,13 @@ function RecipeSchemaForm({
         </div>
 
         {(schema.recipeInstructions || []).map((instruction, index) => (
-          <div key={index} className={CARD_CLASS}>
+          <div key={index} style={ITEM_CARD_STYLE}>
             <div>
-              <label className={LABEL_CLASS}>Step {index + 1}</label>
+              <label className="text-label block mb-1" style={LABEL_STYLE}>Step {index + 1}</label>
               <textarea
                 value={instruction.text}
                 onChange={(e) => updateInstruction(index, 'text', e.target.value)}
-                className={INPUT_CLASS}
+                className="input-field"
                 rows={2}
                 placeholder="Instruction text"
               />
@@ -1167,51 +1245,51 @@ function ServiceSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Service Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Service Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Service name"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Service description"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Service Type</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Service Type</label>
         <input
           type="text"
           value={schema.serviceType || ''}
           onChange={(e) => onChange({ ...schema, serviceType: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="e.g., Web Development, Consulting"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Area Served</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Area Served</label>
         <input
           type="text"
           value={schema.areaServed || ''}
           onChange={(e) => onChange({ ...schema, areaServed: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="e.g., United States, Global"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Provider Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Provider Name</label>
         <input
           type="text"
           value={schema.provider?.name || ''}
@@ -1219,7 +1297,7 @@ function ServiceSchemaForm({
             ...schema, 
             provider: { ...schema.provider, name: e.target.value }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Company or person providing the service"
         />
       </div>
@@ -1238,29 +1316,29 @@ function CourseSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Course Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Course Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Course name"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Course description"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Provider Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Provider Name</label>
         <input
           type="text"
           value={schema.provider?.name || ''}
@@ -1268,29 +1346,29 @@ function CourseSchemaForm({
             ...schema, 
             provider: { ...schema.provider, name: e.target.value }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Institution or organization"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Course Code</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Course Code</label>
         <input
           type="text"
           value={schema.courseCode || ''}
           onChange={(e) => onChange({ ...schema, courseCode: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="e.g., CS101"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Credential Awarded</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Credential Awarded</label>
         <input
           type="text"
           value={schema.educationalCredentialAwarded || ''}
           onChange={(e) => onChange({ ...schema, educationalCredentialAwarded: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="e.g., Certificate, Diploma"
         />
       </div>
@@ -1309,22 +1387,22 @@ function JobPostingSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Job Title</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Job Title</label>
         <input
           type="text"
           value={schema.title || ''}
           onChange={(e) => onChange({ ...schema, title: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Job title"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={3}
           placeholder="Job description"
         />
@@ -1332,44 +1410,42 @@ function JobPostingSchemaForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Date Posted</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Date Posted</label>
           <input
             type="date"
             value={schema.datePosted || ''}
             onChange={(e) => onChange({ ...schema, datePosted: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
           />
         </div>
 
         <div>
-          <label className={LABEL_CLASS}>Valid Through</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Valid Through</label>
           <input
             type="date"
             value={schema.validThrough || ''}
             onChange={(e) => onChange({ ...schema, validThrough: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
           />
         </div>
       </div>
 
-      <div>
-        <label className={LABEL_CLASS}>Employment Type</label>
-        <select
-          value={schema.employmentType || ''}
-          onChange={(e) => onChange({ ...schema, employmentType: e.target.value })}
-          className={INPUT_CLASS}
-        >
-          <option value="">Select type...</option>
-          <option value="FULL_TIME">Full Time</option>
-          <option value="PART_TIME">Part Time</option>
-          <option value="CONTRACTOR">Contractor</option>
-          <option value="TEMPORARY">Temporary</option>
-          <option value="INTERN">Intern</option>
-        </select>
-      </div>
+      <Select
+        label="Employment Type"
+        value={Array.isArray(schema.employmentType) ? schema.employmentType[0] || '' : schema.employmentType || ''}
+        onChange={(value) => onChange({ ...schema, employmentType: value })}
+        placeholder="Select type..."
+        options={[
+          { value: 'FULL_TIME', label: 'Full Time' },
+          { value: 'PART_TIME', label: 'Part Time' },
+          { value: 'CONTRACTOR', label: 'Contractor' },
+          { value: 'TEMPORARY', label: 'Temporary' },
+          { value: 'INTERN', label: 'Intern' },
+        ]}
+      />
 
       <div>
-        <label className={LABEL_CLASS}>Hiring Organization</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Hiring Organization</label>
         <input
           type="text"
           value={schema.hiringOrganization?.name || ''}
@@ -1377,7 +1453,7 @@ function JobPostingSchemaForm({
             ...schema, 
             hiringOrganization: { ...schema.hiringOrganization, name: e.target.value }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Company name"
         />
       </div>
@@ -1395,36 +1471,34 @@ function SoftwareApplicationSchemaForm({
 }) {
   return (
     <div className="space-y-4">
-      <div>
-        <label className={LABEL_CLASS}>Application Type</label>
-        <select
-          value={schema.type}
-          onChange={(e) => onChange({ ...schema, type: e.target.value as SoftwareApplicationSchema['type'] })}
-          className={INPUT_CLASS}
-        >
-          <option value="SoftwareApplication">Software Application</option>
-          <option value="MobileApplication">Mobile Application</option>
-          <option value="WebApplication">Web Application</option>
-        </select>
-      </div>
+      <Select
+        label="Application Type"
+        value={schema.type}
+        onChange={(value) => onChange({ ...schema, type: value as SoftwareApplicationSchema['type'] })}
+        options={[
+          { value: 'SoftwareApplication', label: 'Software Application' },
+          { value: 'MobileApplication', label: 'Mobile Application' },
+          { value: 'WebApplication', label: 'Web Application' },
+        ]}
+      />
 
       <div>
-        <label className={LABEL_CLASS}>Application Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Application Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Application name"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Application description"
         />
@@ -1432,42 +1506,42 @@ function SoftwareApplicationSchemaForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Category</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Category</label>
           <input
             type="text"
             value={schema.applicationCategory || ''}
             onChange={(e) => onChange({ ...schema, applicationCategory: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="e.g., Productivity"
           />
         </div>
 
         <div>
-          <label className={LABEL_CLASS}>Version</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Version</label>
           <input
             type="text"
             value={schema.softwareVersion || ''}
             onChange={(e) => onChange({ ...schema, softwareVersion: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="e.g., 1.0.0"
           />
         </div>
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Operating System</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Operating System</label>
         <input
           type="text"
           value={schema.operatingSystem || ''}
           onChange={(e) => onChange({ ...schema, operatingSystem: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="e.g., Windows, macOS, iOS, Android"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Price</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Price</label>
           <input
             type="text"
             value={schema.offers?.price || ''}
@@ -1475,18 +1549,18 @@ function SoftwareApplicationSchemaForm({
               ...schema, 
               offers: { ...schema.offers, price: e.target.value }
             })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="0 or Free"
           />
         </div>
 
         <div>
-          <label className={LABEL_CLASS}>File Size</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>File Size</label>
           <input
             type="text"
             value={schema.fileSize || ''}
             onChange={(e) => onChange({ ...schema, fileSize: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="e.g., 50MB"
           />
         </div>
@@ -1506,7 +1580,7 @@ function ReviewSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Item Being Reviewed</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Item Being Reviewed</label>
         <input
           type="text"
           value={schema.itemReviewed?.name || ''}
@@ -1514,13 +1588,13 @@ function ReviewSchemaForm({
             ...schema, 
             itemReviewed: { ...schema.itemReviewed, name: e.target.value }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Product, service, or item name"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Item Type</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Item Type</label>
         <input
           type="text"
           value={schema.itemReviewed?.type || ''}
@@ -1528,13 +1602,13 @@ function ReviewSchemaForm({
             ...schema, 
             itemReviewed: { ...schema.itemReviewed, type: e.target.value }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="e.g., Product, Service, Book"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Rating (1-5)</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Rating (1-5)</label>
         <input
           type="number"
           value={schema.reviewRating?.ratingValue || ''}
@@ -1542,7 +1616,7 @@ function ReviewSchemaForm({
             ...schema, 
             reviewRating: { ...schema.reviewRating, ratingValue: parseFloat(e.target.value) }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="5"
           min="1"
           max="5"
@@ -1551,7 +1625,7 @@ function ReviewSchemaForm({
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Author Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Author Name</label>
         <input
           type="text"
           value={schema.author?.name || ''}
@@ -1559,29 +1633,29 @@ function ReviewSchemaForm({
             ...schema, 
             author: { name: e.target.value }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Reviewer name"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Review Text</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Review Text</label>
         <textarea
           value={schema.reviewBody || ''}
           onChange={(e) => onChange({ ...schema, reviewBody: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={3}
           placeholder="Review content"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Date Published</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Date Published</label>
         <input
           type="date"
           value={schema.datePublished || ''}
           onChange={(e) => onChange({ ...schema, datePublished: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
         />
       </div>
     </div>
@@ -1600,33 +1674,33 @@ function QuizSchemaForm({
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Quiz Name</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Quiz Name</label>
           <input
             type="text"
             value={schema.name || ''}
             onChange={(e) => onChange({ ...schema, name: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="Quiz Title"
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Educational Level</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Educational Level</label>
           <input
             type="text"
             value={schema.educationalLevel || ''}
             onChange={(e) => onChange({ ...schema, educationalLevel: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="All levels"
           />
         </div>
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Describe what the quiz is about"
         />
@@ -1634,40 +1708,43 @@ function QuizSchemaForm({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Time Required (e.g., PT2M)</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Time Required (e.g., PT2M)</label>
           <input
             type="text"
             value={schema.timeRequired || ''}
             onChange={(e) => onChange({ ...schema, timeRequired: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="PT2M"
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Number of Questions</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Number of Questions</label>
           <input
             type="number"
             value={schema.numberOfQuestions || ''}
             onChange={(e) => onChange({ ...schema, numberOfQuestions: parseInt(e.target.value) || undefined })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="10"
           />
         </div>
         <div className="flex items-end">
-          <label className="flex items-center gap-2">
+          <label
+            className="flex items-center gap-2"
+            style={{ cursor: 'pointer', fontSize: '13px', color: 'var(--color-text-secondary)' }}
+          >
             <input
               type="checkbox"
               checked={schema.isAccessibleForFree ?? true}
               onChange={(e) => onChange({ ...schema, isAccessibleForFree: e.target.checked })}
-              className="rounded"
+              style={{ borderRadius: 'var(--radius-sm)' }}
             />
-            <span className="text-sm">Free to access</span>
+            Free to access
           </label>
         </div>
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Quiz Topic</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Quiz Topic</label>
         <input
           type="text"
           value={typeof schema.about === 'string' ? schema.about : schema.about?.name || ''}
@@ -1675,7 +1752,7 @@ function QuizSchemaForm({
             ...schema, 
             about: e.target.value
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Quiz topic or subject"
         />
       </div>
@@ -1694,7 +1771,7 @@ function QAPageSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Question</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Question</label>
         <input
           type="text"
           value={schema.mainEntity?.name || ''}
@@ -1702,13 +1779,13 @@ function QAPageSchemaForm({
             ...schema, 
             mainEntity: { ...schema.mainEntity, type: 'Question', name: e.target.value }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="What is the main question being answered?"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Accepted Answer</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Accepted Answer</label>
         <textarea
           value={schema.mainEntity?.acceptedAnswer?.text || ''}
           onChange={(e) => onChange({ 
@@ -1720,7 +1797,7 @@ function QAPageSchemaForm({
               acceptedAnswer: { type: 'Answer', text: e.target.value }
             }
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={3}
           placeholder="The best answer to the question"
         />
@@ -1741,44 +1818,44 @@ function ContactPageSchemaForm({
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Organization Name</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Organization Name</label>
           <input
             type="text"
             value={schema.name || ''}
             onChange={(e) => onChange({ ...schema, name: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder={seoConfig.siteName}
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Phone Number</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Phone Number</label>
           <input
             type="tel"
             value={schema.telephone || ''}
             onChange={(e) => onChange({ ...schema, telephone: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="+1-555-123-4567"
           />
         </div>
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Email</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Email</label>
         <input
           type="email"
           value={schema.email || ''}
           onChange={(e) => onChange({ ...schema, email: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="contact@example.com"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Brief description of the contact page"
         />
@@ -1798,34 +1875,34 @@ function AboutPageSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Organization/Person Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Organization/Person Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder={seoConfig.siteName}
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={3}
           placeholder="Brief description about the organization"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Founding Date</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Founding Date</label>
         <input
           type="text"
           value={schema.foundingDate || ''}
           onChange={(e) => onChange({ ...schema, foundingDate: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="YYYY or YYYY-MM-DD"
         />
       </div>
@@ -1845,40 +1922,40 @@ function ProfilePageSchemaForm({
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Person Name</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Person Name</label>
           <input
             type="text"
             value={schema.name || ''}
             onChange={(e) => onChange({ ...schema, name: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="John Doe"
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Job Title</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Job Title</label>
           <input
             type="text"
             value={schema.jobTitle || ''}
             onChange={(e) => onChange({ ...schema, jobTitle: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="Software Engineer"
           />
         </div>
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Bio/Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Bio/Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={3}
           placeholder="Brief bio about the person"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Social Media Links (comma-separated)</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Social Media Links (comma-separated)</label>
         <input
           type="text"
           value={schema.sameAs?.join(', ') || ''}
@@ -1886,7 +1963,7 @@ function ProfilePageSchemaForm({
             ...schema, 
             sameAs: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="https://twitter.com/username, https://linkedin.com/in/username"
         />
       </div>
@@ -1905,33 +1982,33 @@ function LiveBlogPostingSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Headline</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Headline</label>
         <input
           type="text"
           value={schema.headline || ''}
           onChange={(e) => onChange({ ...schema, headline: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Live Coverage: Event Name"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Coverage Start Time</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Coverage Start Time</label>
           <input
             type="datetime-local"
             value={schema.coverageStartTime || ''}
             onChange={(e) => onChange({ ...schema, coverageStartTime: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Coverage End Time</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Coverage End Time</label>
           <input
             type="datetime-local"
             value={schema.coverageEndTime || ''}
             onChange={(e) => onChange({ ...schema, coverageEndTime: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
           />
         </div>
       </div>
@@ -1950,44 +2027,42 @@ function MedicalWebPageSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Page Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Page Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Medical/Health Page Title"
         />
       </div>
 
-      <div>
-        <label className={LABEL_CLASS}>Medical Aspect</label>
-        <select
-          value={schema.aspect || ''}
-          onChange={(e) => onChange({ ...schema, aspect: e.target.value })}
-          className={INPUT_CLASS}
-        >
-          <option value="">Select aspect...</option>
-          <option value="Symptoms">Symptoms</option>
-          <option value="Diagnosis">Diagnosis</option>
-          <option value="Treatment">Treatment</option>
-          <option value="Prevention">Prevention</option>
-          <option value="Causes">Causes</option>
-        </select>
-      </div>
+      <Select
+        label="Medical Aspect"
+        value={schema.aspect || ''}
+        onChange={(value) => onChange({ ...schema, aspect: value })}
+        placeholder="Select aspect..."
+        options={[
+          { value: 'Symptoms', label: 'Symptoms' },
+          { value: 'Diagnosis', label: 'Diagnosis' },
+          { value: 'Treatment', label: 'Treatment' },
+          { value: 'Prevention', label: 'Prevention' },
+          { value: 'Causes', label: 'Causes' },
+        ]}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Last Reviewed Date</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Last Reviewed Date</label>
           <input
             type="date"
             value={schema.lastReviewed || ''}
             onChange={(e) => onChange({ ...schema, lastReviewed: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Reviewed By</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Reviewed By</label>
           <input
             type="text"
             value={schema.reviewedBy?.name || ''}
@@ -1995,7 +2070,7 @@ function MedicalWebPageSchemaForm({
               ...schema, 
               reviewedBy: { name: e.target.value, type: 'Person' }
             })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="Dr. Jane Doe"
           />
         </div>
@@ -2015,22 +2090,22 @@ function SpecialAnnouncementSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Announcement Title</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Announcement Title</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Important Update"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Announcement Text</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Announcement Text</label>
         <textarea
           value={schema.text || ''}
           onChange={(e) => onChange({ ...schema, text: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={3}
           placeholder="Details of the announcement"
         />
@@ -2038,27 +2113,27 @@ function SpecialAnnouncementSchemaForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Date Posted</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Date Posted</label>
           <input
             type="datetime-local"
             value={schema.datePosted || ''}
             onChange={(e) => onChange({ ...schema, datePosted: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Expires</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Expires</label>
           <input
             type="datetime-local"
             value={schema.expires || ''}
             onChange={(e) => onChange({ ...schema, expires: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
           />
         </div>
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Spatial Coverage (comma-separated)</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Spatial Coverage (comma-separated)</label>
         <input
           type="text"
           value={Array.isArray(schema.spatialCoverage) ? schema.spatialCoverage.join(', ') : schema.spatialCoverage || ''}
@@ -2068,7 +2143,7 @@ function SpecialAnnouncementSchemaForm({
               ? e.target.value.split(',').map(s => s.trim()).filter(Boolean)
               : e.target.value
           })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="USA, Canada, Europe"
         />
       </div>
@@ -2087,22 +2162,22 @@ function DatasetSchemaForm({
   return (
     <div className="space-y-4">
       <div>
-        <label className={LABEL_CLASS}>Dataset Name</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Dataset Name</label>
         <input
           type="text"
           value={schema.name || ''}
           onChange={(e) => onChange({ ...schema, name: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           placeholder="Dataset Title"
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className="text-label block mb-1" style={LABEL_STYLE}>Description</label>
         <textarea
           value={schema.description || ''}
           onChange={(e) => onChange({ ...schema, description: e.target.value })}
-          className={INPUT_CLASS}
+          className="input-field"
           rows={2}
           placeholder="Brief description of the dataset"
         />
@@ -2110,22 +2185,22 @@ function DatasetSchemaForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Temporal Coverage</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>Temporal Coverage</label>
           <input
             type="text"
             value={schema.temporalCoverage || ''}
             onChange={(e) => onChange({ ...schema, temporalCoverage: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="2020/2024 or 2020-01-01/2024-12-31"
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>License</label>
+          <label className="text-label block mb-1" style={LABEL_STYLE}>License</label>
           <input
             type="text"
             value={schema.license || ''}
             onChange={(e) => onChange({ ...schema, license: e.target.value })}
-            className={INPUT_CLASS}
+            className="input-field"
             placeholder="CC-BY-4.0, MIT, etc."
           />
         </div>
@@ -2143,9 +2218,9 @@ function GenericSchemaForm({
   onChange: (schema: PageSchema) => void;
 }) {
   return (
-    <div className="text-sm text-gray-600 dark:text-gray-400">
-      <p>This schema type is automatically generated based on page content.</p>
-      <p className="mt-2">No additional configuration needed.</p>
+    <div style={{ fontSize: '13px', color: 'var(--color-text-tertiary)' }}>
+      <p style={{ margin: '0 0 8px' }}>This schema type is automatically generated based on page content.</p>
+      <p style={{ margin: 0 }}>No additional configuration needed.</p>
     </div>
   );
 }

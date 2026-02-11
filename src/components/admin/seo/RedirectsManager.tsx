@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import AdminBanner from '@/components/admin/ui/AdminBanner';
+import AdminButton from '@/components/admin/ui/AdminButton';
+import { Select } from '@/components/admin/ui/Select';
 
 interface Redirect {
   from: string;
@@ -101,243 +104,185 @@ export default function RedirectsManager() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
-            Loading redirects...
-          </p>
-        </div>
+      <div className="flex flex-col gap-4">
+        <div className="skeleton" style={{ width: '100%', height: '40px', borderRadius: 'var(--radius-lg)' }} />
+        <div className="skeleton" style={{ height: '300px', borderRadius: 'var(--radius-xl, 16px)' }} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-h3" style={{ color: 'var(--color-text-primary)' }}>
-            URL Redirects
-          </h3>
-          <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-            Manage URL redirects for changed or moved content
-          </p>
-        </div>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="btn btn-primary"
+    <div className="flex flex-col gap-5">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-3">
+        <span style={{ color: 'var(--color-text-tertiary)', fontSize: '13px' }}>
+          {redirects.length} {redirects.length === 1 ? 'redirect' : 'redirects'}
+        </span>
+        <AdminButton
+          size="sm"
+          onClick={() => { setShowAddForm(!showAddForm); setError(''); setSuccess(''); }}
         >
           {showAddForm ? 'Cancel' : '+ Add Redirect'}
-        </button>
+        </AdminButton>
       </div>
 
       {/* Status Messages */}
-      {error && (
-        <div className="alert alert-error">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="alert alert-success">
-          {success}
-        </div>
-      )}
+      {error && <AdminBanner variant="error">{error}</AdminBanner>}
+      {success && <AdminBanner variant="success">{success}</AdminBanner>}
 
-      {/* Add Redirect Form */}
+      {/* Add Form */}
       {showAddForm && (
-        <form onSubmit={handleAddRedirect} className="p-4 rounded-lg space-y-4" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-label block mb-2">From URL *</label>
-              <input
-                type="text"
-                value={newRedirect.from || ''}
-                onChange={(e) => setNewRedirect({ ...newRedirect, from: e.target.value })}
-                className="input-field"
-                placeholder="/old-url"
-                required
-              />
+        <form onSubmit={handleAddRedirect} className="dash-card" style={{ padding: '16px 20px' }}>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <label className="text-label block mb-1">From</label>
+                <input
+                  type="text"
+                  value={newRedirect.from || ''}
+                  onChange={(e) => setNewRedirect({ ...newRedirect, from: e.target.value })}
+                  className="input-field"
+                  placeholder="/old-page"
+                  required
+                  autoFocus
+                />
+              </div>
+              <div
+                className="hidden sm:flex items-end pb-2"
+                style={{ color: 'var(--color-text-disabled)', fontSize: '16px' }}
+              >
+                &rarr;
+              </div>
+              <div className="flex-1">
+                <label className="text-label block mb-1">To</label>
+                <input
+                  type="text"
+                  value={newRedirect.to || ''}
+                  onChange={(e) => setNewRedirect({ ...newRedirect, to: e.target.value })}
+                  className="input-field"
+                  placeholder="/new-page"
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <label className="text-label block mb-2">To URL *</label>
-              <input
-                type="text"
-                value={newRedirect.to || ''}
-                onChange={(e) => setNewRedirect({ ...newRedirect, to: e.target.value })}
-                className="input-field"
-                placeholder="/new-url"
-                required
-              />
+            <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3">
+              <div style={{ width: '200px' }}>
+                <Select
+                  label="Type"
+                  value={newRedirect.permanent ? 'permanent' : 'temporary'}
+                  onChange={(value) => setNewRedirect({ ...newRedirect, permanent: value === 'permanent' })}
+                  size="sm"
+                  options={[
+                    { value: 'permanent', label: '308 Permanent' },
+                    { value: 'temporary', label: '307 Temporary' },
+                  ]}
+                />
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <AdminButton
+                  variant="secondary"
+                  size="sm"
+                  type="button"
+                  className="flex-1 sm:flex-initial"
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setNewRedirect({ from: '', to: '', permanent: true });
+                  }}
+                >
+                  Cancel
+                </AdminButton>
+                <AdminButton size="sm" type="submit" className="flex-1 sm:flex-initial">
+                  Add
+                </AdminButton>
+              </div>
             </div>
-          </div>
-          
-          <div>
-            <label className="text-label block mb-2">Redirect Type</label>
-            <select
-              value={newRedirect.permanent ? 'permanent' : 'temporary'}
-              onChange={(e) => setNewRedirect({ ...newRedirect, permanent: e.target.value === 'permanent' })}
-              className="input-field"
-              style={{ maxWidth: '300px' }}
-            >
-              <option value="permanent">Permanent (308)</option>
-              <option value="temporary">Temporary (307)</option>
-            </select>
-          </div>
-          
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setShowAddForm(false);
-                setNewRedirect({ from: '', to: '', permanent: true });
-              }}
-              className="btn btn-secondary"
-            >
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              Add Redirect
-            </button>
           </div>
         </form>
       )}
 
-      {/* Redirects Table */}
-      <div style={{
-        background: 'var(--color-surface)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--color-border-light)',
-        overflow: 'hidden'
-      }}>
-        {redirects.length === 0 ? (
-          <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
-            <p style={{ color: 'var(--color-text-secondary)' }}>
-              No redirects configured yet.
-            </p>
-            <p style={{ color: 'var(--color-text-tertiary)', fontSize: '14px', marginTop: '8px' }}>
-              Redirects will be automatically created when you change blog post slugs.
-            </p>
-          </div>
-        ) : (
-          <div className="admin-table-wrap">
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--color-border-light)' }}>
-                  <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    From
-                  </th>
-                  <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    To
-                  </th>
-                  <th style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Type
-                  </th>
-                  <th className="mobile-hidden" style={{ padding: 'var(--spacing-md)', textAlign: 'left', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Created
-                  </th>
-                  <th style={{ padding: 'var(--spacing-md)', textAlign: 'right', color: 'var(--color-text-secondary)', fontWeight: '600', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {redirects.map((redirect) => (
-                  <tr key={redirect.from} className="hover-row" style={{ borderBottom: '1px solid var(--color-border-light)' }}>
-                    {/* From path — card headline on mobile */}
-                    <td className="cell-title" style={{ padding: 'var(--spacing-md)' }}>
-                      <code style={{
-                        fontSize: '13px',
-                        fontFamily: 'monospace',
-                        color: 'var(--color-primary)',
-                        background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
-                        padding: '2px 6px',
-                        borderRadius: 'var(--radius-sm)'
-                      }}>
-                        {redirect.from}
-                      </code>
-                    </td>
-                    {/* To path — metadata on mobile */}
-                    <td className="cell-meta" style={{ padding: 'var(--spacing-md)' }}>
-                      <span style={{ color: 'var(--color-text-tertiary)', fontSize: '12px', marginRight: '4px' }}>→</span>
-                      <code style={{
-                        fontSize: '13px',
-                        fontFamily: 'monospace',
-                        color: 'var(--color-success)',
-                        background: 'color-mix(in srgb, var(--color-success) 10%, transparent)',
-                        padding: '2px 6px',
-                        borderRadius: 'var(--radius-sm)'
-                      }}>
-                        {redirect.to}
-                      </code>
-                    </td>
-                    {/* Type badge — metadata on mobile */}
-                    <td className="cell-meta" style={{ padding: 'var(--spacing-md)' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        padding: '4px 8px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        borderRadius: 'var(--radius-full)',
-                        background: redirect.permanent
-                          ? 'color-mix(in srgb, var(--color-primary) 10%, transparent)'
-                          : 'color-mix(in srgb, var(--color-warning) 10%, transparent)',
-                        color: redirect.permanent
-                          ? 'var(--color-primary)'
-                          : 'var(--color-warning)'
-                      }}>
-                        {redirect.permanent ? '308 Permanent' : '307 Temporary'}
-                      </span>
-                    </td>
-                    {/* Created date — desktop only */}
-                    <td className="mobile-hidden" style={{ padding: 'var(--spacing-md)', color: 'var(--color-text-secondary)', fontSize: '14px' }}>
-                      {new Date(redirect.createdAt).toLocaleDateString()}
-                    </td>
-                    {/* Actions */}
-                    <td className="cell-actions" style={{ padding: 'var(--spacing-md)', textAlign: 'right' }}>
-                      <button
-                        onClick={() => handleDeleteRedirect(redirect.from)}
-                        style={{
-                          padding: '6px 12px',
-                          background: 'var(--color-error, #DC2626)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: '14px',
-                          cursor: 'pointer',
-                          transition: 'opacity 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
-                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* Redirects List */}
+      {redirects.length === 0 ? (
+        <div className="dash-card" style={{ padding: '48px 16px', textAlign: 'center' }}>
+          <svg
+            className="mx-auto mb-2"
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            style={{ color: 'var(--color-text-disabled)' }}
+          >
+            <path d="M13 5H1v14h12M17 9l4 4-4 4M7 12h14" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px', margin: '0 0 4px' }}>
+            No redirects configured
+          </p>
+          <p style={{ color: 'var(--color-text-tertiary)', fontSize: '13px', margin: 0 }}>
+            Redirects are auto-created when you change a post slug
+          </p>
+        </div>
+      ) : (
+        <div className="dash-card" style={{ padding: 0 }}>
+          {redirects.map((redirect, i) => (
+            <div
+              key={redirect.from}
+              className="redirects-row"
+              style={{
+                borderBottom: i < redirects.length - 1 ? '1px solid var(--color-border-light)' : undefined,
+              }}
+            >
+              {/* URL pair */}
+              <div className="flex-1 min-w-0">
+                <div className="redirects-urls">
+                  <div className="redirects-url-row">
+                    <span className="redirects-label">From</span>
+                    <code className="redirects-from">{redirect.from}</code>
+                  </div>
+                  <div className="redirects-url-row">
+                    <span className="redirects-label">To</span>
+                    <code className="redirects-to">{redirect.to}</code>
+                  </div>
+                </div>
+                <div className="redirects-meta">
+                  <span className={`pages-type-badge ${redirect.permanent ? 'static' : 'dynamic'}`}>
+                    {redirect.permanent ? '308' : '307'}
+                  </span>
+                  <span style={{ opacity: 0.3 }}>&middot;</span>
+                  <span>{new Date(redirect.createdAt).toLocaleDateString()}</span>
+                  {redirect.reason && (
+                    <>
+                      <span style={{ opacity: 0.3 }}>&middot;</span>
+                      <span>{redirect.reason}</span>
+                    </>
+                  )}
+                </div>
+              </div>
 
-      {/* Help Text */}
-      <div style={{
-        background: 'color-mix(in srgb, var(--color-info) 8%, transparent)',
-        border: '1px solid color-mix(in srgb, var(--color-info) 20%, transparent)',
-        borderRadius: 'var(--radius-lg)',
-        padding: 'var(--spacing-md)'
-      }}>
-        <h4 style={{ fontWeight: '500', color: 'var(--color-text-primary)', marginBottom: '8px' }}>
-          About Redirects
-        </h4>
-        <ul style={{ fontSize: '14px', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <li>• Redirects are automatically created when you change a published blog post&apos;s slug</li>
-          <li>• Use permanent redirects (308) for content that has permanently moved</li>
-          <li>• Use temporary redirects (307) for maintenance or temporary changes</li>
-          <li>• Redirects help preserve SEO rankings and prevent broken links</li>
-        </ul>
-      </div>
+              {/* Delete */}
+              <button
+                className="pages-action-btn danger"
+                onClick={() => handleDeleteRedirect(redirect.from)}
+                title="Delete redirect"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {redirects.length > 0 && (
+        <AdminBanner>
+          <p>
+            Redirects are auto-created when you change a published post&apos;s slug.
+            Use permanent (308) for moved content, temporary (307) for maintenance.
+          </p>
+        </AdminBanner>
+      )}
     </div>
   );
 }

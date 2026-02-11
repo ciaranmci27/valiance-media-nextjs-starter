@@ -10,9 +10,9 @@ interface SearchInputProps {
   className?: string;
 }
 
-export default function SearchInput({ 
-  placeholder = 'Search...', 
-  onSearch, 
+export default function SearchInput({
+  placeholder = 'Search...',
+  onSearch,
   debounceMs = 300,
   className = ''
 }: SearchInputProps) {
@@ -40,24 +40,22 @@ export default function SearchInput({
   }, [onSearch]);
 
   return (
-    <div className={`relative ${className}`}>
-      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-      </div>
+    <div className={`admin-search-wrap ${className}`}>
+      <MagnifyingGlassIcon className="admin-search-icon" aria-hidden="true" />
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
+        className="admin-search-input"
         placeholder={placeholder}
       />
       {query && (
         <button
           type="button"
           onClick={handleClear}
-          className="absolute inset-y-0 right-0 flex items-center pr-3 hover:text-gray-700"
+          className="admin-search-clear"
         >
-          <XMarkIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+          <XMarkIcon className="w-4 h-4" aria-hidden="true" />
         </button>
       )}
     </div>

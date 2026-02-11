@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   // Ensure proper routing on Vercel
   trailingSlash: false,
 
+  // Move dev indicator above fixed sidebar (z-index: 50)
+  devIndicators: false,
+
   // Security and SEO headers
   async headers() {
     return [

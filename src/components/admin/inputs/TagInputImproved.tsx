@@ -217,7 +217,7 @@ export default function TagInputImproved({ tags, onChange, placeholder = 'Type t
           border: 1px solid var(--color-border-medium);
           border-radius: var(--radius-md);
           background: var(--color-surface);
-          min-height: 44px;
+          min-height: 96px;
           align-items: center;
           transition: border-color 0.2s;
         }

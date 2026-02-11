@@ -21,13 +21,13 @@ export function AdminFooter() {
   ];
   
   return (
-    <footer className="relative border-t" style={{ borderColor: 'var(--color-border-light)' }}>
+    <footer className="relative border-t" style={{ borderColor: 'var(--color-border-light)', padding: '16px 0' }}>
       {/* Bottom Section */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '1280px' }}>
         {/* Mobile/Tablet: Stacked Layout */}
-        <div className="lg:hidden">
+        <div className="lg:hidden flex flex-col justify-center items-center gap-3">
           {/* Links */}
-          <div className="flex flex-wrap justify-center items-center gap-3 text-xs sm:text-sm mb-3">
+          <div className="flex flex-wrap justify-center items-center gap-3 text-xs sm:text-sm">
             {bottomLinks.map((link, index) => (
               <React.Fragment key={link.label}>
                 {link.external ? (
@@ -79,7 +79,7 @@ export function AdminFooter() {
           
           {/* Copyright */}
           <div className="text-center sm:text-left">
-            <p className="text-xs sm:text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="text-xs sm:text-sm" style={{ color: 'var(--color-text-secondary)', margin: 0 }}>
               © {currentYear} {seoConfig.siteName || 'Valiance Media'}. All rights reserved.
             </p>
           </div>
@@ -88,7 +88,7 @@ export function AdminFooter() {
         {/* Desktop: Horizontal Layout */}
         <div className="hidden lg:flex lg:justify-between lg:items-center">
           {/* Copyright - Left Side */}
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="text-sm mb-0" style={{ color: 'var(--color-text-secondary)' }}>
             © {currentYear} {seoConfig.siteName || 'Valiance Media'}. All rights reserved.
           </p>
           

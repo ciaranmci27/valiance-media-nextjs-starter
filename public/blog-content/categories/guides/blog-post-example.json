@@ -9,7 +9,7 @@
   },
   "publishedAt": "2024-01-10T09:00:00Z",
   "tags": ["marketing", "campaigns", "landing-pages", "conversion", "analytics"],
-  "image": "/logos/horizontal-logo.png",
+  "image": "/logos/og-default-logo.png",
   "imageAlt": "Marketing campaign dashboard showing conversion metrics and analytics",
   "readingTime": 5,
   "featured": true,
@@ -19,6 +19,6 @@
     "title": "Marketing Campaign Guide - Next.js Boilerplate for High-Converting Landing Pages",
     "description": "Learn how to create effective marketing campaigns with our Next.js boilerplate. Includes landing page optimization, A/B testing, and conversion tracking setup.",
     "keywords": ["marketing campaigns", "landing pages", "conversion optimization", "nextjs", "a/b testing", "analytics"],
-    "image": "/logos/horizontal-logo.png"
+    "image": ""
   }
 } 

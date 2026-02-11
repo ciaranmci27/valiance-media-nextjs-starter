@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import AdminBanner from '@/components/admin/ui/AdminBanner';
+import AdminButton from '@/components/admin/ui/AdminButton';
 
 interface UrlChangeWarningModalProps {
   isOpen: boolean;
@@ -61,10 +63,10 @@ export default function UrlChangeWarningModal({
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-text-primary">
+              <h3 className="text-lg font-semibold text-text-primary mb-0">
                 {isCircularRedirect ? 'Circular Redirect Detected' : 'URL Change Warning'}
               </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 mb-0">
                 {isCircularRedirect 
                   ? 'An existing redirect will be removed'
                   : 'This action will change your post\'s URL'}
@@ -117,63 +119,48 @@ export default function UrlChangeWarningModal({
           </div>
           
           {/* SEO Impact Notice or Circular Redirect Notice */}
-          <div className={`border rounded-lg p-4 ${
-            isCircularRedirect 
-              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-              : 'bg-primary-50 dark:bg-primary-50 border-primary-200 dark:border-gray-700'
-          }`}>
+          <AdminBanner variant={isCircularRedirect ? 'success' : 'info'}>
             <div className="flex gap-3">
-              <svg className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
-                isCircularRedirect 
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-primary-600 dark:text-primary-400'
-              }`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d={isCircularRedirect 
+              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: isCircularRedirect ? 'var(--color-success)' : 'var(--color-primary)' }} fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d={isCircularRedirect
                   ? "M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                   : "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
                 } clipRule="evenodd" />
               </svg>
               <div className="flex-1">
-                <p className={`text-sm font-medium mb-1 ${
-                  isCircularRedirect 
-                    ? 'text-green-900 dark:text-green-100'
-                    : 'text-primary-900 dark:text-primary-400'
-                }`}>
+                <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
                   {isCircularRedirect ? 'Smart Redirect Management' : 'SEO Impact'}
                 </p>
-                <p className={`text-xs leading-relaxed ${
-                  isCircularRedirect 
-                    ? 'text-green-800 dark:text-green-200'
-                    : 'text-primary-800 dark:text-primary-400'
-                }`}>
-                  {isCircularRedirect 
+                <p className="form-hint">
+                  {isCircularRedirect
                     ? 'A redirect from the new URL to the old URL already exists. Removing it will restore the original URL without creating circular redirects, keeping your redirect configuration clean.'
                     : 'Changing URLs can affect search rankings and break bookmarks. A 308 permanent redirect will preserve most SEO value and automatically send visitors to the new URL.'}
                 </p>
               </div>
             </div>
-          </div>
+          </AdminBanner>
         </div>
         
         {/* Actions */}
         <div className="bg-gray-50 dark:bg-gray-900/50 px-6 py-4 flex gap-3">
-          <button
+          <AdminButton
+            variant="secondary"
             type="button"
             onClick={handleNoRedirect}
             disabled={isCreatingRedirect}
-            className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1"
           >
             <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             {isCircularRedirect ? 'Keep Existing Redirect' : 'Skip Redirect'}
-          </button>
-          
-          <button
+          </AdminButton>
+
+          <AdminButton
             type="button"
             onClick={handleCreateRedirect}
             disabled={isCreatingRedirect}
-            className="flex-1 px-4 py-2.5 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1"
           >
             {isCreatingRedirect ? (
               <span className="flex items-center justify-center gap-2">
@@ -191,7 +178,7 @@ export default function UrlChangeWarningModal({
                 {isCircularRedirect ? 'Remove Circular Redirect' : 'Create Redirect'}
               </>
             )}
-          </button>
+          </AdminButton>
         </div>
       </div>
     </div>

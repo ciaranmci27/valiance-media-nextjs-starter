@@ -7,6 +7,8 @@ import { seoConfig } from '@/seo/seo.config';
 import SlugChangeWarningModal from '@/components/admin/modals/SlugChangeWarningModal';
 import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
 import { PageSchema } from '@/components/admin/seo/schema-types';
+import AdminButton from '@/components/admin/ui/AdminButton';
+import AdminBanner from '@/components/admin/ui/AdminBanner';
 
 interface CategoryFormData {
   name: string;
@@ -313,99 +315,79 @@ export default function EditCategoryPage() {
 
   if (isFetching) {
     return (
-      <div className="min-h-screen py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="skeleton" style={{ width: '200px', height: '36px', marginBottom: 'var(--spacing-lg)' }} />
-          <div className="skeleton" style={{ height: '44px', marginBottom: 'var(--spacing-lg)' }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-            <div className="skeleton" style={{ height: '72px', borderRadius: 'var(--radius-lg)' }} />
-            <div className="skeleton" style={{ height: '120px', borderRadius: 'var(--radius-lg)' }} />
-          </div>
+      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+        <div className="hidden md:block">
+          <div className="skeleton" style={{ width: '200px', height: '36px', marginBottom: '8px' }} />
+          <div className="skeleton" style={{ width: '280px', height: '18px' }} />
         </div>
+        <div className="flex gap-2">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="skeleton" style={{ width: '80px', height: '36px', borderRadius: 'var(--radius-full)' }} />
+          ))}
+        </div>
+        <div className="skeleton" style={{ height: '140px', borderRadius: 'var(--radius-xl, 16px)' }} />
+        <div className="skeleton" style={{ height: '200px', borderRadius: 'var(--radius-xl, 16px)' }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        <div style={{ marginBottom: 'var(--spacing-lg)' }}>
-          <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-md)' }}>
-            Edit Category
-          </h1>
-        </div>
+    <div className="max-w-7xl mx-auto flex flex-col gap-6">
+      {/* Header */}
+      <div className="hidden md:block">
+        <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
+          Edit Category
+        </h1>
+        <p className="text-body-lg" style={{ color: 'var(--color-text-secondary)', margin: 0 }}>
+          Editing: {formData.name || 'Untitled Category'}
+        </p>
+      </div>
 
-        {/* Tab Navigation */}
-        <div style={{ 
-          borderBottom: '1px solid var(--color-border-light)',
-          marginBottom: 'var(--spacing-lg)'
-        }}>
-          <div style={{ display: 'flex', gap: '24px' }}>
-            <button
-              type="button"
-              onClick={() => setActiveTab('general')}
-              style={{
-                padding: '12px 0',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === 'general' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                color: activeTab === 'general' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '500',
-                marginBottom: '-1px'
-              }}
-            >
-              General
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('seo')}
-              style={{
-                padding: '12px 0',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === 'seo' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                color: activeTab === 'seo' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '500',
-                marginBottom: '-1px'
-              }}
-            >
-              SEO
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('schema')}
-              style={{
-                padding: '12px 0',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === 'schema' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                color: activeTab === 'schema' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '500',
-                marginBottom: '-1px'
-              }}
-            >
-              Schema
-            </button>
-          </div>
-        </div>
+      {/* Tab Navigation */}
+      <div className="pages-filter-bar animate-fade-up" style={{ animationDelay: '60ms' } as React.CSSProperties}>
+        <button
+          type="button"
+          onClick={() => setActiveTab('general')}
+          className={`pages-filter-pill ${activeTab === 'general' ? 'active' : ''}`}
+        >
+          General
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('seo')}
+          className={`pages-filter-pill ${activeTab === 'seo' ? 'active' : ''}`}
+        >
+          SEO
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('schema')}
+          className={`pages-filter-pill ${activeTab === 'schema' ? 'active' : ''}`}
+        >
+          Schema
+        </button>
+      </div>
 
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
 
-          {/* General Tab */}
-          {activeTab === 'general' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+        {/* General Tab */}
+        {activeTab === 'general' && (
+          <div className="dash-card animate-fade-up" style={{ animationDelay: '120ms' } as React.CSSProperties}>
+            <div className="dash-card-header">
+              <h2 className="dash-card-title">Category Details</h2>
+              <span style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--color-text-tertiary)' }}
+                title={`/blog/${formData.slug || 'category-slug'}`}>
+                /blog/{formData.slug || 'category-slug'}
+              </span>
+            </div>
+
+            <div className="space-y-5">
               {/* Category Name and Slug Row - 70% / 30% split */}
               <div className="form-row form-row-70-30">
                 {/* Category Name - 70% */}
-                <div className="form-group">
-                  <label className="form-label form-label-required">
-                    Category Name
+                <div>
+                  <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                    Category Name *
                   </label>
                   <input
                     type="text"
@@ -415,30 +397,18 @@ export default function EditCategoryPage() {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="e.g., Technology"
+                    style={errors.name ? { borderColor: 'var(--color-error)' } : undefined}
                   />
                   {errors.name && (
-                    <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.name}</p>
+                    <p className="text-sm mt-1" style={{ color: 'var(--color-error)' }}>{errors.name}</p>
                   )}
                 </div>
 
                 {/* Slug - 30% */}
-                <div className="form-group" style={{ minWidth: 0, overflow: 'hidden' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-xs)' }}>
-                    <label className="form-label form-label-required" style={{ marginBottom: 0 }}>
-                      Slug
-                    </label>
-                    <span style={{ 
-                      fontSize: '12px',
-                      fontFamily: 'monospace',
-                      color: 'var(--color-text-tertiary)',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                    title={`/blog/${formData.slug || 'category-slug'}`}>
-                      /blog/{formData.slug || 'category-slug'}
-                    </span>
-                  </div>
+                <div style={{ minWidth: 0 }}>
+                  <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                    Slug *
+                  </label>
                   <input
                     type="text"
                     id="slug"
@@ -447,9 +417,10 @@ export default function EditCategoryPage() {
                     onChange={handleInputChange}
                     className="input-field input-field-mono"
                     placeholder="category-slug"
+                    style={errors.slug ? { borderColor: 'var(--color-error)' } : undefined}
                   />
                   {errors.slug && (
-                    <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.slug}</p>
+                    <p className="text-sm mt-1" style={{ color: 'var(--color-error)' }}>{errors.slug}</p>
                   )}
                   {hasPublishedPosts && formData.slug !== originalSlug && (
                     <p className="text-sm mt-2" style={{ color: 'var(--color-warning)' }}>
@@ -459,8 +430,8 @@ export default function EditCategoryPage() {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">
+              <div>
+                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
                   Description
                 </label>
                 <textarea
@@ -474,26 +445,35 @@ export default function EditCategoryPage() {
                 />
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* SEO Tab */}
-          {activeTab === 'seo' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-              <div className="rounded-lg p-4 mb-6" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}>
-                <p className="text-sm mb-3" style={{ color: 'var(--color-text-secondary)' }}>
-                  You can apply the default category SEO template to quickly fill in the fields below.
-                </p>
-                <button
-                  type="button"
-                  onClick={applySEOTemplate}
-                  className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors text-sm font-medium"
-                >
-                  Apply SEO Template
-                </button>
-              </div>
+        {/* SEO Tab */}
+        {activeTab === 'seo' && (
+          <div className="dash-card animate-fade-up" style={{ animationDelay: '120ms' } as React.CSSProperties}>
+            <div className="dash-card-header">
+              <h2 className="dash-card-title">Search Engine Optimization</h2>
+            </div>
 
-              <div className="form-group">
-                <label className="form-label">
+            <div className="space-y-6">
+              <AdminBanner>
+                <div className="flex items-center justify-between gap-4">
+                  <p className="mb-0">
+                    You can apply the default category SEO template to quickly fill in the fields below.
+                  </p>
+                  <AdminButton
+                    type="button"
+                    size="sm"
+                    onClick={applySEOTemplate}
+                    className="shrink-0"
+                  >
+                    Apply SEO Template
+                  </AdminButton>
+                </div>
+              </AdminBanner>
+
+              <div>
+                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
                   SEO Title
                 </label>
                 <input
@@ -511,8 +491,8 @@ export default function EditCategoryPage() {
                 </p>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">
+              <div>
+                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
                   SEO Description
                 </label>
                 <textarea
@@ -530,8 +510,8 @@ export default function EditCategoryPage() {
                 </p>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">
+              <div>
+                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
                   Keywords
                 </label>
                 <input
@@ -547,74 +527,65 @@ export default function EditCategoryPage() {
                 </p>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Schema Tab */}
-          {activeTab === 'schema' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-              <div className="rounded-lg p-4 mb-6" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}>
-                <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>Structured Data Schema</h3>
-                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                  Configure structured data schemas for this category page. These schemas help search engines understand 
-                  your content and can enable rich snippets in search results.
-                </p>
-              </div>
-              
-              <PageSchemaEditor
-                pageType="category"
-                schemas={formData.schemas || []}
-                onChange={(schemas) => setFormData(prev => ({ ...prev, schemas }))}
-                pageData={{
-                  title: formData.name,
-                  description: formData.description,
-                }}
-              />
+        {/* Schema Tab */}
+        {activeTab === 'schema' && (
+          <div className="dash-card animate-fade-up" style={{ animationDelay: '120ms' } as React.CSSProperties}>
+            <div className="dash-card-header">
+              <h2 className="dash-card-title">Structured Data Schema</h2>
             </div>
-          )}
 
-          {/* Error message */}
-          {errors.submit && (
-            <div className="mt-6 p-3 rounded" style={{ background: 'color-mix(in srgb, var(--color-error) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--color-error) 20%, transparent)' }}>
-              <p style={{ color: 'var(--color-error)' }}>{errors.submit}</p>
-            </div>
-          )}
+            <AdminBanner className="mb-4">
+              <p className="mb-0">
+                Configure structured data schemas for this category page. These schemas help search engines understand
+                your content and can enable rich snippets in search results.
+              </p>
+            </AdminBanner>
 
-        </form>
+            <PageSchemaEditor
+              pageType="category"
+              schemas={formData.schemas || []}
+              onChange={(schemas) => setFormData(prev => ({ ...prev, schemas }))}
+              pageData={{
+                title: formData.name,
+                description: formData.description,
+              }}
+            />
+          </div>
+        )}
 
-        {/* Action Buttons */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'flex-end',
-          gap: '12px', 
-          marginTop: 'var(--spacing-xl)',
-          paddingTop: 'var(--spacing-lg)',
-          borderTop: '1px solid var(--color-border-light)'
-        }}>
-          <button
+        {/* Error message */}
+        {errors.submit && (
+          <AdminBanner variant="error" className="mt-6">
+            <p>{errors.submit}</p>
+          </AdminBanner>
+        )}
+
+        {/* Action Bar */}
+        <div
+          className="flex items-center justify-between pt-4 pb-2 mt-6"
+          style={{ borderTop: '1px solid var(--color-border-light)' }}
+        >
+          <AdminButton
+            variant="secondary"
+            type="button"
             onClick={() => router.push('/admin/blog/categories')}
-            className="btn btn-secondary"
-            style={{
-              padding: '12px 24px',
-              fontSize: '16px'
-            }}
           >
             Cancel
-          </button>
-          
-          <button
+          </AdminButton>
+
+          <AdminButton
             onClick={handleSubmit}
             disabled={isLoading}
-            className="btn btn-primary"
-            style={{
-              padding: '12px 24px',
-              fontSize: '16px'
-            }}
             type="button"
           >
             {isLoading ? 'Updating...' : 'Update Category'}
-          </button>
+          </AdminButton>
         </div>
-      </div>
+
+      </form>
 
       {/* Slug Change Warning Modal */}
       <SlugChangeWarningModal

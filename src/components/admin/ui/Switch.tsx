@@ -6,14 +6,17 @@ interface SwitchProps {
   disabled?: boolean;
   label?: string;
   className?: string;
+  size?: 'default' | 'sm';
 }
 
-export function Switch({ checked, onChange, disabled = false, label, className = '' }: SwitchProps) {
+export function Switch({ checked, onChange, disabled = false, label, className = '', size = 'default' }: SwitchProps) {
   const handleToggle = () => {
     if (!disabled) {
       onChange(!checked);
     }
   };
+
+  const isSmall = size === 'sm';
 
   return (
     <button
@@ -27,18 +30,26 @@ export function Switch({ checked, onChange, disabled = false, label, className =
       <div className="relative">
         <div
           className={`
-            block w-14 h-8 rounded-full transition-colors duration-200 ease-in-out
-            ${checked 
-              ? 'bg-primary' 
+            block rounded-full transition-colors duration-200 ease-in-out
+            ${isSmall ? 'w-8 h-[18px]' : 'w-14 h-8'}
+            ${checked
+              ? 'bg-primary'
               : 'bg-gray-300 dark:bg-gray-600'
             }
           `}
         >
           <div
             className={`
-              absolute top-1 left-1 bg-white w-6 h-6 rounded-full shadow-md
+              absolute bg-white rounded-full shadow-md
               transform transition-transform duration-200 ease-in-out
-              ${checked ? 'translate-x-6' : 'translate-x-0'}
+              ${isSmall
+                ? 'top-[3px] left-[3px] w-3 h-3'
+                : 'top-1 left-1 w-6 h-6'
+              }
+              ${checked
+                ? isSmall ? 'translate-x-[14px]' : 'translate-x-6'
+                : 'translate-x-0'
+              }
             `}
           />
         </div>

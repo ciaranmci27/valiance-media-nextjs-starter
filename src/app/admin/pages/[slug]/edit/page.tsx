@@ -5,6 +5,24 @@ import { useState, useEffect } from 'react';
 import PageEditor from '@/components/admin/editors/PageEditor';
 import { Page } from '@/lib/pages/page-types';
 
+function EditPageSkeleton() {
+  return (
+    <div className="max-w-7xl mx-auto flex flex-col gap-6">
+      <div className="hidden md:block">
+        <div className="skeleton" style={{ width: '160px', height: '36px', marginBottom: '8px' }} />
+        <div className="skeleton" style={{ width: '240px', height: '18px' }} />
+      </div>
+      <div className="flex gap-2">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="skeleton" style={{ width: '80px', height: '36px', borderRadius: 'var(--radius-full)' }} />
+        ))}
+      </div>
+      <div className="skeleton" style={{ height: '140px', borderRadius: 'var(--radius-xl, 16px)' }} />
+      <div className="skeleton" style={{ height: '500px', borderRadius: 'var(--radius-xl, 16px)' }} />
+    </div>
+  );
+}
+
 export default function EditPagePage() {
   const params = useParams();
   const encodedSlug = params.slug as string;
@@ -34,33 +52,24 @@ export default function EditPagePage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="skeleton" style={{ width: '200px', height: '36px', marginBottom: 'var(--spacing-lg)' }} />
-          <div className="skeleton" style={{ height: '44px', marginBottom: 'var(--spacing-lg)' }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-            <div className="skeleton" style={{ height: '72px', borderRadius: 'var(--radius-lg)' }} />
-            <div className="skeleton" style={{ height: '300px', borderRadius: 'var(--radius-lg)' }} />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <EditPageSkeleton />;
 
   if (error) {
     return (
-      <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
-        <p style={{ color: 'var(--color-danger)' }}>{error}</p>
+      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+        <div className="dash-card" style={{ padding: '48px', textAlign: 'center' }}>
+          <p style={{ color: 'var(--color-error)', fontSize: '14px' }}>{error}</p>
+        </div>
       </div>
     );
   }
 
   if (!page) {
     return (
-      <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
-        <p style={{ color: 'var(--color-text-secondary)' }}>Page not found</p>
+      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+        <div className="dash-card" style={{ padding: '48px', textAlign: 'center' }}>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>Page not found</p>
+        </div>
       </div>
     );
   }

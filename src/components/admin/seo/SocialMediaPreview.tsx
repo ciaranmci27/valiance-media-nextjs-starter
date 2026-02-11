@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { seoConfig } from '@/seo/seo.config';
+import AdminBanner from '@/components/admin/ui/AdminBanner';
 
 interface SocialMediaPreviewProps {
   title: string;
@@ -251,16 +252,16 @@ export default function SocialMediaPreview({
       )}
 
       {/* Image Guidelines */}
-      <div className="mt-4 p-4 bg-primary-50 dark:bg-primary-50 rounded-lg">
+      <AdminBanner className="mt-4">
         <h4 className="font-medium text-sm mb-2">Image Guidelines</h4>
-        <ul className="text-xs space-y-1 text-gray-600 dark:text-gray-400">
+        <ul className="space-y-1 form-hint">
           <li>• <strong>Facebook & LinkedIn:</strong> 1200×630px (1.91:1 ratio) for best results</li>
           <li>• <strong>Twitter:</strong> 1200×600px (2:1 ratio) for large image cards</li>
           <li>• <strong>File size:</strong> Keep under 5MB for faster loading</li>
           <li>• <strong>Format:</strong> JPG, PNG, or WebP recommended</li>
           <li>• <strong>Text on image:</strong> Keep important text in the center 80% to avoid cropping</li>
         </ul>
-      </div>
+      </AdminBanner>
     </div>
   );
 }

@@ -34,7 +34,7 @@ export default function EditBlogPost() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
-  
+
   const [isLoadingPost, setIsLoadingPost] = useState(true);
   const [postData, setPostData] = useState<BlogFormData | null>(null);
 
@@ -44,7 +44,7 @@ export default function EditBlogPost() {
       router.push('/admin/blog-post');
       return;
     }
-    
+
     if (slug) {
       fetchPost();
     } else {
@@ -55,7 +55,7 @@ export default function EditBlogPost() {
   const fetchPost = async () => {
     try {
       const response = await fetch(`/api/admin/blog-post?slug=${slug}`);
-      
+
       if (response.ok) {
         const post = await response.json();
         setPostData({
@@ -89,28 +89,27 @@ export default function EditBlogPost() {
 
   if (isLoadingPost) {
     return (
-      <div className="min-h-screen py-8">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="mb-8">
-            <div className="skeleton" style={{ width: '240px', height: '36px', marginBottom: '12px' }} />
-            <div className="skeleton" style={{ width: '360px', height: '20px' }} />
-          </div>
-          <div className="skeleton" style={{ height: '44px', marginBottom: '24px' }} />
-          <div className="skeleton" style={{ height: '400px', borderRadius: 'var(--radius-lg)' }} />
+      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+        {/* Header skeleton */}
+        <div>
+          <div className="skeleton" style={{ width: '240px', height: '36px', marginBottom: '12px', borderRadius: 'var(--radius-md)' }} />
+          <div className="skeleton" style={{ width: '360px', height: '20px', borderRadius: 'var(--radius-md)' }} />
         </div>
+        {/* Tab bar skeleton */}
+        <div className="skeleton" style={{ height: '44px', borderRadius: 'var(--radius-xl)' }} />
+        {/* Card skeleton */}
+        <div className="skeleton" style={{ height: '400px', borderRadius: 'var(--radius-xl)' }} />
       </div>
     );
   }
 
   if (!postData) {
     return (
-      <div className="min-h-screen py-8">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center">
-            <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
-              Post not found
-            </p>
-          </div>
+      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+        <div className="text-center py-12">
+          <p className="text-body" style={{ color: 'var(--color-text-secondary)' }}>
+            Post not found
+          </p>
         </div>
       </div>
     );
