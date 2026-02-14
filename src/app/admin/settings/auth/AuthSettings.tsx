@@ -393,7 +393,7 @@ function SimpleAuthForm() {
                 <path d="M45.317 2.071C48.298 -1.728 54.155 0.209 54.331 5.096L55.202 53.137H10.088C1.105 53.137 -3.944 42.737 1.668 35.696L45.317 2.071Z" fill="#3ECF8E" />
               </svg>
               <span>
-                <strong>Upgrade to Supabase Auth</strong> — get OAuth providers, magic links, multi-user support, and managed session handling.
+                <strong>Upgrade to Supabase Auth.</strong> Get OAuth providers, magic links, multi-user support, and managed session handling.
                 Set <code className="px-1 rounded text-xs" style={{ background: 'var(--color-surface-elevated)' }}>ADMIN_AUTH_PROVIDER=supabase</code> in your environment to <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="dash-card-link" style={{ fontWeight: 600 }}>get started</a>.
               </span>
             </p>

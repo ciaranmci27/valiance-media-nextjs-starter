@@ -214,7 +214,7 @@ function CategoriesContent() {
                       setCategoryToDelete(category);
                       setDeleteModalOpen(true);
                     }}
-                    title={category.postCount > 0 ? `Cannot delete — contains ${category.postCount} posts` : 'Delete category'}
+                    title={category.postCount > 0 ? `Cannot delete: contains ${category.postCount} posts` : 'Delete category'}
                     disabled={category.postCount > 0}
                   >
                     <TrashIcon className="w-4 h-4" />

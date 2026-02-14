@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       from: `"${account.fromName}" <${account.fromEmail}>`,
       replyTo: account.replyTo || undefined,
       to: body.recipientEmail,
-      subject: 'Test Email — SMTP Configuration',
+      subject: 'Test Email: SMTP Configuration',
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
           <h2 style="margin: 0 0 16px 0; color: #111;">SMTP Test Successful</h2>

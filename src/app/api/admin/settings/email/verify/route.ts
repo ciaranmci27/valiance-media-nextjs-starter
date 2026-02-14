@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       online: false,
       reason: 'decrypt_failed',
-      error: 'Failed to decrypt password — check your SMTP_ENCRYPTION_KEY',
+      error: 'Failed to decrypt password. Check your SMTP_ENCRYPTION_KEY',
     });
   }
 

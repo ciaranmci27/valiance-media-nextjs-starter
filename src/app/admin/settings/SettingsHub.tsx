@@ -56,7 +56,7 @@ export default function SettingsHub({ authProvider, supabaseConfigured, smtpConf
     {
       title: 'Authentication',
       description: isAuthSupabase
-        ? 'Managed by Supabase Auth — view configuration and allowed users'
+        ? 'Managed by Supabase Auth. View configuration and allowed users'
         : 'Configure session timeout, login attempts, and lockout security',
       href: '/admin/settings/auth',
       provider: isAuthSupabase ? 'Supabase' : 'Simple',
@@ -68,8 +68,8 @@ export default function SettingsHub({ authProvider, supabaseConfigured, smtpConf
     {
       title: 'Storage',
       description: isStorageSupabase
-        ? 'Supabase configured — content data backed by Supabase database'
-        : 'Local file system — blog content and data stored as JSON on disk',
+        ? 'Supabase configured. Content data backed by Supabase database'
+        : 'Local file system. Blog content and data stored as JSON on disk',
       href: '/admin/settings/storage',
       provider: isStorageSupabase ? 'Supabase' : 'Local',
       accentColor: isStorageSupabase ? SUPABASE_GREEN : undefined,

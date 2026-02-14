@@ -107,9 +107,10 @@ function StatusDot({ status }: { status: AccountStatusType }) {
 
 interface EmailSettingsProps {
   encryptionConfigured: boolean;
+  isProduction: boolean;
 }
 
-export default function EmailSettings({ encryptionConfigured }: EmailSettingsProps) {
+export default function EmailSettings({ encryptionConfigured, isProduction }: EmailSettingsProps) {
   const [accounts, setAccounts] = useState<EmailAccountSafe[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -287,7 +288,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
                           setCopied(true);
                           setTimeout(() => setCopied(false), 2000);
                         } catch {
-                          showMessage('error', 'Failed to copy — clipboard requires HTTPS');
+                          showMessage('error', 'Failed to copy. Clipboard requires HTTPS');
                         }
                       }}
                       title="Copy to clipboard"
@@ -330,7 +331,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
 
   if (accounts.length === 0 && !showForm) {
     return (
-      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+      <div className="max-w-7xl mx-auto flex flex-col gap-6" style={{ minHeight: 'calc(100vh - 10rem)' }}>
         <div className="hidden md:block animate-fade-up">
           <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
             Email
@@ -340,7 +341,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
           </p>
         </div>
 
-        <div className="dash-empty-state animate-fade-up" style={{ animationDelay: '80ms' } as React.CSSProperties}>
+        <div className="dash-empty-state animate-fade-up flex-1" style={{ animationDelay: '80ms' } as React.CSSProperties}>
           <EnvelopeIcon className="w-10 h-10" style={{ color: 'var(--color-text-disabled)' }} />
           <h3 style={{ color: 'var(--color-text-primary)', fontSize: '16px', fontWeight: 600, margin: '12px 0 4px' }}>
             No email accounts configured
@@ -348,12 +349,19 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px', margin: '0 0 16px' }}>
             Add an SMTP account to start sending transactional emails
           </p>
-          <AdminButton onClick={() => { setForm(emptyForm); setEditingId(null); setShowForm(true); }}>
-            <span className="flex items-center gap-2">
-              <PlusIcon className="w-4 h-4" />
-              Add Email Account
-            </span>
-          </AdminButton>
+          {!isProduction && (
+            <AdminButton onClick={() => { setForm(emptyForm); setEditingId(null); setShowForm(true); }}>
+              <span className="flex items-center gap-2">
+                <PlusIcon className="w-4 h-4" />
+                Add Email Account
+              </span>
+            </AdminButton>
+          )}
+          {isProduction && (
+            <p style={{ color: 'var(--color-text-tertiary)', fontSize: '13px', margin: 0 }}>
+              Email accounts must be configured locally and deployed via <code className="px-1 rounded text-xs" style={{ background: 'var(--color-surface-elevated)' }}>settings.json</code>
+            </p>
+          )}
         </div>
 
         {message && (
@@ -475,7 +483,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
                 : `${accounts.length} account${accounts.length !== 1 ? 's' : ''} configured`}
           </p>
         </div>
-        {!showForm && (
+        {!showForm && !isProduction && (
           <AdminButton onClick={() => { setForm(emptyForm); setEditingId(null); setShowForm(true); }}>
             <span className="flex items-center gap-2">
               <PlusIcon className="w-4 h-4" />
@@ -486,7 +494,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
       </div>
 
       {/* Mobile add button */}
-      {!showForm && (
+      {!showForm && !isProduction && (
         <div className="md:hidden">
           <AdminButton onClick={() => { setForm(emptyForm); setEditingId(null); setShowForm(true); }}>
             <span className="flex items-center gap-2">
@@ -495,6 +503,19 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
             </span>
           </AdminButton>
         </div>
+      )}
+
+      {/* Production notice */}
+      {isProduction && (
+        <AdminBanner variant="warning">
+          <p className="flex items-start gap-2">
+            <ExclamationTriangleIcon className="w-5 h-5 shrink-0" style={{ marginTop: '1px' }} />
+            <span>
+              Email accounts cannot be added or edited in production. Configure accounts locally and redeploy via{' '}
+              <code className="px-1 rounded text-xs" style={{ background: 'color-mix(in srgb, var(--color-warning) 15%, transparent)' }}>settings.json</code>.
+            </span>
+          </p>
+        </AdminBanner>
       )}
 
       {/* Toast message */}
@@ -536,7 +557,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
             <div>
               <p className="text-label" style={{ color: 'var(--color-text-primary)', margin: 0 }}>Encryption Key Issue</p>
               <p style={{ color: 'var(--color-text-secondary)', fontSize: '13px', margin: '2px 0 0' }}>
-                Unable to decrypt account passwords &mdash; your <code className="px-1 rounded text-xs" style={{ background: 'color-mix(in srgb, var(--color-warning) 10%, var(--color-surface-elevated))' }}>SMTP_ENCRYPTION_KEY</code> may have changed or is missing
+                Unable to decrypt account passwords. Your <code className="px-1 rounded text-xs" style={{ background: 'color-mix(in srgb, var(--color-warning) 10%, var(--color-surface-elevated))' }}>SMTP_ENCRYPTION_KEY</code> may have changed or is missing
               </p>
             </div>
           </div>
@@ -629,7 +650,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
                     Generate New Key
                   </p>
                   <p style={{ color: 'var(--color-text-tertiary)', fontSize: '12px', margin: '4px 0 0' }}>
-                    Start fresh with a new key &mdash; existing accounts will need to be re-added
+                    Start fresh with a new key. Existing accounts will need to be re-added
                   </p>
                 </div>
               </button>
@@ -667,7 +688,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
 
               <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--spacing-md)' }}>
                 <p style={{ color: 'var(--color-text-tertiary)', fontSize: '12px', margin: '0 0 12px' }}>
-                  Can&apos;t find your original key? Use <strong>Generate New Key</strong> instead &mdash; you&apos;ll need to delete affected accounts and re-add them.
+                  Can&apos;t find your original key? Use <strong>Generate New Key</strong> instead. You&apos;ll need to delete affected accounts and re-add them.
                 </p>
                 <div className="flex gap-2">
                   <AdminButton
@@ -758,7 +779,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
                               setRecoveryCopied(true);
                               setTimeout(() => setRecoveryCopied(false), 2000);
                             } catch {
-                              showMessage('error', 'Failed to copy — clipboard requires HTTPS');
+                              showMessage('error', 'Failed to copy. Clipboard requires HTTPS');
                             }
                           }}
                           title="Copy to clipboard"
@@ -784,7 +805,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
                         Re-add affected accounts
                       </p>
                       <p style={{ color: 'var(--color-text-tertiary)', fontSize: '13px', margin: 0 }}>
-                        Delete accounts showing key errors and re-add them &mdash; they&apos;ll be encrypted with your new key
+                        Delete accounts showing key errors and re-add them. They&apos;ll be encrypted with your new key
                       </p>
                     </div>
                   </div>
@@ -809,7 +830,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
       )}
 
       {/* Add/Edit form */}
-      {showForm && (
+      {showForm && !isProduction && (
         <div className="dash-card animate-fade-up">
           <div className="dash-card-header">
             <h2 className="dash-card-title">{editingId ? 'Edit Account' : 'Add Email Account'}</h2>
@@ -837,7 +858,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
             </div>
 
             <div>
-              <FieldLabel label="Username" tooltip="SMTP login username — usually your full email address" required />
+              <FieldLabel label="Username" tooltip="SMTP login username, usually your full email address" required />
               <input
                 className="input-field w-full"
                 placeholder="e.g. noreply@yourdomain.com"
@@ -856,7 +877,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
             </div>
 
             <div>
-              <FieldLabel label="Password" tooltip="SMTP password — encrypted before storage, never stored in plaintext" required />
+              <FieldLabel label="Password" tooltip="SMTP password. Encrypted before storage, never stored in plaintext" required />
               <input
                 type="password"
                 className="input-field w-full"
@@ -877,7 +898,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
             </div>
 
             <div>
-              <FieldLabel label="From Email" tooltip="The email address shown as the sender — should match your domain for deliverability" required />
+              <FieldLabel label="From Email" tooltip="The email address shown as the sender. Should match your domain for deliverability" required />
               <input
                 type="email"
                 className="input-field w-full"
@@ -888,7 +909,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
             </div>
 
             <div>
-              <FieldLabel label="Port" tooltip="465 uses implicit SSL, 587 uses STARTTLS — check with your email provider" required />
+              <FieldLabel label="Port" tooltip="465 uses implicit SSL, 587 uses STARTTLS. Check with your email provider" required />
               <Select
                 options={[
                   { value: '465', label: '465 (SSL)' },
@@ -938,7 +959,7 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
                 disabled={accounts.length === 0 && !editingId}
                 size="sm"
               />
-              <Tooltip content="The default account used when sending emails — only one can be primary" position="top" delay={300}>
+              <Tooltip content="The default account used when sending emails. Only one can be primary" position="top" delay={300}>
                 <span className="text-label" style={{ color: 'var(--color-text-primary)', cursor: 'help' }}>Primary Account</span>
               </Tooltip>
             </div>
@@ -1056,22 +1077,26 @@ export default function EmailSettings({ encryptionConfigured }: EmailSettingsPro
                         <PaperAirplaneIcon className="w-4 h-4" />
                         <span className="pages-action-label">Test</span>
                       </button>
-                      <button
-                        className="pages-action-btn"
-                        onClick={() => startEdit(account)}
-                        title="Edit account"
-                      >
-                        <PencilSquareIcon className="w-4 h-4" />
-                        <span className="pages-action-label">Edit</span>
-                      </button>
-                      <button
-                        className="pages-action-btn danger"
-                        onClick={() => handleDelete(account.id)}
-                        title="Delete account"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                        <span className="pages-action-label">Delete</span>
-                      </button>
+                      {!isProduction && (
+                        <button
+                          className="pages-action-btn"
+                          onClick={() => startEdit(account)}
+                          title="Edit account"
+                        >
+                          <PencilSquareIcon className="w-4 h-4" />
+                          <span className="pages-action-label">Edit</span>
+                        </button>
+                      )}
+                      {!isProduction && (
+                        <button
+                          className="pages-action-btn danger"
+                          onClick={() => handleDelete(account.id)}
+                          title="Delete account"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                          <span className="pages-action-label">Delete</span>
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
