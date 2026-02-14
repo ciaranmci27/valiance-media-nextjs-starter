@@ -10,8 +10,8 @@ import {
 } from '@heroicons/react/24/outline';
 import type { AuthProvider } from '@/lib/admin/auth-provider';
 
-const SUPABASE_GREEN = '#3ECF8E';
-const EMAIL_BLUE = '#3B82F6';
+const SUPABASE_GREEN = '#22C55E';
+const EMAIL_COPPER = '#C5A68F';
 
 function SupabaseIcon({ size = 20 }: { size?: number }) {
   const id = useId();
@@ -20,7 +20,7 @@ function SupabaseIcon({ size = 20 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 109 113" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id={gradientId} x1="53.974" y1="113.174" x2="94.163" y2="22.925" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#249361" />
+          <stop stopColor="#16A34A" />
           <stop offset="1" stopColor={SUPABASE_GREEN} />
         </linearGradient>
       </defs>
@@ -82,7 +82,7 @@ export default function SettingsHub({ authProvider, supabaseConfigured, smtpConf
       description: 'Configure SMTP accounts for sending emails',
       href: '/admin/settings/email',
       provider: 'SMTP',
-      accentColor: smtpConfigured ? EMAIL_BLUE : undefined,
+      accentColor: smtpConfigured ? EMAIL_COPPER : undefined,
       icon: <EnvelopeIcon className="w-5 h-5" />,
     },
   ];

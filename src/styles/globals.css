@@ -26,7 +26,7 @@
 
 [data-theme="dark"] .header-scrolled,
 .dark .header-scrolled {
-  background-color: rgba(15, 23, 42, 0.8); /* Fallback for older browsers */
+  background-color: rgba(0, 0, 0, 0.85); /* Fallback for older browsers */
   background-color: color-mix(in srgb, var(--color-background) 80%, transparent);
 }
 
@@ -38,39 +38,39 @@
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-inset-left: env(safe-area-inset-left, 0px);
 
-  /* Light theme colors */
-  --color-primary: #2563EB;
-  --color-primary-light: #60A5FA;
-  --color-primary-dark: #1E40AF;
-  --color-secondary: #60A5FA;
+  /* Light theme colors - Editorial Teal/Copper */
+  --color-primary: #5B8A8A;
+  --color-primary-light: #7BA3A3;
+  --color-primary-dark: #4A7272;
+  --color-secondary: #C5A68F;
   
-  /* Primary color palette - automatically derived from main primary color */
-  --color-primary-50: #EFF6FF;
-  --color-primary-100: #DBEAFE;
-  --color-primary-200: #BFDBFE;
-  --color-primary-300: #93C5FD;
-  --color-primary-400: #60A5FA;
-  --color-primary-500: #3B82F6;
-  --color-primary-600: #2563EB;
-  --color-primary-700: #1D4ED8;
-  --color-primary-800: #1E40AF;
-  --color-primary-900: #1E3A8A;
+  /* Primary color palette - Teal editorial palette */
+  --color-primary-50: #F0F5F5;
+  --color-primary-100: #E0EBEB;
+  --color-primary-200: #C2D6D6;
+  --color-primary-300: #A3C2C2;
+  --color-primary-400: #7BA3A3;
+  --color-primary-500: #5B8A8A;
+  --color-primary-600: #4A7272;
+  --color-primary-700: #3A5A5A;
+  --color-primary-800: #2A4242;
+  --color-primary-900: #1A2A2A;
   
-  /* Secondary colors */
-  --color-secondary-main: #60A5FA;
-  --color-secondary-light: #93C5FD;
-  --color-secondary-dark: #3B82F6;
+  /* Secondary colors - Copper */
+  --color-secondary-main: #C5A68F;
+  --color-secondary-light: #D4BBA8;
+  --color-secondary-dark: #A88B74;
   
-  /* Premium colors (cyan accent) */
-  --color-premium: #06B6D4;
-  --color-premium-light: #67E8F9;
-  --color-premium-dark: #0891B2;
+  /* Premium colors (teal accent) */
+  --color-premium: #5B8A8A;
+  --color-premium-light: #7BA3A3;
+  --color-premium-dark: #4A7272;
   
   /* Semantic colors */
   --color-success: #22C55E;
   --color-warning: #F59E0B;
   --color-danger: #DC2626;
-  --color-info: #3B82F6;
+  --color-info: #5B8A8A;
   
   /* Base colors - Updated to match mobile app */
   --color-background: #FAFBFC; /* Ultra-light with hint of blue */
@@ -89,16 +89,16 @@
   --color-border-medium: #E2E8F0;
   --color-border-heavy: #CBD5E1;
   --color-border-dark: #94A3B8;
-  --color-border-accent: #3B82F6;
+  --color-border-accent: #5B8A8A;
 
   /* Surface variants */
   --color-surface-disabled: #F1F5F9;
-  
+
   /* Semantic colors */
   --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-error: #EF4444;
-  --color-info: #3B82F6;
+  --color-info: #5B8A8A;
   
   /* Overlay colors for transparency effects */
   --color-overlay-light: rgba(0, 0, 0, 0.02);
@@ -111,10 +111,10 @@
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
   
-  /* Background gradient colors */
-  --gradient-primary-rgb: 59, 130, 246; /* Blue-500 RGB */
-  --gradient-secondary-rgb: 96, 165, 250; /* Blue-400 RGB */
-  --gradient-accent-rgb: 6, 182, 212; /* Cyan-500 RGB */
+  /* Background gradient colors - Teal */
+  --gradient-primary-rgb: 91, 138, 138; /* Teal RGB */
+  --gradient-secondary-rgb: 123, 163, 163; /* Teal-light RGB */
+  --gradient-accent-rgb: 197, 166, 143; /* Copper RGB */
   
   /* Spacing */
   --spacing-xs: 4px;
@@ -173,43 +173,43 @@
 /* Dark theme overrides */
 [data-theme="dark"],
 .dark {
-  --color-primary: #3B82F6;
-  --color-primary-light: #60A5FA;
-  --color-primary-dark: #1D4ED8;
+  --color-primary: #7BA3A3;
+  --color-primary-light: #A3C2C2;
+  --color-primary-dark: #5B8A8A;
   
-  /* Base colors - Updated to match mobile app dark theme */
-  --color-background: #0F172A; /* Deep dark slate */
-  --color-surface: #1E293B; /* Elevated dark surface */
-  --color-surface-elevated: #334155; /* Higher elevation */
-  
+  /* Base colors - Premium SaaS dark */
+  --color-background: #000000; /* True black */
+  --color-surface: #0A0A0A; /* Barely lifted */
+  --color-surface-elevated: #141414; /* Cards/modals */
+
   /* Text colors */
-  --color-text-primary: #F8FAFC; /* Light text for dark background */
-  --color-text-secondary: #CBD5E1; /* Medium light text */
-  --color-text-tertiary: #64748B; /* Muted text */
-  --color-text-disabled: #475569; /* Disabled/muted elements */
-  --color-text-inverse: #0F172A; /* Dark text for light surfaces */
+  --color-text-primary: #ECECEC; /* Crisp but not harsh */
+  --color-text-secondary: #8B8B8B; /* Muted mid-gray */
+  --color-text-tertiary: #555555; /* Subtle */
+  --color-text-disabled: #333333; /* Disabled/muted elements */
+  --color-text-inverse: #000000; /* Dark text for light surfaces */
   
   /* Border colors */
   --color-border-light: rgba(255, 255, 255, 0.1);
   --color-border-medium: rgba(255, 255, 255, 0.2);
   --color-border-heavy: rgba(255, 255, 255, 0.3);
   --color-border-dark: rgba(255, 255, 255, 0.4);
-  --color-border-accent: #60A5FA;
+  --color-border-accent: #7BA3A3;
 
   /* Surface variants */
   --color-surface-disabled: rgba(255, 255, 255, 0.05);
   
   /* Primary palette - Dark mode variants */
-  --color-primary-50: rgba(59, 130, 246, 0.1);
-  --color-primary-100: rgba(59, 130, 246, 0.2);
-  --color-primary-200: rgba(59, 130, 246, 0.3);
-  --color-primary-300: rgba(59, 130, 246, 0.4);
-  --color-primary-400: #60A5FA;
-  --color-primary-500: #3B82F6;
-  --color-primary-600: #2563EB;
-  --color-primary-700: #1D4ED8;
-  --color-primary-800: #1E40AF;
-  --color-primary-900: #1E3A8A;
+  --color-primary-50: rgba(91, 138, 138, 0.1);
+  --color-primary-100: rgba(91, 138, 138, 0.2);
+  --color-primary-200: rgba(91, 138, 138, 0.3);
+  --color-primary-300: rgba(91, 138, 138, 0.4);
+  --color-primary-400: #7BA3A3;
+  --color-primary-500: #5B8A8A;
+  --color-primary-600: #4A7272;
+  --color-primary-700: #3A5A5A;
+  --color-primary-800: #2A4242;
+  --color-primary-900: #1A2A2A;
   
   /* Overlay colors - Dark mode */
   --color-overlay-light: rgba(255, 255, 255, 0.02);
@@ -223,9 +223,9 @@
   --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
   
   /* Dark theme gradient colors (slightly adjusted for dark mode) */
-  --gradient-primary-rgb: 59, 130, 246; /* Blue-500 RGB */
-  --gradient-secondary-rgb: 96, 165, 250; /* Blue-400 RGB */
-  --gradient-accent-rgb: 6, 182, 212; /* Cyan-500 RGB */
+  --gradient-primary-rgb: 91, 138, 138; /* Teal RGB */
+  --gradient-secondary-rgb: 123, 163, 163; /* Teal-light RGB */
+  --gradient-accent-rgb: 197, 166, 143; /* Copper RGB */
 }
 
 /* Base styles */
@@ -270,7 +270,7 @@ body {
 /* Dark theme background color */
 [data-theme="dark"] body,
 .dark body {
-  background-color: #0F172A; /* Dark theme background */
+  background-color: #000000; /* Dark theme background */
 }
 
 /* Multi-layer background gradient - exactly matching mobile app LinearGradient */
@@ -298,7 +298,7 @@ body::before {
   z-index: 0;
 }
 
-/* Dark theme gradient overlay - matching mobile app exactly */
+/* Dark theme gradient overlay */
 [data-theme="dark"] body::before,
 .dark body::before {
   background: linear-gradient(
@@ -470,26 +470,26 @@ select.input-field::-ms-expand {
 
 [data-theme="dark"] .input-field,
 .dark .input-field {
-  background: #1E293B;
-  border-color: #334155;
-  color: #F8FAFC;
+  background: #0A0A0A;
+  border-color: #1A1A1A;
+  color: #ECECEC;
 }
 
 [data-theme="dark"] .input-field:focus,
 .dark .input-field:focus {
-  background: #1E293B;
+  background: #0A0A0A;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 3px rgba(91, 138, 138, 0.15);
 }
 
 [data-theme="dark"] .input-field:hover:not(:focus):not(:disabled),
 .dark .input-field:hover:not(:focus):not(:disabled) {
-  border-color: #475569;
+  border-color: #2A2A2A;
 }
 
 [data-theme="dark"] .input-field::placeholder,
 .dark .input-field::placeholder {
-  color: #64748B;
+  color: #555555;
 }
 
 /* Dark mode select arrow */
@@ -622,8 +622,8 @@ select.input-field::-ms-expand {
 }
 
 [data-theme="dark"] .badge-premium {
-  background: rgba(6, 182, 212, 0.2);
-  color: #67E8F9;
+  background: rgba(91, 138, 138, 0.2);
+  color: #7BA3A3;
 }
 
 /* Table Hover Effects */
@@ -721,20 +721,20 @@ select.input-field::-ms-expand {
 }
 
 /* Additional fallback for older browsers */
-@supports not (background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(96, 165, 250, 0.08) 50%, rgba(59, 130, 246, 0.05) 100%)) {
+@supports not (background: linear-gradient(135deg, rgba(91, 138, 138, 0.15) 0%, rgba(123, 163, 163, 0.08) 50%, rgba(91, 138, 138, 0.05) 100%)) {
   body::before {
     background: rgba(var(--gradient-primary-rgb), 0.08);
   }
   
   [data-theme="dark"] body::before,
   .dark body::before {
-    background: rgba(var(--gradient-primary-rgb), 0.15);
+    background: rgba(var(--gradient-primary-rgb), 0.1);
   }
-  
+
   .multi-layer-bg::before {
     background: rgba(var(--gradient-primary-rgb), 0.08);
   }
-  
+
   [data-theme="dark"] .multi-layer-bg::before,
   .dark .multi-layer-bg::before {
     background: rgba(var(--gradient-primary-rgb), 0.15);
@@ -1337,7 +1337,7 @@ body::before {
 
 [data-theme="dark"] .login-page,
 .dark .login-page {
-  background: #0F172A;
+  background: #000000;
 }
 
 [data-theme="dark"] .login-page::before,
@@ -1365,8 +1365,8 @@ body::before {
 
 [data-theme="dark"] .login-card,
 .dark .login-card {
-  background: #1E293B;
-  border-color: #334155;
+  background: #0A0A0A;
+  border-color: #1A1A1A;
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.2),
     0 6px 24px rgba(0, 0, 0, 0.25);

@@ -328,8 +328,8 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         }
 
         [data-theme="dark"] .toolbar-btn:hover {
-          background: rgba(59, 130, 246, 0.15);
-          border-color: rgba(59, 130, 246, 0.3);
+          background: rgba(91, 138, 138, 0.15);
+          border-color: rgba(91, 138, 138, 0.3);
           color: var(--color-primary-light);
         }
 
@@ -339,7 +339,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         }
 
         [data-theme="dark"] .toolbar-btn:active {
-          background: rgba(59, 130, 246, 0.25);
+          background: rgba(91, 138, 138, 0.25);
         }
 
         .toolbar-btn-danger {
@@ -412,18 +412,18 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         }
 
         .editor-content pre {
-          background: rgba(59, 130, 246, 0.05);
+          background: rgba(91, 138, 138, 0.05);
           padding: 1em;
           border-radius: var(--radius-md);
           overflow-x: auto;
           font-family: monospace;
           color: var(--color-text-primary);
-          border: 1px solid rgba(59, 130, 246, 0.1);
+          border: 1px solid rgba(91, 138, 138, 0.1);
         }
 
         [data-theme="dark"] .editor-content pre {
-          background: rgba(59, 130, 246, 0.1);
-          border-color: rgba(59, 130, 246, 0.2);
+          background: rgba(91, 138, 138, 0.1);
+          border-color: rgba(91, 138, 138, 0.2);
         }
 
         .editor-content ul { 
@@ -453,7 +453,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         }
 
         .editor-content code {
-          background: rgba(59, 130, 246, 0.1);
+          background: rgba(91, 138, 138, 0.1);
           padding: 2px 6px;
           border-radius: var(--radius-sm);
           font-family: monospace;
@@ -461,7 +461,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         }
 
         [data-theme="dark"] .editor-content code {
-          background: rgba(59, 130, 246, 0.15);
+          background: rgba(91, 138, 138, 0.15);
           color: var(--color-primary-light);
         }
 

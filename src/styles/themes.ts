@@ -92,37 +92,37 @@ export interface ThemeColors {
 }
 
 const baseColors = {
-  // Blue palette (Valiance Media brand)
+  // Teal palette (Valiance Media Editorial brand)
   blue: {
-    50: '#EFF6FF',
-    100: '#DBEAFE',
-    200: '#BFDBFE',
-    300: '#93C5FD',
-    400: '#60A5FA',
-    500: '#3B82F6', // Primary blue
-    600: '#2563EB', // Valiance Media blue
-    700: '#1D4ED8',
-    800: '#1E40AF',
-    900: '#1E3A8A', // Deep blue
+    50: '#F0F5F5',
+    100: '#E0EBEB',
+    200: '#C2D6D6',
+    300: '#A3C2C2',
+    400: '#7BA3A3',
+    500: '#5B8A8A', // Primary teal
+    600: '#4A7272', // Valiance Media teal
+    700: '#3A5A5A',
+    800: '#2A4242',
+    900: '#1A2A2A', // Deep teal
   },
-  
-  // Secondary/Accent palette (lighter blues)
-  gold: '#60A5FA', // Using light blue as secondary
-  goldLight: '#93C5FD',
-  goldDark: '#3B82F6',
-  
-  // Premium accent (cyan for contrast)
+
+  // Secondary/Accent palette (copper)
+  gold: '#C5A68F', // Copper as secondary
+  goldLight: '#D4BBA8',
+  goldDark: '#A88B74',
+
+  // Premium accent (teal for contrast)
   premium: {
-    main: '#06B6D4',
-    light: '#67E8F9',
-    dark: '#0891B2',
+    main: '#5B8A8A',
+    light: '#7BA3A3',
+    dark: '#4A7272',
   },
-  
+
   // Semantic colors
   success: '#10B981',
   warning: '#F59E0B',
   error: '#EF4444',
-  info: '#3B82F6',
+  info: '#5B8A8A',
   
   // Gray scale
   gray: {
@@ -193,16 +193,16 @@ export const darkTheme: ThemeColors = {
   // Use base colors
   ...baseColors,
   
-  // Dark theme specific - Modern background system
-  background: '#0F172A', // Deep dark slate
-  surface: '#1E293B', // Elevated dark surface
-  surfaceElevated: '#334155', // Higher elevation (lighter slate)
-  
+  // Dark theme specific - Premium SaaS dark
+  background: '#000000', // True black
+  surface: '#0A0A0A', // Barely lifted
+  surfaceElevated: '#141414', // Cards/modals
+
   text: {
-    primary: '#F8FAFC', // Light text for dark background
-    secondary: '#CBD5E1', // Medium light text
-    tertiary: '#64748B', // Muted text
-    inverse: '#0F172A', // Dark text for light surfaces
+    primary: '#ECECEC', // Crisp but not harsh
+    secondary: '#8B8B8B', // Muted mid-gray
+    tertiary: '#555555', // Subtle
+    inverse: '#000000', // Dark text for light surfaces
   },
   
   border: {
