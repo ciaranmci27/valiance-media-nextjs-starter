@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sessionStore } from '@/lib/admin/auth-store';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 export const runtime = 'nodejs';
 
@@ -37,6 +38,9 @@ async function saveSettings(settings: any) {
 }
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const settings = await loadSettings();
     return NextResponse.json({ settings });
@@ -50,6 +54,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const settings = await request.json();
 

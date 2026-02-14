@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllPages, savePage, generateSlug, generateDefaultPageContent, generateDefaultSEOConfig } from '@/lib/pages/page-utils-server';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 // GET - Fetch all pages
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const pages = await getAllPages();
     return NextResponse.json({ pages });
@@ -17,6 +21,9 @@ export async function GET() {
 
 // POST - Create a new page
 export async function POST(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const body = await request.json();
     

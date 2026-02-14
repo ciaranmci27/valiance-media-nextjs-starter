@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -56,6 +56,25 @@ export function AdminSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const { mode } = useTheme();
+  const [squareLogos, setSquareLogos] = useState<{ light: boolean; dark: boolean }>({ light: false, dark: false });
+
+  useEffect(() => {
+    const probe = (src: string) => new Promise<boolean>((resolve) => {
+      const img = new window.Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = src;
+    });
+    Promise.all([
+      probe('/logos/square-logo.png'),
+      probe('/logos/square-logo-inverted.png'),
+    ]).then(([light, dark]) => setSquareLogos({ light, dark }));
+  }, []);
+
+  const hasSquareForTheme = mode === 'dark' ? squareLogos.dark : squareLogos.light;
+  const collapsedLogo = hasSquareForTheme
+    ? (mode === 'dark' ? '/logos/square-logo-inverted.png' : '/logos/square-logo.png')
+    : (mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png');
 
   const isActive = useCallback(
     (href: string) => {
@@ -197,7 +216,7 @@ export function AdminSidebar({
                   priority
                 />
               </Link>
-              {/* Favicon — in normal flow, sizes the container */}
+              {/* Collapsed logo — square if available, horizontal fallback */}
               <Link
                 href="/admin"
                 onClick={handleNavClick}
@@ -209,7 +228,7 @@ export function AdminSidebar({
                 tabIndex={!collapsed ? -1 : 0}
               >
                 <Image
-                  src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
+                  src={collapsedLogo}
                   alt={seoConfig.siteName || 'Admin'}
                   width={32}
                   height={32}

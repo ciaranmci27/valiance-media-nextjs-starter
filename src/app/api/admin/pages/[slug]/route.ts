@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPageBySlug, savePage, deletePage } from '@/lib/pages/page-utils-server';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 // GET - Fetch a single page by slug
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { slug: encodedSlug } = await params;
     const slug = decodeURIComponent(encodedSlug);
@@ -33,6 +37,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { slug: encodedSlug } = await params;
     const slug = decodeURIComponent(encodedSlug);
@@ -64,6 +71,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { slug: encodedSlug } = await params;
     const slug = decodeURIComponent(encodedSlug);

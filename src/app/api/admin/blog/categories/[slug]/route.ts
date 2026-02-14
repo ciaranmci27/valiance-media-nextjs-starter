@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { slug } = await params;
     const categoriesDir = path.join(process.cwd(), 'public', 'blog-content', 'categories');
@@ -72,6 +76,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { slug: currentSlug } = await params;
     const data = await request.json();
@@ -162,6 +169,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { slug } = await params;
     const categoriesDir = path.join(process.cwd(), 'public', 'blog-content', 'categories');

@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 // Get all unique tags from all blog posts
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const contentDir = path.join(process.cwd(), 'public', 'blog-content');
     const allTags = new Set<string>();

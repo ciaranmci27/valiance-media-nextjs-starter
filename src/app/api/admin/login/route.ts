@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyCredentials } from '@/lib/admin/auth';
 import { sessionStore } from '@/lib/admin/auth-store';
 import { lockoutStore } from '@/lib/admin/lockout-store';
+import { getAuthProvider } from '@/lib/admin/auth-provider';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -17,13 +18,21 @@ async function loadAdminSettings() {
 }
 
 export async function POST(request: NextRequest) {
+  // Supabase login is handled client-side — this endpoint is simple-auth only
+  if (getAuthProvider() === 'supabase') {
+    return NextResponse.json(
+      { error: 'Login is handled client-side for Supabase auth' },
+      { status: 400 }
+    );
+  }
+
   try {
     const { username, password } = await request.json();
-    
+
     // Get client IP address for rate limiting
     const forwarded = request.headers.get('x-forwarded-for');
-    const ip = forwarded ? forwarded.split(',')[0].trim() : 
-               request.headers.get('x-real-ip') || 
+    const ip = forwarded ? forwarded.split(',')[0].trim() :
+               request.headers.get('x-real-ip') ||
                request.headers.get('x-client-ip') ||
                'unknown';
 
@@ -57,7 +66,7 @@ export async function POST(request: NextRequest) {
     if (!token) {
       const { locked, remainingAttempts } = await lockoutStore.recordFailedAttempt(
         ip,
-        username, 
+        username,
         adminSettings.maxLoginAttempts || 5,
         adminSettings.lockoutDuration || 15
       );
@@ -85,18 +94,21 @@ export async function POST(request: NextRequest) {
     await lockoutStore.clearLockout(ip);
     sessionStore.createSession(username, token);
 
+    // Use session timeout from settings for cookie maxAge
+    const sessionTimeoutSeconds = (adminSettings.sessionTimeout || 60) * 60;
+
     // Create response with cookies
-    const response = NextResponse.json({ 
+    const response = NextResponse.json({
       success: true,
-      message: 'Login successful' 
+      message: 'Login successful'
     });
 
-    // Set secure cookie for auth token
+    // Set secure cookie for auth token — uses session timeout, not hardcoded 7 days
     response.cookies.set('admin-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: sessionTimeoutSeconds,
       path: '/'
     });
 
@@ -123,24 +135,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-export async function DELETE(request: NextRequest) {
-  // Logout endpoint
-  const token = request.cookies.get('admin-token')?.value;
-  
-  if (token) {
-    // Clear the session from the store (use already imported sessionStore)
-    sessionStore.deleteSession(token);
-  }
-  
-  const response = NextResponse.json({ 
-    success: true,
-    message: 'Logout successful' 
-  });
-
-  // Clear the cookie
-  response.cookies.delete('admin-token');
-
-  return response;
 }

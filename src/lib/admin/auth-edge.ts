@@ -2,11 +2,14 @@
 // Uses Web Crypto API for HMAC token verification
 
 function getAdminTokenSecret(): string {
-  const secret = process.env.ADMIN_TOKEN;
+  const secret = process.env.SIMPLE_ADMIN_TOKEN;
   if (!secret && process.env.NODE_ENV === 'production') {
-    throw new Error('ADMIN_TOKEN must be set in production environment');
+    throw new Error('SIMPLE_ADMIN_TOKEN must be set in production environment');
   }
-  return secret || 'default-dev-secret';
+  if (!secret) {
+    console.warn('SIMPLE_ADMIN_TOKEN not set — using project-derived dev secret. Set SIMPLE_ADMIN_TOKEN in .env for security.');
+  }
+  return secret || `dev-${process.cwd()}-secret`;
 }
 
 // Verify an HMAC-signed token using Web Crypto API (Edge-compatible)

@@ -5,14 +5,22 @@ import { useRouter } from 'next/navigation';
 import { seoConfig } from '@/seo/seo.config';
 import { Logo } from '@/components/layout/Logo';
 import AdminButton from '@/components/admin/ui/AdminButton';
+import type { AuthProvider } from '@/lib/admin/auth-provider';
 
-export default function LoginForm({ showSetupHint }: { showSetupHint: boolean }) {
+interface LoginFormProps {
+  showSetupHint: boolean;
+  authProvider: AuthProvider;
+}
+
+export default function LoginForm({ showSetupHint, authProvider }: LoginFormProps) {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState(''); // username or email
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const isSupabase = authProvider === 'supabase';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,32 +28,63 @@ export default function LoginForm({ showSetupHint }: { showSetupHint: boolean })
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      if (isSupabase) {
+        // Supabase: sign in client-side
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: identifier,
+          password,
+        });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        const fromParam = new URLSearchParams(window.location.search).get('from');
-        let redirectTo = '/admin';
-        if (fromParam) {
-          const isValidRedirect = fromParam.startsWith('/') &&
-                                  !fromParam.startsWith('//') &&
-                                  !fromParam.includes(':');
-          if (isValidRedirect) {
-            redirectTo = fromParam;
-          }
+        if (signInError) {
+          setError(signInError.message);
+          return;
         }
-        router.push(redirectTo);
-        router.refresh();
+
+        // Verify user has admin role in profiles table
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', signInData.user.id)
+          .single();
+
+        if (profileError || !profile || profile.role !== 'admin') {
+          // Not an admin — sign them out and show error
+          await supabase.auth.signOut();
+          setError('Access denied. Your account does not have admin privileges.');
+          return;
+        }
       } else {
-        setError(data.error || 'Invalid credentials');
+        // Simple: POST to login API
+        const response = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: identifier, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error || 'Invalid credentials');
+          return;
+        }
       }
+
+      // Redirect on success
+      const fromParam = new URLSearchParams(window.location.search).get('from');
+      let redirectTo = '/admin';
+      if (fromParam) {
+        const isValidRedirect =
+          fromParam.startsWith('/') &&
+          !fromParam.startsWith('//') &&
+          !fromParam.includes(':');
+        if (isValidRedirect) {
+          redirectTo = fromParam;
+        }
+      }
+      router.push(redirectTo);
+      router.refresh();
     } catch {
       setError('An error occurred. Please try again.');
     } finally {
@@ -99,39 +138,54 @@ export default function LoginForm({ showSetupHint }: { showSetupHint: boolean })
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* Username */}
+          {/* Username / Email */}
           <div
             className="mb-4 animate-fade-up"
             style={{ animationDelay: '60ms' }}
           >
             <label
-              htmlFor="username"
+              htmlFor="identifier"
               className="form-label"
             >
-              Username
+              {isSupabase ? 'Email' : 'Username'}
             </label>
             <div className="login-input-wrap">
-              <svg
-                className="login-input-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
+              {isSupabase ? (
+                <svg
+                  className="login-input-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+              ) : (
+                <svg
+                  className="login-input-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              )}
               <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type={isSupabase ? 'email' : 'text'}
+                id="identifier"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
                 className="input-field"
-                placeholder="admin"
-                autoComplete="username"
+                placeholder={isSupabase ? 'you@example.com' : 'admin'}
+                autoComplete={isSupabase ? 'email' : 'username'}
                 autoFocus
               />
             </div>

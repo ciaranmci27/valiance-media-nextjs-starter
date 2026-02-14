@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 /**
  * Blog post API using local file system storage.
@@ -25,6 +26,9 @@ function isValidCategory(category: string): boolean {
 
 // POST - Create new blog post
 export async function POST(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await request.json();
     const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
@@ -93,6 +97,9 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update existing blog post
 export async function PUT(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await request.json();
     const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
@@ -189,6 +196,9 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Delete blog post
 export async function DELETE(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await request.json();
     const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
@@ -235,6 +245,9 @@ export async function DELETE(request: NextRequest) {
 
 // GET - Fetch blog post(s)
 export async function GET(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');

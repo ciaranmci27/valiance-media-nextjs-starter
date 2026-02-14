@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyAuthEdge } from '@/lib/admin/auth-edge';
+import { verifyAuthProxy } from '@/lib/admin/auth-provider-edge';
 
 /**
  * Minimal Proxy - Handles only essential requirements
@@ -13,6 +13,7 @@ import { verifyAuthEdge } from '@/lib/admin/auth-edge';
  * 2. Admin authentication (security requirement)
  * 3. Sitemap redirects (SEO infrastructure)
  * 4. Static file pass-through (Next.js requirement)
+ * 5. Supabase token refresh (when provider is supabase)
  */
 
 interface Redirect {
@@ -57,6 +58,10 @@ async function getRedirects(request: NextRequest): Promise<Redirect[]> {
   }
 
   return [];
+}
+
+function isSupabaseProvider(): boolean {
+  return process.env.ADMIN_AUTH_PROVIDER?.toLowerCase() === 'supabase';
 }
 
 export async function proxy(request: NextRequest) {
@@ -114,49 +119,65 @@ export async function proxy(request: NextRequest) {
   }
 
   // ============================================================================
+  // Supabase Token Refresh (all routes when provider is supabase)
+  // ============================================================================
+  // Refreshes expired JWTs on any page load so sessions persist across tab close.
+  // Only runs when Supabase cookies are present (sb- prefix).
+  let supabaseUser: import('@supabase/supabase-js').User | null = null;
+  let supabaseResponse: NextResponse | undefined;
+
+  if (isSupabaseProvider()) {
+    const hasSupabaseCookies = request.cookies
+      .getAll()
+      .some((c) => c.name.startsWith('sb-'));
+
+    if (hasSupabaseCookies) {
+      try {
+        const { createClient } = await import('@/lib/supabase/middleware');
+        const { supabase, response } = await createClient(request);
+        const { data } = await supabase.auth.getUser();
+        supabaseUser = data.user;
+        supabaseResponse = response;
+      } catch {
+        // Supabase not configured or network error — continue without refresh
+      }
+    }
+  }
+
+  // ============================================================================
   // Admin Authentication (Security Requirement)
   // ============================================================================
   if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
-    // Skip auth check if auth is disabled (development only)
-    if (process.env.DISABLE_ADMIN_AUTH === 'true') {
-      return NextResponse.next();
+    // Skip auth check if auth is disabled (development only — guarded)
+    if (
+      process.env.DISABLE_ADMIN_AUTH === 'true' &&
+      process.env.NODE_ENV !== 'production'
+    ) {
+      return supabaseResponse ?? NextResponse.next();
     }
 
     // Allow access to login page and login API without auth
     if (path === '/admin/login' || path === '/api/admin/login') {
-      return NextResponse.next();
+      return supabaseResponse ?? NextResponse.next();
     }
 
-    // Check for admin token
-    const token = request.cookies.get('admin-token')?.value;
-
-    if (!token) {
-      // Redirect to login page for admin UI routes
-      if (path.startsWith('/admin') && !path.startsWith('/api/admin')) {
-        return NextResponse.redirect(new URL('/admin/login', request.url));
-      }
-      // Return 401 for API routes
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Allow access to logout API without auth (needs to work for logout)
+    if (path === '/api/admin/auth/logout') {
+      return supabaseResponse ?? NextResponse.next();
     }
 
-    // Verify the token
-    const isValid = await verifyAuthEdge(token);
+    const authResult = await verifyAuthProxy(request, {
+      cachedUser: supabaseUser,
+      cachedResponse: supabaseResponse,
+    });
 
-    if (!isValid) {
-      // Clear invalid token
-      const response = path.startsWith('/admin') && !path.startsWith('/api/admin')
-        ? NextResponse.redirect(new URL('/admin/login', request.url))
-        : NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-      response.cookies.delete('admin-token');
-      return response;
+    if (!authResult.authenticated) {
+      return authResult.response!;
     }
 
-    // Token is valid, allow access
-    return NextResponse.next();
+    // Authenticated — return the auth result's response (carries Supabase cookies)
+    // or fall through to NextResponse.next() for simple auth
+    return authResult.response ?? NextResponse.next();
   }
 
   // ============================================================================
@@ -166,7 +187,8 @@ export async function proxy(request: NextRequest) {
   // - Valid routes → Render page
   // - Invalid routes → Show 404 (not-found.tsx)
   // - Dynamic routes → Next.js matches them
-  return NextResponse.next();
+  // For Supabase: return the response with refreshed cookies
+  return supabaseResponse ?? NextResponse.next();
 }
 
 export const config = {

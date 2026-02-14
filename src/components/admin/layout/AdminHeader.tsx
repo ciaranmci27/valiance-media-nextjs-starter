@@ -19,6 +19,9 @@ const pageTitles: Record<string, string> = {
   '/admin/seo/edit': 'SEO Editor',
   '/admin/analytics': 'Analytics',
   '/admin/settings': 'Settings',
+  '/admin/settings/auth': 'Auth Settings',
+  '/admin/settings/storage': 'Storage Settings',
+  '/admin/settings/email': 'Email Settings',
 };
 
 interface AdminHeaderProps {

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
     const categoriesDir = path.join(blogContentDir, 'categories');
@@ -39,9 +43,12 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await request.json();
-    
+
     if (!data.name || !data.slug) {
       return NextResponse.json(
         { error: 'Name and slug are required' },

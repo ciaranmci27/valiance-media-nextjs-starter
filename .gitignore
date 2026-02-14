@@ -142,8 +142,9 @@ jspm_packages/
 # Authentication lockout tracking
 .lockouts.json
 
-# Runtime settings (use settings.example.json as template)
-settings.json
+# Runtime settings — safe to commit (SMTP passwords are AES-256-GCM encrypted,
+# decryption key is in env vars, never in this file)
+# settings.json
 
 # Playwright screenshots
 .playwright/

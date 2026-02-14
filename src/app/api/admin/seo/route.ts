@@ -6,8 +6,12 @@ import { loadPageSeoConfig } from '@/lib/seo/page-seo-utils';
 import { getCurrentConfig, formatConfigForFile } from '@/lib/seo/seo-config-parser';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const type = searchParams.get('type');
@@ -245,6 +249,9 @@ export async function GET(request: NextRequest) {
 
 // Update SEO configuration
 export async function PUT(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const body = await request.json();
     const { type, data } = body;

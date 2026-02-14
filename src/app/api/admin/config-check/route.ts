@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 export const runtime = 'nodejs';
 
@@ -14,6 +15,9 @@ interface ConfigWarning {
 }
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   const warnings: ConfigWarning[] = [];
 
   try {
@@ -101,8 +105,9 @@ export async function GET() {
       }
     }
 
-    // Check admin authentication
-    if (!process.env.ADMIN_PASSWORD_HASH && process.env.DISABLE_ADMIN_AUTH !== 'true') {
+    // Check admin authentication (only relevant for simple auth provider)
+    const authProvider = process.env.ADMIN_AUTH_PROVIDER?.toLowerCase() || 'simple';
+    if (authProvider === 'simple' && !process.env.SIMPLE_ADMIN_PASSWORD_HASH && process.env.DISABLE_ADMIN_AUTH !== 'true') {
       warnings.push({
         type: 'error',
         message: 'Admin authentication is not configured. Run "npm run setup-auth" to secure your admin panel.',

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
+import { requireAuth } from '@/lib/admin/require-auth';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 interface PageSEOData {
   path: string;
@@ -19,6 +20,9 @@ interface PageSEOData {
 }
 
 export async function PUT(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const body = await request.json();
     const pageData: PageSEOData = body.data;
@@ -84,16 +88,16 @@ export async function PUT(request: NextRequest) {
     let warning = null;
     try {
       // Check if git is initialized
-      await execAsync('git status', { cwd: process.cwd() });
-      
+      await execFileAsync('git', ['status'], { cwd: process.cwd() });
+
       // Add the file
-      await execAsync(`git add "${seoConfigPath}"`, { cwd: process.cwd() });
-      
+      await execFileAsync('git', ['add', seoConfigPath], { cwd: process.cwd() });
+
       // Check if there are changes to commit
-      const { stdout: diffStatus } = await execAsync('git diff --cached --name-only', { cwd: process.cwd() });
-      
+      const { stdout: diffStatus } = await execFileAsync('git', ['diff', '--cached', '--name-only'], { cwd: process.cwd() });
+
       if (diffStatus.trim()) {
-        // Create a detailed commit message
+        // Create a detailed commit message (safe — passed as argument, not interpolated into shell)
         const pageName = pageData.path === '/' ? 'Homepage' : pageData.title;
         const commitMessage = `Update SEO for ${pageName}
 
@@ -103,9 +107,9 @@ Description: ${pageData.description ? 'Updated' : 'Not set'}
 Keywords: ${pageData.keywords.length} keywords
 OG Image: ${pageData.ogImage ? 'Set' : 'Not set'}
 Canonical URL: ${pageData.canonicalUrl || 'Default'}`;
-        
-        // Commit the changes
-        await execAsync(`git commit -m "${commitMessage}"`, { cwd: process.cwd() });
+
+        // Commit the changes — execFile bypasses shell entirely
+        await execFileAsync('git', ['commit', '-m', commitMessage], { cwd: process.cwd() });
       }
     } catch (gitError: any) {
       // Handle git errors gracefully

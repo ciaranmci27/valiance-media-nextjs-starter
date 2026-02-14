@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 export const runtime = 'nodejs';
 
@@ -34,6 +35,9 @@ async function saveSettings(settings: Record<string, unknown>) {
 }
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const settings = await loadSettings();
     const exclusions = settings.analyticsExclusions || defaultExclusions;
@@ -51,6 +55,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { analyticsExclusions } = await request.json();
 

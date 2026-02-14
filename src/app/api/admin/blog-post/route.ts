@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await request.json();
-    
+
     const { slug, category, ...postData } = data;
     
     const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
@@ -63,11 +67,14 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
     const category = searchParams.get('category');
-    
+
     if (!slug) {
       return NextResponse.json(
         { error: 'Slug parameter is required' },
@@ -135,9 +142,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await request.json();
-    
+
     const { slug, category, originalSlug, originalCategory, ...postData } = data;
     
     const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
@@ -213,10 +223,13 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const data = await request.json();
     const { slug, category } = data;
-    
+
     if (!slug) {
       return NextResponse.json(
         { error: 'Slug is required' },

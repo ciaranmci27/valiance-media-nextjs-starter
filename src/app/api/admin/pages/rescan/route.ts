@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getAllPages } from '@/lib/pages/page-utils-server';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 export async function POST() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     // In development, getAllPages always does a fresh filesystem scan
     // In production, this would typically trigger a rebuild

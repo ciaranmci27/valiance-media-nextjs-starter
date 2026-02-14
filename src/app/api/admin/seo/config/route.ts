@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { getCurrentConfig, formatConfigForFile } from '@/lib/seo/seo-config-parser';
+import { requireAuth } from '@/lib/admin/require-auth';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 const SEO_CONFIG_PATH = path.join(process.cwd(), 'src', 'seo', 'seo.config.ts');
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { config } = getCurrentConfig();
     return NextResponse.json({ config });
@@ -22,6 +26,9 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { config } = await request.json();
     
@@ -35,16 +42,16 @@ export async function PUT(request: NextRequest) {
     let warning = null;
     try {
       // Check if git is initialized
-      await execAsync('git status', { cwd: process.cwd() });
-      
+      await execFileAsync('git', ['status'], { cwd: process.cwd() });
+
       // Add the file
-      await execAsync(`git add "${SEO_CONFIG_PATH}"`, { cwd: process.cwd() });
-      
+      await execFileAsync('git', ['add', SEO_CONFIG_PATH], { cwd: process.cwd() });
+
       // Check if there are changes to commit
-      const { stdout: diffStatus } = await execAsync('git diff --cached --name-only', { cwd: process.cwd() });
-      
+      const { stdout: diffStatus } = await execFileAsync('git', ['diff', '--cached', '--name-only'], { cwd: process.cwd() });
+
       if (diffStatus.trim()) {
-        // Create a detailed commit message
+        // Create a detailed commit message (safe — passed as argument, not interpolated into shell)
         const commitMessage = `Update SEO configuration
 
 Updated sections:
@@ -54,9 +61,9 @@ Updated sections:
 - Open Graph: ${config.openGraph.defaultImage ? 'image configured' : 'no image'}
 - Social Links: ${Object.values(config.social).filter(Boolean).length} configured
 - Languages: ${Object.keys(config.alternates.languages).length} configured`;
-        
-        // Commit the changes
-        await execAsync(`git commit -m "${commitMessage}"`, { cwd: process.cwd() });
+
+        // Commit the changes — execFile bypasses shell entirely
+        await execFileAsync('git', ['commit', '-m', commitMessage], { cwd: process.cwd() });
       }
     } catch (gitError: any) {
       // Handle git errors gracefully

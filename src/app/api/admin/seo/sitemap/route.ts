@@ -3,10 +3,14 @@ import { sitemapPages } from '@/seo/sitemap/sitemap-pages';
 import { sitemapBlogPosts } from '@/seo/sitemap/sitemap-blog-posts';
 import { sitemapCategories } from '@/seo/sitemap/sitemap-blog-categories';
 import { seoConfig } from '@/seo/seo.config';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const type = searchParams.get('type');

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAuth } from '@/lib/admin/require-auth';
 
 const REDIRECTS_FILE = path.join(process.cwd(), 'public', 'redirects.json');
 
@@ -31,6 +32,9 @@ async function saveRedirects(config: RedirectsConfig): Promise<void> {
 }
 
 export async function GET() {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const config = await getRedirects();
     return NextResponse.json(config);
@@ -44,6 +48,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const redirect: Redirect = await request.json();
     
@@ -129,6 +136,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { action, data } = await request.json();
     
@@ -182,6 +192,9 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const from = searchParams.get('from');

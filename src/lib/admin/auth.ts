@@ -7,11 +7,14 @@ import bcrypt from 'bcryptjs';
 const BCRYPT_ROUNDS = 12;
 
 function getAdminTokenSecret(): string {
-  const secret = process.env.ADMIN_TOKEN;
+  const secret = process.env.SIMPLE_ADMIN_TOKEN;
   if (!secret && process.env.NODE_ENV === 'production') {
-    throw new Error('ADMIN_TOKEN must be set in production environment');
+    throw new Error('SIMPLE_ADMIN_TOKEN must be set in production environment');
   }
-  return secret || 'default-dev-secret';
+  if (!secret) {
+    console.warn('SIMPLE_ADMIN_TOKEN not set — using project-derived dev secret. Set SIMPLE_ADMIN_TOKEN in .env for security.');
+  }
+  return secret || `dev-${process.cwd()}-secret`;
 }
 
 // Hash a password using bcrypt (salted, slow by design)
@@ -24,7 +27,7 @@ export async function comparePassword(password: string, hash: string): Promise<b
   return bcrypt.compare(password, hash);
 }
 
-// Generate a random hex string (for ADMIN_TOKEN secret in .env)
+// Generate a random hex string (for SIMPLE_ADMIN_TOKEN secret in .env)
 export function generateToken(): string {
   return crypto.randomBytes(32).toString('hex');
 }
@@ -51,6 +54,11 @@ export function verifySignedToken(token: string): boolean {
 
     if (!sessionId || !signature) return false;
 
+    // Validate hex format (matches auth-edge.ts)
+    if (!/^[a-f0-9]+$/.test(sessionId) || !/^[a-f0-9]+$/.test(signature)) {
+      return false;
+    }
+
     const expectedSignature = crypto
       .createHmac('sha256', getAdminTokenSecret())
       .update(sessionId)
@@ -74,11 +82,11 @@ export async function verifyAuth(token: string): Promise<boolean> {
 
 // Verify credentials and return a signed token on success
 export async function verifyCredentials(username: string, password: string): Promise<string | null> {
-  const validUsername = process.env.ADMIN_USERNAME || 'admin';
-  const validPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+  const validUsername = process.env.SIMPLE_ADMIN_USERNAME || 'admin';
+  const validPasswordHash = process.env.SIMPLE_ADMIN_PASSWORD_HASH;
 
   if (!validPasswordHash) {
-    console.error('ADMIN_PASSWORD_HASH not set in environment variables');
+    console.error('SIMPLE_ADMIN_PASSWORD_HASH not set in environment variables');
     return null;
   }
 
