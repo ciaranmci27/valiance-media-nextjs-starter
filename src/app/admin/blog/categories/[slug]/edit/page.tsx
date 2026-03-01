@@ -9,6 +9,8 @@ import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
 import { PageSchema } from '@/components/admin/seo/schema-types';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
+import { TextInput, Textarea } from '@/components/ui/inputs';
+import { toast, useConfirmationDialog } from '@/components/ui/feedback';
 
 interface CategoryFormData {
   name: string;
@@ -26,7 +28,8 @@ export default function EditCategoryPage() {
   const router = useRouter();
   const params = useParams();
   const categorySlug = params.slug as string;
-  
+  const { confirm: confirmAction, dialog } = useConfirmationDialog();
+
   const [formData, setFormData] = useState<CategoryFormData>({
     name: '',
     slug: '',
@@ -123,25 +126,23 @@ export default function EditCategoryPage() {
     }));
   };
 
-  const applySEOTemplate = () => {
+  const applySEOTemplate = async () => {
     if (!formData.name) {
-      alert('Please enter a category name first before applying the SEO template.');
+      toast.warning('Please enter a category name first before applying the SEO template.');
       return;
     }
 
     // Check if user has existing SEO content
     const hasExistingSEO = formData.seo.title || formData.seo.description || (formData.seo.keywords && formData.seo.keywords.length > 0);
-    
+
     if (hasExistingSEO) {
-      const confirmReplace = confirm(
-        'You have existing SEO content that will be replaced by the template.\n\n' +
-        'Current content:\n' +
-        (formData.seo.title ? `Title: ${formData.seo.title}\n` : '') +
-        (formData.seo.description ? `Description: ${formData.seo.description}\n` : '') +
-        (formData.seo.keywords.length > 0 ? `Keywords: ${formData.seo.keywords.join(', ')}\n` : '') +
-        '\nDo you want to continue and replace this content?'
-      );
-      
+      const confirmReplace = await confirmAction({
+        title: 'Replace SEO Content?',
+        description: 'Your existing SEO title, description, and keywords will be overwritten by the template.',
+        confirmLabel: 'Replace',
+        variant: 'warning',
+      });
+
       if (!confirmReplace) {
         return;
       }
@@ -385,43 +386,28 @@ export default function EditCategoryPage() {
               {/* Category Name and Slug Row - 70% / 30% split */}
               <div className="form-row form-row-70-30">
                 {/* Category Name - 70% */}
-                <div>
-                  <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                    Category Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="input-field"
-                    placeholder="e.g., Technology"
-                    style={errors.name ? { borderColor: 'var(--color-error)' } : undefined}
-                  />
-                  {errors.name && (
-                    <p className="text-sm mt-1" style={{ color: 'var(--color-error)' }}>{errors.name}</p>
-                  )}
-                </div>
+                <TextInput
+                  id="name"
+                  name="name"
+                  label="Category Name *"
+                  value={formData.name}
+                  onChange={(val) => handleInputChange({ target: { name: 'name', value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                  placeholder="e.g., Technology"
+                  error={errors.name}
+                />
 
                 {/* Slug - 30% */}
                 <div style={{ minWidth: 0 }}>
-                  <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                    Slug *
-                  </label>
-                  <input
-                    type="text"
+                  <TextInput
                     id="slug"
                     name="slug"
+                    label="Slug *"
                     value={formData.slug}
-                    onChange={handleInputChange}
-                    className="input-field input-field-mono"
+                    onChange={(val) => handleInputChange({ target: { name: 'slug', value: val } } as React.ChangeEvent<HTMLInputElement>)}
                     placeholder="category-slug"
-                    style={errors.slug ? { borderColor: 'var(--color-error)' } : undefined}
+                    error={errors.slug}
+                    inputClassName="font-mono"
                   />
-                  {errors.slug && (
-                    <p className="text-sm mt-1" style={{ color: 'var(--color-error)' }}>{errors.slug}</p>
-                  )}
                   {hasPublishedPosts && formData.slug !== originalSlug && (
                     <p className="text-sm mt-2" style={{ color: 'var(--color-warning)' }}>
                       Changing the slug will affect URLs of published posts in this category
@@ -430,20 +416,15 @@ export default function EditCategoryPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="input-field"
-                  placeholder="Brief description of this category..."
-                />
-              </div>
+              <Textarea
+                id="description"
+                name="description"
+                label="Description"
+                value={formData.description}
+                onChange={(val) => handleInputChange({ target: { name: 'description', value: val } } as React.ChangeEvent<HTMLTextAreaElement>)}
+                rows={4}
+                placeholder="Brief description of this category..."
+              />
             </div>
           </div>
         )}
@@ -472,60 +453,36 @@ export default function EditCategoryPage() {
                 </div>
               </AdminBanner>
 
-              <div>
-                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                  SEO Title
-                </label>
-                <input
-                  type="text"
-                  id="seo.title"
-                  name="seo.title"
-                  value={formData.seo.title}
-                  onChange={handleInputChange}
-                  className="input-field"
-                  placeholder={formData.name || "Category SEO title"}
-                  maxLength={60}
-                />
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                  {formData.seo.title.length}/60 characters
-                </p>
-              </div>
+              <TextInput
+                id="seo.title"
+                name="seo.title"
+                label="SEO Title"
+                description={`${formData.seo.title.length}/60`}
+                value={formData.seo.title}
+                onChange={(val) => handleInputChange({ target: { name: 'seo.title', value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                placeholder={formData.name || "Category SEO title"}
+                maxLength={60}
+              />
 
-              <div>
-                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                  SEO Description
-                </label>
-                <textarea
-                  id="seo.description"
-                  name="seo.description"
-                  value={formData.seo.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="input-field"
-                  placeholder={formData.description || "Category SEO description"}
-                  maxLength={160}
-                />
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                  {formData.seo.description.length}/160 characters
-                </p>
-              </div>
+              <Textarea
+                id="seo.description"
+                name="seo.description"
+                label="SEO Description"
+                value={formData.seo.description}
+                onChange={(val) => handleInputChange({ target: { name: 'seo.description', value: val } } as React.ChangeEvent<HTMLTextAreaElement>)}
+                rows={3}
+                placeholder={formData.description || "Category SEO description"}
+                maxLength={160}
+              />
 
-              <div>
-                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                  Keywords
-                </label>
-                <input
-                  type="text"
-                  id="keywords"
-                  value={formData.seo.keywords.join(', ')}
-                  onChange={handleKeywordsChange}
-                  className="input-field"
-                  placeholder="technology, tech news, software (comma-separated)"
-                />
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                  Separate keywords with commas
-                </p>
-              </div>
+              <TextInput
+                id="keywords"
+                label="Keywords"
+                description="Separate with commas"
+                value={formData.seo.keywords.join(', ')}
+                onChange={(val) => handleKeywordsChange({ target: { value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                placeholder="technology, tech news, software"
+              />
             </div>
           </div>
         )}
@@ -588,6 +545,8 @@ export default function EditCategoryPage() {
       </form>
 
       {/* Slug Change Warning Modal */}
+      {dialog}
+
       <SlugChangeWarningModal
         isOpen={showSlugWarning}
         onClose={() => {

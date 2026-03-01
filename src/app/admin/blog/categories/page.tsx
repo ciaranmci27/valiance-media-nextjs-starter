@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
+import { toast, useConfirmationDialog } from '@/components/ui/feedback';
 import { useRouter } from 'next/navigation';
 import SearchInput from '@/components/admin/ui/SearchInput';
 import {
@@ -38,8 +39,7 @@ function CategoriesContent() {
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  const { confirm: confirmAction, dialog } = useConfirmationDialog();
 
   useEffect(() => {
     fetchCategories();
@@ -74,19 +74,19 @@ function CategoriesContent() {
     setSearchQuery(query);
   }, []);
 
-  const handleDelete = async () => {
-    if (!categoryToDelete) return;
+  const handleDelete = async (slug: string) => {
     try {
-      const response = await fetch(`/api/admin/blog/categories/${categoryToDelete.slug}`, {
+      const response = await fetch(`/api/admin/blog/categories/${slug}`, {
         method: 'DELETE',
       });
       if (response.ok) {
         await fetchCategories();
-        setDeleteModalOpen(false);
-        setCategoryToDelete(null);
+      } else {
+        toast.error('Failed to delete category');
       }
     } catch (error) {
       console.error('Error deleting category:', error);
+      toast.error('An error occurred while deleting the category');
     }
   };
 
@@ -206,13 +206,20 @@ function CategoriesContent() {
                   </button>
                   <button
                     className="pages-action-btn danger"
-                    onClick={() => {
+                    onClick={async () => {
                       if (category.postCount > 0) {
-                        alert(`Cannot delete "${formatName(category.name)}" because it contains ${category.postCount} ${category.postCount === 1 ? 'post' : 'posts'}. Please delete or reassign the posts first.`);
+                        toast.warning(`Cannot delete "${formatName(category.name)}" because it contains ${category.postCount} ${category.postCount === 1 ? 'post' : 'posts'}. Please delete or reassign the posts first.`);
                         return;
                       }
-                      setCategoryToDelete(category);
-                      setDeleteModalOpen(true);
+                      const confirmed = await confirmAction({
+                        title: 'Delete Category',
+                        description: `Are you sure you want to delete "${formatName(category.name)}"? This action cannot be undone.`,
+                        confirmLabel: 'Delete',
+                        variant: 'danger',
+                      });
+                      if (confirmed) {
+                        await handleDelete(category.slug);
+                      }
                     }}
                     title={category.postCount > 0 ? `Cannot delete: contains ${category.postCount} posts` : 'Delete category'}
                     disabled={category.postCount > 0}
@@ -227,39 +234,7 @@ function CategoriesContent() {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {deleteModalOpen && categoryToDelete && (
-        <div className="fixed inset-0 flex items-center justify-center z-50" style={{ background: 'rgba(0, 0, 0, 0.5)' }}>
-          <div
-            className="dash-card max-w-md w-full mx-4"
-            style={{ padding: '24px' }}
-          >
-            <h3 style={{ color: 'var(--color-text-primary)', fontSize: '16px', fontWeight: 600, margin: '0 0 8px' }}>
-              Delete Category
-            </h3>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px', lineHeight: 1.5, margin: '0 0 20px' }}>
-              Are you sure you want to delete &ldquo;{formatName(categoryToDelete.name)}&rdquo;? This action cannot be undone.
-            </p>
-            <div className="flex gap-2 justify-end">
-              <button
-                className="pages-action-btn"
-                onClick={() => { setDeleteModalOpen(false); setCategoryToDelete(null); }}
-                style={{ padding: '8px 16px' }}
-              >
-                Cancel
-              </button>
-              <button
-                className="pages-action-btn danger"
-                onClick={handleDelete}
-                style={{ padding: '8px 16px' }}
-              >
-                <TrashIcon className="w-4 h-4" />
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {dialog}
     </div>
   );
 }

@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import RichTextEditor from '@/components/admin/editors/RichTextEditor';
-import TagInputImproved from '@/components/admin/inputs/TagInputImproved';
-import KeywordsInput from '@/components/admin/inputs/KeywordsInput';
 import SocialMediaPreview from '@/components/admin/seo/SocialMediaPreview';
 import UrlChangeWarningModal from '@/components/admin/modals/UrlChangeWarningModal';
 import { getCMSConfig } from '@/lib/admin/cms-config';
@@ -14,7 +12,8 @@ import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
 import { PageSchema } from '@/components/admin/seo/schema-types';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
-import { Select } from '@/components/admin/ui/Select';
+import { TextInput, Textarea, TagInput, Select } from '@/components/ui/inputs';
+import { toast, useConfirmationDialog } from '@/components/ui/feedback';
 
 interface BlogFormData {
   title: string;
@@ -51,6 +50,7 @@ interface BlogPostEditorProps {
 
 export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEditorProps) {
   const router = useRouter();
+  const { confirm: confirmAction, dialog } = useConfirmationDialog();
   const [activeTab, setActiveTab] = useState('content');
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
@@ -112,9 +112,9 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
   // SEO fields are now manually filled via the "Apply SEO Template" button
   // Users must explicitly click the button to populate SEO fields
 
-  const applySEOTemplate = () => {
+  const applySEOTemplate = async () => {
     if (!formData.title) {
-      alert('Please enter a title first before applying the SEO template.');
+      toast.warning('Please enter a title first before applying the SEO template.');
       return;
     }
 
@@ -122,14 +122,12 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     const hasExistingSEO = formData.seo.title || formData.seo.description || (formData.seo.keywords && formData.seo.keywords.length > 0);
 
     if (hasExistingSEO) {
-      const confirmReplace = confirm(
-        'You have existing SEO content that will be replaced by the template.\n\n' +
-        'Current content:\n' +
-        (formData.seo.title ? `Title: ${formData.seo.title}\n` : '') +
-        (formData.seo.description ? `Description: ${formData.seo.description}\n` : '') +
-        (formData.seo.keywords.length > 0 ? `Keywords: ${formData.seo.keywords.join(', ')}\n` : '') +
-        '\nDo you want to continue and replace this content?'
-      );
+      const confirmReplace = await confirmAction({
+        title: 'Replace SEO Content?',
+        description: 'Your existing SEO title, description, and keywords will be overwritten by the template.',
+        confirmLabel: 'Replace',
+        variant: 'warning',
+      });
 
       if (!confirmReplace) {
         return;
@@ -192,14 +190,14 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
 
     // Force lowercase for image URLs and SEO image fields
-    const imageFields = ['image', 'imageAlt', 'seo.image', 'author.image'];
+    const imageFields = ['image', 'seo.image', 'author.image'];
     const processedValue = imageFields.includes(name) ? value.toLowerCase() : value;
 
     if (type === 'checkbox') {
@@ -307,9 +305,9 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
         if (response.ok) {
           const result = await response.json();
           if (result.action === 'removed_circular') {
-            console.log('Removed circular redirect:', result.removedRedirect);
+            toast.success('Circular redirect detected and removed.');
           } else if (result.updatedChains && result.updatedChains > 0) {
-            console.log(`Prevented redirect chains: Updated ${result.updatedChains} existing redirect(s) to point directly to the new URL`);
+            toast.success(`Updated ${result.updatedChains} existing redirect(s) to prevent chains.`);
           }
         } else {
           console.error('Failed to create redirect');
@@ -338,9 +336,10 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
       // Find the first tab with an error and switch to it
-      if (errors.title || errors.excerpt || errors.content) {
+      if (validationErrors.title || validationErrors.excerpt || validationErrors.content) {
         setActiveTab('content');
       }
       return;
@@ -351,10 +350,6 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     const categoryChanged = mode === 'edit' && formData.category !== originalCategory;
 
     if (slugChanged || categoryChanged) {
-      console.log('Slug or category changed, showing warning modal');
-      console.log('Original slug:', originalSlug, 'New slug:', formData.slug);
-      console.log('Original category:', originalCategory, 'New category:', formData.category);
-
       // Check if this would create a circular redirect
       const oldUrl = originalCategory
         ? `/blog/${originalCategory}/${originalSlug}`
@@ -386,7 +381,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     performSave();
   };
 
-  const performSave = async () => {
+  const performSave = async (forceDraft?: boolean) => {
     setIsLoading(true);
     setSaveStatus('saving');
 
@@ -397,9 +392,12 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
       const postSlug = formData.slug || (mode === 'create' ? generateSlug(formData.title) : originalSlug);
 
+      const isDraft = forceDraft ?? formData.draft;
+
       // Only set publishedAt if not a draft
       const postData: any = {
         ...formData,
+        draft: isDraft,
         slug: postSlug,
         readingTime: Math.ceil(formData.content.split(/\s+/).length / 200)
       };
@@ -411,7 +409,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       }
 
       // Only set publishedAt for non-draft posts
-      if (!formData.draft) {
+      if (!isDraft) {
         postData.publishedAt = initialData?.publishedAt || new Date().toISOString();
       }
 
@@ -426,10 +424,9 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
       if (response.ok) {
         setSaveStatus('saved');
         // Show success message based on draft status
-        const message = formData.draft
+        toast.success(isDraft
           ? 'Post saved as draft successfully!'
-          : 'Post published successfully!';
-        console.log(message, postData);
+          : 'Post published successfully!');
         setTimeout(() => {
           router.push('/admin/blog');
         }, 1500);
@@ -449,66 +446,16 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
   const handleSaveDraft = async (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      // Find the first tab with an error and switch to it
-      if (errors.title || errors.excerpt || errors.content) {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      if (validationErrors.title || validationErrors.excerpt || validationErrors.content) {
         setActiveTab('content');
       }
       return;
     }
 
-    setIsLoading(true);
-    setSaveStatus('saving');
-
-    try {
-      const endpoint = '/api/admin/blog-post';
-
-      const method = mode === 'create' ? 'POST' : 'PUT';
-
-      const postSlug = formData.slug || (mode === 'create' ? generateSlug(formData.title) : originalSlug);
-
-      // Force draft to true for save as draft
-      const postData: any = {
-        ...formData,
-        draft: true, // Always true when saving as draft
-        slug: postSlug,
-        readingTime: Math.ceil(formData.content.split(/\s+/).length / 200)
-      };
-
-      // Add original slug/category info for PUT requests (needed to delete old file if slug/category changed)
-      if (mode === 'edit') {
-        postData.originalSlug = originalSlug;
-        postData.originalCategory = originalCategory;
-      }
-
-      // Don't set publishedAt for drafts
-      // Keep existing publishedAt if it exists (for unpublishing)
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(postData),
-      });
-
-      if (response.ok) {
-        setSaveStatus('saved');
-        console.log('Post saved as draft successfully!', postData);
-        setTimeout(() => {
-          router.push('/admin/blog');
-        }, 1500);
-      } else {
-        setSaveStatus('error');
-        const error = await response.json();
-        console.error('Error saving post:', error);
-      }
-    } catch (error) {
-      setSaveStatus('error');
-      console.error('Error saving post:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    setFormData(prev => ({ ...prev, draft: true }));
+    performSave(true);
   };
 
   // Calculate completion percentage
@@ -547,7 +494,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
       {/* Header */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
           {mode === 'create' ? 'New Blog Post' : 'Edit Blog Post'}
         </h1>
@@ -603,36 +550,21 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
             <div className="dash-card animate-fade-up" style={{ animationDelay: '120ms' } as React.CSSProperties}>
               <div className="dash-card-header">
                 <h2 className="dash-card-title">Post Details</h2>
-                <span
-                  style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--color-text-tertiary)' }}
-                  title={getSlugPreview()}
-                >
-                  {getSlugPreview()}
-                </span>
               </div>
 
               <div className="space-y-6">
                 {/* Title, Category, and Slug Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-[5fr_2fr_3fr] gap-4">
                   {/* Title Field */}
-                  <div>
-                    <label htmlFor="title" className="text-label block mb-2">
-                      Post Title *
-                    </label>
-                    <input
-                      type="text"
-                      id="title"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleInputChange}
-                      className="input-field"
-                      style={errors.title ? { borderColor: 'var(--color-error)' } : undefined}
-                      placeholder="Enter a compelling title"
-                    />
-                    {errors.title && (
-                      <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.title}</p>
-                    )}
-                  </div>
+                  <TextInput
+                    id="title"
+                    name="title"
+                    label="Post Title *"
+                    value={formData.title}
+                    onChange={(val) => handleInputChange({ target: { name: 'title', value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                    error={errors.title}
+                    placeholder="Enter a compelling title"
+                  />
 
                   {/* Category Field */}
                   <Select
@@ -651,67 +583,43 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
                   {/* Slug Field */}
                   <div className="min-w-0 overflow-hidden">
-                    <div className="flex items-center gap-2 mb-2">
-                      <label htmlFor="slug" className="text-label whitespace-nowrap shrink-0">
-                        Post Slug *
-                      </label>
-                      <span
-                        className="text-xs font-mono block flex-1 min-w-0 truncate max-w-[140px] sm:max-w-[220px] md:max-w-[280px]"
-                        style={{ color: 'var(--color-text-tertiary)' }}
-                        title={getSlugPreview()}
-                      >
-                        {getSlugPreview()}
-                      </span>
-                    </div>
-                    <input
-                      type="text"
+                    <TextInput
                       id="slug"
                       name="slug"
+                      label="Post Slug *"
+                      description={getSlugPreview()}
                       value={formData.slug || (mode === 'create' ? generateSlug(formData.title) : '')}
-                      onChange={(e) => handleSlugChange(e.target.value)}
-                      className="input-field font-mono w-full"
-                      style={errors.slug ? { borderColor: 'var(--color-error)' } : undefined}
+                      onChange={(val) => handleSlugChange(val)}
+                      error={errors.slug}
                       placeholder="enter-post-slug"
+                      inputClassName="font-mono"
                     />
                   </div>
                 </div>
 
                 {/* Excerpt and Tags Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label htmlFor="excerpt" className="text-label">
-                        Excerpt *
-                      </label>
-                      <span className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
-                        {formData.excerpt.length}/200
-                      </span>
-                    </div>
-                    <textarea
-                      id="excerpt"
-                      name="excerpt"
-                      value={formData.excerpt}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="input-field"
-                      style={errors.excerpt ? { borderColor: 'var(--color-error)' } : undefined}
-                      placeholder="Write a brief summary that will appear in blog listings"
-                    />
-                    {errors.excerpt && (
-                      <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.excerpt}</p>
-                    )}
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:items-stretch">
+                  <Textarea
+                    id="excerpt"
+                    name="excerpt"
+                    label="Excerpt *"
+                    value={formData.excerpt}
+                    onChange={(val) => handleInputChange({ target: { name: 'excerpt', value: val } } as React.ChangeEvent<HTMLTextAreaElement>)}
+                    rows={3}
+                    maxLength={200}
+                    error={errors.excerpt}
+                    placeholder="Write a brief summary that will appear in blog listings"
+                    className="flex flex-col [&>textarea]:flex-1"
+                  />
 
-                  <div>
-                    <label className="text-label block mb-2">
-                      Tags
-                    </label>
-                    <TagInputImproved
-                      tags={formData.tags}
-                      onChange={handleTagsChange}
-                      placeholder="Type to search or add tags..."
-                    />
-                  </div>
+                  <TagInput
+                    label="Tags"
+                    value={formData.tags}
+                    onChange={handleTagsChange}
+                    placeholder="Type to add tags..."
+                    className="flex flex-col"
+                    inputClassName="!min-h-0 flex-1 items-start content-start"
+                  />
                 </div>
               </div>
             </div>
@@ -729,7 +637,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
                   placeholder="Start writing your blog post content..."
                 />
                 {errors.content && (
-                  <p className="text-sm mt-1" style={{ color: 'var(--color-error, #EF4444)' }}>{errors.content}</p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--color-error)' }}>{errors.content}</p>
                 )}
                 <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                   Estimated reading time: {Math.ceil(formData.content.split(/\s+/).length / 200)} min
@@ -749,50 +657,36 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="image" className="text-label block mb-2">
-                    Image URL
-                  </label>
+                  <TextInput
+                    id="image"
+                    name="image"
+                    label="Image URL"
+                    value={formData.image}
+                    onChange={(val) => handleInputChange({ target: { name: 'image', value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                    placeholder="/images/featured.jpg or https://example.com/image.jpg"
+                  />
                   <div className="space-y-2">
-                    <input
-                      type="text"
-                      id="image"
-                      name="image"
-                      value={formData.image}
-                      onChange={handleInputChange}
-                      className="input-field"
-                      placeholder="/images/featured.jpg or https://example.com/image.jpg"
-                    />
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs mb-0" style={{ color: 'var(--color-text-tertiary)' }}>Recommended: 1200x630px</p>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Show preview</span>
-                        <Switch
-                          checked={showFeaturedPreview}
-                          onChange={setShowFeaturedPreview}
-                          size="sm"
-                        />
-                      </label>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-xs m-0" style={{ color: 'var(--color-text-tertiary)' }}>Recommended: 1200x630px</p>
+                      <Switch
+                        checked={showFeaturedPreview}
+                        onChange={setShowFeaturedPreview}
+                        size="sm"
+                        label="Show preview"
+                      />
                     </div>
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="imageAlt" className="text-label block mb-2">
-                    Alt Text
-                  </label>
-                  <input
-                    type="text"
-                    id="imageAlt"
-                    name="imageAlt"
-                    value={formData.imageAlt}
-                    onChange={handleInputChange}
-                    className="input-field"
-                    placeholder="Describe the image for accessibility"
-                  />
-                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                    Important for SEO and accessibility
-                  </p>
-                </div>
+                <TextInput
+                  id="imageAlt"
+                  name="imageAlt"
+                  label="Alt Text"
+                  description="Important for SEO and accessibility"
+                  value={formData.imageAlt}
+                  onChange={(val) => handleInputChange({ target: { name: 'imageAlt', value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                  placeholder="Describe the image for accessibility"
+                />
               </div>
 
               {showFeaturedPreview && formData.image && (
@@ -848,81 +742,54 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
               </AdminBanner>
 
               <div className="space-y-4">
+                <TextInput
+                  id="seo.title"
+                  name="seo.title"
+                  label="SEO Title"
+                  description={formData.seo.title ? `${formData.seo.title.length}/60` : undefined}
+                  value={formData.seo.title}
+                  onChange={(val) => handleInputChange({ target: { name: 'seo.title', value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                  placeholder={formData.title || "Leave empty to use post title"}
+                  maxLength={60}
+                />
+
+                <Textarea
+                  id="seo.description"
+                  name="seo.description"
+                  label="SEO Description"
+                  value={formData.seo.description}
+                  onChange={(val) => handleInputChange({ target: { name: 'seo.description', value: val } } as React.ChangeEvent<HTMLTextAreaElement>)}
+                  rows={3}
+                  placeholder={formData.excerpt || "Leave empty to use excerpt"}
+                  maxLength={160}
+                />
+
+                <TagInput
+                  label="SEO Keywords"
+                  value={formData.seo.keywords}
+                  onChange={handleKeywordsChange}
+                  placeholder="Add SEO keywords..."
+                  description="Press Enter or comma to add"
+                />
+
                 <div>
-                  <label htmlFor="seo.title" className="text-label block mb-2">
-                    SEO Title
-                  </label>
-                  <input
-                    type="text"
-                    id="seo.title"
-                    name="seo.title"
-                    value={formData.seo.title}
-                    onChange={handleInputChange}
-                    className="input-field"
-                    placeholder={formData.title || "Leave empty to use post title"}
-                    maxLength={60}
+                  <TextInput
+                    id="seo.image"
+                    name="seo.image"
+                    label="Social Media Image"
+                    value={formData.seo.image}
+                    onChange={(val) => handleInputChange({ target: { name: 'seo.image', value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                    placeholder="Leave empty to use featured image"
                   />
-                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                    {(formData.seo.title || formData.title).length}/60 characters
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor="seo.description" className="text-label block mb-2">
-                    SEO Description
-                  </label>
-                  <textarea
-                    id="seo.description"
-                    name="seo.description"
-                    value={formData.seo.description}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="input-field"
-                    placeholder={formData.excerpt || "Leave empty to use excerpt"}
-                    maxLength={160}
-                  />
-                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                    {(formData.seo.description || formData.excerpt).length}/160 characters
-                  </p>
-                </div>
-
-                <div>
-                  <label className="text-label block mb-2">
-                    SEO Keywords
-                  </label>
-                  {typeof window !== 'undefined' && (
-                    <KeywordsInput
-                      keywords={formData.seo.keywords}
-                      onChange={handleKeywordsChange}
-                      placeholder="Add SEO keywords..."
-                    />
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="seo.image" className="text-label block mb-2">
-                    Social Media Image
-                  </label>
                   <div className="space-y-2">
-                    <input
-                      type="text"
-                      id="seo.image"
-                      name="seo.image"
-                      value={formData.seo.image}
-                      onChange={handleInputChange}
-                      className="input-field"
-                      placeholder="Leave empty to use featured image"
-                    />
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Recommended: 1200x630px for best results</p>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Show preview</span>
-                        <Switch
-                          checked={showSEOPreview}
-                          onChange={setShowSEOPreview}
-                          size="sm"
-                        />
-                      </label>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-xs m-0" style={{ color: 'var(--color-text-tertiary)' }}>Recommended: 1200x630px for best results</p>
+                      <Switch
+                        checked={showSEOPreview}
+                        onChange={setShowSEOPreview}
+                        size="sm"
+                        label="Show preview"
+                      />
                     </div>
                   </div>
                 </div>
@@ -992,47 +859,32 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="author.name" className="text-label block mb-2">
-                  Author Name
-                </label>
-                <input
-                  type="text"
-                  id="author.name"
-                  name="author.name"
-                  value={formData.author.name}
-                  onChange={handleInputChange}
-                  className="input-field"
-                  placeholder="John Doe"
-                />
-              </div>
+              <TextInput
+                id="author.name"
+                name="author.name"
+                label="Author Name"
+                value={formData.author.name}
+                onChange={(val) => handleInputChange({ target: { name: 'author.name', value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                placeholder="John Doe"
+              />
 
-              <div>
-                <label htmlFor="author.image" className="text-label block mb-2">
-                  Author Image URL
-                </label>
-                <input
-                  type="text"
-                  id="author.image"
-                  name="author.image"
-                  value={formData.author.image}
-                  onChange={handleInputChange}
-                  className="input-field"
-                  placeholder="/images/author.jpg"
-                />
-              </div>
+              <TextInput
+                id="author.image"
+                name="author.image"
+                label="Author Image URL"
+                value={formData.author.image}
+                onChange={(val) => handleInputChange({ target: { name: 'author.image', value: val } } as React.ChangeEvent<HTMLInputElement>)}
+                placeholder="/images/author.jpg"
+              />
 
               <div className="md:col-span-2">
-                <label htmlFor="author.bio" className="text-label block mb-2">
-                  Author Bio
-                </label>
-                <textarea
+                <Textarea
                   id="author.bio"
                   name="author.bio"
+                  label="Author Bio"
                   value={formData.author.bio}
-                  onChange={handleInputChange}
+                  onChange={(val) => handleInputChange({ target: { name: 'author.bio', value: val } } as React.ChangeEvent<HTMLTextAreaElement>)}
                   rows={2}
-                  className="input-field"
                   placeholder="Brief author biography..."
                 />
               </div>
@@ -1050,13 +902,11 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
             <div className="space-y-4">
               <div
                 className="flex items-center justify-between p-4 rounded-lg"
-                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-medium)' }}
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}
               >
                 <div>
-                  <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
-                    Featured Post
-                  </label>
-                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                  <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Featured Post</span>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                     Display this post prominently on the homepage
                   </p>
                 </div>
@@ -1068,13 +918,13 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
               <div
                 className="flex items-center justify-between p-4 rounded-lg"
-                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-medium)' }}
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}
               >
                 <div>
-                  <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
+                  <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                     {mode === 'edit' && !initialData?.draft ? 'Unpublish to Draft' : 'Save as Draft'}
-                  </label>
-                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                  </span>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                     {mode === 'edit' && !initialData?.draft
                       ? 'Move this published post back to draft status'
                       : 'Post will not be published publicly'}
@@ -1088,13 +938,11 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
               <div
                 className="flex items-center justify-between p-4 rounded-lg"
-                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-medium)' }}
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}
               >
                 <div>
-                  <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
-                    Exclude from Search
-                  </label>
-                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                  <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Exclude from Search</span>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                     Hide this post from search engines
                   </p>
                 </div>
@@ -1138,6 +986,8 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
           </div>
         </div>
       </form>
+
+      {dialog}
 
       {/* URL Change Warning Modal */}
       <UrlChangeWarningModal

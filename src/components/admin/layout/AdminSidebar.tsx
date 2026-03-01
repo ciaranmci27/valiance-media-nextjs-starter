@@ -151,7 +151,7 @@ export function AdminSidebar({
       {/* Mobile backdrop */}
       {mobileOpen && (
         <div
-          className="admin-sidebar-backdrop md:hidden"
+          className="admin-sidebar-backdrop lg:hidden"
           onClick={() => onMobileOpenChange(false)}
         />
       )}
@@ -191,7 +191,7 @@ export function AdminSidebar({
             }}
           >
             {/* Desktop: Logo — both rendered, crossfade via opacity */}
-            <div className="hidden md:flex items-center" style={{ position: 'relative', height: '32px', flexShrink: 0 }}>
+            <div className="hidden lg:flex items-center" style={{ position: 'relative', height: '32px', flexShrink: 0 }}>
               {/* Horizontal logo — absolutely positioned so it never compresses */}
               <Link
                 href="/admin"
@@ -239,7 +239,7 @@ export function AdminSidebar({
             </div>
 
             {/* Mobile: Full logo + close button */}
-            <Link href="/admin" className="md:hidden flex items-center" onClick={handleNavClick}>
+            <Link href="/admin" className="lg:hidden flex items-center" onClick={handleNavClick}>
               <Image
                 src={mode === 'dark' ? '/logos/horizontal-logo-inverted.png' : '/logos/horizontal-logo.png'}
                 alt={seoConfig.siteName || 'Admin'}
@@ -252,7 +252,7 @@ export function AdminSidebar({
 
             <button
               onClick={() => onMobileOpenChange(false)}
-              className="md:hidden flex items-center justify-center rounded-lg"
+              className="lg:hidden flex items-center justify-center rounded-lg"
               style={{
                 width: '32px',
                 height: '32px',
@@ -279,7 +279,7 @@ export function AdminSidebar({
             {navItems.map((item) => renderNavItem(item, true))}
 
             {/* Mobile: show bottom items inline */}
-            <div className="md:hidden" style={{ marginTop: '8px', borderTop: '1px solid var(--color-border-light)', paddingTop: '8px' }}>
+            <div className="lg:hidden" style={{ marginTop: '8px', borderTop: '1px solid var(--color-border-light)', paddingTop: '8px' }}>
               {bottomNavItems.map((item) => renderNavItem(item, false))}
 
               <button
@@ -294,7 +294,7 @@ export function AdminSidebar({
 
           {/* Bottom section — desktop only */}
           <div
-            className="hidden md:flex md:flex-col"
+            className="hidden lg:flex lg:flex-col"
             style={{
               borderTop: '1px solid var(--color-border-light)',
               padding: '12px',

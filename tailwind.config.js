@@ -1,5 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  presets: [
+    require('./src/components/ui/inputs/inputs.preset'),
+    require('./src/components/ui/feedback/feedback.preset'),
+  ],
   darkMode: 'class',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',

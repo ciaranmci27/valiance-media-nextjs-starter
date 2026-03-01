@@ -100,13 +100,13 @@ export default function SocialMediaPreview({
               </div>
             )}
             <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0">
                 {domain}
               </p>
               <h3 className="font-semibold text-base mt-1 text-gray-900 dark:text-gray-100">
                 {truncateText(title, 60) || 'Page Title'}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 mb-0">
                 {truncateText(description, 120) || 'Page description will appear here...'}
               </p>
             </div>
@@ -157,10 +157,10 @@ export default function SocialMediaPreview({
                 <h3 className="font-bold text-base text-gray-900 dark:text-gray-100">
                   {truncateText(title, 70) || 'Page Title'}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 mb-0">
                   {truncateText(description, 125) || 'Page description will appear here...'}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center mb-0">
                   <span className="mr-1">🔗</span> {domain}
                 </p>
               </div>
@@ -240,10 +240,10 @@ export default function SocialMediaPreview({
               </div>
             )}
             <div className="p-4">
-              <h3 className="font-semibold text-base text-gray-900 dark:text-gray-100">
+              <h3 className="font-semibold text-base text-gray-900 dark:text-gray-100 mb-0">
                 {truncateText(title, 70) || 'Page Title'}
               </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-0">
                 {domain} • {siteName}
               </p>
             </div>

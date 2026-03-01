@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
 import AdminButton from '@/components/admin/ui/AdminButton';
-import { Select } from '@/components/admin/ui/Select';
+import { TextInput, Select } from '@/components/ui/inputs';
+import { useConfirmationDialog } from '@/components/ui/feedback';
 
 interface Redirect {
   from: string;
@@ -14,6 +15,7 @@ interface Redirect {
 }
 
 export default function RedirectsManager() {
+  const { confirm: confirmAction, dialog } = useConfirmationDialog();
   const [redirects, setRedirects] = useState<Redirect[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -81,9 +83,13 @@ export default function RedirectsManager() {
   };
 
   const handleDeleteRedirect = async (from: string) => {
-    if (!confirm(`Are you sure you want to delete the redirect from "${from}"?`)) {
-      return;
-    }
+    const confirmed = await confirmAction({
+      title: 'Delete Redirect',
+      description: `Are you sure you want to delete the redirect from "${from}"?`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/admin/redirects?from=${encodeURIComponent(from)}`, {
@@ -133,57 +139,51 @@ export default function RedirectsManager() {
       {/* Add Form */}
       {showAddForm && (
         <form onSubmit={handleAddRedirect} className="dash-card" style={{ padding: '16px 20px' }}>
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <label className="text-label block mb-1">From</label>
-                <input
-                  type="text"
-                  value={newRedirect.from || ''}
-                  onChange={(e) => setNewRedirect({ ...newRedirect, from: e.target.value })}
-                  className="input-field"
-                  placeholder="/old-page"
-                  required
-                  autoFocus
-                />
-              </div>
+          <div className="flex flex-col lg:flex-row lg:items-end gap-3">
+            {/* From / To row - side by side on tablet+ */}
+            <div className="flex flex-col sm:flex-row sm:items-end gap-3 flex-1">
+              <TextInput
+                className="flex-1"
+                label="From"
+                value={newRedirect.from || ''}
+                onChange={(val) => setNewRedirect({ ...newRedirect, from: val })}
+                placeholder="/old-page"
+                required
+                autoFocus
+              />
               <div
                 className="hidden sm:flex items-end pb-2"
                 style={{ color: 'var(--color-text-disabled)', fontSize: '16px' }}
               >
                 &rarr;
               </div>
-              <div className="flex-1">
-                <label className="text-label block mb-1">To</label>
-                <input
-                  type="text"
-                  value={newRedirect.to || ''}
-                  onChange={(e) => setNewRedirect({ ...newRedirect, to: e.target.value })}
-                  className="input-field"
-                  placeholder="/new-page"
-                  required
-                />
-              </div>
+              <TextInput
+                className="flex-1"
+                label="To"
+                value={newRedirect.to || ''}
+                onChange={(val) => setNewRedirect({ ...newRedirect, to: val })}
+                placeholder="/new-page"
+                required
+              />
             </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3">
-              <div style={{ width: '200px' }}>
+            {/* Type + buttons - inline together */}
+            <div className="flex items-end gap-3">
+              <div className="min-w-0 flex-1 sm:flex-initial sm:w-[200px] sm:flex-shrink-0">
                 <Select
                   label="Type"
                   value={newRedirect.permanent ? 'permanent' : 'temporary'}
                   onChange={(value) => setNewRedirect({ ...newRedirect, permanent: value === 'permanent' })}
-                  size="sm"
                   options={[
                     { value: 'permanent', label: '308 Permanent' },
                     { value: 'temporary', label: '307 Temporary' },
                   ]}
                 />
               </div>
-              <div className="flex gap-2 w-full sm:w-auto">
+              <div className="flex gap-2 flex-shrink-0">
                 <AdminButton
                   variant="secondary"
                   size="sm"
                   type="button"
-                  className="flex-1 sm:flex-initial"
                   onClick={() => {
                     setShowAddForm(false);
                     setNewRedirect({ from: '', to: '', permanent: true });
@@ -191,7 +191,7 @@ export default function RedirectsManager() {
                 >
                   Cancel
                 </AdminButton>
-                <AdminButton size="sm" type="submit" className="flex-1 sm:flex-initial">
+                <AdminButton size="sm" type="submit">
                   Add
                 </AdminButton>
               </div>
@@ -283,6 +283,7 @@ export default function RedirectsManager() {
           </p>
         </AdminBanner>
       )}
+      {dialog}
     </div>
   );
 }

@@ -56,7 +56,7 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps) {
         {/* Mobile menu button */}
         <button
           onClick={onMobileMenuClick}
-          className="md:hidden flex items-center justify-center rounded-lg"
+          className="lg:hidden flex items-center justify-center rounded-lg"
           style={{
             width: '40px',
             height: '40px',
@@ -84,7 +84,7 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps) {
         {/* Theme toggle — visible on mobile (desktop has it in sidebar) */}
         <button
           onClick={toggleTheme}
-          className="md:hidden flex items-center justify-center rounded-lg"
+          className="lg:hidden flex items-center justify-center rounded-lg"
           style={{
             width: '40px',
             height: '40px',

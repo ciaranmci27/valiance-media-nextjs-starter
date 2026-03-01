@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { Search } from 'lucide-react';
+import { TextInput } from '@/components/ui/inputs';
 
 interface SearchInputProps {
   placeholder?: string;
@@ -19,8 +20,12 @@ export default function SearchInput({
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
 
-  // Debounce the search query
+  // Debounce the search query (instant clear for responsiveness)
   useEffect(() => {
+    if (query === '') {
+      setDebouncedQuery('');
+      return;
+    }
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
     }, debounceMs);
@@ -33,31 +38,15 @@ export default function SearchInput({
     onSearch(debouncedQuery);
   }, [debouncedQuery, onSearch]);
 
-  const handleClear = useCallback(() => {
-    setQuery('');
-    setDebouncedQuery('');
-    onSearch('');
-  }, [onSearch]);
-
   return (
-    <div className={`admin-search-wrap ${className}`}>
-      <MagnifyingGlassIcon className="admin-search-icon" aria-hidden="true" />
-      <input
-        type="text"
+    <div className={className}>
+      <TextInput
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="admin-search-input"
+        onChange={(val) => setQuery(val)}
         placeholder={placeholder}
+        leftIcon={Search}
+        clearable
       />
-      {query && (
-        <button
-          type="button"
-          onClick={handleClear}
-          className="admin-search-clear"
-        >
-          <XMarkIcon className="w-4 h-4" aria-hidden="true" />
-        </button>
-      )}
     </div>
   );
 }

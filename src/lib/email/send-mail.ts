@@ -19,7 +19,8 @@ async function loadEmailAccounts(): Promise<EmailAccount[]> {
     const data = await fs.readFile(SETTINGS_FILE, 'utf-8');
     const settings = JSON.parse(data);
     return settings.email?.accounts ?? [];
-  } catch {
+  } catch (error) {
+    console.error('[loadEmailAccounts] Failed to read settings.json -- check the file exists and contains valid JSON:', error);
     return [];
   }
 }
@@ -81,6 +82,12 @@ interface TransactionalOptions {
 }
 
 export async function sendTransactional(options: TransactionalOptions): Promise<SendMailResult> {
+  const recipients = Array.isArray(options.to) ? options.to.filter(Boolean) : [options.to].filter(Boolean);
+  if (recipients.length === 0) {
+    console.error('[sendTransactional] No recipient address provided -- set the "to" field in your API route');
+    return { success: false, error: 'No recipient address provided -- set the "to" field in your API route' };
+  }
+
   const result = await getAccountAndTransport(options.accountId);
   if ('error' in result) return { success: false, error: result.error };
 
@@ -90,8 +97,8 @@ export async function sendTransactional(options: TransactionalOptions): Promise<
     const info = await transport.sendMail({
       from: `"${account.fromName}" <${account.fromEmail}>`,
       replyTo: account.replyTo || undefined,
-      to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
-      subject: options.subject,
+      to: recipients.join(', '),
+      subject: options.subject.replace(/[\r\n]/g, '').trim(),
       html: options.html,
       text: options.text,
     });
@@ -126,6 +133,12 @@ interface RelayOptions {
 }
 
 export async function sendRelay(options: RelayOptions): Promise<SendMailResult> {
+  const recipients = Array.isArray(options.to) ? options.to.filter(Boolean) : [options.to].filter(Boolean);
+  if (recipients.length === 0) {
+    console.error('[sendRelay] No recipient address provided -- set the "to" field in your API route');
+    return { success: false, error: 'No recipient address provided -- set the "to" field in your API route' };
+  }
+
   const result = await getAccountAndTransport(options.accountId);
   if ('error' in result) return { success: false, error: result.error };
 
@@ -133,14 +146,20 @@ export async function sendRelay(options: RelayOptions): Promise<SendMailResult> 
 
   // Sanitize sender input to prevent email header injection
   const safeName = options.sender.name.replace(/[\r\n"]/g, '').trim();
-  const safeEmail = options.sender.email.replace(/[\r\n]/g, '').trim();
+  const safeEmail = options.sender.email.replace(/[\r\n,;]/g, '').trim();
+  const safeSubject = options.subject.replace(/[\r\n]/g, '').trim();
+
+  // Basic email format validation
+  if (safeEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safeEmail)) {
+    return { success: false, error: 'Invalid sender email address format' };
+  }
 
   try {
     const info = await transport.sendMail({
       from: `"${safeName}" <${account.fromEmail}>`,
-      replyTo: safeEmail,
-      to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
-      subject: options.subject,
+      replyTo: safeEmail || undefined,
+      to: recipients.join(', '),
+      subject: safeSubject,
       html: options.html,
       text: options.text,
     });

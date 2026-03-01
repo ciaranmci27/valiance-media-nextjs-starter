@@ -5,6 +5,7 @@ import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
 import { AdminFooter } from './AdminFooter';
 import ConfigWarningBanner from '@/components/admin/ConfigWarningBanner';
+import { Toaster } from '@/components/ui/feedback';
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -60,7 +61,7 @@ export function AdminShell({ children }: AdminShellProps) {
           .admin-content-area {
             margin-left: 0;
           }
-          @media (min-width: 768px) {
+          @media (min-width: 1024px) {
             .admin-content-area {
               margin-left: ${contentMarginLeft};
             }
@@ -73,7 +74,7 @@ export function AdminShell({ children }: AdminShellProps) {
             }
           ` : ''}
           /* Sidebar responsive transform */
-          @media (max-width: 767.98px) {
+          @media (max-width: 1023.98px) {
             .admin-sidebar {
               width: 264px !important;
             }
@@ -87,17 +88,18 @@ export function AdminShell({ children }: AdminShellProps) {
         `}</style>
 
         <div className="admin-content-area flex flex-col flex-1 transition-all duration-300">
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <AdminHeader onMobileMenuClick={() => setMobileOpen(true)} />
           </div>
 
-          <main className="flex-1 px-4 md:px-6 pb-6 pt-6">
+          <main className="flex-1 px-4 lg:px-6 pb-6 pt-6">
             {children}
           </main>
 
           <AdminFooter />
         </div>
       </div>
+      <Toaster position="bottom-right" />
     </div>
   );
 }

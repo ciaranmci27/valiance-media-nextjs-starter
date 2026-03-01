@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { toast } from '@/components/admin/ui/Toast';
+import { toast } from '@/components/ui/feedback';
 import SocialMediaPreview from './SocialMediaPreview';
 import { Switch } from '@/components/admin/ui/Switch';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
 import AdminButton from '@/components/admin/ui/AdminButton';
-import { Select } from '@/components/admin/ui/Select';
+import { TextInput, Textarea, NumberInput, Toggle, TimeInput, Select, MultiSelect, TagInput } from '@/components/ui/inputs';
 
 interface SEOConfigData {
   siteName: string;
@@ -131,7 +131,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
   const [isSaving, setIsSaving] = useState(false);
   const [activeSection, setActiveSection] = useState(initialSection);
   const [showOGPreview, setShowOGPreview] = useState(false);
-  const [urlWarnings, setUrlWarnings] = useState<string[]>([]);
+
 
   useEffect(() => {
     fetchConfig();
@@ -144,12 +144,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
     }
   }, [initialSection]);
   
-  // Validate URL on initial load
-  useEffect(() => {
-    if (config?.siteUrl) {
-      setUrlWarnings(validateUrl(config.siteUrl));
-    }
-  }, [config?.siteUrl]);
+
 
   const fetchConfig = async () => {
     setIsLoading(true);
@@ -169,56 +164,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
     }
   };
 
-  // Validate URL and provide warnings
-  const validateUrl = (url: string): string[] => {
-    const warnings: string[] = [];
-    
-    if (!url) {
-      warnings.push('Site URL is required for proper SEO functionality');
-      return warnings;
-    }
-    
-    // Check for common issues
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      warnings.push('URL should start with http:// or https://');
-    } else if (url.startsWith('http://') && url !== 'http://localhost:3000') {
-      warnings.push('Consider using HTTPS for better SEO and security');
-    }
-    
-    if (url.endsWith('/')) {
-      warnings.push('URL should not end with a trailing slash');
-    }
-    
-    if (!url.includes('.') && !url.includes('localhost')) {
-      warnings.push('URL appears to be missing a domain extension (e.g., .com, .org)');
-    }
-    
-    // Always provide WWW guidance for production URLs
-    if (url.includes('://') && !url.includes('localhost') && !url.includes('127.0.0.1')) {
-      if (url.includes('www.')) {
-        warnings.push('Using WWW version - ensure all links and redirects consistently use www.yourdomain.com');
-      } else {
-        warnings.push('Using non-WWW version - ensure all links and redirects consistently use yourdomain.com (without www)');
-      }
-    }
-    
-    if (url === 'https://example.com' || url === 'http://example.com') {
-      warnings.push('Please update the example URL to your actual website URL');
-    }
-    
-    // Check for spaces or invalid characters
-    if (url.includes(' ')) {
-      warnings.push('URL should not contain spaces');
-    }
-    
-    try {
-      new URL(url);
-    } catch {
-      warnings.push('Invalid URL format');
-    }
-    
-    return warnings;
-  };
+
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -257,7 +203,6 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
     { id: 'social', label: 'Social Media' },
     { id: 'robots', label: 'Robots' },
     { id: 'sitemap', label: 'Sitemap' },
-    { id: 'languages', label: 'Languages' },
   ];
 
   if (isLoading) {
@@ -289,50 +234,39 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
               <div className="space-y-6">
                 <div>
                   <h4 className="text-h4 mb-3">Site Information</h4>
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-label block mb-2">Site Name</label>
-                    <input
-                      type="text"
+                    <TextInput
+                      label="Site Name"
                       value={config.siteName}
-                      onChange={(e) => setConfig({...config, siteName: e.target.value})}
-                      className="input-field"
+                      onChange={(val) => setConfig({...config, siteName: val})}
                       placeholder="My Company"
                     />
                     <p className="form-hint">Used in titles and meta tags</p>
                   </div>
-                  
+
                   <div>
-                    <label className="text-label block mb-2">Site URL</label>
-                    <input
+                    <TextInput
+                      label="Site URL"
                       type="url"
                       value={config.siteUrl}
-                      onChange={(e) => {
-                        const newUrl = e.target.value;
-                        setConfig({...config, siteUrl: newUrl});
-                        setUrlWarnings(validateUrl(newUrl));
-                      }}
-                      className="input-field"
-                      style={urlWarnings.length > 0 ? { borderColor: 'var(--color-warning)' } : undefined}
+                      onChange={(val) => setConfig({...config, siteUrl: val})}
                       placeholder="https://example.com"
                     />
                     <p className="form-hint">Full URL including protocol (https://)</p>
-                    {urlWarnings.length > 0 && (
-                      <AdminBanner variant="warning">
-                        <p style={{ fontWeight: 600, marginBottom: '4px' }}>URL Warnings:</p>
-                        <ul className="space-y-1">
-                          {urlWarnings.map((warning, index) => (
-                            <li key={index} className="flex items-start gap-1">
-                              <span>{warning}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </AdminBanner>
-                    )}
                   </div>
 
                 </div>
                 </div>
+
+                <TextInput
+                  label="Canonical URL"
+                  description="Optional"
+                  type="url"
+                  value={config.alternates.canonical}
+                  onChange={(val) => setConfig({...config, alternates: {...config.alternates, canonical: val}})}
+                  placeholder="https://yoursite.com"
+                />
               </div>
             )}
 
@@ -342,60 +276,42 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                 <div>
                   <h4 className="text-h4 mb-3">Company Details</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-label block mb-2">Company Name (Optional)</label>
-                    <input
-                      type="text"
-                      value={config.company.name}
-                      onChange={(e) => setConfig({...config, company: {...config.company, name: e.target.value}})}
-                      className="input-field"
-                      placeholder="Company Name"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-label block mb-2">Legal Name (Optional)</label>
-                    <input
-                      type="text"
-                      value={config.company.legalName}
-                      onChange={(e) => setConfig({...config, company: {...config.company, legalName: e.target.value}})}
-                      className="input-field"
-                      placeholder="Company Name LLC"
-                    />
-                  </div>
+                  <TextInput
+                    label="Company Name (Optional)"
+                    value={config.company.name}
+                    onChange={(val) => setConfig({...config, company: {...config.company, name: val}})}
+                    placeholder="Company Name"
+                  />
 
-                  <div>
-                    <label className="text-label block mb-2">Email (Optional)</label>
-                    <input
-                      type="email"
-                      value={config.company.email}
-                      onChange={(e) => setConfig({...config, company: {...config.company, email: e.target.value}})}
-                      className="input-field"
-                      placeholder="info@example.com"
-                    />
-                  </div>
+                  <TextInput
+                    label="Legal Name (Optional)"
+                    value={config.company.legalName}
+                    onChange={(val) => setConfig({...config, company: {...config.company, legalName: val}})}
+                    placeholder="Company Name LLC"
+                  />
 
-                  <div>
-                    <label className="text-label block mb-2">Phone (Optional)</label>
-                    <input
-                      type="tel"
-                      value={config.company.phone}
-                      onChange={(e) => setConfig({...config, company: {...config.company, phone: e.target.value}})}
-                      className="input-field"
-                      placeholder="+1-555-0000"
-                    />
-                  </div>
+                  <TextInput
+                    label="Email (Optional)"
+                    type="email"
+                    value={config.company.email}
+                    onChange={(val) => setConfig({...config, company: {...config.company, email: val}})}
+                    placeholder="info@example.com"
+                  />
 
-                  <div>
-                    <label className="text-label block mb-2">Founding Date (Optional)</label>
-                    <input
-                      type="text"
-                      value={config.company.foundingDate}
-                      onChange={(e) => setConfig({...config, company: {...config.company, foundingDate: e.target.value}})}
-                      className="input-field"
-                      placeholder="YYYY"
-                    />
-                  </div>
+                  <TextInput
+                    label="Phone (Optional)"
+                    type="tel"
+                    value={config.company.phone}
+                    onChange={(val) => setConfig({...config, company: {...config.company, phone: val}})}
+                    placeholder="+1-555-0000"
+                  />
+
+                  <TextInput
+                    label="Founding Date (Optional)"
+                    value={config.company.foundingDate}
+                    onChange={(val) => setConfig({...config, company: {...config.company, foundingDate: val}})}
+                    placeholder="YYYY"
+                  />
                 </div>
 
                 </div>
@@ -404,59 +320,41 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                   <h4 className="text-h4 mb-3">Address</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <label className="text-label block mb-2">Street Address (Optional)</label>
-                      <input
-                        type="text"
+                      <TextInput
+                        label="Street Address (Optional)"
                         value={config.company.address.streetAddress}
-                        onChange={(e) => setConfig({...config, company: {...config.company, address: {...config.company.address, streetAddress: e.target.value}}})}
-                        className="input-field"
+                        onChange={(val) => setConfig({...config, company: {...config.company, address: {...config.company.address, streetAddress: val}}})}
                         placeholder="123 Main Street"
                       />
                     </div>
-                    
-                    <div>
-                      <label className="text-label block mb-2">City (Optional)</label>
-                      <input
-                        type="text"
-                        value={config.company.address.addressLocality}
-                        onChange={(e) => setConfig({...config, company: {...config.company, address: {...config.company.address, addressLocality: e.target.value}}})}
-                        className="input-field"
-                        placeholder="New York"
-                      />
-                    </div>
 
-                    <div>
-                      <label className="text-label block mb-2">State/Region (Optional)</label>
-                      <input
-                        type="text"
-                        value={config.company.address.addressRegion}
-                        onChange={(e) => setConfig({...config, company: {...config.company, address: {...config.company.address, addressRegion: e.target.value}}})}
-                        className="input-field"
-                        placeholder="NY"
-                      />
-                    </div>
+                    <TextInput
+                      label="City (Optional)"
+                      value={config.company.address.addressLocality}
+                      onChange={(val) => setConfig({...config, company: {...config.company, address: {...config.company.address, addressLocality: val}}})}
+                      placeholder="New York"
+                    />
 
-                    <div>
-                      <label className="text-label block mb-2">Postal Code (Optional)</label>
-                      <input
-                        type="text"
-                        value={config.company.address.postalCode}
-                        onChange={(e) => setConfig({...config, company: {...config.company, address: {...config.company.address, postalCode: e.target.value}}})}
-                        className="input-field"
-                        placeholder="10001"
-                      />
-                    </div>
+                    <TextInput
+                      label="State/Region (Optional)"
+                      value={config.company.address.addressRegion}
+                      onChange={(val) => setConfig({...config, company: {...config.company, address: {...config.company.address, addressRegion: val}}})}
+                      placeholder="NY"
+                    />
 
-                    <div>
-                      <label className="text-label block mb-2">Country Code (Optional)</label>
-                      <input
-                        type="text"
-                        value={config.company.address.addressCountry}
-                        onChange={(e) => setConfig({...config, company: {...config.company, address: {...config.company.address, addressCountry: e.target.value}}})}
-                        className="input-field"
-                        placeholder="US"
-                      />
-                    </div>
+                    <TextInput
+                      label="Postal Code (Optional)"
+                      value={config.company.address.postalCode}
+                      onChange={(val) => setConfig({...config, company: {...config.company, address: {...config.company.address, postalCode: val}}})}
+                      placeholder="10001"
+                    />
+
+                    <TextInput
+                      label="Country Code (Optional)"
+                      value={config.company.address.addressCountry}
+                      onChange={(val) => setConfig({...config, company: {...config.company, address: {...config.company.address, addressCountry: val}}})}
+                      placeholder="US"
+                    />
                   </div>
                 </div>
               </div>
@@ -469,41 +367,28 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                   <div>
                     <h4 className="text-h4 mb-3">Page SEO</h4>
                     <div className="space-y-3">
-                      <div>
-                        <label className="text-label block mb-2">Title Template</label>
-                        <input
-                          type="text"
-                          value={config.titleTemplate}
-                          onChange={(e) => setConfig({...config, titleTemplate: e.target.value})}
-                          className="input-field"
-                          placeholder="{pageName} | {siteName}"
-                          maxLength={60}
-                        />
-                        <p className="form-hint">Example: About Us | {config.siteName}</p>
-                      </div>
-                      <div>
-                        <label className="text-label block mb-2">Description Template</label>
-                        <textarea
-                          value={config.defaultDescription}
-                          onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
-                          className="input-field"
-                          rows={2}
-                          placeholder="Learn about {pageName} at {siteName}. {siteTagline}"
-                          maxLength={160}
-                        />
-                        <p className="form-hint">{config.defaultDescription.length}/160 characters</p>
-                      </div>
-                      <div>
-                        <label className="text-label block mb-2">Keywords Template</label>
-                        <input
-                          type="text"
-                          value={config.defaultKeywords.join(', ')}
-                          onChange={(e) => setConfig({...config, defaultKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean)})}
-                          className="input-field"
-                          placeholder="{pageName}, {siteName}, your service, your industry"
-                        />
-                        <p className="form-hint">Comma-separated, can use variables</p>
-                      </div>
+                      <TextInput
+                        label="Title Template"
+                        value={config.titleTemplate}
+                        onChange={(val) => setConfig({...config, titleTemplate: val})}
+                        placeholder="{pageName} | {siteName}"
+                        maxLength={60}
+                        description={`${config.titleTemplate.length}/60`}
+                      />
+                      <Textarea
+                        label="Description Template"
+                        value={config.defaultDescription}
+                        onChange={(val) => setConfig({...config, defaultDescription: val})}
+                        rows={2}
+                        placeholder="Learn about {pageName} at {siteName}. {siteTagline}"
+                        maxLength={160}
+                      />
+                      <TextInput
+                        label="Keywords Template"
+                        value={config.defaultKeywords.join(', ')}
+                        onChange={(val) => setConfig({...config, defaultKeywords: val.split(',').map(k => k.trim()).filter(Boolean)})}
+                        placeholder="{pageName}, {siteName}, your service, your industry"
+                      />
                     </div>
                   </div>
 
@@ -511,41 +396,28 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                   <div>
                     <h4 className="text-h4 mb-3">Blog Post SEO</h4>
                     <div className="space-y-3">
-                      <div>
-                        <label className="text-label block mb-2">Title Template</label>
-                        <input
-                          type="text"
-                          value={config.titleTemplate}
-                          onChange={(e) => setConfig({...config, titleTemplate: e.target.value})}
-                          className="input-field"
-                          placeholder="{pageName} | Blog | {siteName}"
-                          maxLength={60}
-                        />
-                        <p className="form-hint">Example: How to Start a Business | Blog | {config.siteName}</p>
-                      </div>
-                      <div>
-                        <label className="text-label block mb-2">Description Template</label>
-                        <textarea
-                          value={config.defaultDescription}
-                          onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
-                          className="input-field"
-                          rows={2}
-                          placeholder="Read our latest article about {pageName}. Expert insights from {siteName}."
-                          maxLength={160}
-                        />
-                        <p className="form-hint">Will use post excerpt if available</p>
-                      </div>
-                      <div>
-                        <label className="text-label block mb-2">Keywords Template</label>
-                        <input
-                          type="text"
-                          value={config.defaultKeywords.join(', ')}
-                          onChange={(e) => setConfig({...config, defaultKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean)})}
-                          className="input-field"
-                          placeholder="{pageName}, blog, article, {siteName}"
-                        />
-                        <p className="form-hint">Will combine with post tags if available</p>
-                      </div>
+                      <TextInput
+                        label="Title Template"
+                        value={config.titleTemplate}
+                        onChange={(val) => setConfig({...config, titleTemplate: val})}
+                        placeholder="{pageName} | Blog | {siteName}"
+                        maxLength={60}
+                        description={`${config.titleTemplate.length}/60`}
+                      />
+                      <Textarea
+                        label="Description Template"
+                        value={config.defaultDescription}
+                        onChange={(val) => setConfig({...config, defaultDescription: val})}
+                        rows={2}
+                        placeholder="Read our latest article about {pageName}. Expert insights from {siteName}."
+                        maxLength={160}
+                      />
+                      <TextInput
+                        label="Keywords Template"
+                        value={config.defaultKeywords.join(', ')}
+                        onChange={(val) => setConfig({...config, defaultKeywords: val.split(',').map(k => k.trim()).filter(Boolean)})}
+                        placeholder="{pageName}, blog, article, {siteName}"
+                      />
                     </div>
                   </div>
 
@@ -553,50 +425,34 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                   <div>
                     <h4 className="text-h4 mb-3">Blog Category SEO</h4>
                     <div className="space-y-3">
-                      <div>
-                        <label className="text-label block mb-2">Title Template</label>
-                        <input
-                          type="text"
-                          value={config.titleTemplate}
-                          onChange={(e) => setConfig({...config, titleTemplate: e.target.value})}
-                          className="input-field"
-                          placeholder="{pageName} Articles | {siteName} Blog"
-                          maxLength={60}
-                        />
-                        <p className="form-hint">Example: Technology Articles | {config.siteName} Blog</p>
-                      </div>
-                      <div>
-                        <label className="text-label block mb-2">Description Template</label>
-                        <textarea
-                          value={config.defaultDescription}
-                          onChange={(e) => setConfig({...config, defaultDescription: e.target.value})}
-                          className="input-field"
-                          rows={2}
-                          placeholder="Browse all {pageName} articles and resources from {siteName}."
-                          maxLength={160}
-                        />
-                        <p className="form-hint">Applied to category archive pages</p>
-                      </div>
-                      <div>
-                        <label className="text-label block mb-2">Keywords Template</label>
-                        <input
-                          type="text"
-                          value={config.defaultKeywords.join(', ')}
-                          onChange={(e) => setConfig({...config, defaultKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean)})}
-                          className="input-field"
-                          placeholder="{pageName}, category, articles, {siteName} blog"
-                        />
-                        <p className="form-hint">Category-specific keywords</p>
-                      </div>
+                      <TextInput
+                        label="Title Template"
+                        value={config.titleTemplate}
+                        onChange={(val) => setConfig({...config, titleTemplate: val})}
+                        placeholder="{pageName} Articles | {siteName} Blog"
+                        maxLength={60}
+                        description={`${config.titleTemplate.length}/60`}
+                      />
+                      <Textarea
+                        label="Description Template"
+                        value={config.defaultDescription}
+                        onChange={(val) => setConfig({...config, defaultDescription: val})}
+                        rows={2}
+                        placeholder="Browse all {pageName} articles and resources from {siteName}."
+                        maxLength={160}
+                      />
+                      <TextInput
+                        label="Keywords Template"
+                        value={config.defaultKeywords.join(', ')}
+                        onChange={(val) => setConfig({...config, defaultKeywords: val.split(',').map(k => k.trim()).filter(Boolean)})}
+                        placeholder="{pageName}, category, articles, {siteName} blog"
+                      />
                     </div>
                   </div>
 
                 <AdminBanner>
-                  <p style={{ marginBottom: '4px' }}>
-                    Default SEO templates that automatically apply to new content when custom SEO is not provided.
-                  </p>
                   <p>
-                    <strong>Available variables:</strong> {'{pageName}'} = current page/post/category name | {'{siteName}'} = your site name | {'{siteTagline}'} = your tagline
+                    <strong>Variables:</strong> {'{pageName}'} = current page/post/category name | {'{siteName}'} = your site name | {'{siteTagline}'} = your tagline
                   </p>
                 </AdminBanner>
               </div>
@@ -617,65 +473,69 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                       { value: 'article', label: 'Article' },
                       { value: 'product', label: 'Product' },
                       { value: 'profile', label: 'Profile' },
+                      { value: 'book', label: 'Book' },
+                      { value: 'video.other', label: 'Video' },
+                      { value: 'music.song', label: 'Music' },
                     ]}
                   />
 
-                  <div>
-                    <label className="text-label block mb-2">Locale</label>
-                    <input
-                      type="text"
-                      value={config.openGraph.locale}
-                      onChange={(e) => setConfig({...config, openGraph: {...config.openGraph, locale: e.target.value}})}
-                      className="input-field"
-                      placeholder="en_US"
-                    />
-                  </div>
+                  <Select
+                    label="Locale"
+                    value={config.openGraph.locale}
+                    onChange={(val) => setConfig({...config, openGraph: {...config.openGraph, locale: val}})}
+                    options={[
+                      { value: 'en_US', label: 'English (US)' },
+                      { value: 'en_GB', label: 'English (UK)' },
+                      { value: 'en_AU', label: 'English (AU)' },
+                      { value: 'en_CA', label: 'English (CA)' },
+                      { value: 'es_ES', label: 'Spanish (Spain)' },
+                      { value: 'es_MX', label: 'Spanish (Mexico)' },
+                      { value: 'fr_FR', label: 'French (France)' },
+                      { value: 'fr_CA', label: 'French (Canada)' },
+                      { value: 'de_DE', label: 'German' },
+                      { value: 'it_IT', label: 'Italian' },
+                      { value: 'pt_BR', label: 'Portuguese (Brazil)' },
+                      { value: 'pt_PT', label: 'Portuguese (Portugal)' },
+                      { value: 'nl_NL', label: 'Dutch' },
+                      { value: 'ja_JP', label: 'Japanese' },
+                      { value: 'ko_KR', label: 'Korean' },
+                      { value: 'zh_CN', label: 'Chinese (Simplified)' },
+                      { value: 'zh_TW', label: 'Chinese (Traditional)' },
+                      { value: 'ar_SA', label: 'Arabic' },
+                      { value: 'hi_IN', label: 'Hindi' },
+                      { value: 'ru_RU', label: 'Russian' },
+                      { value: 'pl_PL', label: 'Polish' },
+                      { value: 'sv_SE', label: 'Swedish' },
+                      { value: 'da_DK', label: 'Danish' },
+                      { value: 'nb_NO', label: 'Norwegian' },
+                      { value: 'fi_FI', label: 'Finnish' },
+                      { value: 'tr_TR', label: 'Turkish' },
+                      { value: 'th_TH', label: 'Thai' },
+                      { value: 'vi_VN', label: 'Vietnamese' },
+                      { value: 'id_ID', label: 'Indonesian' },
+                    ]}
+                  />
 
                   <div className="md:col-span-2">
-                    <label className="text-label block mb-2">Default Image URL</label>
                     <div className="space-y-2">
-                      <input
-                        type="text"
+                      <TextInput
+                        label="Default Image URL"
                         value={config.openGraph.defaultImage}
-                        onChange={(e) => setConfig({...config, openGraph: {...config.openGraph, defaultImage: e.target.value}})}
-                        className="input-field"
+                        onChange={(val) => setConfig({...config, openGraph: {...config.openGraph, defaultImage: val}})}
                         placeholder="/images/og-image.jpg or https://example.com/image.jpg"
                       />
-                      <div className="flex items-center justify-between">
-                        <p className="form-hint">Recommended: 1200x630px for best results across all platforms</p>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={showOGPreview}
-                            onChange={(e) => setShowOGPreview(e.target.checked)}
-                            className="w-4 h-4 rounded"
-                            style={{ accentColor: 'var(--color-primary)' }}
-                          />
-                          <span className="form-hint" style={{ marginTop: 0 }}>Show preview</span>
-                        </label>
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="form-hint m-0">Recommended: 1200x630px for best results across all platforms</p>
+                        <Toggle
+                          checked={showOGPreview}
+                          onChange={(checked) => setShowOGPreview(checked)}
+                          label="Show preview"
+                          size="sm"
+                        />
                       </div>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-label block mb-2">Image Width</label>
-                    <input
-                      type="number"
-                      value={config.openGraph.imageWidth}
-                      onChange={(e) => setConfig({...config, openGraph: {...config.openGraph, imageWidth: parseInt(e.target.value) || 0}})}
-                      className="input-field"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-label block mb-2">Image Height</label>
-                    <input
-                      type="number"
-                      value={config.openGraph.imageHeight}
-                      onChange={(e) => setConfig({...config, openGraph: {...config.openGraph, imageHeight: parseInt(e.target.value) || 0}})}
-                      className="input-field"
-                    />
-                  </div>
                 </div>
                 </div>
 
@@ -710,7 +570,7 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
               <div className="space-y-6">
                 <div>
                   <h4 className="text-h4 mb-3">Social Media Links</h4>
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(config.social).map(([platform, url]) => {
                     // Format platform names for display
                     const platformLabels: Record<string, string> = {
@@ -724,16 +584,14 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                     const label = platformLabels[platform] || platform;
                     
                     return (
-                      <div key={platform}>
-                        <label className="text-label block mb-2">{label}</label>
-                        <input
-                          type="url"
-                          value={url}
-                          onChange={(e) => setConfig({...config, social: {...config.social, [platform]: e.target.value}})}
-                          className="input-field"
-                          placeholder={`https://${platform === 'twitter' ? 'x' : platform}.com/yourprofile`}
-                        />
-                      </div>
+                      <TextInput
+                        key={platform}
+                        label={label}
+                        type="url"
+                        value={url}
+                        onChange={(val) => setConfig({...config, social: {...config.social, [platform]: val}})}
+                        placeholder={`https://${platform === 'twitter' ? 'x' : platform}.com/yourprofile`}
+                      />
                     );
                   })}
                 </div>
@@ -747,159 +605,158 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                 <div>
                   <h4 className="text-h4 mb-3">Active Schema Types</h4>
 
-                  {/* Schema Type Selection - 2 columns x 3 rows */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Organization */}
-                  <div className="dash-card flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">Organization</span>
-                        <span className="badge badge-primary text-xs">Recommended</span>
-                      </div>
-                      <p className="form-hint">Company info, logo, social profiles</p>
-                    </div>
-                    <Switch
-                      checked={config.schema?.activeTypes?.organization || false}
-                      onChange={(checked) => setConfig({
-                        ...config,
-                        schema: {
-                          ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                          activeTypes: { 
-                            ...getDefaultSchema().activeTypes,
-                            ...(config.schema?.activeTypes || {}), 
-                            organization: checked 
-                          }
-                        }
-                      })}
-                    />
-                  </div>
-
-                  {/* LocalBusiness */}
-                  <div className="dash-card flex items-center justify-between">
-                    <div className="flex-1">
-                      <span className="text-sm font-medium">LocalBusiness</span>
-                      <p className="form-hint">Physical location, hours, local SEO</p>
-                    </div>
-                    <Switch
-                      checked={config.schema?.activeTypes?.localBusiness || false}
-                      onChange={(checked) => setConfig({
-                        ...config,
-                        schema: {
-                          ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                          activeTypes: { 
-                            ...getDefaultSchema().activeTypes,
-                            ...(config.schema?.activeTypes || {}), 
-                            localBusiness: checked 
-                          }
-                        }
-                      })}
-                    />
-                  </div>
-
-                  {/* Person */}
-                  <div className="dash-card flex items-center justify-between">
-                    <div className="flex-1">
-                      <span className="text-sm font-medium">Person</span>
-                      <p className="form-hint">Personal brand, author profiles</p>
-                    </div>
-                    <Switch
-                      checked={config.schema?.activeTypes?.person || false}
-                      onChange={(checked) => setConfig({
-                        ...config,
-                        schema: {
-                          ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                          activeTypes: { 
-                            ...getDefaultSchema().activeTypes,
-                            ...(config.schema?.activeTypes || {}), 
-                            person: checked 
-                          }
-                        }
-                      })}
-                    />
-                  </div>
-
-                  {/* Contact Point - Separated from Organization */}
-                  <div className="dash-card flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">Contact Point</span>
-                      </div>
-                      <p className="form-hint">Customer service & support info</p>
-                    </div>
-                    <Switch
-                      checked={!!(config.schema?.activeTypes?.organization && config.schema?.organization?.contactPoint?.enabled !== false)}
-                      onChange={(checked) => setConfig({
-                        ...config,
-                        schema: {
-                          ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                          organization: {
-                            ...(config.schema?.organization || {}),
-                            contactPoint: {
-                              ...(config.schema?.organization?.contactPoint || {}),
-                              enabled: checked
+                  <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-border-light)' }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2">
+                      {/* Organization */}
+                      <div className="flex items-center justify-between px-4 py-3.5 border-b md:border-r" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Organization</span>
+                            <span className="badge badge-primary text-xs">Recommended</span>
+                          </div>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Company or brand identity</p>
+                        </div>
+                        <Switch
+                          checked={config.schema?.activeTypes?.organization || false}
+                          onChange={(checked) => setConfig({
+                            ...config,
+                            schema: {
+                              ...getDefaultSchema(),
+                              ...(config.schema || {}),
+                              activeTypes: {
+                                ...getDefaultSchema().activeTypes,
+                                ...(config.schema?.activeTypes || {}),
+                                organization: checked
+                              }
                             }
-                          }
-                        }
-                      })}
-                    />
-                  </div>
-
-                  {/* Breadcrumbs */}
-                  <div className="dash-card flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">Breadcrumbs</span>
-                        <span className="badge badge-primary text-xs">Recommended</span>
+                          })}
+                        />
                       </div>
-                      <p className="form-hint">Navigation path in search results</p>
-                    </div>
-                    <Switch
-                      checked={config.schema?.activeTypes?.breadcrumbs || false}
-                      onChange={(checked) => setConfig({
-                        ...config,
-                        schema: {
-                          ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                          activeTypes: { 
-                            ...getDefaultSchema().activeTypes,
-                            ...(config.schema?.activeTypes || {}), 
-                            breadcrumbs: checked 
-                          }
-                        }
-                      })}
-                    />
-                  </div>
 
-                  {/* WebSite */}
-                  <div className="dash-card flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">WebSite</span>
-                        <span className="badge badge-primary text-xs">Recommended</span>
+                      {/* LocalBusiness */}
+                      <div className="flex items-center justify-between px-4 py-3.5 border-b" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>LocalBusiness</span>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Physical location details</p>
+                        </div>
+                        <Switch
+                          checked={config.schema?.activeTypes?.localBusiness || false}
+                          onChange={(checked) => setConfig({
+                            ...config,
+                            schema: {
+                              ...getDefaultSchema(),
+                              ...(config.schema || {}),
+                              activeTypes: {
+                                ...getDefaultSchema().activeTypes,
+                                ...(config.schema?.activeTypes || {}),
+                                localBusiness: checked
+                              }
+                            }
+                          })}
+                        />
                       </div>
-                      <p className="form-hint">Site search box in Google results</p>
+
+                      {/* Person */}
+                      <div className="flex items-center justify-between px-4 py-3.5 border-b md:border-r" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Person</span>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Individual or author profile</p>
+                        </div>
+                        <Switch
+                          checked={config.schema?.activeTypes?.person || false}
+                          onChange={(checked) => setConfig({
+                            ...config,
+                            schema: {
+                              ...getDefaultSchema(),
+                              ...(config.schema || {}),
+                              activeTypes: {
+                                ...getDefaultSchema().activeTypes,
+                                ...(config.schema?.activeTypes || {}),
+                                person: checked
+                              }
+                            }
+                          })}
+                        />
+                      </div>
+
+                      {/* Contact Point */}
+                      <div className="flex items-center justify-between px-4 py-3.5 border-b" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Contact Point</span>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Support and contact info</p>
+                        </div>
+                        <Switch
+                          checked={!!(config.schema?.activeTypes?.organization && config.schema?.organization?.contactPoint?.enabled !== false)}
+                          onChange={(checked) => setConfig({
+                            ...config,
+                            schema: {
+                              ...getDefaultSchema(),
+                              ...(config.schema || {}),
+                              organization: {
+                                ...(config.schema?.organization || {}),
+                                contactPoint: {
+                                  ...(config.schema?.organization?.contactPoint || {}),
+                                  enabled: checked
+                                }
+                              }
+                            }
+                          })}
+                        />
+                      </div>
+
+                      {/* Breadcrumbs */}
+                      <div className="flex items-center justify-between px-4 py-3.5 md:border-r" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Breadcrumbs</span>
+                            <span className="badge badge-primary text-xs">Recommended</span>
+                          </div>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Page navigation trail</p>
+                        </div>
+                        <Switch
+                          checked={config.schema?.activeTypes?.breadcrumbs || false}
+                          onChange={(checked) => setConfig({
+                            ...config,
+                            schema: {
+                              ...getDefaultSchema(),
+                              ...(config.schema || {}),
+                              activeTypes: {
+                                ...getDefaultSchema().activeTypes,
+                                ...(config.schema?.activeTypes || {}),
+                                breadcrumbs: checked
+                              }
+                            }
+                          })}
+                        />
+                      </div>
+
+                      {/* WebSite */}
+                      <div className="flex items-center justify-between px-4 py-3.5" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>WebSite</span>
+                            <span className="badge badge-primary text-xs">Recommended</span>
+                          </div>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Site search and identity</p>
+                        </div>
+                        <Switch
+                          checked={config.schema?.activeTypes?.website || false}
+                          onChange={(checked) => setConfig({
+                            ...config,
+                            schema: {
+                              ...getDefaultSchema(),
+                              ...(config.schema || {}),
+                              activeTypes: {
+                                ...getDefaultSchema().activeTypes,
+                                ...(config.schema?.activeTypes || {}),
+                                website: checked
+                              }
+                            }
+                          })}
+                        />
+                      </div>
                     </div>
-                    <Switch
-                      checked={config.schema?.activeTypes?.website || false}
-                      onChange={(checked) => setConfig({
-                        ...config,
-                        schema: {
-                          ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                          activeTypes: { 
-                            ...getDefaultSchema().activeTypes,
-                            ...(config.schema?.activeTypes || {}), 
-                            website: checked 
-                          }
-                        }
-                      })}
-                    />
                   </div>
-                </div>
                 </div>
 
                 {/* Organization Schema */}
@@ -931,55 +788,24 @@ export default function SEOConfigEditor({ initialSection = 'basic' }: SEOConfigE
                           ]}
                         />
 
-                        <div>
-                          <label className="text-label block mb-2">Logo URL for Schema <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 400, marginLeft: '8px' }}>(600x600px)</span></label>
-                          <input
-                            type="text"
-                            value={config.schema?.organization?.logo?.url || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              schema: {
-                                ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                                organization: {
-                                  ...(config.schema?.organization || {}),
-                                  logo: { ...(config.schema?.organization?.logo || {}), url: e.target.value }
-                                }
-                              }
-                            })}
-                            className="input-field"
-                            placeholder="/logos/logo.png or https://..."
-                          />
-                        </div>
-                      </div>
-
-                      {/* SameAs URLs */}
-                      <div>
-                        <label className="text-label block mb-2">Additional Profile URLs (SameAs)</label>
-                        <textarea
-                          value={config.schema?.organization?.sameAs?.join('\n') || ''}
-                          onChange={(e) => setConfig({
+                        <TextInput
+                          label="Logo URL for Schema (600x600px)"
+                          value={config.schema?.organization?.logo?.url || ''}
+                          onChange={(val) => setConfig({
                             ...config,
                             schema: {
                               ...getDefaultSchema(),
-                          ...(config.schema || {}),
+                        ...(config.schema || {}),
                               organization: {
                                 ...(config.schema?.organization || {}),
-                                sameAs: e.target.value.split('\n').filter(Boolean)
+                                logo: { ...(config.schema?.organization?.logo || {}), url: val }
                               }
                             }
                           })}
-                          className="input-field"
-                          rows={3}
-                          placeholder="https://wikipedia.org/wiki/YourCompany
-https://crunchbase.com/organization/yourcompany
-https://www.wikidata.org/wiki/Q12345"
+                          placeholder="/logos/logo.png or https://..."
                         />
-                        <p className="form-hint">
-                          Social media URLs from the <strong>Social Media</strong> tab are included automatically.
-                          Add additional profiles here (Wikipedia, Crunchbase, etc.)
-                        </p>
                       </div>
+
                     </div>
                   </div>
                 )}
@@ -1018,11 +844,11 @@ https://www.wikidata.org/wiki/Q12345"
                       />
 
                       <div>
-                        <label className="text-label block mb-2">Support Phone</label>
-                        <input
+                        <TextInput
+                          label="Support Phone"
                           type="tel"
                           value={config.schema?.organization?.contactPoint?.telephone || ''}
-                          onChange={(e) => setConfig({
+                          onChange={(val) => setConfig({
                             ...config,
                             schema: {
                               ...getDefaultSchema(),
@@ -1031,15 +857,13 @@ https://www.wikidata.org/wiki/Q12345"
                                 ...(config.schema?.organization || {}),
                                 contactPoint: {
                                   ...(config.schema?.organization?.contactPoint || {}),
-                                  telephone: e.target.value
+                                  telephone: val
                                 }
                               }
                             }
                           })}
-                          className="input-field"
                           placeholder="+1-800-SUPPORT"
                         />
-                        <p className="form-hint">Dedicated support line (if different from main phone)</p>
                       </div>
 
                       <Select
@@ -1078,36 +902,51 @@ https://www.wikidata.org/wiki/Q12345"
                         ]}
                       />
 
-                      <div>
-                        <label className="text-label block mb-2">Area Served</label>
-                        <input
-                          type="text"
-                          value={config.schema?.organization?.contactPoint?.areaServed || 'US'}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            schema: {
-                              ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                              organization: {
-                                ...(config.schema?.organization || {}),
-                                contactPoint: {
-                                  ...(config.schema?.organization?.contactPoint || {}),
-                                  areaServed: e.target.value
-                                }
+                      <Select
+                        label="Area Served"
+                        value={config.schema?.organization?.contactPoint?.areaServed || 'US'}
+                        onChange={(value) => setConfig({
+                          ...config,
+                          schema: {
+                            ...getDefaultSchema(),
+                        ...(config.schema || {}),
+                            organization: {
+                              ...(config.schema?.organization || {}),
+                              contactPoint: {
+                                ...(config.schema?.organization?.contactPoint || {}),
+                                areaServed: value
                               }
                             }
-                          })}
-                          className="input-field"
-                          placeholder="US, Global, EU, etc."
-                        />
-                      </div>
+                          }
+                        })}
+                        options={[
+                          { value: 'US', label: 'United States' },
+                          { value: 'CA', label: 'Canada' },
+                          { value: 'GB', label: 'United Kingdom' },
+                          { value: 'AU', label: 'Australia' },
+                          { value: 'DE', label: 'Germany' },
+                          { value: 'FR', label: 'France' },
+                          { value: 'ES', label: 'Spain' },
+                          { value: 'IT', label: 'Italy' },
+                          { value: 'NL', label: 'Netherlands' },
+                          { value: 'BR', label: 'Brazil' },
+                          { value: 'MX', label: 'Mexico' },
+                          { value: 'IN', label: 'India' },
+                          { value: 'JP', label: 'Japan' },
+                          { value: 'KR', label: 'South Korea' },
+                          { value: 'CN', label: 'China' },
+                          { value: 'NA', label: 'North America' },
+                          { value: 'EU', label: 'Europe' },
+                          { value: 'AS', label: 'Asia' },
+                          { value: 'GLOBAL', label: 'Global' },
+                        ]}
+                      />
 
                       <div className="md:col-span-2">
-                        <label className="text-label block mb-2">Available Languages</label>
-                        <input
-                          type="text"
-                          value={config.schema?.organization?.contactPoint?.availableLanguage?.join(', ') || 'English'}
-                          onChange={(e) => setConfig({
+                        <MultiSelect
+                          label="Available Languages"
+                          value={config.schema?.organization?.contactPoint?.availableLanguage || ['English']}
+                          onChange={(val) => setConfig({
                             ...config,
                             schema: {
                               ...getDefaultSchema(),
@@ -1116,71 +955,96 @@ https://www.wikidata.org/wiki/Q12345"
                                 ...(config.schema?.organization || {}),
                                 contactPoint: {
                                   ...(config.schema?.organization?.contactPoint || {}),
-                                  availableLanguage: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                                  availableLanguage: val
                                 }
                               }
                             }
                           })}
-                          className="input-field"
-                          placeholder="English, Spanish, French, Mandarin"
+                          placeholder="Select languages"
+                          searchable
+                          options={[
+                            { value: 'English', label: 'English' },
+                            { value: 'Spanish', label: 'Spanish' },
+                            { value: 'French', label: 'French' },
+                            { value: 'German', label: 'German' },
+                            { value: 'Italian', label: 'Italian' },
+                            { value: 'Portuguese', label: 'Portuguese' },
+                            { value: 'Dutch', label: 'Dutch' },
+                            { value: 'Russian', label: 'Russian' },
+                            { value: 'Japanese', label: 'Japanese' },
+                            { value: 'Korean', label: 'Korean' },
+                            { value: 'Mandarin', label: 'Mandarin' },
+                            { value: 'Cantonese', label: 'Cantonese' },
+                            { value: 'Arabic', label: 'Arabic' },
+                            { value: 'Hindi', label: 'Hindi' },
+                            { value: 'Bengali', label: 'Bengali' },
+                            { value: 'Turkish', label: 'Turkish' },
+                            { value: 'Vietnamese', label: 'Vietnamese' },
+                            { value: 'Thai', label: 'Thai' },
+                            { value: 'Polish', label: 'Polish' },
+                            { value: 'Swedish', label: 'Swedish' },
+                            { value: 'Norwegian', label: 'Norwegian' },
+                            { value: 'Danish', label: 'Danish' },
+                            { value: 'Finnish', label: 'Finnish' },
+                            { value: 'Greek', label: 'Greek' },
+                            { value: 'Hebrew', label: 'Hebrew' },
+                            { value: 'Indonesian', label: 'Indonesian' },
+                            { value: 'Malay', label: 'Malay' },
+                            { value: 'Romanian', label: 'Romanian' },
+                            { value: 'Czech', label: 'Czech' },
+                            { value: 'Ukrainian', label: 'Ukrainian' },
+                          ]}
                         />
-                        <p className="form-hint">Comma-separated list of supported languages</p>
                       </div>
 
                       {/* Business Hours if not 24/7 */}
                       {config.schema?.organization?.contactPoint?.hoursAvailable?.dayOfWeek?.length !== 0 && (
                         <>
-                          <div>
-                            <label className="text-label block mb-2">Opening Time</label>
-                            <input
-                              type="time"
-                              value={config.schema?.organization?.contactPoint?.hoursAvailable?.opens || '09:00'}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                schema: {
-                                  ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                                  organization: {
-                                    ...(config.schema?.organization || {}),
-                                    contactPoint: {
-                                      ...(config.schema?.organization?.contactPoint || {}),
-                                      hoursAvailable: {
-                                        ...(config.schema?.organization?.contactPoint?.hoursAvailable || {}),
-                                        opens: e.target.value
-                                      }
+                          <TimeInput
+                            label="Opening Time"
+                            value={config.schema?.organization?.contactPoint?.hoursAvailable?.opens || '09:00'}
+                            onChange={(val) => setConfig({
+                              ...config,
+                              schema: {
+                                ...getDefaultSchema(),
+                                ...(config.schema || {}),
+                                organization: {
+                                  ...(config.schema?.organization || {}),
+                                  contactPoint: {
+                                    ...(config.schema?.organization?.contactPoint || {}),
+                                    hoursAvailable: {
+                                      ...(config.schema?.organization?.contactPoint?.hoursAvailable || {}),
+                                      opens: val
                                     }
                                   }
                                 }
-                              })}
-                              className="input-field"
-                            />
-                          </div>
+                              }
+                            })}
+                            use24Hour
+                          />
 
-                          <div>
-                            <label className="text-label block mb-2">Closing Time</label>
-                            <input
-                              type="time"
-                              value={config.schema?.organization?.contactPoint?.hoursAvailable?.closes || '17:00'}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                schema: {
-                                  ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                                  organization: {
-                                    ...(config.schema?.organization || {}),
-                                    contactPoint: {
-                                      ...(config.schema?.organization?.contactPoint || {}),
-                                      hoursAvailable: {
-                                        ...(config.schema?.organization?.contactPoint?.hoursAvailable || {}),
-                                        closes: e.target.value
-                                      }
+                          <TimeInput
+                            label="Closing Time"
+                            value={config.schema?.organization?.contactPoint?.hoursAvailable?.closes || '17:00'}
+                            onChange={(val) => setConfig({
+                              ...config,
+                              schema: {
+                                ...getDefaultSchema(),
+                                ...(config.schema || {}),
+                                organization: {
+                                  ...(config.schema?.organization || {}),
+                                  contactPoint: {
+                                    ...(config.schema?.organization?.contactPoint || {}),
+                                    hoursAvailable: {
+                                      ...(config.schema?.organization?.contactPoint?.hoursAvailable || {}),
+                                      closes: val
                                     }
                                   }
                                 }
-                              })}
-                              className="input-field"
-                            />
-                          </div>
+                              }
+                            })}
+                            use24Hour
+                          />
                         </>
                       )}
                     </div>
@@ -1191,54 +1055,29 @@ https://www.wikidata.org/wiki/Q12345"
                 {config.schema?.activeTypes?.website && (
                   <div>
                     <h4 className="text-h4 mb-3">WebSite Schema</h4>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-label block mb-2">Site Search URL Template</label>
-                        <input
-                          type="text"
-                          value={config.schema?.website?.potentialAction?.searchUrlTemplate || ''}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            schema: {
-                              ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                              website: {
-                                ...(config.schema?.website || {}),
-                                potentialAction: {
-                                  ...(config.schema?.website?.potentialAction || {}),
-                                  searchUrlTemplate: e.target.value
-                                }
+                    <div>
+                      <TextInput
+                        label="Site Search URL Template"
+                        value={config.schema?.website?.potentialAction?.searchUrlTemplate || ''}
+                        onChange={(val) => setConfig({
+                          ...config,
+                          schema: {
+                            ...getDefaultSchema(),
+                        ...(config.schema || {}),
+                            website: {
+                              ...(config.schema?.website || {}),
+                              potentialAction: {
+                                ...(config.schema?.website?.potentialAction || {}),
+                                searchUrlTemplate: val
                               }
                             }
-                          })}
-                          className="input-field"
-                          placeholder="https://example.com/search?q={search_term_string}"
-                        />
-                        <p className="form-hint">
-                          This enables the Google Sitelinks search box. Use {'{search_term_string}'} as the query placeholder.
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={config.schema?.website?.potentialAction?.enabled || false}
-                          onChange={(checked) => setConfig({
-                            ...config,
-                            schema: {
-                              ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                              website: {
-                                ...(config.schema?.website || {}),
-                                potentialAction: {
-                                  ...(config.schema?.website?.potentialAction || {}),
-                                  enabled: checked
-                                }
-                              }
-                            }
-                          })}
-                        />
-                        <span className="text-sm">Enable site search box in Google results</span>
-                      </div>
+                          }
+                        })}
+                        placeholder="https://example.com/search?q={search_term_string}"
+                      />
+                      <p className="form-hint">
+                        Use {'{search_term_string}'} as the query placeholder.
+                      </p>
                     </div>
                   </div>
                 )}
@@ -1272,71 +1111,45 @@ https://www.wikidata.org/wiki/Q12345"
                           ]}
                         />
 
-                        <Select
-                          label="Price Range"
-                          value={config.schema?.localBusiness?.priceRange || '$$'}
-                          onChange={(value) => setConfig({
-                            ...config,
-                            schema: {
-                              ...getDefaultSchema(),
-                              ...(config.schema || {}),
-                              localBusiness: { ...(config.schema?.localBusiness || {}), priceRange: value }
-                            }
-                          })}
-                          options={[
-                            { value: '$', label: '$ - Inexpensive' },
-                            { value: '$$', label: '$$ - Moderate' },
-                            { value: '$$$', label: '$$$ - Expensive' },
-                            { value: '$$$$', label: '$$$$ - Very Expensive' },
-                          ]}
-                        />
                       </div>
 
                       {/* Geo Coordinates */}
                       <div>
                         <h5 className="font-medium mb-3">Location Coordinates</h5>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="text-label block mb-2">Latitude</label>
-                            <input
-                              type="text"
-                              value={config.schema?.localBusiness?.geo?.latitude || ''}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                schema: {
-                                  ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                                  localBusiness: {
-                                    ...(config.schema?.localBusiness || {}),
-                                    geo: { ...(config.schema?.localBusiness?.geo || {}), latitude: e.target.value }
-                                  }
+                          <TextInput
+                            label="Latitude"
+                            value={config.schema?.localBusiness?.geo?.latitude || ''}
+                            onChange={(val) => setConfig({
+                              ...config,
+                              schema: {
+                                ...getDefaultSchema(),
+                        ...(config.schema || {}),
+                                localBusiness: {
+                                  ...(config.schema?.localBusiness || {}),
+                                  geo: { ...(config.schema?.localBusiness?.geo || {}), latitude: val }
                                 }
-                              })}
-                              className="input-field"
-                              placeholder="40.7128"
-                            />
-                          </div>
+                              }
+                            })}
+                            placeholder="40.7128"
+                          />
 
-                          <div>
-                            <label className="text-label block mb-2">Longitude</label>
-                            <input
-                              type="text"
-                              value={config.schema?.localBusiness?.geo?.longitude || ''}
-                              onChange={(e) => setConfig({
-                                ...config,
-                                schema: {
-                                  ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                                  localBusiness: {
-                                    ...(config.schema?.localBusiness || {}),
-                                    geo: { ...(config.schema?.localBusiness?.geo || {}), longitude: e.target.value }
-                                  }
+                          <TextInput
+                            label="Longitude"
+                            value={config.schema?.localBusiness?.geo?.longitude || ''}
+                            onChange={(val) => setConfig({
+                              ...config,
+                              schema: {
+                                ...getDefaultSchema(),
+                        ...(config.schema || {}),
+                                localBusiness: {
+                                  ...(config.schema?.localBusiness || {}),
+                                  geo: { ...(config.schema?.localBusiness?.geo || {}), longitude: val }
                                 }
-                              })}
-                              className="input-field"
-                              placeholder="-74.0060"
-                            />
-                          </div>
+                              }
+                            })}
+                            placeholder="-74.0060"
+                          />
                         </div>
                         <p className="form-hint">
                           Get coordinates from Google Maps by right-clicking on your location
@@ -1352,60 +1165,50 @@ https://www.wikidata.org/wiki/Q12345"
                     <h4 className="text-h4 mb-3">Person Schema</h4>
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-label block mb-2">Full Name</label>
-                          <input
-                            type="text"
-                            value={config.schema?.person?.name || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              schema: {
-                                ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                                person: { ...(config.schema?.person || {}), name: e.target.value }
-                              }
-                            })}
-                            className="input-field"
-                            placeholder="John Doe"
-                          />
-                        </div>
+                        <TextInput
+                          label="Full Name"
+                          value={config.schema?.person?.name || ''}
+                          onChange={(val) => setConfig({
+                            ...config,
+                            schema: {
+                              ...getDefaultSchema(),
+                        ...(config.schema || {}),
+                              person: { ...(config.schema?.person || {}), name: val }
+                            }
+                          })}
+                          placeholder="John Doe"
+                        />
 
-                        <div>
-                          <label className="text-label block mb-2">Job Title</label>
-                          <input
-                            type="text"
-                            value={config.schema?.person?.jobTitle || ''}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              schema: {
-                                ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                                person: { ...(config.schema?.person || {}), jobTitle: e.target.value }
-                              }
-                            })}
-                            className="input-field"
-                            placeholder="CEO & Founder"
-                          />
-                        </div>
+                        <TextInput
+                          label="Job Title"
+                          value={config.schema?.person?.jobTitle || ''}
+                          onChange={(val) => setConfig({
+                            ...config,
+                            schema: {
+                              ...getDefaultSchema(),
+                        ...(config.schema || {}),
+                              person: { ...(config.schema?.person || {}), jobTitle: val }
+                            }
+                          })}
+                          placeholder="CEO & Founder"
+                        />
                       </div>
 
                       <div>
-                        <label className="text-label block mb-2">Expertise/Knowledge Areas</label>
-                        <input
-                          type="text"
+                        <TextInput
+                          label="Expertise/Knowledge Areas"
                           value={config.schema?.person?.knowsAbout?.join(', ') || ''}
-                          onChange={(e) => setConfig({
+                          onChange={(val) => setConfig({
                             ...config,
                             schema: {
                               ...getDefaultSchema(),
                           ...(config.schema || {}),
                               person: {
                                 ...(config.schema?.person || {}),
-                                knowsAbout: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                                knowsAbout: val.split(',').map(s => s.trim()).filter(Boolean)
                               }
                             }
                           })}
-                          className="input-field"
                           placeholder="Web Development, SEO, Marketing, Business Strategy"
                         />
                         <p className="form-hint">Comma-separated list of expertise areas</p>
@@ -1414,68 +1217,6 @@ https://www.wikidata.org/wiki/Q12345"
                   </div>
                 )}
 
-                {/* Breadcrumbs Configuration */}
-                {config.schema?.activeTypes?.breadcrumbs && (
-                  <div>
-                    <h4 className="text-h4 mb-3">Breadcrumbs Configuration</h4>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-label block mb-2">Home Label</label>
-                          <input
-                            type="text"
-                            value={config.schema?.breadcrumbs?.homeLabel || 'Home'}
-                            onChange={(e) => setConfig({
-                              ...config,
-                              schema: {
-                                ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                                breadcrumbs: { ...(config.schema?.breadcrumbs || {}), homeLabel: e.target.value }
-                              }
-                            })}
-                            className="input-field"
-                            placeholder="Home"
-                          />
-                        </div>
-
-                        <Select
-                          label="Separator"
-                          value={config.schema?.breadcrumbs?.separator || '›'}
-                          onChange={(value) => setConfig({
-                            ...config,
-                            schema: {
-                              ...getDefaultSchema(),
-                              ...(config.schema || {}),
-                              breadcrumbs: { ...(config.schema?.breadcrumbs || {}), separator: value }
-                            }
-                          })}
-                          options={[
-                            { value: '›', label: '› (Chevron)' },
-                            { value: '/', label: '/ (Slash)' },
-                            { value: '>', label: '> (Greater Than)' },
-                            { value: '→', label: '→ (Arrow)' },
-                            { value: '|', label: '| (Pipe)' },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={config.schema?.breadcrumbs?.showCurrent ?? true}
-                          onChange={(checked) => setConfig({
-                            ...config,
-                            schema: {
-                              ...getDefaultSchema(),
-                          ...(config.schema || {}),
-                              breadcrumbs: { ...(config.schema?.breadcrumbs || {}), showCurrent: checked }
-                            }
-                          })}
-                        />
-                        <span className="text-sm">Show current page in breadcrumbs</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 <AdminBanner>
                   <p>
@@ -1504,175 +1245,66 @@ https://www.wikidata.org/wiki/Q12345"
             {activeSection === 'robots' && (
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-h4 mb-3">Default Robot Settings</h4>
-                  <div>
-                    <div className="robots-toggle-row">
-                      <div>
-                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Index</span>
-                        <p className="form-hint">Allow search engines to index this site</p>
-                      </div>
-                      <Switch
-                        checked={config.robots.index}
-                        onChange={(checked) => setConfig({...config, robots: {...config.robots, index: checked}})}
-                      />
-                    </div>
-
-                    <div className="robots-toggle-row">
-                      <div>
-                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Follow</span>
-                        <p className="form-hint">Allow search engines to follow links</p>
-                      </div>
-                      <Switch
-                        checked={config.robots.follow}
-                        onChange={(checked) => setConfig({...config, robots: {...config.robots, follow: checked}})}
-                      />
-                    </div>
-
-                    <div className="robots-toggle-row" style={{ borderBottom: 'none' }}>
-                      <div>
-                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>No Cache</span>
-                        <p className="form-hint">Prevent search engines from caching</p>
-                      </div>
-                      <Switch
-                        checked={config.robots.nocache}
-                        onChange={(checked) => setConfig({...config, robots: {...config.robots, nocache: checked}})}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-h4 mb-3">GoogleBot Settings</h4>
-                  <div>
-                    <div className="robots-toggle-row">
-                      <div>
-                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Index</span>
-                        <p className="form-hint">Allow GoogleBot to index pages</p>
-                      </div>
-                      <Switch
-                        checked={config.robots.googleBot.index}
-                        onChange={(checked) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, index: checked}}})}
-                      />
-                    </div>
-
-                    <div className="robots-toggle-row">
-                      <div>
-                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Follow</span>
-                        <p className="form-hint">Allow GoogleBot to follow links</p>
-                      </div>
-                      <Switch
-                        checked={config.robots.googleBot.follow}
-                        onChange={(checked) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, follow: checked}}})}
-                      />
-                    </div>
-
-                    <div className="robots-toggle-row">
-                      <div>
-                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>No Image Index</span>
-                        <p className="form-hint">Prevent GoogleBot from indexing images</p>
-                      </div>
-                      <Switch
-                        checked={config.robots.googleBot.noimageindex}
-                        onChange={(checked) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, noimageindex: checked}}})}
-                      />
-                    </div>
-
-                    <div className="robots-toggle-row" style={{ borderBottom: 'none' }}>
-                      <div className="flex-1" style={{ maxWidth: '280px' }}>
-                        <Select
-                          label="Max Image Preview"
-                          value={config.robots.googleBot['max-image-preview']}
-                          onChange={(value) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, 'max-image-preview': value}}})}
-                          options={[
-                            { value: 'none', label: 'None' },
-                            { value: 'standard', label: 'Standard' },
-                            { value: 'large', label: 'Large' },
-                          ]}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Languages */}
-            {activeSection === 'languages' && (
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-h4 mb-3">Canonical URL</h4>
-                  <div>
-                    <label className="text-label block mb-2">Canonical URL (Optional)</label>
-                    <input
-                      type="url"
-                      value={config.alternates.canonical}
-                      onChange={(e) => setConfig({...config, alternates: {...config.alternates, canonical: e.target.value}})}
-                      className="input-field"
-                      placeholder="https://yoursite.com"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-h4 mb-3">Language Versions</h4>
-                  <div className="space-y-3">
-                    {Object.entries(config.alternates.languages).map(([lang, url]) => (
-                      <div key={lang} className="flex gap-2 items-start">
-                        <div className="w-32 shrink-0">
-                          <input
-                            type="text"
-                            value={lang}
-                            className="input-field w-full"
-                            placeholder="en-US"
-                            readOnly
-                          />
+                  <h4 className="text-h4 mb-3">Robot Settings</h4>
+                  <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-border-light)' }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2">
+                      <div className="flex items-center justify-between px-4 py-3.5 border-b md:border-r" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Index</span>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Allow search engines to index pages</p>
                         </div>
-                        <input
-                          type="url"
-                          value={url}
-                          onChange={(e) => {
-                            const newLanguages = { ...config.alternates.languages };
-                            newLanguages[lang] = e.target.value;
-                            setConfig({ ...config, alternates: { ...config.alternates, languages: newLanguages } });
-                          }}
-                          className="input-field flex-1"
-                          placeholder="https://example.com"
+                        <Switch
+                          checked={config.robots.index}
+                          onChange={(checked) => setConfig({...config, robots: {...config.robots, index: checked, googleBot: {...config.robots.googleBot, index: checked}}})}
                         />
-                        <AdminButton
-                          variant="danger"
-                          size="sm"
-                          onClick={() => {
-                            const newLanguages = { ...config.alternates.languages };
-                            delete newLanguages[lang];
-                            setConfig({ ...config, alternates: { ...config.alternates, languages: newLanguages } });
-                          }}
-                        >
-                          Remove
-                        </AdminButton>
                       </div>
-                    ))}
-                    
-                    <AdminButton
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => {
-                        const langCode = prompt('Enter language code (e.g., es-ES):');
-                        if (langCode) {
-                          setConfig({
-                            ...config,
-                            alternates: {
-                              ...config.alternates,
-                              languages: {
-                                ...config.alternates.languages,
-                                [langCode]: ''
-                              }
-                            }
-                          });
-                        }
-                      }}
-                    >
-                      + Add Language
-                    </AdminButton>
+
+                      <div className="flex items-center justify-between px-4 py-3.5 border-b" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Follow</span>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Allow search engines to follow links</p>
+                        </div>
+                        <Switch
+                          checked={config.robots.follow}
+                          onChange={(checked) => setConfig({...config, robots: {...config.robots, follow: checked, googleBot: {...config.robots.googleBot, follow: checked}}})}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between px-4 py-3.5 border-b md:border-r" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>No Cache</span>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Prevent cached page versions</p>
+                        </div>
+                        <Switch
+                          checked={config.robots.nocache}
+                          onChange={(checked) => setConfig({...config, robots: {...config.robots, nocache: checked}})}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between px-4 py-3.5 border-b" style={{ borderColor: 'var(--color-border-light)' }}>
+                        <div>
+                          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>No Image Index</span>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Prevent image indexing</p>
+                        </div>
+                        <Switch
+                          checked={config.robots.googleBot.noimageindex}
+                          onChange={(checked) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, noimageindex: checked}}})}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="px-4 py-3.5">
+                      <Select
+                        label="Max Image Preview"
+                        value={config.robots.googleBot['max-image-preview']}
+                        onChange={(value) => setConfig({...config, robots: {...config.robots, googleBot: {...config.robots.googleBot, 'max-image-preview': value}}})}
+                        options={[
+                          { value: 'none', label: 'None' },
+                          { value: 'standard', label: 'Standard' },
+                          { value: 'large', label: 'Large' },
+                        ]}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1681,158 +1313,70 @@ https://www.wikidata.org/wiki/Q12345"
             {/* Sitemap */}
             {activeSection === 'sitemap' && (
               <div className="space-y-6">
-                <div>
-                  <h4 className="text-h4 mb-3">Excluded Pages</h4>
-                  <div className="space-y-2">
-                    {config.sitemap.excludedPages.map((page, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={page}
-                          onChange={(e) => {
-                            const newPages = [...config.sitemap.excludedPages];
-                            newPages[index] = e.target.value;
-                            setConfig({...config, sitemap: {...config.sitemap, excludedPages: newPages}});
-                          }}
-                          className="input-field flex-1"
-                          placeholder="/path/to/page"
-                        />
-                        <AdminButton
-                          variant="danger"
-                          size="sm"
-                          onClick={() => {
-                            const newPages = config.sitemap.excludedPages.filter((_, i) => i !== index);
-                            setConfig({...config, sitemap: {...config.sitemap, excludedPages: newPages}});
-                          }}
-                        >
-                          Remove
-                        </AdminButton>
-                      </div>
-                    ))}
-                    <AdminButton
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => {
-                        setConfig({
-                          ...config,
-                          sitemap: {
-                            ...config.sitemap,
-                            excludedPages: [...config.sitemap.excludedPages, '']
-                          }
-                        });
-                      }}
-                    >
-                      + Add Excluded Page
-                    </AdminButton>
-                  </div>
-                </div>
+                <TagInput
+                  label="Excluded Pages"
+                  value={config.sitemap.excludedPages.filter(Boolean)}
+                  onChange={(val) => setConfig({...config, sitemap: {...config.sitemap, excludedPages: val}})}
+                  placeholder="Type a path and press Enter, e.g. /admin"
+                />
+
+                <TagInput
+                  label="Excluded Blog Patterns"
+                  value={config.sitemap.excludedBlogPatterns.filter(Boolean)}
+                  onChange={(val) => setConfig({...config, sitemap: {...config.sitemap, excludedBlogPatterns: val}})}
+                  placeholder="Type a pattern and press Enter, e.g. draft"
+                />
 
                 <div>
-                  <h4 className="text-h4 mb-3">Excluded Blog Patterns</h4>
-                  <div className="space-y-2">
-                    {config.sitemap.excludedBlogPatterns.map((pattern, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={pattern}
-                          onChange={(e) => {
-                            const newPatterns = [...config.sitemap.excludedBlogPatterns];
-                            newPatterns[index] = e.target.value;
-                            setConfig({...config, sitemap: {...config.sitemap, excludedBlogPatterns: newPatterns}});
-                          }}
-                          className="input-field flex-1"
-                          placeholder="example"
-                        />
-                        <AdminButton
-                          variant="danger"
-                          size="sm"
-                          onClick={() => {
-                            const newPatterns = config.sitemap.excludedBlogPatterns.filter((_, i) => i !== index);
-                            setConfig({...config, sitemap: {...config.sitemap, excludedBlogPatterns: newPatterns}});
-                          }}
-                        >
-                          Remove
-                        </AdminButton>
-                      </div>
-                    ))}
-                    <AdminButton
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => {
-                        setConfig({
-                          ...config,
-                          sitemap: {
-                            ...config.sitemap,
-                            excludedBlogPatterns: [...config.sitemap.excludedBlogPatterns, '']
-                          }
-                        });
-                      }}
-                    >
-                      + Add Pattern
-                    </AdminButton>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="text-h4 mb-3">Change Frequency</h4>
-                    <div className="space-y-3">
-                      {Object.entries(config.sitemap.changeFrequency).map(([key, value]) => (
-                        <Select
-                          key={key}
-                          label={key.charAt(0).toUpperCase() + key.slice(1)}
-                          value={value}
-                          onChange={(val) => setConfig({
-                            ...config,
-                            sitemap: {
-                              ...config.sitemap,
-                              changeFrequency: {
-                                ...config.sitemap.changeFrequency,
-                                [key]: val
-                              }
-                            }
-                          })}
-                          options={[
-                            { value: 'always', label: 'Always' },
-                            { value: 'hourly', label: 'Hourly' },
-                            { value: 'daily', label: 'Daily' },
-                            { value: 'weekly', label: 'Weekly' },
-                            { value: 'monthly', label: 'Monthly' },
-                            { value: 'yearly', label: 'Yearly' },
-                            { value: 'never', label: 'Never' },
-                          ]}
-                        />
-                      ))}
+                  <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-border-light)' }}>
+                    <div className="grid grid-cols-[1fr_1fr_1fr] gap-4 px-4 py-2.5 border-b" style={{ borderColor: 'var(--color-border-light)', background: 'var(--color-surface)' }}>
+                      <span className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>Page Type</span>
+                      <span className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>Frequency</span>
+                      <span className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>Priority</span>
                     </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-h4 mb-3">Priority</h4>
-                    <div className="space-y-3">
-                      {Object.entries(config.sitemap.priority).map(([key, value]) => (
-                        <div key={key}>
-                          <label className="text-label block mb-2 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="1"
-                            step="0.1"
-                            value={value}
-                            onChange={(e) => setConfig({
+                    {Object.entries(config.sitemap.changeFrequency).map(([key], index, arr) => {
+                      const labelMap: Record<string, string> = { homepage: 'Homepage', pages: 'Pages', blog: 'Blog', categories: 'Categories', mainPages: 'Pages' };
+                      const displayLabel = labelMap[key] || key.charAt(0).toUpperCase() + key.slice(1);
+                      const priorityKey = key === 'pages' ? 'mainPages' : key;
+                      const isLast = index === arr.length - 1;
+                      return (
+                        <div key={key} className={`grid grid-cols-[1fr_1fr_1fr] items-center gap-4 px-4 py-3${!isLast ? ' border-b' : ''}`} style={{ borderColor: 'var(--color-border-light)' }}>
+                          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{displayLabel}</span>
+                          <Select
+                            value={config.sitemap.changeFrequency[key as keyof typeof config.sitemap.changeFrequency]}
+                            onChange={(val) => setConfig({
                               ...config,
                               sitemap: {
                                 ...config.sitemap,
-                                priority: {
-                                  ...config.sitemap.priority,
-                                  [key]: parseFloat(e.target.value) || 0
-                                }
+                                changeFrequency: { ...config.sitemap.changeFrequency, [key]: val }
                               }
                             })}
-                            className="input-field"
+                            options={[
+                              { value: 'always', label: 'Always' },
+                              { value: 'hourly', label: 'Hourly' },
+                              { value: 'daily', label: 'Daily' },
+                              { value: 'weekly', label: 'Weekly' },
+                              { value: 'monthly', label: 'Monthly' },
+                              { value: 'yearly', label: 'Yearly' },
+                              { value: 'never', label: 'Never' },
+                            ]}
+                          />
+                          <NumberInput
+                            min={0}
+                            max={1}
+                            step={0.1}
+                            value={config.sitemap.priority[priorityKey as keyof typeof config.sitemap.priority]}
+                            onChange={(val) => setConfig({
+                              ...config,
+                              sitemap: {
+                                ...config.sitemap,
+                                priority: { ...config.sitemap.priority, [priorityKey]: typeof val === 'number' ? val : 0 }
+                              }
+                            })}
                           />
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

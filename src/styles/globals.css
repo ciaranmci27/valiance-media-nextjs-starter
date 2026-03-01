@@ -66,11 +66,8 @@
   --color-premium-light: #7BA3A3;
   --color-premium-dark: #4A7272;
   
-  /* Semantic colors */
-  --color-success: #22C55E;
-  --color-warning: #F59E0B;
+  /* Semantic aliases */
   --color-danger: #DC2626;
-  --color-info: #5B8A8A;
   
   /* Base colors - Updated to match mobile app */
   --color-background: #FAFBFC; /* Ultra-light with hint of blue */
@@ -394,130 +391,6 @@ body > * {
 .admin-btn-sm {
   padding: 7px 14px;
   font-size: 13px;
-}
-
-/* Input Fields - Centralized Design System */
-.input-field {
-  width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-medium);
-  border-radius: var(--radius-md);
-  color: var(--color-text-primary);
-  font-size: 14px;
-  transition: all var(--transition-fast);
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: var(--color-border-accent);
-  background: var(--color-surface);
-  box-shadow: 0 0 0 3px var(--color-primary-100);
-}
-
-.input-field:hover:not(:focus):not(:disabled) {
-  border-color: var(--color-border-dark);
-}
-
-.input-field:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: var(--color-surface-disabled);
-}
-
-.input-field::placeholder {
-  color: var(--color-text-tertiary);
-}
-
-/* Monospace variant for slugs/codes */
-.input-field-mono {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
-}
-
-/* Textarea specific */
-textarea.input-field {
-  resize: vertical;
-  min-height: 100px;
-}
-
-/* Select field */
-select.input-field {
-  cursor: pointer;
-  padding-right: 40px;
-  /* Remove default browser dropdown arrow */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  /* Custom dropdown arrow via background-image */
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-}
-
-/* Firefox-specific fix for double arrows */
-@-moz-document url-prefix() {
-  select.input-field {
-    text-indent: 0.01px;
-    text-overflow: '';
-  }
-}
-
-/* Additional Firefox fix */
-select.input-field::-ms-expand {
-  display: none;
-}
-
-[data-theme="dark"] .input-field,
-.dark .input-field {
-  background: #0A0A0A;
-  border-color: #1A1A1A;
-  color: #ECECEC;
-}
-
-[data-theme="dark"] .input-field:focus,
-.dark .input-field:focus {
-  background: #0A0A0A;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(91, 138, 138, 0.15);
-}
-
-[data-theme="dark"] .input-field:hover:not(:focus):not(:disabled),
-.dark .input-field:hover:not(:focus):not(:disabled) {
-  border-color: #2A2A2A;
-}
-
-[data-theme="dark"] .input-field::placeholder,
-.dark .input-field::placeholder {
-  color: #555555;
-}
-
-/* Dark mode select arrow */
-[data-theme="dark"] select.input-field,
-.dark select.input-field {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-}
-
-/* Form Labels */
-.form-label {
-  display: block;
-  margin-bottom: var(--spacing-xs);
-  color: var(--color-text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.form-label-required::after {
-  content: ' *';
-  color: var(--color-danger);
-}
-
-/* Form Groups */
-.form-group {
-  margin-bottom: var(--spacing-md);
 }
 
 /* Form Row for inline fields */
@@ -1372,26 +1245,6 @@ body::before {
     0 6px 24px rgba(0, 0, 0, 0.25);
 }
 
-/* Input wrapper with icon slot */
-.login-input-wrap {
-  position: relative;
-}
-
-.login-input-wrap .login-input-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-tertiary);
-  pointer-events: none;
-  width: 16px;
-  height: 16px;
-}
-
-.login-input-wrap .input-field {
-  padding-left: 38px;
-}
-
 /* Divider */
 .login-divider {
   height: 1px;
@@ -1654,7 +1507,7 @@ body::before {
   font-weight: 600;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .seo-editor-layout {
     flex-direction: column;
     gap: 16px;
@@ -1893,7 +1746,7 @@ body::before {
 }
 
 /* Responsive: show toggle only on desktop */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .admin-sidebar-toggle {
     display: flex;
   }

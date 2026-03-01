@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import BlogPostEditor from '@/components/admin/blog/BlogPostEditor';
+import { toast } from '@/components/ui/feedback';
 
 interface BlogFormData {
   title: string;
@@ -75,12 +76,12 @@ export default function EditBlogPost() {
           seo: post.seo || { title: '', description: '', keywords: [], image: '/logos/horizontal-logo.png' }
         });
       } else {
-        alert('Post not found');
+        toast.error('Post not found');
         router.push('/admin/blog');
       }
     } catch (error) {
       console.error('Error fetching post:', error);
-      alert('Error loading post');
+      toast.error('Error loading post');
       router.push('/admin/blog');
     } finally {
       setIsLoadingPost(false);

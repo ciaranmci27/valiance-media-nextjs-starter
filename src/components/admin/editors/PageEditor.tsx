@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ExclamationTriangleIcon,
@@ -9,7 +9,6 @@ import {
   PencilSquareIcon,
 } from '@heroicons/react/24/outline';
 import { Page, PageSEOConfig } from '@/lib/pages/page-types';
-import CategoryInput from '@/components/admin/inputs/CategoryInput';
 import { Switch } from '@/components/admin/ui/Switch';
 import SlugChangeWarningModal from '@/components/admin/modals/SlugChangeWarningModal';
 import { generateSlug } from '@/lib/pages/page-utils-client';
@@ -19,7 +18,9 @@ import { PageSchema } from '@/components/admin/seo/schema-types';
 import { seoConfig as globalSeoConfig } from '@/seo/seo.config';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
-import { Select } from '@/components/admin/ui/Select';
+import { TextInput, Textarea, Toggle, Combobox, Select } from '@/components/ui/inputs';
+import type { ComboboxOption } from '@/components/ui/inputs/Combobox';
+import { toast } from '@/components/ui/feedback';
 
 interface PageEditorProps {
   initialPage?: Page;
@@ -60,6 +61,39 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
   const [showOGPreview, setShowOGPreview] = useState(false);
   const [hasManuallyEditedSlug, setHasManuallyEditedSlug] = useState(false);
   const [previousTitle, setPreviousTitle] = useState('');
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
+
+  // Fetch existing categories for the Combobox
+  useEffect(() => {
+    fetch('/api/admin/pages')
+      .then(res => res.json())
+      .then(data => {
+        const cats: string[] = Array.from(
+          new Set(
+            (data.pages || [])
+              .map((p: { category?: string }) => p.category)
+              .filter((c: string | undefined) => typeof c === 'string' && c.trim() !== '')
+          )
+        );
+        setExistingCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
+
+  const categoryOptions: ComboboxOption[] = useMemo(() => {
+    const presets = [
+      'general', 'about', 'services', 'portfolio', 'case-studies', 'blog',
+      'contact', 'legal', 'privacy', 'terms', 'resources', 'marketing',
+      'sales', 'support', 'product', 'engineering', 'design', 'careers',
+      'events', 'press', 'docs', 'faq', 'landing', 'feature', 'pricing',
+      'testimonial', 'webinar', 'ebook', 'template',
+    ];
+    const all = Array.from(new Set([...presets, ...existingCategories])).sort();
+    return all.map(c => ({
+      value: c,
+      label: c.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    }));
+  }, [existingCategories]);
 
   useEffect(() => {
     if (initialPage) {
@@ -252,12 +286,12 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         }
         console.error('Save failed:', errorMessage);
         setSaving(false);
-        alert(`Failed to save page: ${errorMessage}`);
+        toast.error(`Failed to save page: ${errorMessage}`);
       }
     } catch (error) {
       console.error('Error saving page:', error);
       setSaving(false);
-      alert('An error occurred while saving the page');
+      toast.error('An error occurred while saving the page');
     }
   };
 
@@ -270,12 +304,12 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
     if (saving) return;
 
     if (!title?.trim()) {
-      alert('Please provide a title for the page');
+      toast.warning('Please provide a title for the page');
       return;
     }
 
     if (!initialPage?.isHomePage && !slug?.trim()) {
-      alert('Please provide a slug for the page');
+      toast.warning('Please provide a slug for the page');
       return;
     }
 
@@ -361,53 +395,32 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
             </div>
             <div className="form-row form-row-70-30">
               {/* Title */}
-              <div>
-                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                  Admin Title
-                  {initialPage?.isClientComponent && (
-                    <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', fontWeight: 400, textTransform: 'none', letterSpacing: 0, marginLeft: '6px' }}>
-                      (Read-only for dynamic pages)
-                    </span>
-                  )}
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => handleTitleChange(e.target.value)}
-                  placeholder="Clean name for CMS display (e.g., 'Privacy Policy')"
-                  disabled={initialPage?.isHomePage || initialPage?.isClientComponent}
-                  className="input-field"
-                />
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                  Short name displayed in the CMS. Use the SEO tab for the full search engine title.
-                </p>
-              </div>
+              <TextInput
+                label={initialPage?.isClientComponent ? 'Admin Title (Read-only)' : 'Admin Title'}
+                description="CMS display name"
+                value={title}
+                onChange={(val) => handleTitleChange(val)}
+                placeholder="Clean name for CMS display (e.g., 'Privacy Policy')"
+                disabled={initialPage?.isHomePage || initialPage?.isClientComponent}
+              />
 
               {/* Slug */}
               <div style={{ minWidth: 0 }}>
-                <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                  Page Slug
-                  {initialPage?.isClientComponent && (
-                    <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', fontWeight: 400, textTransform: 'none', letterSpacing: 0, marginLeft: '6px' }}>
-                      (Read-only)
-                    </span>
-                  )}
-                </label>
                 {!initialPage?.isHomePage ? (
-                  <input
-                    type="text"
+                  <TextInput
+                    label={initialPage?.isClientComponent ? 'Page Slug (Read-only)' : 'Page Slug'}
                     value={slug}
-                    onChange={(e) => handleSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-\/]/g, '-'))}
+                    onChange={(val) => handleSlugChange(val.toLowerCase().replace(/[^a-z0-9-\/]/g, '-'))}
                     placeholder="page-slug"
                     disabled={initialPage?.isClientComponent}
-                    className="input-field input-field-mono"
+                    inputClassName="font-mono"
                   />
                 ) : (
-                  <input
-                    type="text"
+                  <TextInput
+                    label="Page Slug"
                     value="home"
                     disabled
-                    className="input-field input-field-mono"
+                    inputClassName="font-mono"
                   />
                 )}
               </div>
@@ -464,26 +477,15 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
               {/* Code Editor */}
               <div style={{ flex: 1, position: 'relative' }}>
                 {(isEditingCode || isNew) ? (
-                  <textarea
+                  <Textarea
                     value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    onChange={(val) => setContent(val)}
                     placeholder="Paste or write your React component code here..."
+                    rows={25}
+                    resizable
                     spellCheck={false}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      minHeight: '500px',
-                      padding: '12px',
-                      fontSize: '13px',
-                      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace',
-                      border: 'none',
-                      background: 'transparent',
-                      color: 'var(--color-text-primary)',
-                      resize: 'vertical',
-                      outline: 'none',
-                      lineHeight: '1.5',
-                      tabSize: 2
-                    }}
+                    inputClassName="!border-none !bg-transparent !ring-0 !outline-none !shadow-none !rounded-none font-mono !text-[13px] !leading-[1.5] !min-h-[500px]"
+                    className="!space-y-0"
                   />
                 ) : (
                   <pre style={{
@@ -560,29 +562,37 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
             <h2 className="dash-card-title">Page Settings</h2>
           </div>
           <div className="space-y-5">
-            <div>
-              <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                Category
-              </label>
-              <CategoryInput
-                value={metadata.category || ''}
-                onChange={(val) => setMetadata(prev => ({
+            <Combobox
+              label="Category"
+              options={categoryOptions}
+              value={metadata.category || ''}
+              onChange={(val) => {
+                setMetadata(prev => ({
                   ...prev,
                   category: val
-                }))}
-                placeholder="Select or type a category..."
-              />
-            </div>
+                }));
+              }}
+              onBlur={() => {
+                // Normalize on blur: lowercase, trim, replace spaces/underscores with hyphens
+                if (metadata.category) {
+                  const normalized = metadata.category.trim().toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9-]/g, '');
+                  setMetadata(prev => ({
+                    ...prev,
+                    category: normalized
+                  }));
+                }
+              }}
+              creatable
+              placeholder="Select or type a category..."
+            />
 
             <div
               className="flex items-center justify-between p-4 rounded-lg"
               style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-medium)' }}
             >
               <div>
-                <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
-                  Quick Access
-                </label>
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Quick Access</span>
+                <p className="text-xs mt-0.5 mb-0" style={{ color: 'var(--color-text-secondary)' }}>
                   Mark this page for easy access in the admin dashboard
                 </p>
               </div>
@@ -605,59 +615,31 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
             <h2 className="dash-card-title">Search Engine Optimization</h2>
           </div>
           <div className="space-y-5">
-            <div>
-              <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>SEO Title</label>
-              <input
-                type="text"
-                value={seoTitle}
-                onChange={(e) => setSeoTitle(e.target.value)}
-                className="input-field"
-                maxLength={60}
-                placeholder={title ? `${title} | ${globalSeoConfig.siteName}` : "Full SEO-optimized title for search results"}
-              />
-              <div className="flex justify-between mt-1">
-                <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
-                  Full title shown in search results and browser tabs
-                </p>
-                <p className="text-xs" style={{ color: seoTitle.length > 60 ? 'var(--color-error)' : 'var(--color-text-tertiary)' }}>
-                  {seoTitle.length}/60
-                </p>
-              </div>
-            </div>
+            <TextInput
+              label="SEO Title"
+              description={`${seoTitle.length}/60`}
+              value={seoTitle}
+              onChange={(val) => setSeoTitle(val)}
+              maxLength={60}
+              placeholder={title ? `${title} | ${globalSeoConfig.siteName}` : "Full SEO-optimized title for search results"}
+            />
 
-            <div>
-              <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>Meta Description</label>
-              <textarea
-                value={seoDescription}
-                onChange={(e) => setSeoDescription(e.target.value)}
-                className="input-field"
-                rows={3}
-                maxLength={160}
-                placeholder="Brief description for search results"
-              />
-              <div className="flex justify-between mt-1">
-                <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
-                  Shown in search results below the title
-                </p>
-                <p className="text-xs" style={{ color: seoDescription.length > 155 ? 'var(--color-error)' : 'var(--color-text-tertiary)' }}>
-                  {seoDescription.length}/160
-                </p>
-              </div>
-            </div>
+            <Textarea
+              label="Meta Description"
+              value={seoDescription}
+              onChange={(val) => setSeoDescription(val)}
+              rows={3}
+              maxLength={160}
+              placeholder="Brief description for search results"
+            />
 
-            <div>
-              <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>Keywords</label>
-              <input
-                type="text"
-                value={seoKeywords.join(', ')}
-                onChange={(e) => setSeoKeywords(e.target.value.split(',').map(k => k.trim()).filter(k => k))}
-                className="input-field"
-                placeholder="keyword1, keyword2, keyword3"
-              />
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                Comma-separated keywords (less important for modern SEO)
-              </p>
-            </div>
+            <TextInput
+              label="Keywords"
+              description="Separate with commas"
+              value={seoKeywords.join(', ')}
+              onChange={(val) => setSeoKeywords(val.split(',').map(k => k.trim()).filter(k => k))}
+              placeholder="keyword1, keyword2, keyword3"
+            />
           </div>
         </div>
       )}
@@ -669,56 +651,38 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
             <h2 className="dash-card-title">Social Media Sharing</h2>
           </div>
           <div className="space-y-5">
-            <div>
-              <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>OG Title</label>
-              <input
-                type="text"
-                value={ogTitle}
-                onChange={(e) => setOgTitle(e.target.value)}
-                className="input-field"
-                placeholder={seoTitle || title || "Title for social media"}
-              />
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                Leave empty to use the SEO title
-              </p>
-            </div>
+            <TextInput
+              label="OG Title"
+              description="Falls back to SEO title"
+              value={ogTitle}
+              onChange={(val) => setOgTitle(val)}
+              placeholder={seoTitle || title || "Title for social media"}
+            />
+
+            <Textarea
+              label="OG Description"
+              description="Falls back to meta description"
+              value={ogDescription}
+              onChange={(val) => setOgDescription(val)}
+              rows={3}
+              placeholder={seoDescription || "Description for social media"}
+            />
 
             <div>
-              <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>OG Description</label>
-              <textarea
-                value={ogDescription}
-                onChange={(e) => setOgDescription(e.target.value)}
-                className="input-field"
-                rows={3}
-                placeholder={seoDescription || "Description for social media"}
-              />
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                Leave empty to use the meta description
-              </p>
-            </div>
-
-            <div>
-              <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>OG Image URL</label>
-              <input
-                type="text"
+              <TextInput
+                label="OG Image URL"
+                description="1200x630px recommended"
                 value={ogImage}
-                onChange={(e) => setOgImage(e.target.value)}
-                className="input-field"
+                onChange={(val) => setOgImage(val)}
                 placeholder={`${globalSeoConfig.siteUrl || 'https://example.com'}/image.jpg`}
               />
-              <div className="flex justify-between items-center mt-1">
-                <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
-                  Recommended: 1200x630px for best results
-                </p>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={showOGPreview}
-                    onChange={(e) => setShowOGPreview(e.target.checked)}
-                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary/50"
-                  />
-                  <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Show preview</span>
-                </label>
+              <div className="flex justify-end items-center mt-1">
+                <Toggle
+                  checked={showOGPreview}
+                  onChange={(checked) => setShowOGPreview(checked)}
+                  label="Show preview"
+                  size="sm"
+                />
               </div>
             </div>
 
@@ -755,7 +719,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                 label="Priority"
                 value={String(priority)}
                 onChange={(value) => setPriority(parseFloat(value))}
-                helperText="Sitemap priority hint for search engines"
+                description="Sitemap priority hint for search engines"
                 options={[
                   { value: '1', label: '1.0 (Highest)' },
                   { value: '0.9', label: '0.9' },
@@ -774,7 +738,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
                 label="Change Frequency"
                 value={changefreq}
                 onChange={(value) => setChangefreq(value as typeof changefreq)}
-                helperText="How often the page content changes"
+                description="How often the page content changes"
                 options={[
                   { value: 'always', label: 'Always' },
                   { value: 'hourly', label: 'Hourly' },
@@ -792,8 +756,8 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
               style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-medium)' }}
             >
               <div>
-                <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>Exclude from Sitemap</label>
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Exclude from Sitemap</span>
+                <p className="text-xs mt-0.5 mb-0" style={{ color: 'var(--color-text-secondary)' }}>
                   Prevent this page from appearing in the sitemap.xml
                 </p>
                 {robots.includes('noindex') && (
@@ -813,7 +777,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
               label="Robots Meta Tag"
               value={robots}
               onChange={(value) => setRobots(value)}
-              helperText="Controls search engine crawling and indexing"
+              description="Controls search engine crawling and indexing"
               options={[
                 { value: 'index, follow', label: 'Index, Follow (Default)' },
                 { value: 'index, nofollow', label: 'Index, No Follow' },
@@ -822,19 +786,14 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
               ]}
             />
 
-            <div>
-              <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>Canonical URL</label>
-              <input
-                type="text"
-                value={canonicalUrl}
-                onChange={(e) => setCanonicalUrl(e.target.value)}
-                className="input-field"
-                placeholder={`${globalSeoConfig.siteUrl || 'https://example.com'}/${slug || 'page'}`}
-              />
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                Preferred URL for this content (leave empty for default)
-              </p>
-            </div>
+            <TextInput
+              label="Canonical URL"
+              description="Leave empty for default"
+              value={canonicalUrl}
+              onChange={(val) => setCanonicalUrl(val)}
+              type="url"
+              placeholder={`${globalSeoConfig.siteUrl || 'https://example.com'}/${slug || 'page'}`}
+            />
           </div>
         </div>
       )}

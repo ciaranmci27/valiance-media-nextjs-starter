@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
+import { TextInput, Toggle, Textarea, TagInput } from '@/components/ui/inputs';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -21,16 +22,16 @@ interface AnalyticsExclusions {
 }
 
 const services = [
-  { key: 'googleAnalyticsId' as const, label: 'Google Analytics', shortLabel: 'GA4' },
-  { key: 'facebookPixelId' as const, label: 'Facebook Pixel', shortLabel: 'FB Pixel' },
-  { key: 'hotjarId' as const, label: 'Hotjar', shortLabel: 'Hotjar' },
-  { key: 'clarityId' as const, label: 'Microsoft Clarity', shortLabel: 'Clarity' },
+  { key: 'googleAnalyticsId' as const, label: 'Google Analytics ID', shortLabel: 'GA4', placeholder: 'G-XXXXXXXXXX or UA-XXXXXXXXX-X', description: 'GA4 or Universal Analytics ID' },
+  { key: 'facebookPixelId' as const, label: 'Facebook Pixel ID', shortLabel: 'FB Pixel', placeholder: 'XXXXXXXXXXXXXXX', description: 'Track conversions for Facebook ads' },
+  { key: 'hotjarId' as const, label: 'Hotjar ID', shortLabel: 'Hotjar', placeholder: 'XXXXXXX', description: 'Heatmaps and behavior tracking' },
+  { key: 'clarityId' as const, label: 'Microsoft Clarity ID', shortLabel: 'Clarity', placeholder: 'XXXXXXXXXX', description: 'Session recordings from Microsoft' },
 ];
 
 function AnalyticsSkeleton() {
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="skeleton" style={{ width: '160px', height: '36px', marginBottom: '8px' }} />
         <div className="skeleton" style={{ width: '320px', height: '18px' }} />
       </div>
@@ -148,7 +149,7 @@ export default function AnalyticsPage() {
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
       {/* Header */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: '4px' }}>
           Analytics
         </h1>
@@ -206,137 +207,71 @@ export default function AnalyticsPage() {
         <div className="dash-card-header">
           <h2 className="dash-card-title">Tracking Services</h2>
         </div>
-        <div className="space-y-4">
-          {services.map((service, i) => (
-            <div
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {services.map((service) => (
+            <TextInput
               key={service.key}
-              className="animate-fade-up"
-              style={{ animationDelay: `${300 + i * 60}ms` } as React.CSSProperties}
-            >
-              <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                {service.label} ID
-              </label>
-              <input
-                type="text"
-                value={analytics[service.key]}
-                onChange={(e) => setAnalytics(prev => ({ ...prev, [service.key]: e.target.value }))}
-                className="input-field"
-                placeholder={
-                  service.key === 'googleAnalyticsId' ? 'G-XXXXXXXXXX or UA-XXXXXXXXX-X' :
-                  service.key === 'facebookPixelId' ? 'XXXXXXXXXXXXXXX' :
-                  service.key === 'hotjarId' ? 'XXXXXXX' :
-                  'XXXXXXXXXX'
-                }
-                disabled={isProduction}
-              />
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                {service.key === 'googleAnalyticsId' && 'Your Google Analytics 4 measurement ID or Universal Analytics tracking ID'}
-                {service.key === 'facebookPixelId' && 'Track conversions and build audiences for Facebook ads'}
-                {service.key === 'hotjarId' && 'Heatmaps and behavior analytics tracking'}
-                {service.key === 'clarityId' && 'Free heatmaps and session recordings from Microsoft'}
-              </p>
-            </div>
+              label={service.label}
+              description={service.description}
+              value={analytics[service.key]}
+              onChange={(val) => setAnalytics(prev => ({ ...prev, [service.key]: val }))}
+              placeholder={service.placeholder}
+              disabled={isProduction}
+            />
           ))}
         </div>
       </div>
 
       {/* Exclusion Rules card */}
-      <div className="dash-card animate-fade-up" style={{ animationDelay: '540ms' } as React.CSSProperties}>
+      <div className="dash-card animate-fade-up" style={{ animationDelay: '360ms' } as React.CSSProperties}>
         <div className="dash-card-header">
           <h2 className="dash-card-title">Exclusion Rules</h2>
         </div>
         <div className="space-y-4">
-          {/* Master Toggle */}
-          <div
-            className="flex items-center justify-between p-4 rounded-lg animate-fade-up"
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-medium)', animationDelay: '600ms' } as React.CSSProperties}
-          >
-            <div>
-              <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
-                Enable Analytics Exclusions
-              </label>
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                Master switch to enable/disable all exclusion rules
-              </p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
+          <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-border-light)' }}>
+            <div className="flex items-center justify-between px-4 py-3.5 border-b" style={{ borderColor: 'var(--color-border-light)' }}>
+              <div>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Enable Exclusions</span>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Master switch for all exclusion rules</p>
+              </div>
+              <Toggle
                 checked={exclusions.enabled}
-                onChange={(e) => setExclusions(prev => ({ ...prev, enabled: e.target.checked }))}
-                className="sr-only peer"
+                onChange={(checked) => setExclusions(prev => ({ ...prev, enabled: checked }))}
                 disabled={isProduction}
               />
-              <div className={`admin-toggle-track w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary ${isProduction ? 'opacity-50 cursor-not-allowed' : ''}`} />
-            </label>
-          </div>
-
-          {/* Localhost Toggle */}
-          <div
-            className="flex items-center justify-between p-4 rounded-lg animate-fade-up"
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-medium)', animationDelay: '660ms' } as React.CSSProperties}
-          >
-            <div>
-              <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
-                Exclude Localhost
-              </label>
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                Don&apos;t track analytics from localhost/development environments (127.0.0.1, ::1)
-              </p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
+            <div className="flex items-center justify-between px-4 py-3.5 border-b" style={{ borderColor: 'var(--color-border-light)' }}>
+              <div>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Exclude Localhost</span>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Skip tracking from 127.0.0.1 and ::1</p>
+              </div>
+              <Toggle
                 checked={exclusions.excludeLocalhost}
-                onChange={(e) => setExclusions(prev => ({ ...prev, excludeLocalhost: e.target.checked }))}
-                className="sr-only peer"
+                onChange={(checked) => setExclusions(prev => ({ ...prev, excludeLocalhost: checked }))}
                 disabled={isProduction || !exclusions.enabled}
               />
-              <div className={`admin-toggle-track w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary ${isProduction || !exclusions.enabled ? 'opacity-50 cursor-not-allowed' : ''}`} />
-            </label>
-          </div>
-
-          {/* Bot Exclusion Toggle */}
-          <div
-            className="flex items-center justify-between p-4 rounded-lg animate-fade-up"
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-medium)', animationDelay: '720ms' } as React.CSSProperties}
-          >
-            <div>
-              <label className="text-label" style={{ color: 'var(--color-text-primary)' }}>
-                Exclude Bots & Crawlers
-              </label>
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                Don&apos;t track analytics from search engine bots, social media crawlers, and known scrapers
-              </p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
+            <div className="flex items-center justify-between px-4 py-3.5" style={{ borderColor: 'var(--color-border-light)' }}>
+              <div>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Exclude Bots & Crawlers</span>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Skip bots, crawlers, and known scrapers</p>
+              </div>
+              <Toggle
                 checked={exclusions.excludeBots}
-                onChange={(e) => setExclusions(prev => ({ ...prev, excludeBots: e.target.checked }))}
-                className="sr-only peer"
+                onChange={(checked) => setExclusions(prev => ({ ...prev, excludeBots: checked }))}
                 disabled={isProduction || !exclusions.enabled}
               />
-              <div className={`admin-toggle-track w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary ${isProduction || !exclusions.enabled ? 'opacity-50 cursor-not-allowed' : ''}`} />
-            </label>
+            </div>
           </div>
 
-          {/* Excluded IPs */}
-          <div className="animate-fade-up" style={{ animationDelay: '780ms' } as React.CSSProperties}>
-            <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-              Excluded IP Addresses
-            </label>
-            <textarea
-              value={excludedIPsText}
-              onChange={(e) => setExcludedIPsText(e.target.value)}
-              className="input-field min-h-[100px]"
-              placeholder={"Enter IP addresses (one per line or comma-separated)\nExample:\n192.168.1.1\n10.0.0.5"}
-              disabled={isProduction || !exclusions.enabled}
-            />
-            <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-              Analytics will not be tracked for these IP addresses. Useful for excluding office/team IPs.
-            </p>
-          </div>
+          <TagInput
+            label="Excluded IP Addresses"
+            description="Exclude office or team IPs from tracking"
+            value={excludedIPsText.split(/[\n,]/).map(ip => ip.trim()).filter(Boolean)}
+            onChange={(val) => setExcludedIPsText(val.join('\n'))}
+            placeholder="Type an IP address and press Enter"
+            disabled={isProduction || !exclusions.enabled}
+          />
         </div>
       </div>
 

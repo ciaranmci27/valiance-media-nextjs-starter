@@ -165,7 +165,7 @@ export async function PUT(request: NextRequest) {
       try {
         await fs.unlink(oldFilePath);
       } catch (error) {
-        console.log('Could not delete old file:', oldFilePath);
+        console.error('[blog-post] Could not delete old file:', oldFilePath, error);
       }
     }
     

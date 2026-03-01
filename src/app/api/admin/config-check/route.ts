@@ -119,7 +119,7 @@ export async function GET() {
     }
 
     // Check if running with example/demo content
-    const pagesConfigPath = path.join(process.cwd(), 'content', 'pages-config.json');
+    const pagesConfigPath = path.join(process.cwd(), 'public', 'pages-config.json');
     try {
       const pagesConfig = await fs.readFile(pagesConfigPath, 'utf-8');
       const pages = JSON.parse(pagesConfig);

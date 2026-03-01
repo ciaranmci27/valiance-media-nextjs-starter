@@ -88,12 +88,6 @@ export const seoConfig = {
         allow: ['/'],
         disallow: ['/api/', '/admin/', '/_next/', '/private/', '*.json'],
         crawlDelay: 0
-      },
-      {
-        userAgent: 'Googlebot',
-        allow: ['/'],
-        disallow: ['/api/', '/admin/', '/_next/', '/private/'],
-        crawlDelay: 0
       }
       ],
       customRules: ''

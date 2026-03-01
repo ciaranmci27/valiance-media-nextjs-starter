@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
 import AdminButton from '@/components/admin/ui/AdminButton';
+import { Textarea } from '@/components/ui/inputs';
 
 const SEOConfigEditor = dynamic(() => import('@/components/admin/seo/SEOConfigEditor'), {
   ssr: false,
@@ -267,7 +268,7 @@ export default function SEODashboard() {
               <p className="text-h2" style={{ color: passCount === checks.length ? 'var(--color-success)' : failCount > 0 ? 'var(--color-warning)' : 'var(--color-text-primary)' }}>
                 {passCount}/{checks.length}
               </p>
-              <p className="text-body-sm mt-2" style={{ color: 'var(--color-text-tertiary)' }}>
+              <p className="text-body-sm mt-2 mb-0" style={{ color: 'var(--color-text-tertiary)' }}>
                 {passCount === checks.length ? 'All checks passing' : `${warnCount + failCount} need${warnCount + failCount === 1 ? 's' : ''} attention`}
               </p>
             </div>
@@ -276,7 +277,7 @@ export default function SEODashboard() {
                 Meta Coverage
               </p>
               <p className="text-h2" style={{ color: 'var(--color-text-primary)' }}>{metaCoverage}%</p>
-              <p className="text-body-sm mt-2" style={{ color: metaCoverage === 100 ? 'var(--color-success)' : 'var(--color-warning)' }}>
+              <p className="text-body-sm mt-2 mb-0" style={{ color: metaCoverage === 100 ? 'var(--color-success)' : 'var(--color-warning)' }}>
                 {stats.pagesWithMeta}/{stats.totalPages} pages
               </p>
             </div>
@@ -285,7 +286,7 @@ export default function SEODashboard() {
                 Open Graph
               </p>
               <p className="text-h2" style={{ color: 'var(--color-text-primary)' }}>{ogCoverage}%</p>
-              <p className="text-body-sm mt-2" style={{ color: ogCoverage === 100 ? 'var(--color-success)' : 'var(--color-warning)' }}>
+              <p className="text-body-sm mt-2 mb-0" style={{ color: ogCoverage === 100 ? 'var(--color-success)' : 'var(--color-warning)' }}>
                 {stats.pagesWithOG}/{stats.totalPages} pages
               </p>
             </div>
@@ -294,7 +295,7 @@ export default function SEODashboard() {
                 Sitemap URLs
               </p>
               <p className="text-h2" style={{ color: 'var(--color-text-primary)' }}>{stats.sitemapPages}</p>
-              <p className="text-body-sm mt-2" style={{ color: 'var(--color-text-tertiary)' }}>
+              <p className="text-body-sm mt-2 mb-0" style={{ color: 'var(--color-text-tertiary)' }}>
                 Across all sitemaps
               </p>
             </div>
@@ -314,12 +315,13 @@ export default function SEODashboard() {
                 )}
               </div>
             </div>
-            <div>
-              {checks.map((check) => {
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              {checks.map((check, i) => {
                 const Icon = check.icon;
                 const statusColor = check.ok ? 'var(--color-success)' : check.warn ? 'var(--color-warning)' : 'var(--color-error)';
+                const isLeftCol = i % 2 === 0;
                 return (
-                  <div key={check.label} className="pages-row" style={{ gap: '12px' }}>
+                  <div key={check.label} className="flex items-center gap-3" style={{ padding: '12px 20px', borderBottom: '1px solid var(--color-border-light)', borderRight: isLeftCol ? '1px solid var(--color-border-light)' : undefined }}>
                     <span style={{
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                       width: '32px', height: '32px', borderRadius: 'var(--radius-lg)', flexShrink: 0,
@@ -401,9 +403,12 @@ export default function SEODashboard() {
               <p className="text-label" style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-sm)' }}>
                 Crawling
               </p>
-              <span style={{ color: 'var(--color-text-primary)', fontSize: '14px', fontWeight: 600 }}>
-                {robotsTxt.split('\n').some(line => line.trim() === 'Disallow: /') ? 'Restricted' : 'Allowed'}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="dash-status-dot" style={{ background: robotsTxt.split('\n').some(line => line.trim() === 'Disallow: /') ? 'var(--color-warning)' : 'var(--color-success)' }} />
+                <span style={{ color: 'var(--color-text-primary)', fontSize: '14px', fontWeight: 600 }}>
+                  {robotsTxt.split('\n').some(line => line.trim() === 'Disallow: /') ? 'Restricted' : 'Allowed'}
+                </span>
+              </div>
             </div>
             <div className="dash-card">
               <p className="text-label" style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-sm)' }}>
@@ -448,75 +453,13 @@ export default function SEODashboard() {
               </div>
             </div>
             <div style={{ padding: 'var(--spacing-md) var(--spacing-lg)' }}>
-              <textarea
+              <Textarea
                 value={robotsTxt}
-                onChange={(e) => setRobotsTxt(e.target.value)}
-                className="input-field w-full input-field-mono"
-                style={{ fontSize: '13px', resize: 'vertical', lineHeight: 1.7 }}
+                onChange={(val) => setRobotsTxt(val)}
                 rows={14}
+                inputClassName="font-mono text-[13px] leading-[1.7]"
+                resizable
               />
-            </div>
-          </div>
-
-          {/* Detected rules summary */}
-          <div className="dash-card" style={{ padding: 0 }}>
-            <div style={{ padding: 'var(--spacing-md) var(--spacing-lg)', borderBottom: '1px solid var(--color-border-light)' }}>
-              <h3 className="dash-card-title" style={{ margin: 0 }}>Detected Rules</h3>
-            </div>
-            <div>
-              {robotsTxt.split('\n').filter(line => {
-                const trimmed = line.trim();
-                return trimmed && !trimmed.startsWith('#');
-              }).map((line, i) => {
-                const trimmed = line.trim();
-                const isAllow = trimmed.startsWith('Allow:');
-                const isDisallow = trimmed.startsWith('Disallow:');
-                const isSitemapLine = trimmed.toLowerCase().startsWith('sitemap:');
-                const isUserAgent = trimmed.toLowerCase().startsWith('user-agent:');
-                return (
-                  <div
-                    key={i}
-                    className="pages-row"
-                    style={{ padding: '10px 20px', gap: '8px' }}
-                  >
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '18px',
-                      height: '18px',
-                      borderRadius: 'var(--radius-full)',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      flexShrink: 0,
-                      background: isAllow ? 'color-mix(in srgb, var(--color-success) 12%, transparent)'
-                        : isDisallow ? 'color-mix(in srgb, var(--color-error) 12%, transparent)'
-                        : isSitemapLine ? 'color-mix(in srgb, var(--color-primary) 12%, transparent)'
-                        : 'color-mix(in srgb, var(--color-text-tertiary) 12%, transparent)',
-                      color: isAllow ? 'var(--color-success)'
-                        : isDisallow ? 'var(--color-error)'
-                        : isSitemapLine ? 'var(--color-primary)'
-                        : 'var(--color-text-tertiary)',
-                    }}>
-                      {isAllow ? '\u2713' : isDisallow ? '\u2717' : isSitemapLine ? '\u2691' : isUserAgent ? '\u2022' : '\u2022'}
-                    </span>
-                    <code style={{
-                      fontSize: '13px',
-                      fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace",
-                      color: 'var(--color-text-primary)',
-                    }}>
-                      {trimmed}
-                    </code>
-                  </div>
-                );
-              })}
-              {robotsTxt.split('\n').filter(line => line.trim() && !line.trim().startsWith('#')).length === 0 && (
-                <div className="dash-empty-state" style={{ padding: '32px 16px' }}>
-                  <p style={{ color: 'var(--color-text-tertiary)', fontSize: '13px', margin: 0 }}>
-                    No rules detected. Add directives in the editor above.
-                  </p>
-                </div>
-              )}
             </div>
           </div>
 
@@ -621,9 +564,9 @@ export default function SEODashboard() {
                 </AdminButton>
               </div>
             </div>
-            <div>
+            <div className="grid grid-cols-1 md:grid-cols-2">
               {/* Sitemap Index */}
-              <div className="pages-row" style={{ gap: '12px' }}>
+              <div className="flex items-center gap-3" style={{ padding: '12px 20px', borderBottom: '1px solid var(--color-border-light)', borderRight: '1px solid var(--color-border-light)' }}>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   width: '18px', height: '18px', borderRadius: 'var(--radius-full)', flexShrink: 0,
@@ -649,7 +592,7 @@ export default function SEODashboard() {
               </div>
 
               {/* Pages sitemap */}
-              <div className="pages-row" style={{ gap: '12px' }}>
+              <div className="flex items-center gap-3" style={{ padding: '12px 20px', borderBottom: '1px solid var(--color-border-light)' }}>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   width: '18px', height: '18px', borderRadius: 'var(--radius-full)', flexShrink: 0,
@@ -672,7 +615,7 @@ export default function SEODashboard() {
               </div>
 
               {/* Blog posts sitemap */}
-              <div className="pages-row" style={{ gap: '12px' }}>
+              <div className="flex items-center gap-3" style={{ padding: '12px 20px', borderBottom: '1px solid var(--color-border-light)', borderRight: '1px solid var(--color-border-light)' }}>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   width: '18px', height: '18px', borderRadius: 'var(--radius-full)', flexShrink: 0,
@@ -695,7 +638,7 @@ export default function SEODashboard() {
               </div>
 
               {/* Categories sitemap */}
-              <div className="pages-row" style={{ gap: '12px' }}>
+              <div className="flex items-center gap-3" style={{ padding: '12px 20px', borderBottom: '1px solid var(--color-border-light)' }}>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   width: '18px', height: '18px', borderRadius: 'var(--radius-full)', flexShrink: 0,
@@ -728,11 +671,6 @@ export default function SEODashboard() {
               {/* Pages entries */}
               {sitemapData?.sitemaps?.pages?.entries?.length > 0 && (
                 <>
-                  <div style={{ padding: '8px 20px', background: 'color-mix(in srgb, var(--color-text-primary) 3%, transparent)', borderBottom: '1px solid var(--color-border-light)' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-tertiary)' }}>
-                      Pages
-                    </span>
-                  </div>
                   {sitemapData.sitemaps.pages.entries.map((entry: any) => {
                     const path = entry.url.replace(seoConfig?.siteUrl || '', '');
                     const displayName = path === '' || path === '/' ? '/' : path;
@@ -751,11 +689,6 @@ export default function SEODashboard() {
               {/* Blog post entries */}
               {sitemapData?.sitemaps?.blogPosts?.entries?.length > 0 && (
                 <>
-                  <div style={{ padding: '8px 20px', background: 'color-mix(in srgb, var(--color-text-primary) 3%, transparent)', borderBottom: '1px solid var(--color-border-light)' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-tertiary)' }}>
-                      Blog Posts
-                    </span>
-                  </div>
                   {sitemapData.sitemaps.blogPosts.entries.map((entry: any) => (
                     <div key={entry.url} className="pages-row" style={{ padding: '8px 20px', gap: '8px' }}>
                       <code className="pages-path-code">{entry.url.replace(seoConfig?.siteUrl || '', '')}</code>
@@ -767,11 +700,6 @@ export default function SEODashboard() {
               {/* Category entries */}
               {sitemapData?.sitemaps?.categories?.entries?.length > 0 && (
                 <>
-                  <div style={{ padding: '8px 20px', background: 'color-mix(in srgb, var(--color-text-primary) 3%, transparent)', borderBottom: '1px solid var(--color-border-light)' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-tertiary)' }}>
-                      Categories
-                    </span>
-                  </div>
                   {sitemapData.sitemaps.categories.entries.map((entry: any) => (
                     <div key={entry.url} className="pages-row" style={{ padding: '8px 20px', gap: '8px' }}>
                       <code className="pages-path-code">{entry.url.replace(seoConfig?.siteUrl || '', '')}</code>
@@ -892,29 +820,9 @@ export default function SEODashboard() {
                   </div>
                 </div>
                 <div style={{ padding: 'var(--spacing-md)' }}>
-                  <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
+                  <p className="text-body-sm" style={{ color: 'var(--color-text-secondary)' }}>
                     Dynamically generated for each page based on URL structure.
                   </p>
-                  <div className="dash-system-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                    <div className="dash-system-item">
-                      <div>
-                        <div style={{ color: 'var(--color-text-tertiary)', fontSize: '11px', fontWeight: 500 }}>Home Label</div>
-                        <div style={{ color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>{seoConfig?.schema?.breadcrumbs?.homeLabel || 'Home'}</div>
-                      </div>
-                    </div>
-                    <div className="dash-system-item">
-                      <div>
-                        <div style={{ color: 'var(--color-text-tertiary)', fontSize: '11px', fontWeight: 500 }}>Separator</div>
-                        <div style={{ color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>{seoConfig?.schema?.breadcrumbs?.separator || '›'}</div>
-                      </div>
-                    </div>
-                    <div className="dash-system-item">
-                      <div>
-                        <div style={{ color: 'var(--color-text-tertiary)', fontSize: '11px', fontWeight: 500 }}>Show Current</div>
-                        <div style={{ color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>{seoConfig?.schema?.breadcrumbs?.showCurrent ? 'Yes' : 'No'}</div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             )}

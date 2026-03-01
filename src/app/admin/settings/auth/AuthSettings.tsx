@@ -5,11 +5,11 @@ import {
   ClockIcon,
   ShieldExclamationIcon,
   LockClosedIcon,
-  ExclamationTriangleIcon,
   ArrowTopRightOnSquareIcon,
 } from '@heroicons/react/24/outline';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
+import { NumberInput } from '@/components/ui/inputs';
 import type { AuthProvider } from '@/lib/admin/auth-provider';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -24,8 +24,7 @@ interface AdminSettings {
 function AuthSkeleton() {
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
-      <div className="skeleton" style={{ width: '80px', height: '20px' }} />
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="skeleton" style={{ width: '180px', height: '36px', marginBottom: '8px' }} />
         <div className="skeleton" style={{ width: '320px', height: '18px' }} />
       </div>
@@ -81,8 +80,8 @@ function SupabaseAuthView({ supabaseUrl, allowedEmails }: { supabaseUrl: string;
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
       {/* Header */}
-      <div className="hidden md:block animate-fade-up">
-        <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
+      <div className="hidden lg:block animate-fade-up">
+        <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: '4px' }}>
           Authentication
         </h1>
         <p className="text-body-lg" style={{ color: 'var(--color-text-secondary)', margin: 0 }}>
@@ -255,8 +254,8 @@ function SimpleAuthForm() {
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6">
       {/* Header */}
-      <div className="hidden md:block">
-        <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-sm)' }}>
+      <div className="hidden lg:block">
+        <h1 className="text-h1" style={{ color: 'var(--color-text-primary)', marginBottom: '4px' }}>
           Authentication
         </h1>
         <p className="text-body-lg" style={{ color: 'var(--color-text-secondary)', margin: 0 }}>
@@ -266,17 +265,14 @@ function SimpleAuthForm() {
 
       {/* Production warning */}
       {isProduction && (
-        <div className="pages-production-warning animate-fade-up">
-          <ExclamationTriangleIcon className="w-5 h-5 shrink-0" style={{ color: 'var(--color-warning)' }} />
-          <div>
-            <p style={{ color: 'var(--color-warning)', fontWeight: 600, fontSize: '14px', margin: 0 }}>
-              Production Environment
-            </p>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '13px', margin: 0 }}>
-              Settings cannot be modified in production. Edit <code className="px-1 py-0.5 rounded text-xs" style={{ background: 'color-mix(in srgb, var(--color-warning) 15%, transparent)' }}>settings.json</code> locally and redeploy.
-            </p>
-          </div>
-        </div>
+        <AdminBanner variant="warning">
+          <p className="flex items-start gap-2">
+            <span>&#9888;</span>
+            <span>
+              <strong>Read-Only in Production:</strong> Settings cannot be modified in production. Edit <code className="px-1 py-0.5 rounded text-xs" style={{ background: 'color-mix(in srgb, var(--color-warning) 15%, transparent)' }}>settings.json</code> locally and redeploy.
+            </span>
+          </p>
+        </AdminBanner>
       )}
 
       {/* Stat cards */}
@@ -304,121 +300,104 @@ function SimpleAuthForm() {
         <div className="dash-card-header">
           <h2 className="dash-card-title">Security Configuration</h2>
         </div>
-        <div className="space-y-5">
-          <div className="animate-fade-up" style={{ animationDelay: '240ms' } as React.CSSProperties}>
-            <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-              Session Timeout
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={settings.sessionTimeout || ''}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value);
-                  setSettings(prev => ({ ...prev, sessionTimeout: isNaN(val) ? 60 : val }));
-                }}
-                className="input-field w-32"
-                min="5"
-                max="1440"
-                disabled={isProduction}
-              />
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>minutes</span>
-            </div>
-            <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-              Automatically log out users after this period of inactivity (5 &ndash; 1440 minutes)
-            </p>
-          </div>
 
-          <div className="animate-fade-up" style={{ animationDelay: '300ms' } as React.CSSProperties}>
-            <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-              Max Login Attempts
-            </label>
-            <input
-              type="number"
-              value={settings.maxLoginAttempts || ''}
-              onChange={(e) => {
-                const val = parseInt(e.target.value);
-                setSettings(prev => ({ ...prev, maxLoginAttempts: isNaN(val) ? 5 : val }));
+        <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-border-light)' }}>
+          <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: 'var(--color-border-light)' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Session Timeout</span>
+              <p className="text-xs mt-0.5 mb-0" style={{ color: 'var(--color-text-secondary)' }}>Auto logout after inactivity (5 - 1440 min)</p>
+            </div>
+            <NumberInput
+              value={settings.sessionTimeout || ''}
+              onChange={(val) => {
+                setSettings(prev => ({ ...prev, sessionTimeout: typeof val === 'number' ? val : 60 }));
               }}
-              className="input-field w-32"
-              min="3"
-              max="10"
+              className="w-28 shrink-0"
+              min={5}
+              max={1440}
+              disabled={isProduction}
+              suffix="min"
+            />
+          </div>
+          <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: 'var(--color-border-light)' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Max Login Attempts</span>
+              <p className="text-xs mt-0.5 mb-0" style={{ color: 'var(--color-text-secondary)' }}>Lock after failed attempts (3 - 10)</p>
+            </div>
+            <NumberInput
+              value={settings.maxLoginAttempts || ''}
+              onChange={(val) => {
+                setSettings(prev => ({ ...prev, maxLoginAttempts: typeof val === 'number' ? val : 5 }));
+              }}
+              className="w-28 shrink-0"
+              min={3}
+              max={10}
               disabled={isProduction}
             />
-            <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-              Lock account after this many failed login attempts (3 &ndash; 10 attempts)
-            </p>
           </div>
-
-          <div className="animate-fade-up" style={{ animationDelay: '360ms' } as React.CSSProperties}>
-            <label className="text-label block mb-2" style={{ color: 'var(--color-text-primary)' }}>
-              Lockout Duration
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={settings.lockoutDuration || ''}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value);
-                  setSettings(prev => ({ ...prev, lockoutDuration: isNaN(val) ? 15 : val }));
-                }}
-                className="input-field w-32"
-                min="5"
-                max="120"
-                disabled={isProduction}
-              />
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>minutes</span>
+          <div className="flex items-center justify-between px-4 py-4" style={{ borderColor: 'var(--color-border-light)' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Lockout Duration</span>
+              <p className="text-xs mt-0.5 mb-0" style={{ color: 'var(--color-text-secondary)' }}>Lock duration after max attempts (5 - 120 min)</p>
             </div>
-            <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-              How long to lock the account after max failed attempts (5 &ndash; 120 minutes)
-            </p>
+            <NumberInput
+              value={settings.lockoutDuration || ''}
+              onChange={(val) => {
+                setSettings(prev => ({ ...prev, lockoutDuration: typeof val === 'number' ? val : 15 }));
+              }}
+              className="w-28 shrink-0"
+              min={5}
+              max={120}
+              disabled={isProduction}
+              suffix="min"
+            />
           </div>
-
-          <AdminBanner>
-            <p className="flex items-start gap-2">
-              <span>&#128274;</span>
-              <span>
-                <strong>Single Account System:</strong> This admin panel uses a single-account authentication system.
-                Set your credentials using <code className="px-1 rounded text-xs" style={{ background: 'var(--color-surface-elevated)' }}>SIMPLE_ADMIN_USERNAME</code> and
-                <code className="px-1 rounded text-xs ml-1" style={{ background: 'var(--color-surface-elevated)' }}>SIMPLE_ADMIN_PASSWORD_HASH</code> environment variables.
-              </span>
-            </p>
-          </AdminBanner>
-
-          {/* Supabase upsell */}
-          <AdminBanner variant="success">
-            <p className="flex items-start gap-2">
-              <svg width="16" height="16" viewBox="0 0 109 113" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0" style={{ marginTop: '2px' }}>
-                <path d="M63.708 110.284C60.727 114.083 54.87 112.147 54.694 107.26L53.098 59.218H99.14C108.123 59.218 113.172 69.618 107.56 76.659L63.708 110.284Z" fill="#249361" />
-                <path d="M45.317 2.071C48.298 -1.728 54.155 0.209 54.331 5.096L55.202 53.137H10.088C1.105 53.137 -3.944 42.737 1.668 35.696L45.317 2.071Z" fill="#3ECF8E" />
-              </svg>
-              <span>
-                <strong>Upgrade to Supabase Auth.</strong> Get OAuth providers, magic links, multi-user support, and managed session handling.
-                Set <code className="px-1 rounded text-xs" style={{ background: 'var(--color-surface-elevated)' }}>ADMIN_AUTH_PROVIDER=supabase</code> in your environment to <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="dash-card-link" style={{ fontWeight: 600 }}>get started</a>.
-              </span>
-            </p>
-          </AdminBanner>
         </div>
+      </div>
 
-        {/* Save bar */}
-        <div className="flex items-center justify-between mt-6 pt-5" style={{ borderTop: '1px solid var(--color-border-light)' }}>
-          <div>
-            {saveMessage && (
-              <p className={`text-body-sm ${
-                saveMessage.includes('success') ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {saveMessage}
-              </p>
-            )}
-          </div>
-          <AdminButton
-            onClick={handleSave}
-            disabled={isSaving || isProduction}
-            title={isProduction ? 'Settings cannot be modified in production' : undefined}
-          >
-            {isSaving ? 'Saving...' : 'Save Settings'}
-          </AdminButton>
+      {/* Info banners */}
+      <AdminBanner>
+        <p className="flex items-start gap-2">
+          <span>&#128274;</span>
+          <span>
+            <strong>Single Account System:</strong> This admin panel uses a single-account authentication system.
+            Set your credentials using <code className="px-1 rounded text-xs" style={{ background: 'var(--color-surface-elevated)' }}>SIMPLE_ADMIN_USERNAME</code> and
+            <code className="px-1 rounded text-xs ml-1" style={{ background: 'var(--color-surface-elevated)' }}>SIMPLE_ADMIN_PASSWORD_HASH</code> environment variables.
+          </span>
+        </p>
+      </AdminBanner>
+
+      <AdminBanner variant="success">
+        <p className="flex items-start gap-2">
+          <svg width="16" height="16" viewBox="0 0 109 113" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0" style={{ marginTop: '2px' }}>
+            <path d="M63.708 110.284C60.727 114.083 54.87 112.147 54.694 107.26L53.098 59.218H99.14C108.123 59.218 113.172 69.618 107.56 76.659L63.708 110.284Z" fill="#249361" />
+            <path d="M45.317 2.071C48.298 -1.728 54.155 0.209 54.331 5.096L55.202 53.137H10.088C1.105 53.137 -3.944 42.737 1.668 35.696L45.317 2.071Z" fill="#3ECF8E" />
+          </svg>
+          <span>
+            <strong>Upgrade to Supabase Auth.</strong> Get OAuth providers, magic links, multi-user support, and managed session handling.
+            Set <code className="px-1 rounded text-xs" style={{ background: 'var(--color-surface-elevated)' }}>ADMIN_AUTH_PROVIDER=supabase</code> in your environment to <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="dash-card-link" style={{ fontWeight: 600 }}>get started</a>.
+          </span>
+        </p>
+      </AdminBanner>
+
+      {/* Save bar */}
+      <div className="flex items-center justify-between pt-4 pb-2" style={{ borderTop: '1px solid var(--color-border-light)' }}>
+        <div>
+          {saveMessage && (
+            <p className={`text-body-sm ${
+              saveMessage.includes('success') ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {saveMessage}
+            </p>
+          )}
         </div>
+        <AdminButton
+          onClick={handleSave}
+          disabled={isSaving || isProduction}
+          title={isProduction ? 'Settings cannot be modified in production' : undefined}
+        >
+          {isSaving ? 'Saving...' : 'Save Settings'}
+        </AdminButton>
       </div>
     </div>
   );

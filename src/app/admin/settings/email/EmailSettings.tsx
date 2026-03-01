@@ -17,9 +17,9 @@ import {
 } from '@heroicons/react/24/outline';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
-import { Select } from '@/components/admin/ui/Select';
 import { Switch } from '@/components/admin/ui/Switch';
-import { Tooltip } from '@/components/admin/ui/Tooltip';
+import { TextInput, PasswordInput, NumberInput, Select } from '@/components/ui/inputs';
+import { useConfirmationDialog } from '@/components/ui/feedback';
 
 interface EmailAccountSafe {
   id: string;
@@ -61,18 +61,6 @@ const emptyForm: FormData = {
   replyTo: '',
   isDefault: false,
 };
-
-function FieldLabel({ label, tooltip, required, optional }: { label: string; tooltip: string; required?: boolean; optional?: boolean }) {
-  return (
-    <Tooltip content={tooltip} position="top" delay={300}>
-      <label className="text-label block mb-1.5" style={{ color: 'var(--color-text-primary)', cursor: 'help' }}>
-        {label}
-        {required && <span style={{ color: 'var(--color-error)', marginLeft: '4px' }}>*</span>}
-        {optional && <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 400, marginLeft: '4px' }}>(optional)</span>}
-      </label>
-    </Tooltip>
-  );
-}
 
 type AccountStatusType = 'checking' | 'online' | 'offline' | 'key_error';
 
@@ -128,6 +116,7 @@ export default function EmailSettings({ encryptionConfigured, isProduction }: Em
   const [testingId, setTestingId] = useState<string | null>(null);
   const [testEmail, setTestEmail] = useState('');
   const [testSending, setTestSending] = useState(false);
+  const { confirm: confirmAction, dialog } = useConfirmationDialog();
 
   // Connection status per account
   const [accountStatus, setAccountStatus] = useState<Record<string, AccountStatusType>>({});
@@ -409,7 +398,13 @@ export default function EmailSettings({ encryptionConfigured, isProduction }: Em
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this email account?')) return;
+    const confirmed = await confirmAction({
+      title: 'Delete Email Account',
+      description: 'Are you sure you want to delete this email account? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     try {
       const res = await fetch(`/api/admin/settings/email/${id}`, { method: 'DELETE' });
@@ -837,80 +832,68 @@ export default function EmailSettings({ encryptionConfigured, isProduction }: Em
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <FieldLabel label="Account Name" tooltip="A friendly name to identify this account, e.g. Support Inbox or Noreply" required />
-              <input
-                className="input-field w-full"
-                placeholder="e.g. SiteGround Noreply"
-                value={form.label}
-                onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
-              />
-            </div>
+            <TextInput
+              label="Account Name *"
+              description="A friendly name, e.g. Support Inbox"
+              placeholder="e.g. SiteGround Noreply"
+              value={form.label}
+              onChange={(val) => setForm((f) => ({ ...f, label: val }))}
+            />
+
+            <TextInput
+              label="Host *"
+              description="Your SMTP server address"
+              placeholder="e.g. mail.yourdomain.com"
+              value={form.host}
+              onChange={(val) => setForm((f) => ({ ...f, host: val }))}
+            />
+
+            <TextInput
+              label="Username *"
+              description="Usually your full email address"
+              placeholder="e.g. noreply@yourdomain.com"
+              value={form.username}
+              onChange={(val) => {
+                setForm((f) => {
+                  const updated = { ...f, username: val };
+                  if (val.includes('@') && (!f.fromEmail || f.fromEmail === f.username)) {
+                    updated.fromEmail = val;
+                  }
+                  return updated;
+                });
+              }}
+            />
+
+            <PasswordInput
+              label="Password *"
+              description="Encrypted before storage"
+              placeholder={editingId ? 'Leave blank to keep existing' : 'SMTP password'}
+              value={form.password}
+              onChange={(val) => setForm((f) => ({ ...f, password: val }))}
+              autoComplete="off"
+            />
+
+            <TextInput
+              label="From Name *"
+              description="Sender name recipients see"
+              placeholder="e.g. Your Company"
+              value={form.fromName}
+              onChange={(val) => setForm((f) => ({ ...f, fromName: val }))}
+            />
+
+            <TextInput
+              label="From Email *"
+              description="Should match your domain"
+              type="email"
+              placeholder="e.g. noreply@yourdomain.com"
+              value={form.fromEmail}
+              onChange={(val) => setForm((f) => ({ ...f, fromEmail: val }))}
+            />
 
             <div>
-              <FieldLabel label="Host" tooltip="Your SMTP server address, provided by your email host" required />
-              <input
-                className="input-field w-full"
-                placeholder="e.g. mail.yourdomain.com"
-                value={form.host}
-                onChange={(e) => setForm((f) => ({ ...f, host: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <FieldLabel label="Username" tooltip="SMTP login username, usually your full email address" required />
-              <input
-                className="input-field w-full"
-                placeholder="e.g. noreply@yourdomain.com"
-                value={form.username}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setForm((f) => {
-                    const updated = { ...f, username: val };
-                    if (val.includes('@') && (!f.fromEmail || f.fromEmail === f.username)) {
-                      updated.fromEmail = val;
-                    }
-                    return updated;
-                  });
-                }}
-              />
-            </div>
-
-            <div>
-              <FieldLabel label="Password" tooltip="SMTP password. Encrypted before storage, never stored in plaintext" required />
-              <input
-                type="password"
-                className="input-field w-full"
-                placeholder={editingId ? 'Leave blank to keep existing' : 'SMTP password'}
-                value={form.password}
-                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <FieldLabel label="From Name" tooltip="The sender name recipients see in their inbox" required />
-              <input
-                className="input-field w-full"
-                placeholder="e.g. Your Company"
-                value={form.fromName}
-                onChange={(e) => setForm((f) => ({ ...f, fromName: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <FieldLabel label="From Email" tooltip="The email address shown as the sender. Should match your domain for deliverability" required />
-              <input
-                type="email"
-                className="input-field w-full"
-                placeholder="e.g. noreply@yourdomain.com"
-                value={form.fromEmail}
-                onChange={(e) => setForm((f) => ({ ...f, fromEmail: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <FieldLabel label="Port" tooltip="465 uses implicit SSL, 587 uses STARTTLS. Check with your email provider" required />
               <Select
+                label="Port *"
+                description="465 = SSL, 587 = STARTTLS"
                 options={[
                   { value: '465', label: '465 (SSL)' },
                   { value: '587', label: '587 (STARTTLS)' },
@@ -927,30 +910,29 @@ export default function EmailSettings({ encryptionConfigured, isProduction }: Em
                 }}
               />
               {form.port !== 465 && form.port !== 587 && (
-                <input
-                  type="number"
-                  className="input-field w-full mt-2"
+                <NumberInput
+                  className="mt-2"
                   placeholder="Enter custom port"
                   value={form.port || ''}
-                  onChange={(e) => {
-                    const port = parseInt(e.target.value) || 0;
+                  onChange={(val) => {
+                    const port = typeof val === 'number' ? val : 0;
                     setForm((f) => ({ ...f, port, secure: false }));
                   }}
+                  min={1}
+                  max={65535}
                   autoFocus
                 />
               )}
             </div>
 
-            <div>
-              <FieldLabel label="Reply-To" tooltip="When recipients hit reply, their response goes to this address instead of the From Email" optional />
-              <input
-                type="email"
-                className="input-field w-full"
-                placeholder="e.g. hello@yourdomain.com"
-                value={form.replyTo}
-                onChange={(e) => setForm((f) => ({ ...f, replyTo: e.target.value }))}
-              />
-            </div>
+            <TextInput
+              label="Reply-To"
+              description="Optional reply address"
+              type="email"
+              placeholder="e.g. hello@yourdomain.com"
+              value={form.replyTo}
+              onChange={(val) => setForm((f) => ({ ...f, replyTo: val }))}
+            />
 
             <div className="flex items-center gap-2.5 self-end" style={{ paddingBottom: '2px' }}>
               <Switch
@@ -958,10 +940,8 @@ export default function EmailSettings({ encryptionConfigured, isProduction }: Em
                 onChange={(checked) => setForm((f) => ({ ...f, isDefault: checked }))}
                 disabled={accounts.length === 0 && !editingId}
                 size="sm"
+                label="Primary Account"
               />
-              <Tooltip content="The default account used when sending emails. Only one can be primary" position="top" delay={300}>
-                <span className="text-label" style={{ color: 'var(--color-text-primary)', cursor: 'help' }}>Primary Account</span>
-              </Tooltip>
             </div>
           </div>
 
@@ -1039,13 +1019,12 @@ export default function EmailSettings({ encryptionConfigured, isProduction }: Em
                 <div className="pages-row-actions">
                   {testingId === account.id ? (
                     <div className="flex items-center gap-2 animate-fade-up">
-                      <input
+                      <TextInput
                         type="email"
-                        className="input-field"
                         placeholder="Recipient email"
                         value={testEmail}
-                        onChange={(e) => setTestEmail(e.target.value)}
-                        style={{ width: '200px', fontSize: '13px' }}
+                        onChange={(val) => setTestEmail(val)}
+                        className="w-[200px]"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleTest(account.id);
                           if (e.key === 'Escape') { setTestingId(null); setTestEmail(''); }
@@ -1105,6 +1084,7 @@ export default function EmailSettings({ encryptionConfigured, isProduction }: Em
           </div>
         </div>
       )}
+      {dialog}
     </div>
   );
 }

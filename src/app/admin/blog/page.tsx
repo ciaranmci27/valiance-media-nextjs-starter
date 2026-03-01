@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
+import { toast, useConfirmationDialog } from '@/components/ui/feedback';
 import { useRouter, useSearchParams } from 'next/navigation';
 import SearchInput from '@/components/admin/ui/SearchInput';
 import {
@@ -57,6 +58,7 @@ function BlogListContent() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState(filter);
   const [searchQuery, setSearchQuery] = useState('');
+  const { confirm: confirmAction, dialog } = useConfirmationDialog();
 
   useEffect(() => {
     fetchPosts();
@@ -133,7 +135,13 @@ function BlogListContent() {
   };
 
   const deletePost = async (slug: string, category?: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
+    const confirmed = await confirmAction({
+      title: 'Delete Post',
+      description: 'This action cannot be undone. The post will be permanently removed.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     try {
       const response = await fetch('/api/admin/blog', {
@@ -145,11 +153,11 @@ function BlogListContent() {
       if (response.ok) {
         fetchPosts();
       } else {
-        alert('Failed to delete post');
+        toast.error('Failed to delete post');
       }
     } catch (error) {
       console.error('Error deleting post:', error);
-      alert('An error occurred while deleting the post');
+      toast.error('An error occurred while deleting the post');
     }
   };
 
@@ -375,6 +383,7 @@ function BlogListContent() {
           </div>
         )}
       </div>
+      {dialog}
     </div>
   );
 }

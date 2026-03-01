@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense, useCallback, useMemo } from 'react';
+import { toast, useConfirmationDialog } from '@/components/ui/feedback';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PageListItem } from '@/lib/pages/page-types';
 import SearchInput from '@/components/admin/ui/SearchInput';
@@ -48,6 +49,7 @@ function PagesListContent() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const { confirm: confirmAction, dialog } = useConfirmationDialog();
 
   useEffect(() => {
     checkEnvironment();
@@ -94,13 +96,13 @@ function PagesListContent() {
       if (response.ok) {
         const data = await response.json();
         setPages(data.pages || []);
-        alert(`Pages rescanned successfully. Found ${data.pages?.length || 0} pages.`);
+        toast.success(`Pages rescanned successfully. Found ${data.pages?.length || 0} pages.`);
       } else {
-        alert('Failed to rescan pages');
+        toast.error('Failed to rescan pages');
       }
     } catch (error) {
       console.error('Error rescanning pages:', error);
-      alert('Failed to rescan pages');
+      toast.error('Failed to rescan pages');
     } finally {
       setIsRefreshing(false);
     }
@@ -208,13 +210,17 @@ function PagesListContent() {
 
   const deletePage = async (slug: string) => {
     if (slug === 'home') {
-      alert('Cannot delete the home page');
+      toast.warning('Cannot delete the home page');
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete the page "${slug}"? This action cannot be undone.`)) {
-      return;
-    }
+    const confirmed = await confirmAction({
+      title: 'Delete Page',
+      description: `Are you sure you want to delete "${slug}"? This action cannot be undone.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/api/admin/pages/${encodeURIComponent(slug)}`, {
@@ -223,14 +229,14 @@ function PagesListContent() {
 
       if (response.ok) {
         setPages(pages.filter(p => p.slug !== slug));
-        alert('Page deleted successfully');
+        toast.success('Page deleted successfully');
       } else {
         const error = await response.json();
-        alert(`Failed to delete page: ${error.error || 'Unknown error'}`);
+        toast.error(`Failed to delete page: ${error.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error deleting page:', error);
-      alert('Failed to delete page');
+      toast.error('Failed to delete page');
     }
   };
 
@@ -449,6 +455,8 @@ function PagesListContent() {
           </div>
         )}
       </div>
+
+      {dialog}
 
       <style jsx>{`
         @keyframes spin {

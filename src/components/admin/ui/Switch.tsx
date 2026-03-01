@@ -55,7 +55,7 @@ export function Switch({ checked, onChange, disabled = false, label, className =
         </div>
       </div>
       {label && (
-        <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+        <span className="ml-3 text-sm font-medium text-input-text-label">
           {label}
         </span>
       )}
