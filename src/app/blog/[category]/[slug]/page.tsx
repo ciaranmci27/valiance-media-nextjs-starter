@@ -2,7 +2,7 @@ import React from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { BlogLayout } from '@/components/admin/blog/BlogLayout';
-import { loadPost, loadBlogPosts, getRelatedPosts, loadCategories } from '@/lib/blog/blog-utils';
+import { cachedLoadPost, cachedLoadBlogPosts, cachedGetRelatedPosts, cachedLoadCategories } from '@/lib/blog/blog-utils';
 import { seoConfig } from '@/seo/seo.config';
 
 interface BlogPostPageProps {
@@ -14,8 +14,8 @@ interface BlogPostPageProps {
 
 // Generate static params for all blog posts with categories
 export async function generateStaticParams() {
-  const posts = await loadBlogPosts();
-  const categories = await loadCategories();
+  const posts = await cachedLoadBlogPosts();
+  const categories = await cachedLoadCategories();
   
   const params = [];
   
@@ -35,7 +35,7 @@ export async function generateStaticParams() {
 // Generate metadata for SEO
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const post = await loadPost(resolvedParams.slug, resolvedParams.category);
+  const post = await cachedLoadPost(resolvedParams.slug, resolvedParams.category);
   
   if (!post) {
     return {
@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const resolvedParams = await params;
-  const post = await loadPost(resolvedParams.slug, resolvedParams.category);
+  const post = await cachedLoadPost(resolvedParams.slug, resolvedParams.category);
   
   // If post doesn't exist, let 404 page handle the smart redirect
   if (!post) {
@@ -85,7 +85,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     }
   }
   
-  const relatedPosts = await getRelatedPosts(post, 3);
+  const relatedPosts = await cachedGetRelatedPosts(post, 3);
   
   return <BlogLayout post={post} relatedPosts={relatedPosts} useFullUrl={true} />;
 }

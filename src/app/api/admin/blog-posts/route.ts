@@ -7,7 +7,7 @@ export async function GET() {
   if (!auth.authenticated) return auth.response;
 
   try {
-    const posts = loadBlogPosts();
+    const posts = await loadBlogPosts();
     
     return NextResponse.json({ 
       posts: posts.map(post => ({

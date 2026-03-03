@@ -7,8 +7,8 @@ export async function GET() {
   if (!auth.authenticated) return auth.response;
 
   try {
-    const posts = loadBlogPosts();
-    const categories = loadAllCategories();
+    const posts = await loadBlogPosts();
+    const categories = await loadAllCategories();
     
     // Create a mapping of slug to category name
     const categoryMap = new Map();

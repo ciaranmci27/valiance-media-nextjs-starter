@@ -1,75 +1,49 @@
 import { MetadataRoute } from 'next';
 import { seoConfig } from '../seo.config';
 import { loadCategories, loadBlogPosts } from '@/lib/blog/blog-utils';
+import { BlogPost } from '@/lib/blog/blog-types';
 
 /**
  * Categories Sitemap - Contains blog categories and blog index
  * This includes the main blog page and all category listing pages
  */
+
 /**
- * Helper function to check if a category has real user content (not just examples)
+ * Filter posts to only real, publishable content (not examples/drafts)
  */
-function categoryHasRealContent(categorySlug: string): boolean {
-  try {
-    const allBlogPosts = loadBlogPosts();
-    const sitemapConfig = seoConfig.sitemap;
-    
-    // Get posts in this category that are not examples/drafts/excluded
-    const realPostsInCategory = allBlogPosts.filter((post) => {
-      if (post.category !== categorySlug) return false;
-      if (post.draft) return false;
-      if (post.excludeFromSearch) return false;
-      
-      // Check if it's an example post
-      const hasExcludedPattern = sitemapConfig.excludedBlogPatterns.some(pattern => 
-        post.slug.toLowerCase().includes(pattern.toLowerCase())
-      );
-      if (hasExcludedPattern) return false;
-      
-      return true;
-    });
-    
-    return realPostsInCategory.length > 0;
-  } catch (error) {
-    console.warn(`Error checking content for category ${categorySlug}:`, error);
-    return false;
-  }
+function filterRealPosts(allPosts: BlogPost[]): BlogPost[] {
+  const sitemapConfig = seoConfig.sitemap;
+
+  return allPosts.filter((post) => {
+    if (post.draft) return false;
+    if (post.excludeFromSearch) return false;
+
+    const hasExcludedPattern = sitemapConfig.excludedBlogPatterns.some(pattern =>
+      post.slug.toLowerCase().includes(pattern.toLowerCase())
+    );
+    if (hasExcludedPattern) return false;
+
+    return true;
+  });
 }
 
 /**
- * Helper function to check if there are any real blog posts at all
+ * Helper: check if a category has real user content using a pre-loaded posts array
  */
-function hasAnyRealBlogContent(): boolean {
-  try {
-    const allBlogPosts = loadBlogPosts();
-    const sitemapConfig = seoConfig.sitemap;
-    
-    const realPosts = allBlogPosts.filter((post) => {
-      if (post.draft) return false;
-      if (post.excludeFromSearch) return false;
-      
-      // Check if it's an example post
-      const hasExcludedPattern = sitemapConfig.excludedBlogPatterns.some(pattern => 
-        post.slug.toLowerCase().includes(pattern.toLowerCase())
-      );
-      if (hasExcludedPattern) return false;
-      
-      return true;
-    });
-    
-    return realPosts.length > 0;
-  } catch (error) {
-    console.warn('Error checking for real blog content:', error);
-    return false;
-  }
+function categoryHasRealContent(categorySlug: string, realPosts: BlogPost[]): boolean {
+  return realPosts.some(post => post.category === categorySlug);
 }
 
-export function sitemapCategories(customBaseUrl?: string): MetadataRoute.Sitemap {
+export async function sitemapCategories(customBaseUrl?: string): Promise<MetadataRoute.Sitemap> {
   const baseUrl = customBaseUrl || (seoConfig as any).siteUrl;
   const sitemapConfig = seoConfig.sitemap;
 
+  // Load all posts once, filter to real content
+  const allPosts = await loadBlogPosts();
+  const realPosts = filterRealPosts(allPosts);
+
   // Only generate categories sitemap if there's real blog content
-  if (!hasAnyRealBlogContent()) {
+  if (realPosts.length === 0) {
     console.log('No real blog content found, excluding categories from sitemap');
     return [];
   }
@@ -86,11 +60,11 @@ export function sitemapCategories(customBaseUrl?: string): MetadataRoute.Sitemap
 
   // Add category pages (only those with real content)
   try {
-    const categories = loadCategories();
-    const categoriesWithContent = categories.filter(category => 
-      categoryHasRealContent(category.slug)
+    const categories = await loadCategories();
+    const categoriesWithContent = categories.filter(category =>
+      categoryHasRealContent(category.slug, realPosts)
     );
-    
+
     const categoryPages = categoriesWithContent.map((category) => ({
       url: `${baseUrl}/blog/${category.slug}`,
       lastModified: new Date(),
@@ -99,7 +73,7 @@ export function sitemapCategories(customBaseUrl?: string): MetadataRoute.Sitemap
     }));
 
     sitemapEntries.push(...categoryPages);
-    
+
     if (categoriesWithContent.length === 0) {
       console.log('No categories with real content found');
     }

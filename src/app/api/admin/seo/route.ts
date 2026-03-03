@@ -104,14 +104,14 @@ export async function GET(request: NextRequest) {
     if (type === 'stats') {
       // Count public pages only (excluding admin)
       const staticPages = 3; // Home, Privacy, Terms
-      const blogPosts = loadBlogPosts().filter(post => !post.draft);
+      const blogPosts = (await loadBlogPosts()).filter(post => !post.draft);
       
       const totalPages = staticPages + blogPosts.length;
       const pagesWithMeta = totalPages; // All pages have meta tags by default
       const pagesWithOG = totalPages; // All pages have OG tags by default
       
       // Count pages actually in sitemap (excluding admin)
-      const sitemapEntries = sitemapPages();
+      const sitemapEntries = await sitemapPages();
       const sitemapPagesCount = sitemapEntries.length + blogPosts.length;
       
       // For indexed pages, we'd need to integrate with Google Search Console API

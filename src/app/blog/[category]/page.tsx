@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { BlogCard } from '@/components/admin/blog/BlogCard';
-import { loadPostsByCategory, loadCategories, loadPost, loadBlogPosts } from '@/lib/blog/blog-utils';
+import { loadPostsByCategory, cachedLoadCategories, cachedLoadPost, cachedLoadBlogPosts } from '@/lib/blog/blog-utils';
 import Link from 'next/link';
 import { seoConfig } from '@/seo/seo.config';
 
@@ -15,8 +15,8 @@ interface CategoryPageProps {
 
 // Generate static params for all categories and single posts
 export async function generateStaticParams() {
-  const categories = await loadCategories();
-  const posts = await loadBlogPosts();
+  const categories = await cachedLoadCategories();
+  const posts = await cachedLoadBlogPosts();
   
   // Generate params for categories
   const categoryParams = categories.map((category) => ({
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const resolvedParams = await params;
   
   // Check if it's a category
-  const categories = await loadCategories();
+  const categories = await cachedLoadCategories();
   const category = categories.find(cat => cat.slug === resolvedParams.category);
   if (category) {
     return {
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
   
   // Check if it's a blog post
-  const post = await loadPost(resolvedParams.category);
+  const post = await cachedLoadPost(resolvedParams.category);
   if (post) {
     return {
       title: post.seo?.title || `${post.title} - ${seoConfig.siteName || 'Valiance Media'} Blog`,
@@ -73,13 +73,13 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
   const resolvedParams = await params;
   
   // First, check if it's a category
-  const categories = await loadCategories();
+  const categories = await cachedLoadCategories();
   const category = categories.find(cat => cat.slug === resolvedParams.category);
   if (category) {
     // It's a category page - show category listing
     const [posts, allCategories] = await Promise.all([
       loadPostsByCategory(resolvedParams.category),
-      loadCategories(),
+      cachedLoadCategories(),
     ]);
     
     return (
@@ -144,12 +144,12 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
   }
   
   // If not a category, check if it's a blog post (for backwards compatibility)
-  const post = await loadPost(resolvedParams.category);
+  const post = await cachedLoadPost(resolvedParams.category);
   if (post) {
     // Redirect to the proper URL structure
     const { BlogLayout } = await import('@/components/admin/blog/BlogLayout');
-    const { getRelatedPosts } = await import('@/lib/blog/blog-utils');
-    const relatedPosts = await getRelatedPosts(post, 3);
+    const { cachedGetRelatedPosts } = await import('@/lib/blog/blog-utils');
+    const relatedPosts = await cachedGetRelatedPosts(post, 3);
     
     return <BlogLayout post={post} relatedPosts={relatedPosts} />;
   }

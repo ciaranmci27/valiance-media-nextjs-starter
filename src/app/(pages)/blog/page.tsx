@@ -3,14 +3,14 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { BlogCard } from '@/components/admin/blog/BlogCard';
-import { loadBlogPosts, loadCategories } from '@/lib/blog/blog-utils';
+import { cachedLoadBlogPosts, cachedLoadCategories } from '@/lib/blog/blog-utils';
 import Link from 'next/link';
 import { seoConfig } from '@/seo/seo.config';
 import { generateStaticMetadata } from '@/lib/seo/generate-static-metadata';
 
 // Dynamic metadata: use seo-config.json when posts exist, noindex when empty
 export async function generateMetadata(): Promise<Metadata> {
-  const allPosts = await loadBlogPosts();
+  const allPosts = await cachedLoadBlogPosts();
 
   // If no posts, return minimal metadata (page will 404 anyway)
   if (allPosts.length === 0) {
@@ -26,8 +26,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function BlogPage() {
   const [allPosts, categories] = await Promise.all([
-    loadBlogPosts(),
-    loadCategories(),
+    cachedLoadBlogPosts(),
+    cachedLoadCategories(),
   ]);
 
   // If no blog posts exist, return 404 - don't show empty blog page

@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     // Get pages sitemap
     if (type === 'pages') {
-      const pages = sitemapPages();
+      const pages = await sitemapPages();
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -67,7 +67,7 @@ ${pages.map(page => `  <url>
 
     // Get blog posts sitemap
     if (type === 'blog-posts') {
-      const posts = sitemapBlogPosts();
+      const posts = await sitemapBlogPosts();
       const xml = posts.length > 0 ? `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -92,7 +92,7 @@ ${posts.map(post => `  <url>
 
     // Get categories sitemap
     if (type === 'categories') {
-      const categories = sitemapCategories();
+      const categories = await sitemapCategories();
       const xml = categories.length > 0 ? `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -116,9 +116,11 @@ ${categories.map(cat => `  <url>
     }
 
     // Return all sitemap info
-    const pagesData = sitemapPages();
-    const blogPostsData = sitemapBlogPosts();
-    const categoriesData = sitemapCategories();
+    const [pagesData, blogPostsData, categoriesData] = await Promise.all([
+      sitemapPages(),
+      sitemapBlogPosts(),
+      sitemapCategories(),
+    ]);
 
     return NextResponse.json({
       sitemaps: {

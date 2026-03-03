@@ -22,11 +22,11 @@ interface Redirect {
   permanent: boolean;
 }
 
-// In-memory cache for redirects (1 minute TTL)
+// In-memory cache for redirects (5 minute TTL)
 let redirectsCache: Redirect[] = [];
 let redirectsCacheTime = 0;
 let redirectsCacheInitialized = false;
-const CACHE_DURATION = 60000; // 1 minute
+const CACHE_DURATION = 300000; // 5 minutes
 
 async function getRedirects(request: NextRequest): Promise<Redirect[]> {
   const now = Date.now();
@@ -37,17 +37,13 @@ async function getRedirects(request: NextRequest): Promise<Redirect[]> {
   }
 
   try {
-    // Fetch from API endpoint (excluded from proxy, no circular dependency)
-    const apiUrl = new URL('/api/redirects/list', request.url);
-    const response = await fetch(apiUrl.toString(), {
-      headers: {
-        'Cache-Control': 'no-cache',
-      },
-    });
+    // Fetch from static CDN asset (zero compute, no serverless function)
+    const cdnUrl = new URL('/redirects.json', request.url);
+    const response = await fetch(cdnUrl.toString());
 
     if (response.ok) {
       const data = await response.json();
-      redirectsCache = data.redirects || [];
+      redirectsCache = Array.isArray(data?.redirects) ? data.redirects : [];
       redirectsCacheTime = now;
       redirectsCacheInitialized = true;
       return redirectsCache;
@@ -68,18 +64,18 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // ============================================================================
-  // Early Exit: Redirects API (Prevents Circular Dependency)
+  // Early Exit: Redirects JSON (Prevents Circular Dependency)
   // ============================================================================
   // MUST be checked BEFORE getRedirects() to prevent infinite loop
-  // getRedirects() fetches /api/redirects/list, which would trigger proxy again
-  if (path === '/api/redirects/list') {
+  // getRedirects() fetches /redirects.json, which would trigger proxy again
+  if (path === '/redirects.json') {
     return NextResponse.next();
   }
 
   // ============================================================================
   // Admin-Managed SEO Redirects (Highest Priority - Runtime)
   // ============================================================================
-  // Load redirects from /api/redirects/list endpoint
+  // Load redirects from /redirects.json (static CDN asset)
   // This allows instant updates without server restart
   const redirects = await getRedirects(request);
   const redirect = redirects.find(r => r.from === path);

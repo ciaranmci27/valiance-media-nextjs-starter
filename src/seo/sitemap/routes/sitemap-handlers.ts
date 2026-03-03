@@ -1,24 +1,27 @@
 /**
  * Centralized Sitemap Route Handlers
- * 
+ *
  * This file contains all sitemap generation logic in one place,
  * keeping the app directory clean while providing a centralized
  * location for all SEO-related routing.
  */
 
 import { seoConfig } from '../../seo.config';
+import { loadBlogPosts } from '@/lib/blog/blog-utils';
 import { hasRealBlogPosts, hasRealBlogCategories } from '../sitemap-utils';
 import { sitemapPages } from '../sitemap-pages';
 import { sitemapBlogPosts } from '../sitemap-blog-posts';
 import { sitemapCategories } from '../sitemap-blog-categories';
+
+const SITEMAP_CACHE_CONTROL = 'public, s-maxage=3600, stale-while-revalidate=86400';
 
 /**
  * Helper function to get the base URL from request
  */
 function getBaseUrl(request: Request): string {
   const url = new URL(request.url);
-  return process.env.NODE_ENV === 'development' 
-    ? `${url.protocol}//${url.host}` 
+  return process.env.NODE_ENV === 'development'
+    ? `${url.protocol}//${url.host}`
     : (seoConfig as any).siteUrl;
 }
 
@@ -55,9 +58,12 @@ export async function handleSitemapIndex(request: Request): Promise<Response> {
   const baseUrl = getBaseUrl(request);
   const lastModified = new Date().toISOString();
 
+  // Load posts once and pass to both checks to avoid N+1
+  const allPosts = await loadBlogPosts();
+
   // Build sitemaps array dynamically based on available content
   const sitemaps: string[] = [];
-  
+
   // Always include pages sitemap
   sitemaps.push(`  <sitemap>
     <loc>${baseUrl}/sitemap/pages</loc>
@@ -65,14 +71,14 @@ export async function handleSitemapIndex(request: Request): Promise<Response> {
   </sitemap>`);
 
   // Only include blog sitemaps if there's real content
-  if (hasRealBlogPosts()) {
+  if (await hasRealBlogPosts(allPosts)) {
     sitemaps.push(`  <sitemap>
     <loc>${baseUrl}/sitemap/blog-posts</loc>
     <lastmod>${lastModified}</lastmod>
   </sitemap>`);
   }
 
-  if (hasRealBlogCategories()) {
+  if (await hasRealBlogCategories(allPosts)) {
     sitemaps.push(`  <sitemap>
     <loc>${baseUrl}/sitemap/blog-categories</loc>
     <lastmod>${lastModified}</lastmod>
@@ -84,6 +90,7 @@ export async function handleSitemapIndex(request: Request): Promise<Response> {
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml',
+      'Cache-Control': SITEMAP_CACHE_CONTROL,
     },
   });
 }
@@ -94,8 +101,8 @@ export async function handleSitemapIndex(request: Request): Promise<Response> {
  */
 export async function handlePagesSitemap(request: Request): Promise<Response> {
   const baseUrl = getBaseUrl(request);
-  const sitemap = sitemapPages(baseUrl);
-  
+  const sitemap = await sitemapPages(baseUrl);
+
   // Return 404 if no content to display
   if (sitemap.length === 0) {
     return new Response('Not Found: No pages available for sitemap', {
@@ -105,12 +112,13 @@ export async function handlePagesSitemap(request: Request): Promise<Response> {
       },
     });
   }
-  
+
   const xml = generateSitemapXML(sitemap);
 
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml',
+      'Cache-Control': SITEMAP_CACHE_CONTROL,
     },
   });
 }
@@ -121,8 +129,8 @@ export async function handlePagesSitemap(request: Request): Promise<Response> {
  */
 export async function handleBlogPostsSitemap(request: Request): Promise<Response> {
   const baseUrl = getBaseUrl(request);
-  const sitemap = sitemapBlogPosts(baseUrl);
-  
+  const sitemap = await sitemapBlogPosts(baseUrl);
+
   // Return 404 if no content to display
   if (sitemap.length === 0) {
     return new Response('Not Found: No blog posts available for sitemap', {
@@ -132,12 +140,13 @@ export async function handleBlogPostsSitemap(request: Request): Promise<Response
       },
     });
   }
-  
+
   const xml = generateSitemapXML(sitemap);
 
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml',
+      'Cache-Control': SITEMAP_CACHE_CONTROL,
     },
   });
 }
@@ -148,8 +157,8 @@ export async function handleBlogPostsSitemap(request: Request): Promise<Response
  */
 export async function handleBlogCategoriesSitemap(request: Request): Promise<Response> {
   const baseUrl = getBaseUrl(request);
-  const sitemap = sitemapCategories(baseUrl);
-  
+  const sitemap = await sitemapCategories(baseUrl);
+
   // Return 404 if no content to display
   if (sitemap.length === 0) {
     return new Response('Not Found: No blog categories available for sitemap', {
@@ -159,12 +168,13 @@ export async function handleBlogCategoriesSitemap(request: Request): Promise<Res
       },
     });
   }
-  
+
   const xml = generateSitemapXML(sitemap);
 
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml',
+      'Cache-Control': SITEMAP_CACHE_CONTROL,
     },
   });
 }
