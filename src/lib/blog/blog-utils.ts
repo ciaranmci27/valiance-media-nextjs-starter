@@ -27,7 +27,7 @@ async function loadCategoryMetadata(categoryPath: string, slug: string): Promise
 }
 
 // Load categories from individual .config.json files
-export async function loadCategories(): Promise<BlogCategory[]> {
+export async function loadCategoriesWithPosts(): Promise<BlogCategory[]> {
   const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
   const categoriesDir = path.join(blogContentDir, 'categories');
 
@@ -267,6 +267,6 @@ export async function getRelatedPosts(currentPost: BlogPost, limit: number = 3):
 // React.cache() wrappers for request-level deduplication
 // These ensure the same data is loaded only once per server render pass
 export const cachedLoadBlogPosts = cache(loadBlogPosts);
-export const cachedLoadCategories = cache(loadCategories);
+export const cachedLoadCategories = cache(loadCategoriesWithPosts);
 export const cachedLoadPost = cache(loadPost);
 export const cachedGetRelatedPosts = cache(getRelatedPosts);

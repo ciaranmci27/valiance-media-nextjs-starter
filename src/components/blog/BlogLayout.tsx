@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import DOMPurify from 'isomorphic-dompurify';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { BlogPost } from '@/lib/blog/blog-types';
 
@@ -13,6 +14,11 @@ interface BlogLayoutProps {
 }
 
 export function BlogLayout({ post, relatedPosts = [], useFullUrl = false }: BlogLayoutProps) {
+  const sanitizedContent = useMemo(() => DOMPurify.sanitize(post.content, {
+    ADD_TAGS: ['iframe'],
+    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'target'],
+  }), [post.content]);
+
   return (
     <PageWrapper className="py-8 sm:py-12 lg:py-16">
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -96,7 +102,7 @@ export function BlogLayout({ post, relatedPosts = [], useFullUrl = false }: Blog
             prose-blockquote:border-l-primary-600 dark:prose-blockquote:border-l-primary-400 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800/50 prose-blockquote:py-1 prose-blockquote:px-4
             prose-img:rounded-xl prose-img:shadow-lg
             [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_code]:break-words"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
         
         {/* Tags */}

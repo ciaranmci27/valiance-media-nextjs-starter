@@ -1,15 +1,15 @@
 import crypto from 'crypto';
+import { SMTP_ENCRYPTION_KEY } from '@/lib/env';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
 const TAG_LENGTH = 16;
 
 function getEncryptionKey(): Buffer {
-  const envKey = process.env.SMTP_ENCRYPTION_KEY;
-  if (!envKey) {
+  if (!SMTP_ENCRYPTION_KEY) {
     throw new Error('SMTP_ENCRYPTION_KEY environment variable is not set');
   }
-  return crypto.createHash('sha256').update(envKey).digest();
+  return crypto.createHash('sha256').update(SMTP_ENCRYPTION_KEY).digest();
 }
 
 export function encrypt(plaintext: string): string {
@@ -47,5 +47,5 @@ export function decrypt(encrypted: string): string {
 }
 
 export function isEncryptionConfigured(): boolean {
-  return !!process.env.SMTP_ENCRYPTION_KEY;
+  return !!SMTP_ENCRYPTION_KEY;
 }

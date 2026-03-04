@@ -1,4 +1,11 @@
-export type AuthProvider = 'simple' | 'supabase';
+import {
+  ADMIN_AUTH_PROVIDER,
+  NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  type AuthProviderType,
+} from '@/lib/env';
+
+export type AuthProvider = AuthProviderType;
 
 export interface AuthResult {
   authenticated: boolean;
@@ -7,14 +14,9 @@ export interface AuthResult {
 }
 
 export function getAuthProvider(): AuthProvider {
-  const provider = process.env.ADMIN_AUTH_PROVIDER?.toLowerCase();
-  if (provider === 'supabase') return 'supabase';
-  return 'simple';
+  return ADMIN_AUTH_PROVIDER;
 }
 
 export function isSupabaseConfigured(): boolean {
-  return !!(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+  return !!(NEXT_PUBLIC_SUPABASE_URL && NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }

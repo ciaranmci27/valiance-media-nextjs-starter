@@ -1,4 +1,4 @@
-import AuthSettings from './AuthSettings';
+import AuthSettings from '@/components/admin/settings/AuthSettings';
 import { getAuthProvider } from '@/lib/admin/auth-provider';
 
 export default function AuthSettingsPage() {

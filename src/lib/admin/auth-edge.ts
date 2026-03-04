@@ -1,15 +1,16 @@
 // Edge-compatible authentication utilities
 // Uses Web Crypto API for HMAC token verification
 
+import { SIMPLE_ADMIN_TOKEN, isProduction } from '@/lib/env';
+
 function getAdminTokenSecret(): string {
-  const secret = process.env.SIMPLE_ADMIN_TOKEN;
-  if (!secret && process.env.NODE_ENV === 'production') {
+  if (!SIMPLE_ADMIN_TOKEN && isProduction) {
     throw new Error('SIMPLE_ADMIN_TOKEN must be set in production environment');
   }
-  if (!secret) {
-    console.warn('SIMPLE_ADMIN_TOKEN not set — using project-derived dev secret. Set SIMPLE_ADMIN_TOKEN in .env for security.');
+  if (!SIMPLE_ADMIN_TOKEN) {
+    console.warn('SIMPLE_ADMIN_TOKEN not set - using project-derived dev secret. Set SIMPLE_ADMIN_TOKEN in .env for security.');
   }
-  return secret || `dev-${process.cwd()}-secret`;
+  return SIMPLE_ADMIN_TOKEN || `dev-${process.cwd()}-secret`;
 }
 
 // Verify an HMAC-signed token using Web Crypto API (Edge-compatible)

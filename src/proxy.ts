@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { ADMIN_AUTH_PROVIDER, DISABLE_ADMIN_AUTH, isProduction } from '@/lib/env';
 import { verifyAuthProxy } from '@/lib/admin/auth-provider-edge';
 
 /**
@@ -57,7 +58,7 @@ async function getRedirects(request: NextRequest): Promise<Redirect[]> {
 }
 
 function isSupabaseProvider(): boolean {
-  return process.env.ADMIN_AUTH_PROVIDER?.toLowerCase() === 'supabase';
+  return ADMIN_AUTH_PROVIDER === 'supabase';
 }
 
 export async function proxy(request: NextRequest) {
@@ -144,11 +145,8 @@ export async function proxy(request: NextRequest) {
   // Admin Authentication (Security Requirement)
   // ============================================================================
   if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
-    // Skip auth check if auth is disabled (development only — guarded)
-    if (
-      process.env.DISABLE_ADMIN_AUTH === 'true' &&
-      process.env.NODE_ENV !== 'production'
-    ) {
+    // Skip auth check if auth is disabled (development only, guarded)
+    if (DISABLE_ADMIN_AUTH && !isProduction) {
       return supabaseResponse ?? NextResponse.next();
     }
 

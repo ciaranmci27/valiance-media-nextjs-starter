@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
+import { ADMIN_ALLOWED_EMAILS } from '@/lib/env';
 import { verifyAuthEdge } from './auth-edge';
 import { getAuthProvider } from './auth-provider';
 
@@ -82,9 +83,8 @@ async function verifySupabaseProxy(
   }
 
   // Check ADMIN_ALLOWED_EMAILS if set
-  const allowedEmails = process.env.ADMIN_ALLOWED_EMAILS;
-  if (allowedEmails) {
-    const emailList = allowedEmails.split(',').map((e) => e.trim().toLowerCase());
+  if (ADMIN_ALLOWED_EMAILS) {
+    const emailList = ADMIN_ALLOWED_EMAILS.split(',').map((e) => e.trim().toLowerCase());
     if (!emailList.includes(user.email?.toLowerCase() ?? '')) {
       return {
         authenticated: false,

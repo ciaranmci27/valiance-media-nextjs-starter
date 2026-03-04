@@ -1,4 +1,4 @@
-import SettingsHub from './SettingsHub';
+import SettingsHub from '@/components/admin/settings/SettingsHub';
 import { getAuthProvider, isSupabaseConfigured } from '@/lib/admin/auth-provider';
 
 export default function SettingsPage() {

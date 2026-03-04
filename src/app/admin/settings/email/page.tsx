@@ -1,4 +1,4 @@
-import EmailSettings from './EmailSettings';
+import EmailSettings from '@/components/admin/settings/EmailSettings';
 
 export default function EmailSettingsPage() {
   const encryptionConfigured = !!process.env.SMTP_ENCRYPTION_KEY;

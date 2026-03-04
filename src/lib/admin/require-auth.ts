@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { DISABLE_ADMIN_AUTH, ADMIN_ALLOWED_EMAILS, isProduction } from '@/lib/env';
 import { verifySignedToken } from './auth';
 import { sessionStore } from './auth-store';
 import { getAuthProvider } from './auth-provider';
@@ -26,11 +27,8 @@ type RequireAuthResult = AuthSuccess | AuthFailure;
  * ```
  */
 export async function requireAuth(): Promise<RequireAuthResult> {
-  // Dev bypass — only allowed outside production
-  if (
-    process.env.DISABLE_ADMIN_AUTH === 'true' &&
-    process.env.NODE_ENV !== 'production'
-  ) {
+  // Dev bypass - only allowed outside production
+  if (DISABLE_ADMIN_AUTH && !isProduction) {
     return { authenticated: true, user: { username: 'dev' } };
   }
 
@@ -85,9 +83,8 @@ async function requireAuthSupabase(): Promise<RequireAuthResult> {
   }
 
   // Check ADMIN_ALLOWED_EMAILS as a fast path
-  const allowedEmails = process.env.ADMIN_ALLOWED_EMAILS;
-  if (allowedEmails) {
-    const emailList = allowedEmails.split(',').map((e) => e.trim().toLowerCase());
+  if (ADMIN_ALLOWED_EMAILS) {
+    const emailList = ADMIN_ALLOWED_EMAILS.split(',').map((e) => e.trim().toLowerCase());
     if (!emailList.includes(user.email?.toLowerCase() ?? '')) {
       return deny();
     }
@@ -105,14 +102,14 @@ async function requireAuthSupabase(): Promise<RequireAuthResult> {
       if (profile.role !== 'admin') {
         return deny();
       }
-    } else if (!allowedEmails) {
-      // No profile found AND no email allowlist — deny by default
+    } else if (!ADMIN_ALLOWED_EMAILS) {
+      // No profile found AND no email allowlist - deny by default
       return deny();
     }
   } catch (err) {
-    // Profiles table might not exist yet — log and fall back to ADMIN_ALLOWED_EMAILS
+    // Profiles table might not exist yet - log and fall back to ADMIN_ALLOWED_EMAILS
     console.warn('Profiles table query failed (table may not exist yet):', err);
-    if (!allowedEmails) {
+    if (!ADMIN_ALLOWED_EMAILS) {
       return deny();
     }
   }

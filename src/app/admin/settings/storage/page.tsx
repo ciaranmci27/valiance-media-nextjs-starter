@@ -1,4 +1,4 @@
-import StorageSettings from './StorageSettings';
+import StorageSettings from '@/components/admin/settings/StorageSettings';
 import { isSupabaseConfigured } from '@/lib/admin/auth-provider';
 
 export default function StorageSettingsPage() {

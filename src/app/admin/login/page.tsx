@@ -1,4 +1,4 @@
-import LoginForm from './LoginForm';
+import LoginForm from '@/components/admin/login/LoginForm';
 import { getAuthProvider } from '@/lib/admin/auth-provider';
 
 export default function AdminLoginPage() {

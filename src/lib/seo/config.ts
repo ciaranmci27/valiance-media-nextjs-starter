@@ -12,12 +12,14 @@
  * 5. Configure analytics IDs if using tracking
  */
 
+import { NEXT_PUBLIC_SITE_URL } from '@/lib/env';
+
 export const seoConfig = {
   // ==========================================================================
   // SITE IDENTITY - Update these for your brand
   // ==========================================================================
   siteName: 'Valiance Media',
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com',
+  siteUrl: NEXT_PUBLIC_SITE_URL,
   titleTemplate: '{pageName} | {siteName}',
   defaultDescription: 'Build high-converting marketing websites with our Next.js boilerplate. Professional templates, SEO optimization, and modern design patterns included.',
   defaultKeywords: ['marketing website', 'nextjs boilerplate', 'web development', 'conversion optimization', 'landing pages', 'SEO'],

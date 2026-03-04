@@ -1,5 +1,11 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import {
+  SIMPLE_ADMIN_TOKEN,
+  SIMPLE_ADMIN_USERNAME,
+  SIMPLE_ADMIN_PASSWORD_HASH,
+  isProduction,
+} from '@/lib/env';
 
 // Authentication utilities
 // Uses bcrypt for password hashing and HMAC-signed tokens for sessions
@@ -7,14 +13,13 @@ import bcrypt from 'bcryptjs';
 const BCRYPT_ROUNDS = 12;
 
 function getAdminTokenSecret(): string {
-  const secret = process.env.SIMPLE_ADMIN_TOKEN;
-  if (!secret && process.env.NODE_ENV === 'production') {
+  if (!SIMPLE_ADMIN_TOKEN && isProduction) {
     throw new Error('SIMPLE_ADMIN_TOKEN must be set in production environment');
   }
-  if (!secret) {
-    console.warn('SIMPLE_ADMIN_TOKEN not set — using project-derived dev secret. Set SIMPLE_ADMIN_TOKEN in .env for security.');
+  if (!SIMPLE_ADMIN_TOKEN) {
+    console.warn('SIMPLE_ADMIN_TOKEN not set - using project-derived dev secret. Set SIMPLE_ADMIN_TOKEN in .env for security.');
   }
-  return secret || `dev-${process.cwd()}-secret`;
+  return SIMPLE_ADMIN_TOKEN || `dev-${process.cwd()}-secret`;
 }
 
 // Hash a password using bcrypt (salted, slow by design)
@@ -82,8 +87,8 @@ export async function verifyAuth(token: string): Promise<boolean> {
 
 // Verify credentials and return a signed token on success
 export async function verifyCredentials(username: string, password: string): Promise<string | null> {
-  const validUsername = process.env.SIMPLE_ADMIN_USERNAME || 'admin';
-  const validPasswordHash = process.env.SIMPLE_ADMIN_PASSWORD_HASH;
+  const validUsername = SIMPLE_ADMIN_USERNAME;
+  const validPasswordHash = SIMPLE_ADMIN_PASSWORD_HASH;
 
   if (!validPasswordHash) {
     console.error('SIMPLE_ADMIN_PASSWORD_HASH not set in environment variables');
