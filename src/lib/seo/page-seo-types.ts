@@ -1,40 +1,51 @@
 /**
  * Page SEO Configuration Types
- * 
- * These types define the structure for page-level SEO configurations
- * that can be placed in seo-config.json files within page directories
+ *
+ * Unified type for page-level SEO configurations stored in seo-config.json files.
+ * Used by both the admin CMS pipeline (PageEditor, page-utils-server) and
+ * the SEO/sitemap reading pipeline (page-seo-utils, sitemap-pages).
  */
+
+import type { PageSchema } from '@/lib/seo/schema-types';
 
 export interface PageSeoConfig {
   // Page identification
   slug: string;
-  
+
   // SEO settings
   seo?: {
     title?: string;
     description?: string;
     keywords?: string[];
     image?: string;
-    noIndex?: boolean; // If true, adds noindex to robots meta tag
+    noIndex?: boolean;
+    noFollow?: boolean;
+    canonical?: string;
   };
-  
+
   // Sitemap control
   sitemap?: {
-    exclude?: boolean; // If true, excludes from sitemap
-    priority?: number; // Custom priority (0.0 to 1.0)
+    exclude?: boolean;
+    priority?: number;
     changeFrequency?: 'never' | 'yearly' | 'monthly' | 'weekly' | 'daily' | 'hourly' | 'always';
   };
-  
+
   // Additional metadata
   metadata?: {
     author?: string;
     category?: string;
     tags?: string[];
     lastModified?: string;
-    adminTitle?: string; // Short, clean title for CMS backend display
-    contentType?: string; // Type of content (e.g., 'programmatic-seo' for pages with dedicated sitemaps)
+    adminTitle?: string;
+    contentType?: string;
+    template?: string;
+    featured?: boolean;
+    draft?: boolean;
   };
-  
+
+  // Structured data schemas
+  schemas?: PageSchema[];
+
   // Open Graph metadata
   openGraph?: {
     title?: string;
@@ -46,7 +57,7 @@ export interface PageSeoConfig {
       alt?: string;
     }>;
   };
-  
+
   // Twitter card metadata
   twitter?: {
     card?: string;
@@ -54,10 +65,10 @@ export interface PageSeoConfig {
     description?: string;
     images?: string[];
   };
-  
+
   // Robots directives
   robots?: string;
-  
+
   // Alternate language versions
   alternates?: {
     canonical?: string;
@@ -74,6 +85,8 @@ export interface PageSeoConfigRaw {
     keywords?: string[];
     image?: string;
     noIndex?: boolean;
+    noFollow?: boolean;
+    canonical?: string;
   };
   sitemap?: {
     exclude?: boolean;
@@ -85,7 +98,15 @@ export interface PageSeoConfigRaw {
     category?: string;
     tags?: string[];
     lastModified?: string;
-    adminTitle?: string; // Short, clean title for CMS backend display
-    contentType?: string; // Type of content (e.g., 'programmatic-seo' for pages with dedicated sitemaps)
+    adminTitle?: string;
+    contentType?: string;
+    template?: string;
+    featured?: boolean;
+    draft?: boolean;
   };
+  schemas?: PageSchema[];
+  openGraph?: PageSeoConfig['openGraph'];
+  twitter?: PageSeoConfig['twitter'];
+  robots?: string;
+  alternates?: PageSeoConfig['alternates'];
 }

@@ -8,7 +8,7 @@ This boilerplate includes a comprehensive SEO system that handles meta tags, Ope
 
 ### 1. Basic Configuration
 
-Update `src/seo/seo.config.ts` with your business information:
+Update `src/lib/seo/config.ts` with your business information:
 
 ```typescript
 export const seoConfig = {
@@ -82,7 +82,7 @@ Create these images in `/public/images/`:
 For pages with seo-config.json files, use the utility function:
 
 ```tsx
-import { generatePageMetadata } from '@/seo/page-seo-utils';
+import { generatePageMetadata } from '@/lib/seo/page-seo-utils';
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata({
@@ -98,7 +98,7 @@ export async function generateMetadata(): Promise<Metadata> {
 For simple pages, use the `<SEO>` component:
 
 ```tsx
-import { SEO } from '@/seo';
+import { SEO } from '@/lib/seo';
 
 export default function AboutPage() {
   return (
@@ -127,7 +127,7 @@ For full Next.js App Router integration:
 
 ```tsx
 import { Metadata } from 'next';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -336,7 +336,7 @@ Then implement in your layout:
 
 ```tsx
 import Script from 'next/script';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 
 export default function RootLayout({ children }) {
   return (
@@ -416,7 +416,7 @@ export async function generateMetadata(): Promise<Metadata> {
 Create custom JSON-LD in your pages:
 
 ```tsx
-import { StructuredData } from '@/seo';
+import { StructuredData } from '@/lib/seo';
 
 const customStructuredData = {
   "@context": "https://schema.org",

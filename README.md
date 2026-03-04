@@ -132,7 +132,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 5. **Update the SEO configuration:**
-- Edit `src/seo/seo.config.ts` with your company information
+- Edit `src/lib/seo/config.ts` with your company information
 - Update site URL, social media links, and verification codes
 - All branding throughout the app automatically uses this configuration
 
@@ -268,7 +268,7 @@ DISABLE_ADMIN_AUTH=true  # Disable auth in development (never use in production)
 ```
 
 ### SEO Configuration
-All SEO settings are centralized in `src/seo/seo.config.ts`:
+All SEO settings are centralized in `src/lib/seo/config.ts`:
 
 ```typescript
 export const seoConfig = {

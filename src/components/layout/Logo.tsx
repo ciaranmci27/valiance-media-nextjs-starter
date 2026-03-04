@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 
 interface LogoProps {
   width?: number;

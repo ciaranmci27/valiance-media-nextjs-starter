@@ -1,5 +1,5 @@
-import { seoConfig } from '@/seo/seo.config';
-import { PageSchema } from '@/components/admin/seo/schema-types';
+import { seoConfig } from './config';
+import { PageSchema } from './schema-types';
 
 /**
  * Generate structured data schemas based on configuration

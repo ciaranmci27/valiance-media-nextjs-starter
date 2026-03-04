@@ -22,7 +22,7 @@ export async function GET() {
 
   try {
     // Import the actual seo config to check runtime values
-    const { seoConfig } = await import('@/seo/seo.config');
+    const { seoConfig } = await import('@/lib/seo/config');
     
     // Check critical SEO fields - Site URL
     const siteUrl = (seoConfig as any).siteUrl || process.env.NEXT_PUBLIC_SITE_URL || '';

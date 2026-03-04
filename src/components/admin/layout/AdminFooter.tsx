@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 
 export function AdminFooter() {
   const pathname = usePathname();

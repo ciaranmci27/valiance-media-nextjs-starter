@@ -18,7 +18,7 @@ export default function HomePage() {
             <strong>Getting Started:</strong>
           </p>
           <ol className="text-left list-decimal list-inside space-y-1">
-            <li>Update <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">src/seo/seo.config.ts</code> with your site details</li>
+            <li>Update <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">src/lib/seo/config.ts</code> with your site details</li>
             <li>Replace this page content with your homepage design</li>
             <li>Update <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">seo-config.json</code> in each page folder</li>
             <li>Add your logo files to <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">public/logos/</code></li>

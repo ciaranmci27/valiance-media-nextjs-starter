@@ -2,7 +2,7 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, Suspense } from 'react';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 import { useAnalytics } from '@/contexts/AnalyticsContext';
 
 declare global {

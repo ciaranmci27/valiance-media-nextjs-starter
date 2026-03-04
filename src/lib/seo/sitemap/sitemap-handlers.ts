@@ -6,12 +6,12 @@
  * location for all SEO-related routing.
  */
 
-import { seoConfig } from '../../seo.config';
+import { seoConfig } from '../config';
 import { loadBlogPosts } from '@/lib/blog/blog-utils';
-import { hasRealBlogPosts, hasRealBlogCategories } from '../sitemap-utils';
-import { sitemapPages } from '../sitemap-pages';
-import { sitemapBlogPosts } from '../sitemap-blog-posts';
-import { sitemapCategories } from '../sitemap-blog-categories';
+import { hasRealBlogPosts, hasRealBlogCategories } from './sitemap-utils';
+import { sitemapPages } from './sitemap-pages';
+import { sitemapBlogPosts } from './sitemap-blog-posts';
+import { sitemapCategories } from './sitemap-blog-categories';
 
 const SITEMAP_CACHE_CONTROL = 'public, s-maxage=3600, stale-while-revalidate=86400';
 

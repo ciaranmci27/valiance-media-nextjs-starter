@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sitemapPages } from '@/seo/sitemap/sitemap-pages';
-import { sitemapBlogPosts } from '@/seo/sitemap/sitemap-blog-posts';
-import { sitemapCategories } from '@/seo/sitemap/sitemap-blog-categories';
-import { seoConfig } from '@/seo/seo.config';
+import { sitemapPages } from '@/lib/seo/sitemap/sitemap-pages';
+import { sitemapBlogPosts } from '@/lib/seo/sitemap/sitemap-blog-posts';
+import { sitemapCategories } from '@/lib/seo/sitemap/sitemap-blog-categories';
+import { seoConfig } from '@/lib/seo/config';
 import { requireAuth } from '@/lib/admin/require-auth';
 
 export const dynamic = 'force-dynamic';

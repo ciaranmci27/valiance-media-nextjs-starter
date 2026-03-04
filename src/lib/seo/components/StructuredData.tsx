@@ -1,6 +1,6 @@
 /**
  * Structured Data Component
- * 
+ *
  * This component renders JSON-LD structured data for SEO.
  * It helps search engines better understand your content.
  */

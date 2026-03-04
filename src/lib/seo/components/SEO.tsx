@@ -1,24 +1,24 @@
 'use client';
 
 import { useEffect } from 'react';
-import { StructuredData } from './structured-data/StructuredData';
-import { 
-  generateOrganizationSchema, 
+import { StructuredData } from './StructuredData';
+import {
+  generateOrganizationSchema,
   generateWebsiteSchema,
   generateWebPageSchema,
   generateBreadcrumbSchema,
   generateFAQSchema,
   generateProductSchema,
-} from './seo-utils';
+} from '../seo-utils';
 
 interface SEOProps {
   // Page-specific structured data
   structuredData?: Record<string, any> | Record<string, any>[];
-  
+
   // Common structured data types
   includeOrganization?: boolean;
   includeWebsite?: boolean;
-  
+
   // Page-specific data
   pageData?: {
     title: string;
@@ -28,13 +28,13 @@ interface SEOProps {
     author?: string;
     image?: string;
   };
-  
+
   // Breadcrumbs
   breadcrumbs?: Array<{ name: string; url: string }>;
-  
+
   // FAQ
   faqs?: Array<{ question: string; answer: string }>;
-  
+
   // Product (for e-commerce pages)
   product?: {
     name: string;
@@ -52,14 +52,14 @@ interface SEOProps {
 
 /**
  * SEO Component
- * 
+ *
  * This component handles structured data and other SEO enhancements for pages.
  * Place it in your page components to add rich snippets and structured data.
- * 
+ *
  * @example
  * ```tsx
- * <SEO 
- *   includeOrganization 
+ * <SEO
+ *   includeOrganization
  *   includeWebsite
  *   pageData={{
  *     title: "About Us",
@@ -101,9 +101,12 @@ export function SEO({
     }
   }
 
-  // Add website schema
+  // Add website schema (only if site data exists)
   if (includeWebsite) {
-    allStructuredData.push(generateWebsiteSchema());
+    const websiteSchema = generateWebsiteSchema();
+    if (websiteSchema) {
+      allStructuredData.push(websiteSchema);
+    }
   }
 
   // Add webpage schema

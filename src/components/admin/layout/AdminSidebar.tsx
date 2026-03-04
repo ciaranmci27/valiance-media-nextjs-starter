@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 import { Tooltip } from '@/components/admin/ui/Tooltip';
 import {
   HomeIcon,

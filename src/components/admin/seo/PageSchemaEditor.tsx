@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -70,7 +70,7 @@ import {
   CollectionPageSchema,
   ItemListSchema,
   AggregateRatingSchema
-} from './schema-types';
+} from '@/lib/seo/schema-types';
 
 interface PageSchemaEditorProps {
   pageType: 'blogPost' | 'category' | 'page' | 'product';

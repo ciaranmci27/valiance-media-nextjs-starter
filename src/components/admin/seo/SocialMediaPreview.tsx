@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
 
 interface SocialMediaPreviewProps {
@@ -27,7 +27,14 @@ export default function SocialMediaPreview({
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
-  const domain = url ? new URL(url.startsWith('http') ? url : `https://${url}`).hostname : 'example.com';
+  let domain = 'example.com';
+  if (url) {
+    try {
+      domain = new URL(url.startsWith('http') ? url : `https://${url}`).hostname;
+    } catch {
+      // Invalid URL, keep default
+    }
+  }
 
   const truncateText = (text: string, maxLength: number) => {
     if (!text) return '';

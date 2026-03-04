@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
-import { seoConfig, pageMetadata } from '@/seo/seo.config';
+import { seoConfig, pageMetadata } from '@/lib/seo/config';
 import { Logo } from './Logo';
 
 interface FooterLink {

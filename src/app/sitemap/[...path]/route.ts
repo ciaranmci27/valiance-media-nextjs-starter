@@ -3,7 +3,7 @@ import {
   handlePagesSitemap,
   handleBlogPostsSitemap,
   handleBlogCategoriesSitemap,
-} from '@/seo/sitemap/routes/sitemap-handlers';
+} from '@/lib/seo/sitemap/sitemap-handlers';
 
 /**
  * Centralized Sitemap Route Handler

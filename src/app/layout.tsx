@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AnalyticsProvider } from "@/contexts/AnalyticsContext";
 import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
-import { Analytics } from "@/components/admin/Analytics";
-import { generateMetadata } from "@/seo/seo-utils";
-import { seoConfig } from "@/seo/seo.config";
+import { Analytics } from "@/components/analytics/Analytics";
+import { generateMetadata } from "@/lib/seo/seo-utils";
+import { seoConfig } from "@/lib/seo/config";
 import "@/styles/globals.css";
 
 const geistSans = Geist({

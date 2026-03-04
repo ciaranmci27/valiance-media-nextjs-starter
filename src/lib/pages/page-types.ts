@@ -1,35 +1,9 @@
 // Page Type Definitions for file-based pages
 
-import { PageSchema } from '@/components/admin/seo/schema-types';
+import type { PageSeoConfig } from '@/lib/seo/page-seo-types';
 
-export interface PageSEOConfig {
-  slug: string;
-  seo: {
-    title: string;
-    description: string;
-    keywords?: string[];
-    noIndex?: boolean;
-    noFollow?: boolean;
-    canonical?: string;
-    image?: string;
-  };
-  sitemap?: {
-    exclude?: boolean;
-    priority?: number;
-    changeFrequency?: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
-  };
-  metadata?: {
-    category?: string;
-    lastModified?: string;
-    template?: string;
-    featured?: boolean;
-    draft?: boolean;
-    adminTitle?: string; // Short, clean title for CMS backend display (optional)
-    author?: string; // Content author
-    contentType?: string; // Type of content (e.g., 'programmatic-seo' for pages with dedicated sitemaps)
-  };
-  schemas?: PageSchema[];
-}
+// Unified type lives in page-seo-types.ts; re-exported here for backward compatibility.
+export type PageSEOConfig = PageSeoConfig;
 
 export interface Page {
   slug: string;

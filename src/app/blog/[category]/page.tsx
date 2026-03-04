@@ -2,10 +2,10 @@ import React from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { PageWrapper } from '@/components/layout/PageWrapper';
-import { BlogCard } from '@/components/admin/blog/BlogCard';
+import { BlogCard } from '@/components/blog/BlogCard';
 import { loadPostsByCategory, cachedLoadCategories, cachedLoadPost, cachedLoadBlogPosts } from '@/lib/blog/blog-utils';
 import Link from 'next/link';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -147,7 +147,7 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
   const post = await cachedLoadPost(resolvedParams.category);
   if (post) {
     // Redirect to the proper URL structure
-    const { BlogLayout } = await import('@/components/admin/blog/BlogLayout');
+    const { BlogLayout } = await import('@/components/blog/BlogLayout');
     const { cachedGetRelatedPosts } = await import('@/lib/blog/blog-utils');
     const relatedPosts = await cachedGetRelatedPosts(post, 3);
     

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 import { Logo } from '@/components/layout/Logo';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import { TextInput, PasswordInput } from '@/components/ui/inputs';

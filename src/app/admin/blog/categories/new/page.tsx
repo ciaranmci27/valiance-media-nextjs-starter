@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
-import { PageSchema } from '@/components/admin/seo/schema-types';
+import { PageSchema } from '@/lib/seo/schema-types';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
 import { TextInput, Textarea } from '@/components/ui/inputs';

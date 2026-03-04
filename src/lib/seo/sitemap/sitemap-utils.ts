@@ -1,6 +1,6 @@
 import { loadBlogPosts } from '@/lib/blog/blog-utils';
 import { BlogPost } from '@/lib/blog/blog-types';
-import { seoConfig } from '../seo.config';
+import { seoConfig } from '../config';
 
 /**
  * Utility functions for sitemap generation

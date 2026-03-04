@@ -7,7 +7,7 @@ import { getCurrentConfig, formatConfigForFile } from '@/lib/seo/seo-config-pars
 import { requireAuth } from '@/lib/admin/require-auth';
 
 const execFileAsync = promisify(execFile);
-const SEO_CONFIG_PATH = path.join(process.cwd(), 'src', 'seo', 'seo.config.ts');
+const SEO_CONFIG_PATH = path.join(process.cwd(), 'src', 'lib', 'seo', 'config.ts');
 
 export async function GET() {
   const auth = await requireAuth();

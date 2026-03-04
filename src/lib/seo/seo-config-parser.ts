@@ -1,4 +1,4 @@
-import { seoConfig, pageMetadata } from '@/seo/seo.config';
+import { seoConfig, pageMetadata } from './config';
 
 export interface SEOConfigData {
   siteName: string;

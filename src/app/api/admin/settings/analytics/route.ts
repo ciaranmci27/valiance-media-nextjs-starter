@@ -6,7 +6,7 @@ import { promisify } from 'util';
 import { requireAuth } from '@/lib/admin/require-auth';
 
 const execFileAsync = promisify(execFile);
-const SEO_CONFIG_PATH = path.join(process.cwd(), 'src', 'seo', 'seo.config.ts');
+const SEO_CONFIG_PATH = path.join(process.cwd(), 'src', 'lib', 'seo', 'config.ts');
 
 export const runtime = 'nodejs';
 

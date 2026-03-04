@@ -14,8 +14,8 @@ import SlugChangeWarningModal from '@/components/admin/modals/SlugChangeWarningM
 import { generateSlug } from '@/lib/pages/page-utils-client';
 import SocialMediaPreview from '@/components/admin/seo/SocialMediaPreview';
 import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
-import { PageSchema } from '@/components/admin/seo/schema-types';
-import { seoConfig as globalSeoConfig } from '@/seo/seo.config';
+import { PageSchema } from '@/lib/seo/schema-types';
+import { seoConfig as globalSeoConfig } from '@/lib/seo/config';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
 import { TextInput, Textarea, Toggle, Combobox, Select } from '@/components/ui/inputs';

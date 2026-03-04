@@ -104,25 +104,9 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
 
-    // Handle renaming/moving if needed
-    if (data.originalSlug && (data.originalSlug !== data.slug || data.originalCategory !== data.category)) {
-      let oldPath: string;
-      if (data.originalCategory) {
-        oldPath = path.join(blogContentDir, 'categories', data.originalCategory, `${data.originalSlug}.json`);
-      } else {
-        oldPath = path.join(blogContentDir, `${data.originalSlug}.json`);
-      }
-
-      try {
-        await fs.unlink(oldPath);
-      } catch {
-        // Old file might not exist, continue
-      }
-    }
-
     const { slug, category, originalSlug, originalCategory, ...postData } = data;
 
-    // Validate slug and category to prevent path traversal
+    // Validate all inputs BEFORE any filesystem operations
     if (!isValidSlug(slug)) {
       return NextResponse.json(
         { error: 'Invalid slug format. Use only lowercase letters, numbers, and hyphens.' },
@@ -146,6 +130,22 @@ export async function PUT(request: NextRequest) {
         { error: 'Invalid original category format.' },
         { status: 400 }
       );
+    }
+
+    // Handle renaming/moving if needed (after validation)
+    if (originalSlug && (originalSlug !== slug || originalCategory !== category)) {
+      let oldPath: string;
+      if (originalCategory) {
+        oldPath = path.join(blogContentDir, 'categories', originalCategory, `${originalSlug}.json`);
+      } else {
+        oldPath = path.join(blogContentDir, `${originalSlug}.json`);
+      }
+
+      try {
+        await fs.unlink(oldPath);
+      } catch {
+        // Old file might not exist, continue
+      }
     }
 
     let targetDir = blogContentDir;

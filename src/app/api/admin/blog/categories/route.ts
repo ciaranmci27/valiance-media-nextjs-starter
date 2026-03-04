@@ -8,37 +8,54 @@ export async function GET() {
   if (!auth.authenticated) return auth.response;
 
   try {
-    const blogContentDir = path.join(process.cwd(), 'public', 'blog-content');
-    const categoriesDir = path.join(blogContentDir, 'categories');
-    
+    const contentDir = path.join(process.cwd(), 'public', 'blog-content');
+    const categoriesDir = path.join(contentDir, 'categories');
+    const categories: { name: string; slug: string; description: string; postCount: number }[] = [];
+
     try {
-      await fs.access(categoriesDir);
-    } catch {
-      return NextResponse.json({ categories: [] });
-    }
-    
-    const items = await fs.readdir(categoriesDir);
-    const categories: string[] = [];
-    
-    for (const item of items) {
-      const itemPath = path.join(categoriesDir, item);
-      const stat = await fs.stat(itemPath);
-      
-      if (stat.isDirectory()) {
-        categories.push(item);
+      const categoryFolders = await fs.readdir(categoriesDir);
+
+      for (const categorySlug of categoryFolders) {
+        const categoryPath = path.join(categoriesDir, categorySlug);
+        const stat = await fs.stat(categoryPath);
+
+        if (stat.isDirectory()) {
+          const files = await fs.readdir(categoryPath);
+          const postCount = files.filter(file =>
+            file.endsWith('.json') && !file.startsWith('.')
+          ).length;
+
+          let categoryName = categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1);
+          let description = '';
+
+          try {
+            const configPath = path.join(categoryPath, '.config.json');
+            const configContent = await fs.readFile(configPath, 'utf-8');
+            const config = JSON.parse(configContent);
+            categoryName = config.name || categoryName;
+            description = config.description || '';
+          } catch {
+            // No config file, use defaults
+          }
+
+          categories.push({
+            name: categoryName,
+            slug: categorySlug,
+            description,
+            postCount
+          });
+        }
       }
+    } catch {
+      // Categories directory not found
     }
-    
-    return NextResponse.json({ 
-      categories: categories.sort() 
-    });
-    
+
+    categories.sort((a, b) => a.name.localeCompare(b.name));
+
+    return NextResponse.json({ categories });
   } catch (error) {
     console.error('Error fetching categories:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch categories' },
-      { status: 500 }
-    );
+    return NextResponse.json({ categories: [] });
   }
 }
 

@@ -5,11 +5,10 @@ import { useRouter } from 'next/navigation';
 import RichTextEditor from '@/components/admin/editors/RichTextEditor';
 import SocialMediaPreview from '@/components/admin/seo/SocialMediaPreview';
 import UrlChangeWarningModal from '@/components/admin/modals/UrlChangeWarningModal';
-import { getCMSConfig } from '@/lib/admin/cms-config';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 import { Switch } from '@/components/admin/ui/Switch';
 import PageSchemaEditor from '@/components/admin/seo/PageSchemaEditor';
-import { PageSchema } from '@/components/admin/seo/schema-types';
+import { PageSchema } from '@/lib/seo/schema-types';
 import AdminButton from '@/components/admin/ui/AdminButton';
 import AdminBanner from '@/components/admin/ui/AdminBanner';
 import { TextInput, Textarea, TagInput, Select } from '@/components/ui/inputs';
@@ -164,7 +163,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/blog/categories/list');
+      const response = await fetch('/api/admin/blog/categories');
       const data = await response.json();
       setCategories(data.categories?.map((cat: any) => cat.slug) || []);
     } catch (error) {
@@ -386,7 +385,7 @@ export default function BlogPostEditor({ initialData, slug, mode }: BlogPostEdit
     setSaveStatus('saving');
 
     try {
-      const endpoint = '/api/admin/blog-post';
+      const endpoint = '/api/admin/blog';
 
       const method = mode === 'create' ? 'POST' : 'PUT';
 

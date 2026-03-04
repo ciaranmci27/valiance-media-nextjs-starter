@@ -157,4 +157,6 @@ jspm_packages/
 
 # Generated files (created during build)
 /public/pages-config.json
-/src/seo/sitemap/generated-sitemap-routes.json
+/src/lib/seo/sitemap/generated-sitemap-routes.json
+
+/tasks*

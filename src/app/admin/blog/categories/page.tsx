@@ -60,7 +60,7 @@ function CategoriesContent() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/blog/categories/list');
+      const response = await fetch('/api/admin/blog/categories');
       const data = await response.json();
       setCategories(data.categories || []);
     } catch (error) {

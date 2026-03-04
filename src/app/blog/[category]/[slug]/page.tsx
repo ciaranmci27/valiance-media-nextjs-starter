@@ -1,9 +1,9 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
-import { BlogLayout } from '@/components/admin/blog/BlogLayout';
+import { BlogLayout } from '@/components/blog/BlogLayout';
 import { cachedLoadPost, cachedLoadBlogPosts, cachedGetRelatedPosts, cachedLoadCategories } from '@/lib/blog/blog-utils';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 
 interface BlogPostPageProps {
   params: Promise<{

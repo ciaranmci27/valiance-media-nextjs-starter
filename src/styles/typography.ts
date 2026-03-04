@@ -119,28 +119,4 @@ export const typography = {
     lineHeight: 1.2,
     fontWeight: 500,
   },
-  
-  // Specific styles
-  scoreDisplay: {
-    fontSize: 48,
-    lineHeight: 1,
-    fontWeight: 700,
-    letterSpacing: -1,
-  },
-  handicapDisplay: {
-    fontSize: 32,
-    lineHeight: 1.2,
-    fontWeight: 600,
-  },
-  statValue: {
-    fontSize: 24,
-    lineHeight: 1.2,
-    fontWeight: 600,
-  },
-  statLabel: {
-    fontSize: 12,
-    lineHeight: 1.4,
-    fontWeight: 500,
-    letterSpacing: 0.5,
-  },
 } as const;

@@ -1,10 +1,12 @@
 // Server-side page utility functions
 
 import { Page, PageSEOConfig, PageListItem } from './page-types';
+import { generateSlug, formatTitle } from './page-utils-client';
+import { loadPageSeoConfig } from '@/lib/seo/page-seo-utils';
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
-import { seoConfig as globalSeoConfig } from '@/seo/seo.config';
+import { seoConfig as globalSeoConfig } from '@/lib/seo/config';
 
 const APP_DIR = path.join(process.cwd(), 'src', 'app');
 const PAGES_CONFIG_PATH = path.join(process.cwd(), 'public', 'pages-config.json');
@@ -321,37 +323,10 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
   }
 }
 
-// Get SEO config for a page
+// Get SEO config for a page (delegates to the canonical loader in page-seo-utils)
 export async function getPageSEOConfig(slug: string): Promise<PageSEOConfig | null> {
-  try {
-    let configPath: string;
-    if (slug === '') {
-      // Prefer route-group home if available
-      const groupedSeoPath = path.join(APP_DIR, '(pages)', '(home)', 'seo-config.json');
-      try {
-        await fs.access(groupedSeoPath);
-        configPath = groupedSeoPath;
-      } catch {
-        configPath = path.join(APP_DIR, 'seo-config.json');
-      }
-    } else {
-      // First try (pages) directory, then fall back to root
-      const pagesConfigPath = path.join(APP_DIR, '(pages)', slug, 'seo-config.json');
-      const rootConfigPath = path.join(APP_DIR, slug, 'seo-config.json');
-      try {
-        await fs.access(pagesConfigPath);
-        configPath = pagesConfigPath;
-      } catch {
-        configPath = rootConfigPath;
-      }
-    }
-    
-    const configContent = await fs.readFile(configPath, 'utf-8');
-    return JSON.parse(configContent);
-  } catch (error) {
-    // SEO config doesn't exist or is invalid
-    return null;
-  }
+  const pagePath = slug === '' ? '/' : `/${slug}`;
+  return loadPageSeoConfig(pagePath);
 }
 
 // Helper function to recursively scan directories for pages config
@@ -702,23 +677,6 @@ export async function deletePage(slug: string): Promise<void> {
   
   // Update pages configuration file after successful deletion
   await updatePagesConfig();
-}
-
-// Generate slug from title
-export function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-// Format title from slug
-function formatTitle(slug: string): string {
-  if (slug === 'home' || slug === '') return 'Home';
-  return slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }
 
 // Generate default page content

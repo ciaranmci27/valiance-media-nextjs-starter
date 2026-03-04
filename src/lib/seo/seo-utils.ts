@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { seoConfig } from './seo.config';
+import { seoConfig } from './config';
 
 /**
  * Get a valid site URL with fallback
@@ -15,7 +15,7 @@ function getSiteUrl(): string {
       // Invalid URL, continue to fallback
     }
   }
-  
+
   // Fallback to environment variable
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     try {
@@ -25,12 +25,12 @@ function getSiteUrl(): string {
       // Invalid URL, continue to fallback
     }
   }
-  
+
   // Development fallback
   if (process.env.NODE_ENV === 'development') {
     return 'http://localhost:3000';
   }
-  
+
   // Production fallback - use a placeholder that won't break
   // This should be updated in production
   return 'https://example.com';
@@ -50,14 +50,14 @@ export function generateMetadata({
   ...rest
 }: Partial<Metadata> = {}): Metadata {
   const siteUrl = getSiteUrl();
-  
+
   // Handle empty config values gracefully
   const configFull = seoConfig as any;
   const siteName = (seoConfig as any).siteName || (seoConfig.openGraph as any)?.siteName || 'Website';
   const defaultTitle = configFull.defaultTitle || siteName;
   const titleTemplate = seoConfig.titleTemplate || '{pageName} | {siteName}';
-  
-  const metaTitle = title 
+
+  const metaTitle = title
     ? titleTemplate.replace('{pageName}', String(title)).replace('{siteName}', siteName)
     : defaultTitle;
 
@@ -210,7 +210,7 @@ export function generateWebsiteSchema() {
   if (!siteNameCheck?.trim()) {
     return null;
   }
-  
+
   const siteUrl = getSiteUrl();
   const schema: any = {
     '@context': 'https://schema.org',

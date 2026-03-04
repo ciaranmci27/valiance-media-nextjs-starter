@@ -2,7 +2,7 @@
 
 This project uses a professional sitemap index structure for optimal search engine optimization.
 
-The sitemap system is centrally managed in the `src/seo/` directory to keep the app directory clean and organized.
+The sitemap system is centrally managed in the `src/lib/seo/` directory to keep the app directory clean and organized.
 
 ## Sitemap URLs
 
@@ -71,7 +71,7 @@ Contains blog navigation pages:
 
 ## Configuration
 
-All sitemap settings are controlled via `seoConfig.sitemap` in `/src/seo/seo.config.ts`:
+All sitemap settings are controlled via `seoConfig.sitemap` in `/src/lib/seo/config.ts`:
 
 ```typescript
 sitemap: {
@@ -96,15 +96,19 @@ sitemap: {
 
 ### SEO Directory Structure
 ```
-src/seo/
-├── routes/
-│   ├── sitemap-handlers.ts    # Centralized sitemap logic
-│   └── README.md             # Routes documentation
-├── sitemap-pages.ts          # Pages sitemap generation
-├── sitemap-blog-posts.ts     # Blog posts sitemap generation
-├── sitemap-blog-categories.ts # Categories sitemap generation
-├── sitemap-utils.ts          # Shared utilities
-└── seo.config.ts            # SEO configuration
+src/lib/seo/
+├── config.ts                 # SEO configuration
+├── seo-utils.ts              # Metadata & schema utilities
+├── robots.ts                 # robots.txt generation
+├── components/
+│   ├── SEO.tsx               # SEO component
+│   └── StructuredData.tsx    # JSON-LD component
+└── sitemap/
+    ├── sitemap-handlers.ts   # Centralized sitemap logic
+    ├── sitemap-pages.ts      # Pages sitemap generation
+    ├── sitemap-blog-posts.ts # Blog posts sitemap generation
+    ├── sitemap-blog-categories.ts # Categories sitemap generation
+    └── sitemap-utils.ts      # Shared utilities
 ```
 
 ### App Directory (Ultra Clean)
@@ -123,8 +127,8 @@ The dynamic route handler automatically routes:
 
 To add a new content type (e.g., products):
 
-1. **Create the sitemap function**: `/src/seo/sitemap-products.ts`
-2. **Add handler**: Add to `/src/seo/routes/sitemap-handlers.ts`
+1. **Create the sitemap function**: `/src/lib/seo/sitemap/sitemap-products.ts`
+2. **Add handler**: Add to `/src/lib/seo/sitemap/sitemap-handlers.ts`
 3. **Update the dynamic route**: Add case to `/src/app/[...sitemap]/route.ts`
 4. **Update the sitemap index**: Add logic to `handleSitemapIndex`
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllPages, savePage, generateSlug, generateDefaultPageContent, generateDefaultSEOConfig } from '@/lib/pages/page-utils-server';
+import { getAllPages, savePage, generateDefaultPageContent, generateDefaultSEOConfig } from '@/lib/pages/page-utils-server';
+import { generateSlug } from '@/lib/pages/page-utils-client';
 import { requireAuth } from '@/lib/admin/require-auth';
 
 // GET - Fetch all pages

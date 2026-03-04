@@ -55,7 +55,7 @@ export default function EditBlogPost() {
 
   const fetchPost = async () => {
     try {
-      const response = await fetch(`/api/admin/blog-post?slug=${slug}`);
+      const response = await fetch(`/api/admin/blog?slug=${slug}`);
 
       if (response.ok) {
         const post = await response.json();

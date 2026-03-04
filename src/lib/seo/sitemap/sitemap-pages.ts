@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { seoConfig } from '../seo.config';
+import { seoConfig } from '../config';
 import { loadPageSeoConfig } from '@/lib/seo/page-seo-utils';
 import { loadBlogPosts } from '@/lib/blog/blog-utils';
 import fs from 'fs/promises';
@@ -24,7 +24,7 @@ export async function sitemapPages(customBaseUrl?: string): Promise<MetadataRout
 
   try {
     // Try to load dynamically generated routes
-    const generatedRoutesPath = path.join(process.cwd(), 'src', 'seo', 'sitemap', 'generated-sitemap-routes.json');
+    const generatedRoutesPath = path.join(process.cwd(), 'src', 'lib', 'seo', 'sitemap', 'generated-sitemap-routes.json');
 
     try {
       const generatedData = JSON.parse(await fs.readFile(generatedRoutesPath, 'utf-8'));
@@ -75,51 +75,48 @@ export async function sitemapPages(customBaseUrl?: string): Promise<MetadataRout
   }
 
   // Filter and build sitemap entries with page-level configuration support
-  return staticRoutes
-    .filter(({ route }) => {
-      // Special rule: Exclude /blog if no published posts exist
-      if (route === '/blog' && !hasPublishedBlogPosts) {
-        console.log('Excluding /blog from sitemap - no published posts found');
-        return false;
-      }
+  const entries: MetadataRoute.Sitemap = [];
 
-      // Check global exclusions
-      if (sitemapConfig.excludedPages.includes(route)) return false;
+  for (const { route, defaultPriority, defaultChangeFreq } of staticRoutes) {
+    // Special rule: Exclude /blog if no published posts exist
+    if (route === '/blog' && !hasPublishedBlogPosts) {
+      console.log('Excluding /blog from sitemap - no published posts found');
+      continue;
+    }
 
-      // Load page configuration
-      const pageConfig = loadPageSeoConfig(route === '' ? '/' : route);
+    // Check global exclusions
+    if (sitemapConfig.excludedPages.includes(route)) continue;
 
-      // Exclude programmatic SEO content (it has its own dedicated sitemap)
-      if (pageConfig?.metadata?.contentType === 'programmatic-seo') {
-        console.log(`Excluding ${route} from pages sitemap - has dedicated programmatic sitemap`);
-        return false;
-      }
+    // Load page configuration
+    const pageConfig = await loadPageSeoConfig(route === '' ? '/' : route);
 
-      // Check page-level exclusions
-      if (pageConfig?.sitemap?.exclude === true) return false;
+    // Exclude programmatic SEO content (it has its own dedicated sitemap)
+    if (pageConfig?.metadata?.contentType === 'programmatic-seo') {
+      console.log(`Excluding ${route} from pages sitemap - has dedicated programmatic sitemap`);
+      continue;
+    }
 
-      return true;
-    })
-    .map(({ route, defaultPriority, defaultChangeFreq }) => {
-      // Load page-specific configuration
-      const pageConfig = loadPageSeoConfig(route === '' ? '/' : route);
+    // Check page-level exclusions
+    if (pageConfig?.sitemap?.exclude === true) continue;
 
-      // Use page config values if available, otherwise fall back to defaults
-      const priority = pageConfig?.sitemap?.priority ?? defaultPriority;
-      const changeFreq = pageConfig?.sitemap?.changeFrequency ?? defaultChangeFreq;
+    // Use page config values if available, otherwise fall back to defaults
+    const priority = pageConfig?.sitemap?.priority ?? defaultPriority;
+    const changeFreq = pageConfig?.sitemap?.changeFrequency ?? defaultChangeFreq;
 
-      // Use page-specific last modified date if available
-      const lastModified = pageConfig?.metadata?.lastModified
-        ? new Date(pageConfig.metadata.lastModified)
-        : new Date();
+    // Use page-specific last modified date if available
+    const lastModified = pageConfig?.metadata?.lastModified
+      ? new Date(pageConfig.metadata.lastModified)
+      : new Date();
 
-      return {
-        url: `${baseUrl}${route}`,
-        lastModified,
-        changeFrequency: changeFreq as any,
-        priority: priority,
-      };
+    entries.push({
+      url: `${baseUrl}${route}`,
+      lastModified,
+      changeFrequency: changeFreq as any,
+      priority: priority,
     });
+  }
+
+  return entries;
 }
 
 // Fallback static routes if dynamic generation fails

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { seoConfig, pageMetadata } from '@/seo/seo.config';
-import { sitemapPages } from '@/seo/sitemap/sitemap-pages';
+import { seoConfig, pageMetadata } from '@/lib/seo/config';
+import { sitemapPages } from '@/lib/seo/sitemap/sitemap-pages';
 import { loadBlogPosts } from '@/lib/blog/blog-utils';
 import { loadPageSeoConfig } from '@/lib/seo/page-seo-utils';
 import { getCurrentConfig, formatConfigForFile } from '@/lib/seo/seo-config-parser';
@@ -64,19 +64,19 @@ export async function GET(request: NextRequest) {
       ];
       
       // Process static pages with their SEO configuration
-      const pages = staticRoutes.map(route => {
-        const pageConfig = loadPageSeoConfig(route.path);
+      const pages = await Promise.all(staticRoutes.map(async route => {
+        const pageConfig = await loadPageSeoConfig(route.path);
         const metaKey = route.path === '/' ? 'home' : route.path.replace('/', '').replace(/-/g, '');
-        
+
         // Check if page has custom metadata
         const hasCustomMeta = !!(pageConfig?.seo?.title || pageConfig?.seo?.description);
-        
+
         // Determine if page is in sitemap (not excluded)
         const isInSitemap = !seoConfig.sitemap.excludedPages.includes(route.path);
-        
+
         // Get metadata from pageMetadata object if key exists
         const pageMeta = (pageMetadata as any)[metaKey];
-        
+
         const configAny = seoConfig as any;
         return {
           path: route.path,
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
           canonicalUrl: siteUrl ? `${siteUrl}${route.path}` : '',
           robots: pageConfig?.robots || (route.isIndexed ? 'index, follow' : 'noindex, nofollow'),
         };
-      });
+      }));
 
       return NextResponse.json({ pages });
     }
@@ -317,7 +317,7 @@ export async function PUT(request: NextRequest) {
       };
       
       // Save the updated configuration
-      const SEO_CONFIG_PATH = path.join(process.cwd(), 'src', 'seo', 'seo.config.ts');
+      const SEO_CONFIG_PATH = path.join(process.cwd(), 'src', 'lib', 'seo', 'config.ts');
       const newFileContent = formatConfigForFile(config);
       await fs.writeFile(SEO_CONFIG_PATH, newFileContent, 'utf-8');
       

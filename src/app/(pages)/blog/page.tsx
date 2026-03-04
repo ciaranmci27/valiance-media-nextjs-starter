@@ -2,10 +2,10 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { PageWrapper } from '@/components/layout/PageWrapper';
-import { BlogCard } from '@/components/admin/blog/BlogCard';
+import { BlogCard } from '@/components/blog/BlogCard';
 import { cachedLoadBlogPosts, cachedLoadCategories } from '@/lib/blog/blog-utils';
 import Link from 'next/link';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from '@/lib/seo/config';
 import { generateStaticMetadata } from '@/lib/seo/generate-static-metadata';
 
 // Dynamic metadata: use seo-config.json when posts exist, noindex when empty

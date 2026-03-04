@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import fs from 'fs';
 import path from 'path';
-import { seoConfig } from '@/seo/seo.config';
+import { seoConfig } from './config';
 
 export function generateStaticMetadata(pagePath: string): Metadata {
   try {

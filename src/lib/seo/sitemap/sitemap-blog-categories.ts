@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { seoConfig } from '../seo.config';
+import { seoConfig } from '../config';
 import { loadCategories, loadBlogPosts } from '@/lib/blog/blog-utils';
 import { BlogPost } from '@/lib/blog/blog-types';
 
