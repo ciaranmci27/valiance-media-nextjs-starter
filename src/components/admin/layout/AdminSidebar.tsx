@@ -21,6 +21,112 @@ import {
   ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 
+/**
+ * All sidebar CSS is embedded inline via <style> so it ships with the HTML
+ * and renders correctly on the first paint, with no dependency on admin.css
+ * loading asynchronously.
+ */
+const SIDEBAR_STYLES = `
+  .admin-glass {
+    background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  [data-theme="dark"] .admin-glass,
+  .dark .admin-glass {
+    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  }
+  .admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 50;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-border-light);
+    overflow: hidden;
+    transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: all 150ms ease;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .admin-nav-label {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .admin-nav-item:hover {
+    background: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
+    color: var(--color-text-primary);
+  }
+  .admin-nav-item.active {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-primary);
+  }
+  .admin-nav-item.active svg {
+    color: var(--color-primary);
+  }
+  .admin-nav-item.sign-out {
+    color: var(--color-text-secondary);
+  }
+  .admin-nav-item.sign-out:hover {
+    background: color-mix(in srgb, var(--color-error) 10%, transparent);
+    color: var(--color-error);
+  }
+  .admin-sidebar-toggle {
+    position: fixed;
+    top: 50%;
+    z-index: 51;
+    display: none;
+    height: 32px;
+    width: 12px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-light);
+    border-left: 0;
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(-50%) translateX(-100%);
+    opacity: 0;
+  }
+  .admin-sidebar-group:hover .admin-sidebar-toggle {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+  .admin-sidebar-toggle:hover {
+    color: var(--color-primary);
+    background: var(--color-surface-elevated);
+  }
+  @media (min-width: 1024px) {
+    .admin-sidebar-toggle {
+      display: flex;
+    }
+  }
+  .admin-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--color-background) 80%, transparent);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+`;
+
 interface NavItem {
   label: string;
   href: string;
@@ -148,6 +254,9 @@ export function AdminSidebar({
 
   return (
     <>
+      {/* Inline sidebar CSS so it renders on first paint */}
+      <style dangerouslySetInnerHTML={{ __html: SIDEBAR_STYLES }} />
+
       {/* Mobile backdrop */}
       {mobileOpen && (
         <div
@@ -157,7 +266,7 @@ export function AdminSidebar({
       )}
 
       <div className="admin-sidebar-group">
-        {/* Desktop collapse toggle — appears on hover */}
+        {/* Desktop collapse toggle - appears on hover */}
         <button
           onClick={() => onCollapsedChange(!collapsed)}
           className="admin-sidebar-toggle"
@@ -173,9 +282,7 @@ export function AdminSidebar({
 
         <aside
           className="admin-sidebar admin-glass"
-          style={{
-            width: collapsed ? '64px' : '256px',
-          }}
+          style={{ width: collapsed ? '64px' : '256px' }}
           data-mobile-open={mobileOpen}
         >
           {/* Logo area */}
@@ -190,9 +297,9 @@ export function AdminSidebar({
               flexShrink: 0,
             }}
           >
-            {/* Desktop: Logo — both rendered, crossfade via opacity */}
+            {/* Desktop: Logo, both rendered, crossfade via opacity */}
             <div className="hidden lg:flex items-center" style={{ position: 'relative', height: '32px', flexShrink: 0 }}>
-              {/* Horizontal logo — absolutely positioned so it never compresses */}
+              {/* Horizontal logo, absolutely positioned so it never compresses */}
               <Link
                 href="/admin"
                 onClick={handleNavClick}
@@ -216,7 +323,7 @@ export function AdminSidebar({
                   priority
                 />
               </Link>
-              {/* Collapsed logo — square if available, horizontal fallback */}
+              {/* Collapsed logo, square if available, horizontal fallback */}
               <Link
                 href="/admin"
                 onClick={handleNavClick}
@@ -292,7 +399,7 @@ export function AdminSidebar({
             </div>
           </nav>
 
-          {/* Bottom section — desktop only */}
+          {/* Bottom section - desktop only */}
           <div
             className="hidden lg:flex lg:flex-col"
             style={{

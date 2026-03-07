@@ -24,6 +24,22 @@ const pageTitles: Record<string, string> = {
   '/admin/settings/email': 'Email Settings',
 };
 
+const TOPBAR_STYLES = `
+  .admin-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--color-border-light);
+    background: transparent;
+    transition: margin-left 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+`;
+
 interface AdminHeaderProps {
   onMobileMenuClick?: () => void;
 }
@@ -51,56 +67,59 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps) {
   }, [pathname]);
 
   return (
-    <header className="admin-topbar">
-      <div className="flex items-center gap-3">
-        {/* Mobile menu button */}
-        <button
-          onClick={onMobileMenuClick}
-          className="lg:hidden flex items-center justify-center rounded-lg"
-          style={{
-            width: '40px',
-            height: '40px',
-            color: 'var(--color-text-primary)',
-          }}
-          aria-label="Open menu"
-        >
-          <Bars3Icon className="w-5 h-5" />
-        </button>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: TOPBAR_STYLES }} />
+      <header className="admin-topbar">
+        <div className="flex items-center gap-3">
+          {/* Mobile menu button */}
+          <button
+            onClick={onMobileMenuClick}
+            className="lg:hidden flex items-center justify-center rounded-lg"
+            style={{
+              width: '40px',
+              height: '40px',
+              color: 'var(--color-text-primary)',
+            }}
+            aria-label="Open menu"
+          >
+            <Bars3Icon className="w-5 h-5" />
+          </button>
 
-        <h1
-          style={{
-            fontSize: '18px',
-            fontWeight: 600,
-            color: 'var(--color-text-primary)',
-            margin: 0,
-            lineHeight: 1.4,
-          }}
-        >
-          {pageTitle}
-        </h1>
-      </div>
+          <h1
+            style={{
+              fontSize: '18px',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+              margin: 0,
+              lineHeight: 1.4,
+            }}
+          >
+            {pageTitle}
+          </h1>
+        </div>
 
-      <div className="flex items-center gap-2">
-        {/* Theme toggle — visible on mobile (desktop has it in sidebar) */}
-        <button
-          onClick={toggleTheme}
-          className="lg:hidden flex items-center justify-center rounded-lg"
-          style={{
-            width: '40px',
-            height: '40px',
-            color: 'var(--color-text-secondary)',
-          }}
-          aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-          <Image
-            src={mode === 'dark' ? '/images/light.png' : '/images/dark.png'}
-            alt=""
-            width={20}
-            height={20}
-            style={{ width: '20px', height: '20px' }}
-          />
-        </button>
-      </div>
-    </header>
+        <div className="flex items-center gap-2">
+          {/* Theme toggle - visible on mobile (desktop has it in sidebar) */}
+          <button
+            onClick={toggleTheme}
+            className="lg:hidden flex items-center justify-center rounded-lg"
+            style={{
+              width: '40px',
+              height: '40px',
+              color: 'var(--color-text-secondary)',
+            }}
+            aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            <Image
+              src={mode === 'dark' ? '/images/light.png' : '/images/dark.png'}
+              alt=""
+              width={20}
+              height={20}
+              style={{ width: '20px', height: '20px' }}
+            />
+          </button>
+        </div>
+      </header>
+    </>
   );
 }

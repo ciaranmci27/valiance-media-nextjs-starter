@@ -13,6 +13,26 @@ export interface TooltipProps {
   disabled?: boolean;
 }
 
+const TOOLTIP_STYLES = `
+  .admin-tooltip-portal {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    transition: opacity 150ms ease, transform 150ms ease;
+  }
+  .admin-tooltip-content {
+    padding: 5px 10px;
+    background: var(--color-surface-elevated);
+    color: var(--color-text-primary);
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    border: 1px solid var(--color-border-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+`;
+
 export function Tooltip({
   children,
   content,
@@ -197,7 +217,13 @@ export function Tooltip({
       onBlur={hideTooltip}
     >
       {children}
-      {mounted && tooltipContent && createPortal(tooltipContent, document.body)}
+      {mounted && tooltipContent && createPortal(
+        <>
+          <style dangerouslySetInnerHTML={{ __html: TOOLTIP_STYLES }} />
+          {tooltipContent}
+        </>,
+        document.body
+      )}
     </span>
   );
 }
