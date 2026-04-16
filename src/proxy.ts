@@ -102,6 +102,45 @@ export async function proxy(request: NextRequest) {
   }
 
   // ============================================================================
+  // Blog markdown alternates: /blog/{category}/{slug}.md -> /api/blog-md/...
+  // ============================================================================
+  // The literal-suffix segment folder pattern (`[slug].md`) silently shadows
+  // the human-readable `[slug]/page.tsx` route, so we rewrite to a dedicated
+  // API route instead. The public URL stays `/blog/{cat}/{slug}.md` for the
+  // llms.txt index and AI crawlers.
+  const blogMdMatch = path.match(/^\/blog\/([^/]+)\/([^/]+)\.md$/);
+  if (blogMdMatch) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/api/blog-md/${blogMdMatch[1]}/${blogMdMatch[2]}`;
+    return NextResponse.rewrite(url);
+  }
+
+  // ============================================================================
+  // Page markdown alternates: /{path}.md -> /api/page-md/{path}
+  // ============================================================================
+  // Mirrors the blog pattern for every other server-rendered page so AI
+  // crawlers can fetch a clean markdown version of any page. The handler
+  // gates on the admin AI Search master toggle and the page's own
+  // llms.exclude / noIndex flags. The /index.md special case maps the home
+  // page (a `/.md` URL would be malformed). The blog rewrite above already
+  // claimed `/blog/...md` so we deliberately do not re-handle it here.
+  if (path !== '/llms.txt' && path.endsWith('.md') && !path.startsWith('/_next/')) {
+    const stripped = path.slice(0, -3); // remove ".md"
+    // Reject paths with empty segments or that look like assets (no slash
+    // segments inside the basename other than the path).
+    const url = request.nextUrl.clone();
+    if (stripped === '/index') {
+      url.pathname = '/api/page-md';
+    } else if (stripped !== '' && stripped !== '/') {
+      url.pathname = `/api/page-md${stripped}`;
+    } else {
+      // /.md is malformed; let it fall through to a 404.
+      return NextResponse.next();
+    }
+    return NextResponse.rewrite(url);
+  }
+
+  // ============================================================================
   // Static Files & Non-Admin API Routes (Pass Through)
   // ============================================================================
   if (

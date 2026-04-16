@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "aiCrawlers": {
+    "GPTBot": true,
+    "ChatGPT-User": true,
+    "OAI-SearchBot": true,
+    "PerplexityBot": true,
+    "Perplexity-User": true,
+    "ClaudeBot": true,
+    "Claude-Web": true,
+    "anthropic-ai": true,
+    "Google-Extended": true,
+    "Applebot-Extended": true,
+    "Bytespider": true,
+    "Amazonbot": true,
+    "Meta-ExternalAgent": true,
+    "cohere-ai": true,
+    "DuckAssistBot": true,
+    "MistralAI-User": true,
+    "YouBot": true
+  }
+}

@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import fs from 'fs';
 import path from 'path';
 import { seoConfig } from './config';
+import { getLlmsSettingsSync } from './llms-settings';
 
 export function generateStaticMetadata(pagePath: string): Metadata {
   try {
@@ -72,6 +73,24 @@ export function generateStaticMetadata(pagePath: string): Metadata {
       ? ogImageUrl
       : `${seoConfig.siteUrl}${ogImageUrl}`;
 
+    // Advertise the page's `.md` sibling for AI crawlers when the AI Search
+    // feature is on and the page has not opted out. The home page uses
+    // `/index.md` (a `/.md` URL would be malformed). Skip when the page is
+    // noIndex or excluded from sitemap/llms — the `.md` route would 404
+    // anyway, advertising a 404 misleads crawlers.
+    const llmsSettings = getLlmsSettingsSync();
+    const isLlmsExcluded =
+      seo?.noIndex === true ||
+      pageConfig.sitemap?.exclude === true ||
+      pageConfig.llms?.exclude === true ||
+      pageMeta?.draft === true;
+    const markdownAlternate =
+      llmsSettings.enabled && !isLlmsExcluded
+        ? canonicalUrl.endsWith('/')
+          ? `${canonicalUrl}index.md`
+          : `${canonicalUrl}.md`
+        : undefined;
+
     return {
       title: seo?.title || seoConfig.siteName,
       description: seo?.description || `Welcome to ${seoConfig.siteName}`,
@@ -79,6 +98,7 @@ export function generateStaticMetadata(pagePath: string): Metadata {
       authors: pageMeta?.author ? [{ name: pageMeta.author }] : undefined,
       alternates: {
         canonical: canonicalUrl,
+        ...(markdownAlternate ? { types: { 'text/markdown': markdownAlternate } } : {}),
       },
       openGraph: {
         title: seo?.title || seoConfig.siteName,

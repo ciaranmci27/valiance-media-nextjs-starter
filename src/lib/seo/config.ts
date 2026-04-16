@@ -122,6 +122,16 @@ export const seoConfig = {
       categories: 0.7
     }
   },
+  // ==========================================================================
+  // AI SEARCH / llms.txt
+  //
+  // Configured via the admin SEO > AI Search tab. Settings persist to
+  // `src/lib/seo/llms-settings.json` and are consumed at runtime by
+  // `robots.ts`, the `/llms.txt` route, and the per-post `.md` surface.
+  // Kept out of this file so the admin SEO Configuration editor (which
+  // rewrites config.ts from a typed interface) can never silently wipe
+  // AI-search settings on an unrelated save.
+  // ==========================================================================
   schema: {
     activeTypes: {
       organization: true,

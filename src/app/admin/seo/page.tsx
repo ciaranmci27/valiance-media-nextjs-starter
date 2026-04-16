@@ -7,6 +7,7 @@ import HealthTab from '@/components/admin/seo/HealthTab';
 import RobotsTab from '@/components/admin/seo/RobotsTab';
 import SitemapTab from '@/components/admin/seo/SitemapTab';
 import SchemaTab from '@/components/admin/seo/SchemaTab';
+import LlmsTab from '@/components/admin/seo/LlmsTab';
 
 const SEOConfigEditor = dynamic(() => import('@/components/admin/seo/SEOConfigEditor'), {
   ssr: false,
@@ -37,7 +38,7 @@ interface SEOStats {
   indexedPages: number;
 }
 
-type TabId = 'health' | 'config' | 'redirects' | 'robots' | 'sitemap' | 'schema';
+type TabId = 'health' | 'config' | 'redirects' | 'robots' | 'sitemap' | 'schema' | 'llms';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'config',    label: 'Configuration' },
@@ -45,6 +46,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'robots',    label: 'Robots.txt' },
   { id: 'sitemap',   label: 'Sitemap' },
   { id: 'schema',    label: 'Schema' },
+  { id: 'llms',      label: 'AI Search' },
   { id: 'health',    label: 'Health' },
 ];
 
@@ -202,6 +204,8 @@ export default function SEODashboard() {
           onConfigSection={setConfigInitialSection}
         />
       )}
+
+      {activeTab === 'llms' && <LlmsTab />}
     </div>
   );
 }

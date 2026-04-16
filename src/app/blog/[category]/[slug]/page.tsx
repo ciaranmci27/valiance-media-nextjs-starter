@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { BlogLayout } from '@/components/blog/BlogLayout';
 import { cachedLoadPost, cachedLoadBlogPosts, cachedGetRelatedPosts, cachedLoadCategories } from '@/lib/blog/blog-utils';
 import { seoConfig } from '@/lib/seo/config';
+import { getLlmsSettings } from '@/lib/seo/llms-settings';
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -43,11 +44,25 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     };
   }
   
+  const llmsSettings = await getLlmsSettings();
+  const llmsEnabled = llmsSettings.enabled;
+  const isHidden = post.excludeFromSearch || post.draft;
+
   return {
     title: post.seo?.title || `${post.title} - ${seoConfig.siteName || 'Valiance Media'} Blog`,
     description: post.seo?.description || post.excerpt,
     keywords: post.seo?.keywords?.join(', ') || post.tags?.join(', '),
-    robots: post.excludeFromSearch || post.draft ? 'noindex, nofollow' : 'index, follow',
+    robots: isHidden ? 'noindex, nofollow' : 'index, follow',
+    // Only advertise the .md sibling when the llms feature is on AND the post
+    // is publicly discoverable. Hidden posts 404 on the .md route anyway, so
+    // leaking the link would just point at a dead URL.
+    alternates: llmsEnabled && !isHidden
+      ? {
+          types: {
+            'text/markdown': `/blog/${resolvedParams.category}/${resolvedParams.slug}.md`,
+          },
+        }
+      : undefined,
     openGraph: {
       title: post.seo?.title || post.title,
       description: post.seo?.description || post.excerpt,

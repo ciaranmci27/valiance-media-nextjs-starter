@@ -1,38 +1,22 @@
 import { MetadataRoute } from 'next';
 import { seoConfig } from './config';
+import { getSiteUrl } from './site-url';
+import { getLlmsSettings, KNOWN_AI_CRAWLERS } from './llms-settings';
+
+// Force dynamic so the admin AI Search toggle takes effect immediately
+// instead of being baked into the build output.
+export const dynamic = 'force-dynamic';
 
 /**
  * Generate robots.txt for the website dynamically based on configuration
  * This file automatically generates a robots.txt at /robots.txt
  *
- * Uses configuration from seo.config.ts to:
- * - Set crawling rules based on robots settings
- * - Use the correct site URL for the sitemap
- * - Apply custom rules if specified
+ * - Core crawl rules come from seoConfig.robots.txt.rules
+ * - AI-search (AEO) surface and crawler allowlist come from llms-settings.json,
+ *   which the admin AI Search tab owns. Both pieces can be toggled
+ *   independently without rebuilding.
  */
-export default function robots(): MetadataRoute.Robots {
-  // Get the site URL from config, with fallbacks
-  const getSiteUrl = (): string => {
-    // First try the config
-    const siteUrl = (seoConfig as any).siteUrl;
-    if (siteUrl && siteUrl !== 'https://example.com') {
-      return siteUrl.replace(/\/$/, ''); // Remove trailing slash
-    }
-
-    // Then try environment variable
-    if (process.env.NEXT_PUBLIC_SITE_URL) {
-      return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
-    }
-
-    // Development fallback
-    if (process.env.NODE_ENV === 'development') {
-      return 'http://localhost:3000';
-    }
-
-    // Production fallback - will need to be configured
-    return 'https://example.com';
-  };
-
+export default async function robots(): Promise<MetadataRoute.Robots> {
   const siteUrl = getSiteUrl();
 
   // If indexing is disabled globally, return restrictive robots.txt
@@ -48,6 +32,14 @@ export default function robots(): MetadataRoute.Robots {
     };
   }
 
+  const llms = await getLlmsSettings();
+
+  // Paths we surface explicitly so they survive any future tightening of the
+  // configured allow/disallow lists. /llms.txt is the AI-search index;
+  // /blog/*.md serves the per-post markdown; /*.md covers every page's
+  // markdown sibling (e.g. /tools/data-visualizer/docs.md, /index.md).
+  const llmsAllowPaths = llms.enabled ? ['/llms.txt', '/*.md'] : [];
+
   // Build rules from configuration
   const rules: any[] = [];
 
@@ -57,9 +49,10 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: rule.userAgent,
       };
 
-      // Add allow rules
-      if (rule.allow && rule.allow.length > 0) {
-        ruleObj.allow = rule.allow;
+      // Add allow rules and merge in the AEO-required allows
+      const allow = Array.from(new Set([...(rule.allow || []), ...llmsAllowPaths]));
+      if (allow.length > 0) {
+        ruleObj.allow = allow;
       }
 
       // Add disallow rules
@@ -78,7 +71,7 @@ export default function robots(): MetadataRoute.Robots {
     // Fallback to default rules if configuration is missing
     rules.push({
       userAgent: '*',
-      allow: '/',
+      allow: ['/', ...llmsAllowPaths],
       disallow: [
         '/api/',
         '/admin/',
@@ -91,7 +84,7 @@ export default function robots(): MetadataRoute.Robots {
 
     rules.push({
       userAgent: 'Googlebot',
-      allow: '/',
+      allow: ['/', ...llmsAllowPaths],
       disallow: [
         '/api/',
         '/admin/',
@@ -99,6 +92,28 @@ export default function robots(): MetadataRoute.Robots {
         '/private/',
       ],
     });
+  }
+
+  // AEO: per-crawler rule blocks. When the whole llms feature is off we skip
+  // these entirely (crawlers still fall under the `*` rule). When the feature
+  // is on we emit a dedicated block for each crawler the admin has enabled;
+  // disabled ones get a hard disallow so the platform stops citing the site.
+  if (llms.enabled) {
+    const aiDisallow = ['/api/', '/admin/', '/private/'];
+    for (const userAgent of KNOWN_AI_CRAWLERS) {
+      if (llms.aiCrawlers[userAgent]) {
+        rules.push({
+          userAgent,
+          allow: ['/', ...llmsAllowPaths],
+          disallow: aiDisallow,
+        });
+      } else {
+        rules.push({
+          userAgent,
+          disallow: '/',
+        });
+      }
+    }
   }
 
   // Note: We use /sitemap because we're using sitemap indexes

@@ -146,24 +146,33 @@ export const TimeInput = forwardRef<HTMLButtonElement, TimeInputProps>(
       }
     }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // Mirror editHours/editMinutes in a ref so repeated calls from the
+    // hold-to-repeat loop (see SpinnerColumn) always see the freshest values
+    // without waiting for React re-renders to propagate new closures.
+    const stateRef = useRef({ h: editHours, m: editMinutes });
+    useEffect(() => { stateRef.current = { h: editHours, m: editMinutes }; }, [editHours, editMinutes]);
+
     const emitChange = (h: number, m: number) => {
       onChange?.(`${pad(h)}:${pad(m)}`);
     };
 
     const adjustHours = (delta: number) => {
-      const next = ((editHours + delta) + 24) % 24;
+      const curr = stateRef.current;
+      const next = ((curr.h + delta) + 24) % 24;
+      stateRef.current = { h: next, m: curr.m };
       setEditHours(next);
-      emitChange(next, editMinutes);
+      emitChange(next, curr.m);
     };
 
+    // Minutes wrap independently of hours: going past 59 loops back to 0
+    // (and past 0 loops to 59) without touching the hour field. Users who
+    // want to change the hour use the hour column directly.
     const adjustMinutes = (delta: number) => {
-      let next = editMinutes + delta;
-      let h = editHours;
-      if (next < 0) { next = 60 + next; h = (h - 1 + 24) % 24; }
-      if (next >= 60) { next = next - 60; h = (h + 1) % 24; }
+      const curr = stateRef.current;
+      const next = ((curr.m + delta) % 60 + 60) % 60;
+      stateRef.current = { h: curr.h, m: next };
       setEditMinutes(next);
-      setEditHours(h);
-      emitChange(h, next);
+      emitChange(curr.h, next);
     };
 
     const togglePeriod = () => {
@@ -344,6 +353,54 @@ function SpinnerColumn({
     if (e.key === 'ArrowDown') { e.preventDefault(); onDecrement(); }
   };
 
+  // Latest-handler refs so the recursive hold loop always invokes the
+  // freshest closure after each parent re-render between ticks.
+  const incRef = useRef(onIncrement);
+  const decRef = useRef(onDecrement);
+  useEffect(() => { incRef.current = onIncrement; });
+  useEffect(() => { decRef.current = onDecrement; });
+
+  // Hold-to-repeat timer. Single chained setTimeout so we can shrink the
+  // delay between ticks for acceleration.
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearHold = useCallback(() => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+  }, []);
+
+  // Any pointerup/cancel anywhere stops the hold - covers the case where
+  // the user drags off the button before releasing.
+  useEffect(() => {
+    const stop = () => clearHold();
+    window.addEventListener('pointerup', stop);
+    window.addEventListener('pointercancel', stop);
+    return () => {
+      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('pointercancel', stop);
+    };
+  }, [clearHold]);
+
+  // Cleanup on unmount.
+  useEffect(() => () => clearHold(), [clearHold]);
+
+  const startHold = (dir: 'inc' | 'dec') => {
+    clearHold();
+    const fire = () => (dir === 'inc' ? incRef.current() : decRef.current());
+    fire(); // immediate tick on press
+    // Wait ~350ms before starting rapid-fire so a quick click doesn't double-fire.
+    holdTimerRef.current = setTimeout(() => {
+      let delay = 110;
+      const tick = () => {
+        fire();
+        delay = Math.max(25, delay - 6); // accelerate, floor at 25ms
+        holdTimerRef.current = setTimeout(tick, delay);
+      };
+      tick();
+    }, 350);
+  };
+
   const btnPad = size === 'sm' ? 'p-1.5' : size === 'lg' ? 'p-2.5' : 'p-2';
   const iconSize = size === 'sm' ? 14 : size === 'lg' ? 18 : 16;
   const valueClass = size === 'sm' ? 'w-10 text-lg' : size === 'lg' ? 'w-14 text-2xl' : 'w-12 text-xl';
@@ -353,8 +410,11 @@ function SpinnerColumn({
       <button
         type="button"
         tabIndex={-1}
-        onClick={onIncrement}
-        onMouseDown={(e) => e.preventDefault()}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return;
+          e.preventDefault();
+          startHold('inc');
+        }}
         aria-label={`Increase ${ariaLabel}`}
         className={`${btnPad} rounded-input-sm hover:bg-input-bg-hover text-input-text-placeholder hover:text-input-text transition-colors duration-150`}
       >
@@ -373,8 +433,11 @@ function SpinnerColumn({
       <button
         type="button"
         tabIndex={-1}
-        onClick={onDecrement}
-        onMouseDown={(e) => e.preventDefault()}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return;
+          e.preventDefault();
+          startHold('dec');
+        }}
         aria-label={`Decrease ${ariaLabel}`}
         className={`${btnPad} rounded-input-sm hover:bg-input-bg-hover text-input-text-placeholder hover:text-input-text transition-colors duration-150`}
       >

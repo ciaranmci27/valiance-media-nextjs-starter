@@ -57,6 +57,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
   const [priority, setPriority] = useState(0.5);
   const [changefreq, setChangefreq] = useState<'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'>('monthly');
   const [excludeFromSitemap, setExcludeFromSitemap] = useState(false);
+  const [excludeFromLlms, setExcludeFromLlms] = useState(false);
   const [schemas, setSchemas] = useState<PageSchema[]>([]);
   const [showOGPreview, setShowOGPreview] = useState(false);
   const [hasManuallyEditedSlug, setHasManuallyEditedSlug] = useState(false);
@@ -138,6 +139,7 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
         setPriority(config.sitemap?.priority || 0.5);
         setChangefreq(config.sitemap?.changeFrequency || 'monthly');
         setExcludeFromSitemap(config.sitemap?.exclude || false);
+        setExcludeFromLlms(config.llms?.exclude || false);
         setSchemas(config.schemas || []);
       }
 
@@ -236,6 +238,9 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
           exclude: excludeFromSitemap || robots.includes('noindex'),
           priority: priority,
           changeFrequency: changefreq
+        },
+        llms: {
+          exclude: excludeFromLlms || robots.includes('noindex')
         },
         metadata: {
           ...metadata,
@@ -769,6 +774,28 @@ export default function PageEditor({ initialPage, isNew = false }: PageEditorPro
               <Switch
                 checked={excludeFromSitemap}
                 onChange={setExcludeFromSitemap}
+                disabled={robots.includes('noindex')}
+              />
+            </div>
+
+            <div
+              className="flex items-center justify-between p-4 rounded-lg"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-medium)' }}
+            >
+              <div>
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Exclude from AI Search (llms.txt)</span>
+                <p className="text-xs mt-0.5 mb-0" style={{ color: 'var(--color-text-secondary)' }}>
+                  Prevent this page from being listed in /llms.txt for AI answer engines
+                </p>
+                {robots.includes('noindex') && (
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-warning)' }}>
+                    Already excluded due to noindex setting
+                  </p>
+                )}
+              </div>
+              <Switch
+                checked={excludeFromLlms}
+                onChange={setExcludeFromLlms}
                 disabled={robots.includes('noindex')}
               />
             </div>

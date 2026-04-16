@@ -30,6 +30,11 @@ export interface PageSeoConfig {
     changeFrequency?: 'never' | 'yearly' | 'monthly' | 'weekly' | 'daily' | 'hourly' | 'always';
   };
 
+  // AI-search (llms.txt) control
+  llms?: {
+    exclude?: boolean;
+  };
+
   // Additional metadata
   metadata?: {
     author?: string;
@@ -92,6 +97,9 @@ export interface PageSeoConfigRaw {
     exclude?: boolean;
     priority?: number;
     changeFrequency?: 'never' | 'yearly' | 'monthly' | 'weekly' | 'daily' | 'hourly' | 'always';
+  };
+  llms?: {
+    exclude?: boolean;
   };
   metadata?: {
     author?: string;
