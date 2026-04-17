@@ -32,6 +32,9 @@
 
 /* Valiance Media Design System CSS Variables */
 :root {
+  /* Layout dimensions */
+  --header-height: 5rem;
+
   /* iOS Safe Area Insets - Critical for proper viewport handling */
   --safe-area-inset-top: env(safe-area-inset-top, 0px);
   --safe-area-inset-right: env(safe-area-inset-right, 0px);
@@ -254,10 +257,18 @@ html {
   overflow-x: hidden;
   /* Reserve scrollbar space to prevent layout shift when content changes */
   scrollbar-gutter: stable;
+  /* Offset anchor scroll targets so the fixed header doesn't cover them */
+  scroll-padding-top: var(--header-height);
   /* Ensure full height including safe areas */
   height: 100%;
   /* Prevent iOS Safari from adding extra space */
   -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {

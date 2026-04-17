@@ -63,37 +63,29 @@ Pages with `seo.noIndex: true` or `sitemap.exclude: true` are already filtered o
 
 Blog posts are always excluded automatically when their JSON has `"draft": true` or `"excludeFromSearch": true`. No per-post config needed.
 
-### Tuning what gets extracted from a page
-
-The page `.md` route picks the main content with a selector cascade:
-`[data-llms-content]` → `<main>` → `[role="main"]` → `<article>` → `#main` → `#content` → `#main-content` → `.prose` → `.content` → `<body>` (last resort).
-
-Site chrome (`<nav>`, `<header>`, `<footer>`, `<aside>`, `<script>`, `<style>`, ARIA-hidden nodes) is stripped before the cascade runs. **In almost every case this just works** because the boilerplate's layout puts page content in `<main>`. When it doesn't, two HTML attributes give you precise control without touching any config:
-
-- **`data-llms-content`** — put on a wrapper to mark it as the canonical content root. Highest priority in the cascade.
-- **`data-llms-skip`** — put on any subtree you want stripped from the markdown output (e.g. an in-page promo, a related-posts widget, a comments section).
-
-```jsx
-<main>
-  <article data-llms-content>
-    <h1>How to use the data visualizer</h1>
-    <p>...</p>
-    <aside data-llms-skip>
-      Sponsored: Try our other tools!
-    </aside>
-    <p>More content the AI should see...</p>
-  </article>
-</main>
-```
-
-These attributes have zero effect on rendering — they're invisible markers the extractor reads at request time.
-
 ## How content is sourced
 
-- **Pages** are discovered from `src/app/` (respecting route groups and the same exclusions as the sitemap). For each page, the `.md` route fetches the page's own rendered HTML at request time, extracts the main content subtree with cheerio, and converts it to markdown. This means whatever the page actually shows visitors is what AI crawlers see, no extra config required.
+- **Pages** use a two-tier resolution for content:
+  1. **Sidecar file** (`llms-content.md`): If a file named `llms-content.md` exists next to the page's `page.tsx`, its contents are used verbatim. This is the recommended approach for pages whose visible content comes from an API (Supabase, CMS, etc.) and can't be extracted from the source file.
+  2. **JSX extraction** (automatic fallback): For static pages with hardcoded JSX text, the extractor at `src/lib/llms/jsx-extract.ts` reads the page's TSX source and pulls visible text from between JSX tags and string expressions, producing clean prose for AI crawlers. This approach exists because the boilerplate's root layout wraps the app in client components (`ThemeProvider`, `ConditionalLayout`), which causes Next.js to deliver page content as RSC Flight data rather than rendered HTML.
 - **Blog posts** are loaded directly from `public/blog-content/` JSON files. The `content` HTML field is converted to markdown at request time by the built-in converter at `src/lib/llms/html-to-md.js` (supports headings, paragraphs, nested lists, links, images, blockquotes, code blocks, tables, inline emphasis, and entity decoding).
 
-Both flows go through the same markdown converter and emit the same header block (`**Source:**`, dates, author) so the output is uniform across pages and posts.
+Both flows emit the same header block (`**Source:**`, dates, author) so the output is uniform across pages and posts.
+
+### Sidecar files for API-driven pages
+
+If a page pulls content from an external source (Supabase, a headless CMS, a third-party API), the JSX extractor will only see the template code, not the actual content. For these pages, create a `llms-content.md` file next to the page's `page.tsx`:
+
+```
+src/app/(pages)/services/
+  page.tsx            # renders content from Supabase
+  llms-content.md     # AI-visible markdown for this page
+  seo-config.json
+```
+
+The sidecar file should contain the page's content as plain markdown. When present, it takes absolute priority over JSX extraction. When absent, the automatic extractor handles things.
+
+For pages whose content changes frequently via API, keeping the sidecar updated is the developer's responsibility. A build script or CMS webhook could regenerate it automatically.
 
 ## AI crawler allowlist
 
@@ -165,5 +157,5 @@ Every server-rendered page's HTML also advertises its markdown sibling via `<lin
 | `src/components/admin/seo/LlmsTab.tsx` | Admin UI. |
 | `src/lib/seo/robots.ts` | Consumes the settings to emit the AI crawler blocks in `robots.txt`. |
 | `src/lib/seo/generate-static-metadata.ts` | Injects the `<link rel="alternate" type="text/markdown">` advertisement into every page's `<head>`. |
-| `src/lib/llms/html-extract.ts` | cheerio-based content extractor used by the page `.md` route. |
-| `src/lib/llms/html-to-md.js` | HTML → Markdown converter used by both `.md` routes. |
+| `src/lib/llms/jsx-extract.ts` | TSX source text extractor used by the page `.md` route. |
+| `src/lib/llms/html-to-md.js` | HTML → Markdown converter used by the blog `.md` route. |

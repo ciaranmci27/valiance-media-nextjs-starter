@@ -36,7 +36,6 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",
     "bcryptjs": "^3.0.3",
-    "cheerio": "^1.2.0",
     "isomorphic-dompurify": "^3.0.0",
     "lucide-react": "^0.575.0",
     "next": "^16.1.1",

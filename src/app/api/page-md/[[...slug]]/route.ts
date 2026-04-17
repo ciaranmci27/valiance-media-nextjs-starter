@@ -4,8 +4,7 @@ import { getSiteUrl } from '@/lib/seo/site-url';
 import { getLlmsSettings } from '@/lib/seo/llms-settings';
 import { loadPageSeoConfig } from '@/lib/seo/page-seo-utils';
 import { getPageBySlug } from '@/lib/pages/page-utils-server';
-import { extractMainContent } from '@/lib/llms/html-extract';
-import { htmlToMarkdown } from '@/lib/llms/html-to-md';
+import { loadSidecarContent, extractJsxText } from '@/lib/llms/jsx-extract';
 
 // Internal handler for the public-facing `/{path}.md` URL on every
 // server-rendered page. Reached via a rewrite in `src/proxy.ts`.
@@ -14,8 +13,8 @@ import { htmlToMarkdown } from '@/lib/llms/html-to-md';
 //   - The same admin AI Search master toggle that gates `/llms.txt` and the
 //     blog `.md` route also gates this surface. Dynamic = no rebuild needed.
 //   - Per-page `llms.exclude` flips the response from 200 to 404 instantly.
-//   - We fetch the page's own rendered HTML at request time so the markdown
-//     output always tracks the live page (no stale build artifact).
+//   - Content is extracted from the page's TSX source file at request time
+//     so the markdown output always tracks the live page.
 
 interface RouteContext {
   params: Promise<{ slug?: string[] }>;
@@ -79,40 +78,15 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
   const siteUrl = getSiteUrl();
   const canonical = `${siteUrl}${pagePath}`;
 
-  // Self-fetch the page's rendered HTML. Use the request's own origin so we
-  // hit the same deployment (works on localhost, preview, prod). The proxy
-  // sees the non-`.md` URL and passes through to Next.js for normal SSR.
-  // Bound the self-fetch so a hung upstream page (slow third-party API in
-  // generateMetadata, etc.) cannot consume the entire serverless function
-  // budget for this request.
-  const FETCH_TIMEOUT_MS = 8000;
-  let html: string;
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  try {
-    const origin = req.nextUrl.origin;
-    const fetchUrl = `${origin}${pagePath}`;
-    const response = await fetch(fetchUrl, {
-      headers: {
-        // Mark the request so it is identifiable in logs as internal.
-        'User-Agent': 'page-md-extractor/1.0',
-        Accept: 'text/html',
-      },
-      // The page-md route is itself cached at the edge; no need to re-cache
-      // the upstream HTML in the route's own data cache.
-      cache: 'no-store',
-      signal: controller.signal,
-    });
-    if (!response.ok) return notFound();
-    html = await response.text();
-  } catch {
-    return notFound();
-  } finally {
-    clearTimeout(timeout);
-  }
-
-  const contentHtml = extractMainContent(html);
-  if (!contentHtml) return notFound();
+  // Content resolution: sidecar file first, then JSX extraction.
+  // A sidecar `llms-content.md` next to the page's `page.tsx` takes
+  // priority — this is how pages with API-driven content (Supabase, CMS)
+  // provide their own AI-visible markdown. For static pages with hardcoded
+  // JSX text, the automatic extractor handles it.
+  const contentMarkdown =
+    await loadSidecarContent(pageSlug) ||
+    (page.content ? extractJsxText(page.content) : null);
+  if (!contentMarkdown) return notFound();
 
   const title = seoConfig?.seo?.title || page.title || 'Untitled';
   const description = seoConfig?.seo?.description || '';
@@ -130,7 +104,7 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
     lines.push(description);
     lines.push('');
   }
-  lines.push(htmlToMarkdown(contentHtml));
+  lines.push(contentMarkdown);
 
   const body = lines.join('\n');
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Header } from './Header';
 import { AdminShell } from '@/components/admin/layout/AdminShell';
@@ -7,6 +8,29 @@ import { Footer } from './Footer';
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  useEffect(() => {
+    window.history.scrollRestoration = 'manual';
+  }, []);
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const id = window.location.hash.slice(1);
+      if (id && !document.getElementById(id)) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   const isAdminPage = pathname?.startsWith('/admin');
   const isAdminLogin = pathname === '/admin/login';
 
@@ -35,7 +59,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
         Skip to main content
       </a>
       <Header />
-      <main id="main-content" className="flex-1 pt-20 w-full relative z-10">
+      <main id="main-content" className="flex-1 w-full relative z-10" style={{ paddingTop: 'var(--header-height)' }}>
         {children}
       </main>
       <Footer />
