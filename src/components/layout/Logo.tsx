@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { seoConfig } from '@/lib/seo/config';
@@ -17,6 +17,14 @@ interface LogoProps {
 const LOGO_PATH = '/logos/horizontal-logo.png';
 const LOGO_INVERTED_PATH = '/logos/horizontal-logo-inverted.png';
 
+/**
+ * Theme-aware logo. Renders a single `<Image>` based on the current theme.
+ * Because `useTheme()` initializes from the server-resolved cookie, the
+ * src is correct from the very first render — no dual fetch, no hydration
+ * mismatch. Edge case: first-time visitors with no cookie whose OS prefers
+ * dark see a brief flash of the light logo before the bootstrap script
+ * flips the theme; subsequent visits are pixel-perfect.
+ */
 export function Logo({
   width = 200,
   height = 40,
@@ -26,34 +34,26 @@ export function Logo({
   inverted,
 }: LogoProps) {
   const { mode } = useTheme();
-  const [useFallback, setUseFallback] = useState(false);
   const useInverted = inverted ?? mode === 'dark';
+  const primarySrc = useInverted ? LOGO_INVERTED_PATH : LOGO_PATH;
+  const fallbackSrc = useInverted ? LOGO_PATH : LOGO_INVERTED_PATH;
 
-  // Reset fallback when the logo variant changes (theme toggle or navigation)
+  const [useFallback, setUseFallback] = useState(false);
+
+  // Reset fallback when the active variant changes (e.g., theme toggle)
   useEffect(() => {
     setUseFallback(false);
   }, [useInverted]);
-  const getPrimarySrc = () => useInverted ? LOGO_INVERTED_PATH : LOGO_PATH;
-  const getFallbackSrc = () => useInverted ? LOGO_PATH : LOGO_INVERTED_PATH;
-
-  const src = useFallback ? getFallbackSrc() : getPrimarySrc();
-
-  const handleError = () => {
-    // If primary logo fails, try the fallback
-    if (!useFallback) {
-      setUseFallback(true);
-    }
-  };
 
   return (
     <Image
-      src={src}
+      src={useFallback ? fallbackSrc : primarySrc}
       alt={alt || `${seoConfig.siteName} Logo`}
       width={width}
       height={height}
       className={className}
       priority={priority}
-      onError={handleError}
+      onError={() => setUseFallback(true)}
     />
   );
 }

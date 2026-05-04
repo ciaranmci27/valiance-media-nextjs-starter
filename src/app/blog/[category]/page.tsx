@@ -86,11 +86,11 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
       <PageWrapper className="py-8 sm:py-12 lg:py-16">
         {/* Page Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-4">
             {category.name}
           </h1>
           {category.description && (
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-text-secondary max-w-3xl mx-auto">
               {category.description}
             </p>
           )}
@@ -100,7 +100,7 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           <Link
             href="/blog"
-            className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 bg-primary-50 text-text-secondary rounded-full text-sm font-medium hover:text-primary transition-colors"
           >
             All Posts
           </Link>
@@ -108,10 +108,10 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
             <Link
               key={cat.slug}
               href={`/blog/${cat.slug}`}
-              className={`px-4 py-2 rounded-full font-medium transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 cat.slug === resolvedParams.category
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-text-on-primary'
+                  : 'bg-primary-50 text-text-secondary hover:text-primary'
               }`}
             >
               {cat.name}
@@ -128,7 +128,7 @@ export default async function CategoryOrPostPage({ params }: CategoryPageProps) 
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-text-secondary">
               No posts in this category yet.
             </p>
             <Link

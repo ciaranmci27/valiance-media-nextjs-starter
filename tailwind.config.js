@@ -46,6 +46,9 @@ module.exports = {
           secondary: 'var(--color-text-secondary)',
           tertiary: 'var(--color-text-tertiary)',
           inverse: 'var(--color-text-inverse)',
+          // Auto-contrast text color that flips black/white based on the
+          // lightness of --color-primary. Use on any element with bg-primary.
+          'on-primary': 'var(--color-text-on-primary)',
         },
         // Border colors
         border: {
@@ -72,22 +75,17 @@ module.exports = {
           light: 'var(--color-secondary-light)',
           dark: 'var(--color-secondary-dark)',
         },
-        // Premium accent
-        premium: {
-          DEFAULT: 'var(--color-premium)',
-          light: 'var(--color-premium-light)',
-          dark: 'var(--color-premium-dark)',
-        },
         // Semantic colors
         success: 'var(--color-success)',
         warning: 'var(--color-warning)',
-        danger: 'var(--color-danger)',
         error: 'var(--color-error)',
         info: 'var(--color-info)',
       },
       fontFamily: {
-        sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-geist-mono)', 'monospace'],
+        // Read CSS-var token system. Defaults defined in globals.css :root.
+        sans: ['var(--font-sans)'],
+        heading: ['var(--font-heading)'],
+        mono: ['var(--font-mono)'],
       },
       animation: {
         'fade-up': 'fadeUp 0.5s ease-out',

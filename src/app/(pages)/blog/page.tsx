@@ -39,10 +39,10 @@ export default async function BlogPage() {
     <PageWrapper className="py-8 sm:py-12 lg:py-16">
       {/* Page Header */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-4">
           Our Blog
         </h1>
-        <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+        <p className="text-lg sm:text-xl text-text-secondary max-w-3xl mx-auto">
           Insights, tutorials, and updates from the {seoConfig.siteName || 'Valiance Media'} team
         </p>
       </div>
@@ -52,7 +52,7 @@ export default async function BlogPage() {
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           <Link
             href="/blog"
-            className="px-4 py-2 bg-primary text-white rounded-full font-medium hover:bg-primary-dark transition-colors"
+            className="px-4 py-2 bg-primary text-text-on-primary rounded-full text-sm font-medium transition-colors"
           >
             All Posts
           </Link>
@@ -60,7 +60,7 @@ export default async function BlogPage() {
             <Link
               key={category.slug}
               href={`/blog/${category.slug}`}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 bg-primary-50 text-text-secondary rounded-full text-sm font-medium hover:text-primary transition-colors"
             >
               {category.name}
             </Link>

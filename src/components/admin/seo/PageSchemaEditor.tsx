@@ -624,7 +624,7 @@ function FAQSchemaForm({
                   borderRadius: 'var(--radius-sm)',
                   transition: 'color 150ms ease',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-danger)')}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-error)')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-tertiary)')}
               >
                 <TrashIcon className="w-3.5 h-3.5" />
@@ -767,7 +767,7 @@ function HowToSchemaForm({
                     borderRadius: 'var(--radius-sm)',
                     transition: 'color 150ms ease',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-danger)')}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-error)')}
                   onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-tertiary)')}
                 >
                   <TrashIcon className="w-3.5 h-3.5" />

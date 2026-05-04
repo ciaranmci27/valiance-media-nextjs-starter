@@ -97,7 +97,7 @@ export function Footer({
   const { mode, toggleTheme } = useTheme();
 
   return (
-    <footer className="relative border-t border-gray-200/30 dark:border-gray-700/30">
+    <footer className="relative border-t border-border-medium">
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8">
         {/* Mobile/Tablet: Stacked Layout */}
@@ -108,7 +108,7 @@ export function Footer({
               <Logo width={180} height={36} className="h-9 w-auto" />
             </Link>
             {showBrandDescription && (
-              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto sm:mx-0">
+              <p className="text-text-secondary mb-6 max-w-md mx-auto sm:mx-0">
                 {brandDescription}
               </p>
             )}
@@ -120,7 +120,7 @@ export function Footer({
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center hover:bg-primary hover:text-white dark:hover:bg-primary transition-colors"
+                  className="w-10 h-10 rounded-full bg-surface border border-border-medium flex items-center justify-center hover:bg-primary hover:text-text-on-primary hover:border-primary transition-colors"
                   aria-label={social.label}
                 >
                   {social.icon}
@@ -133,7 +133,7 @@ export function Footer({
           <div className="grid grid-cols-2 sm:grid-cols-2 gap-6 sm:gap-8">
             {sections.map((section) => (
               <div key={section.title} className="min-w-0">
-                <p className="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-3 sm:mb-4">
                   {section.title}
                 </p>
                 <ul className="space-y-2 sm:space-y-3">
@@ -144,14 +144,14 @@ export function Footer({
                           href={link.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors text-sm sm:text-base"
+                          className="text-text-secondary hover:text-primary transition-colors text-sm sm:text-base"
                         >
                           {link.label}
                         </a>
                       ) : (
                         <Link
                           href={link.href}
-                          className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors text-sm sm:text-base"
+                          className="text-text-secondary hover:text-primary transition-colors text-sm sm:text-base"
                         >
                           {link.label}
                         </Link>
@@ -172,7 +172,7 @@ export function Footer({
               <Logo width={180} height={36} className="h-9 w-auto" />
             </Link>
             {showBrandDescription && (
-              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-sm">
+              <p className="text-text-secondary mb-6 max-w-sm">
                 {brandDescription}
               </p>
             )}
@@ -184,7 +184,7 @@ export function Footer({
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center hover:bg-primary hover:text-white dark:hover:bg-primary transition-colors"
+                  className="w-10 h-10 rounded-full bg-surface border border-border-medium flex items-center justify-center hover:bg-primary hover:text-text-on-primary hover:border-primary transition-colors"
                   aria-label={social.label}
                 >
                   {social.icon}
@@ -196,7 +196,7 @@ export function Footer({
           {/* Links Sections - Takes 4 columns (1 each) */}
           {sections.map((section) => (
             <div key={section.title} className="min-w-0">
-              <p className="font-semibold text-gray-900 dark:text-white mb-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-4">
                 {section.title}
               </p>
               <ul className="space-y-3">
@@ -207,14 +207,14 @@ export function Footer({
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
+                        className="text-text-secondary hover:text-primary transition-colors"
                       >
                         {link.label}
                       </a>
                     ) : (
                       <Link
                         href={link.href}
-                        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
+                        className="text-text-secondary hover:text-primary transition-colors"
                       >
                         {link.label}
                       </Link>
@@ -227,7 +227,7 @@ export function Footer({
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-8 sm:mt-12 py-6 sm:pt-8 border-t border-gray-200/50 dark:border-gray-700/50">
+        <div className="mt-8 sm:mt-12 py-6 border-t border-border-medium">
           {/* Mobile/Tablet: Stacked Layout */}
           <div className="lg:hidden flex flex-col space-y-4 sm:space-y-6">
             {/* Bottom Links */}
@@ -239,24 +239,26 @@ export function Footer({
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
+                      className="text-text-secondary hover:text-primary transition-colors"
                     >
                       {link.label}
                     </a>
                   ) : (
                     <Link
                       href={link.href}
-                      className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
+                      className="text-text-secondary hover:text-primary transition-colors"
                     >
                       {link.label}
                     </Link>
                   )}
                   {index < bottomLinks.length - 1 && (
-                    <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">•</span>
+                    <span className="text-text-tertiary hidden sm:inline">•</span>
                   )}
                 </React.Fragment>
               ))}
-              {/* Theme Toggle */}
+              {/* Theme toggle. Single <Image> based on `mode` — server renders
+                  the correct icon thanks to the cookie-resolved initial theme,
+                  so no dual fetch and no hydration mismatch on returning visits. */}
               <button
                 onClick={toggleTheme}
                 aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -274,7 +276,7 @@ export function Footer({
 
             {/* Copyright */}
             <div className="text-center sm:text-left">
-              <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+              <p className="text-text-secondary text-xs sm:text-sm">
                 {copyrightText}
               </p>
             </div>
@@ -283,7 +285,7 @@ export function Footer({
           {/* Desktop: Horizontal Layout */}
           <div className="hidden lg:flex lg:justify-between lg:items-center">
             {/* Copyright - Left Side */}
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
+            <p className="text-text-secondary text-sm mb-0">
               {copyrightText}
             </p>
             
@@ -296,21 +298,21 @@ export function Footer({
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
+                      className="text-text-secondary hover:text-primary transition-colors"
                     >
                       {link.label}
                     </a>
                   ) : (
                     <Link
                       href={link.href}
-                      className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
+                      className="text-text-secondary hover:text-primary transition-colors"
                     >
                       {link.label}
                     </Link>
                   )}
                 </React.Fragment>
               ))}
-              {/* Theme Toggle */}
+              {/* Theme toggle — see mobile twin above for rationale */}
               <button
                 onClick={toggleTheme}
                 aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}

@@ -1097,7 +1097,7 @@ function StepNumber({ n }: { n: number }) {
         height: '28px',
         borderRadius: '50%',
         background: 'var(--color-primary)',
-        color: '#fff',
+        color: 'var(--color-text-on-primary)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

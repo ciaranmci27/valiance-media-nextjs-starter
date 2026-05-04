@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Respect the OS-level "reduce motion" preference. Disables all CSS
+   animations and transitions across the app for users with vestibular
+   disorders, migraines, or motion sensitivity. Effectively-instant
+   durations (0.01ms) instead of 0 so JS that listens for `transitionend`
+   still fires once. Industry-standard pattern (Tailwind UI, Vercel, Stripe). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Toast animations */
 @keyframes slide-in {
   from {
@@ -18,19 +32,557 @@
   animation: slide-in 0.3s ease-out;
 }
 
-/* Header scrolled state with design system colors */
-.header-scrolled {
-  background-color: rgba(250, 251, 252, 0.8); /* Fallback for older browsers */
-  background-color: color-mix(in srgb, var(--color-background) 80%, transparent);
+/* ============================================================
+   Site header — morphs from edge-to-edge transparent into a
+   floating glass pill on scroll. Uses backdrop-blur, layered
+   inner sheen + warm drop shadow for the cloud-3D feel.
+   ============================================================ */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 14px 0;
+  background: transparent;
+  pointer-events: none;
+  transition: padding 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+}
+.site-header--scrolled { padding: 10px 0; }
+
+.site-header__inner {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 6px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+  transition:
+    max-width 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    padding 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    backdrop-filter 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    -webkit-backdrop-filter 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: max-width, background, border-radius, box-shadow;
+  -webkit-backface-visibility: hidden;
+}
+@media (min-width: 480px) {
+  .site-header__inner { padding: 6px 28px; gap: 24px; }
+}
+@media (min-width: 768px) {
+  .site-header__inner { padding: 6px 40px; }
+}
+.site-header--scrolled .site-header__inner {
+  max-width: min(1080px, calc(100% - 32px));
+  padding: 6px 10px 6px 18px;
+  /* Bg + sheen + blur all synced to the drawer for unified glass character. */
+  background: color-mix(in srgb, var(--color-background) 97%, transparent);
+  border-color: color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+  border-radius: 9999px;
+  backdrop-filter: blur(72px) saturate(240%);
+  -webkit-backdrop-filter: blur(72px) saturate(240%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 18px 44px -14px color-mix(in srgb, var(--color-text-primary) 22%, transparent),
+    0 4px 12px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+}
+[data-theme="dark"] .site-header--scrolled .site-header__inner,
+.dark .site-header--scrolled .site-header__inner {
+  /* Use the lifted surface token (--color-surface-elevated) instead of the
+     body bg so the pill reads as "elevated above black", and the 92% opacity
+     lets the body's atmospheric gradient bleed through for a richer glass feel. */
+  background: color-mix(in srgb, var(--color-surface-elevated) 92%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 44px -14px rgba(0, 0, 0, 0.60),
+    0 4px 12px rgba(0, 0, 0, 0.40);
+}
+@media (min-width: 480px) {
+  .site-header--scrolled .site-header__inner { padding: 6px 14px 6px 22px; }
+}
+@media (max-width: 768px) {
+  .site-header--scrolled .site-header__inner {
+    backdrop-filter: blur(40px) saturate(220%);
+    -webkit-backdrop-filter: blur(40px) saturate(220%);
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header--scrolled .site-header__inner { background: var(--color-background); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header,
+  .site-header__inner { transition: none !important; }
 }
 
-[data-theme="dark"] .header-scrolled,
-.dark .header-scrolled {
-  background-color: rgba(0, 0, 0, 0.85); /* Fallback for older browsers */
-  background-color: color-mix(in srgb, var(--color-background) 80%, transparent);
+.site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+/* Applied to the <Image> tags rendered by <Logo />. Overrides the default
+   h-10 sizing so the logo fits the header's compact pill on scroll and
+   responds to viewport width like HI's reference. */
+.site-header__logo-img {
+  width: auto;
+  height: clamp(28px, 2.6vw, 36px);
+  object-fit: contain;
+}
+@media (max-width: 480px) {
+  .site-header__logo-img { height: 26px; }
+}
+.site-header__nav {
+  display: none;
+  align-items: center;
+  gap: 28px;
+}
+@media (min-width: 900px) {
+  .site-header__nav { display: inline-flex; }
+}
+/* Matches the Footer's nav links: same size (14/16 responsive) and same
+   weight (400 regular). Interactivity is signaled by hover (color shift +
+   underline) rather than baseline weight — keeps nav editorial, leaves
+   the CTA pill (500) and section eyebrows (600) as the heavier elements. */
+.site-header__link {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+@media (min-width: 640px) {
+  .site-header__link { font-size: 16px; }
+}
+.site-header__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -6px;
+  height: 1px;
+  background: var(--color-primary);
+  transition: right 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.site-header__link:hover { color: var(--color-primary); }
+.site-header__link:hover::after { right: 0; }
+
+.site-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+/* Compound selector beats `.btn-pill { display: inline-flex }` which is
+   defined later in this file. Without this, the CTA pill stays visible
+   on mobile because btn-pill's display rule wins the cascade tie. */
+.btn-pill.site-header__cta { display: none; }
+@media (min-width: 900px) {
+  .btn-pill.site-header__cta { display: inline-flex; }
 }
 
-/* Valiance Media Design System CSS Variables */
+.site-header__menu {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border-medium);
+  background: var(--color-surface);
+  cursor: pointer;
+  padding: 0;
+}
+@media (min-width: 900px) {
+  .site-header__menu { display: none; }
+}
+.site-header__menu-line {
+  display: block;
+  width: 16px;
+  height: 2px;
+  background: var(--color-text-primary);
+  border-radius: 999px;
+  transform-origin: 50% 50%;
+  /* GPU-promote so rotation interpolation doesn't sub-pixel-shift the
+     perceived line weight mid-animation. */
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* X geometry: 2px line + 4px flex gap = 6px between line centers, so the
+   top and bottom lines need a 6px translate to meet at the middle line's
+   position before rotating. */
+.site-header__menu--open .site-header__menu-line--top { transform: translate3d(0, 6px, 0) rotate(45deg); }
+.site-header__menu--open .site-header__menu-line--mid { opacity: 0; transform: scaleX(0) translateZ(0); }
+.site-header__menu--open .site-header__menu-line--bot { transform: translate3d(0, -6px, 0) rotate(-45deg); }
+
+.site-header__drawer {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: calc(100% - 32px);
+  max-width: 1080px;
+  margin: 8px auto 0;
+  background: color-mix(in srgb, var(--color-background) 97%, transparent);
+  backdrop-filter: blur(72px) saturate(240%);
+  -webkit-backdrop-filter: blur(72px) saturate(240%);
+  /* Translucent border matches the scrolled header's glass edge. */
+  border: 1px solid color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+  border-radius: 24px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 18px 44px -14px color-mix(in srgb, var(--color-text-primary) 22%, transparent),
+    0 4px 12px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+  max-height: 0;
+  padding: 0 22px;
+  opacity: 0;
+  transform: translateY(-6px);
+  overflow: hidden;
+  visibility: hidden;
+  transition:
+    max-height 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    padding 340ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 380ms;
+}
+.site-header__drawer--open {
+  max-height: 520px;
+  padding: 14px 22px 18px;
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  transition:
+    max-height 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    padding 340ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0s;
+}
+[data-theme="dark"] .site-header__drawer,
+.dark .site-header__drawer {
+  /* Same dark-glass treatment as the scrolled header — lifted surface
+     token, 92% opacity for backdrop bleed, brighter top sheen. */
+  background: color-mix(in srgb, var(--color-surface-elevated) 92%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 44px -14px rgba(0, 0, 0, 0.6),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+}
+@media (max-width: 768px) {
+  .site-header__drawer {
+    backdrop-filter: blur(40px) saturate(220%);
+    -webkit-backdrop-filter: blur(40px) saturate(220%);
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header__drawer { background: var(--color-background); }
+}
+.site-header__drawer-link {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+/* Drop the bottom border on the last drawer-link, regardless of whether
+   a CTA pill follows it. The previous `:last-of-type` selector matched
+   no element when the CTA was present (since the CTA is also an <a>),
+   leaving an unwanted hairline above the CTA. `:has(~ ...)` checks
+   following siblings of the same class — so this matches "drawer-link
+   that has no drawer-link after it." */
+.site-header__drawer-link:not(:has(~ .site-header__drawer-link)) {
+  border-bottom: none;
+}
+.site-header__drawer .btn-pill { margin-top: 8px; align-self: stretch; justify-content: center; }
+/* On desktop the hamburger is hidden, so an open drawer becomes
+   unclosable. Force it hidden at the same breakpoint. */
+@media (min-width: 900px) {
+  .site-header__drawer { display: none; }
+}
+
+/* ============================================================
+   Pill buttons — primary (polished ink) + ghost (frosted glass).
+   The 3D feel comes from a top specular highlight, a bottom
+   inner shadow, and a soft drop shadow that intensifies on hover.
+   Inverts in dark mode (light pill on dark bg).
+   ============================================================ */
+.btn-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+    0 8px 22px -8px color-mix(in srgb, var(--color-primary) 45%, transparent),
+    0 1px 0 color-mix(in srgb, var(--color-primary) 8%, transparent);
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-pill:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--color-primary) 92%, #000);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+    0 14px 30px -8px color-mix(in srgb, var(--color-primary) 55%, transparent),
+    0 1px 0 color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+.btn-pill:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+.btn-pill:disabled,
+.btn-pill[aria-disabled="true"],
+.btn-pill-ghost:disabled,
+.btn-pill-ghost[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn-pill--lg {
+  padding: 16px 22px;
+  font-size: 15px;
+  gap: 10px;
+}
+.site-header .btn-pill { padding: 10px 16px; font-size: 13px; }
+@media (min-width: 480px) {
+  .site-header .btn-pill { padding: 12px 18px; font-size: 14px; }
+}
+
+[data-theme="dark"] .btn-pill,
+.dark .btn-pill {
+  border-color: rgba(0, 0, 0, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.40),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.20),
+    0 8px 22px -8px rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(0, 0, 0, 0.20);
+}
+[data-theme="dark"] .btn-pill:hover,
+.dark .btn-pill:hover {
+  background: color-mix(in srgb, var(--color-primary) 92%, #fff);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.50),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.20),
+    0 14px 30px -8px rgba(0, 0, 0, 0.65),
+    0 1px 0 rgba(0, 0, 0, 0.20);
+}
+
+.btn-pill-ghost {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--color-background) 55%, transparent);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-heavy);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 0 color-mix(in srgb, var(--color-text-primary) 10%, transparent),
+    0 8px 22px -8px color-mix(in srgb, var(--color-text-primary) 20%, transparent),
+    0 1px 0 color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-pill-ghost:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--color-background) 85%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 color-mix(in srgb, var(--color-text-primary) 12%, transparent),
+    0 14px 30px -8px color-mix(in srgb, var(--color-text-primary) 26%, transparent),
+    0 1px 0 color-mix(in srgb, var(--color-text-primary) 5%, transparent);
+}
+.btn-pill-ghost:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 3px;
+}
+.btn-pill-ghost--lg {
+  padding: 16px 22px;
+  font-size: 15px;
+  gap: 10px;
+}
+[data-theme="dark"] .btn-pill-ghost,
+.dark .btn-pill-ghost {
+  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  border-color: var(--color-border-medium);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+    0 8px 22px -8px rgba(0, 0, 0, 0.50),
+    0 1px 0 rgba(0, 0, 0, 0.20);
+}
+[data-theme="dark"] .btn-pill-ghost:hover,
+.dark .btn-pill-ghost:hover {
+  background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+    0 14px 30px -8px rgba(0, 0, 0, 0.60),
+    0 1px 0 rgba(0, 0, 0, 0.20);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .btn-pill-ghost { background: var(--color-surface); }
+}
+
+/* ============================================================
+   Rectangular CTAs — utility/error-page buttons. Same brand
+   cascade as pills, different shape (rounded rectangle vs full
+   pill) for non-marketing contexts (404, error, empty states).
+   Three variants share a base rule, each layers its own colors:
+     .btn-rect          primary (filled brand color)
+     .btn-rect-tinted   tinted brand surface (low contrast bg)
+     .btn-rect-outline  outlined (surface bg + visible border)
+   ============================================================ */
+.btn-rect,
+.btn-rect-tinted,
+.btn-rect-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base);
+}
+.btn-rect {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+}
+.btn-rect:hover { background: var(--color-primary-dark); }
+.btn-rect-tinted {
+  background: var(--color-primary-50);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+.btn-rect-tinted:hover { background: var(--color-primary-100); }
+.btn-rect-outline {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+.btn-rect-outline:hover { background: var(--color-primary-50); }
+.btn-rect:focus-visible,
+.btn-rect-tinted:focus-visible,
+.btn-rect-outline:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.btn-rect:disabled,
+.btn-rect[aria-disabled="true"],
+.btn-rect-tinted:disabled,
+.btn-rect-tinted[aria-disabled="true"],
+.btn-rect-outline:disabled,
+.btn-rect-outline[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ============================================================
+   Valiance Media Design System
+   ------------------------------------------------------------
+   REBRAND IN 60 SECONDS
+
+   Color — change one token, the whole site tracks:
+     --color-primary       brand (CTAs, links, focus, nav hover)
+     --color-secondary     accent (badges, highlights)
+     --color-background    page surface
+     --color-text-primary  body text
+
+   Pick any brand color (yellow, navy, lime, hot pink) — button text
+   stays readable. --color-text-on-primary auto-flips between pure
+   black and pure white based on the brand color's lightness.
+
+   WCAG note: the auto-contrast threshold (0.7) biases toward white text
+   for chromatic brand colors, which is visually correct but can produce
+   borderline AA contrast (3.0–3.5:1) on mid-tone brands with the default
+   pill text size (14px medium = "small text" per WCAG, requiring 4.5:1).
+   If you ship to a strict-AA audience, verify white-text contrast at
+   webaim.org/resources/contrastchecker after rebranding, and override
+   --color-text-on-primary: #000000 (or any value) if the math picks
+   wrong for your brand.
+
+   Typography — three font slots, all default to one family:
+     --font-sans      body, UI, paragraphs
+     --font-heading   h1–h6 (defaults to --font-sans)
+     --font-mono      code blocks
+   Set --font-heading to a display font to specialize headings
+   without touching component code. Load custom Google fonts via
+   next/font in src/app/layout.tsx.
+
+   Everything else (50–900 scales, text-secondary, borders,
+   surfaces, shadows) is derived or neutral by design.
+   Tailwind utilities (bg-primary, text-text-primary, font-heading,
+   etc.) all read these tokens — no rebuild needed after edits.
+
+   Inputs + feedback (src/components/ui/inputs, src/components/ui/feedback)
+   are self-contained component banks. Their tokens are declared in
+   their own Tailwind presets, which cascade from the brand tokens
+   above. Drop those directories into another codebase and they style
+   themselves — see each preset's header comment for the cascade rules.
+   ============================================================ */
 :root {
   /* Layout dimensions */
   --header-height: 5rem;
@@ -41,13 +593,15 @@
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-inset-left: env(safe-area-inset-left, 0px);
 
-  /* Light theme colors - Editorial Teal/Copper */
+  /* ----- Brand colors (the canonical "rebrand" tokens) ----- */
   --color-primary: #5B8A8A;
   --color-primary-light: #7BA3A3;
   --color-primary-dark: #4A7272;
   --color-secondary: #C5A68F;
-  
-  /* Primary color palette - Teal editorial palette */
+  --color-secondary-light: #D4BBA8;
+  --color-secondary-dark: #A88B74;
+
+  /* Primary 50–900 scale — used by Tailwind utilities (bg-primary-100, etc.) */
   --color-primary-50: #F0F5F5;
   --color-primary-100: #E0EBEB;
   --color-primary-200: #C2D6D6;
@@ -58,63 +612,57 @@
   --color-primary-700: #3A5A5A;
   --color-primary-800: #2A4242;
   --color-primary-900: #1A2A2A;
-  
-  /* Secondary colors - Copper */
-  --color-secondary-main: #C5A68F;
-  --color-secondary-light: #D4BBA8;
-  --color-secondary-dark: #A88B74;
-  
-  /* Premium colors (teal accent) */
-  --color-premium: #5B8A8A;
-  --color-premium-light: #7BA3A3;
-  --color-premium-dark: #4A7272;
-  
-  /* Semantic aliases */
-  --color-danger: #DC2626;
-  
-  /* Base colors - Updated to match mobile app */
-  --color-background: #FAFBFC; /* Ultra-light with hint of blue */
-  --color-surface: #FFFFFF;
-  --color-surface-elevated: #FFFFFF;
-  
-  /* Text colors */
-  --color-text-primary: #0F172A; /* Deep slate */
-  --color-text-secondary: #475569; /* Medium slate */
-  --color-text-tertiary: #94A3B8; /* Light slate */
-  --color-text-disabled: #CBD5E1; /* Disabled/muted elements */
-  --color-text-inverse: #FFFFFF;
-  
-  /* Border colors */
+
+  /* ----- Surfaces ----- */
+  --color-background: #FAFBFC;          /* page */
+  --color-surface: #FFFFFF;              /* cards, inputs */
+  --color-surface-elevated: #FFFFFF;     /* modals, popovers */
+
+  /* ----- Text ----- */
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94A3B8;
+  --color-text-disabled: #CBD5E1;
+  --color-text-inverse: #FFFFFF;         /* used on dark/neutral inverse surfaces */
+
+  /* Auto-contrast: picks pure black or pure white based on the brand
+     color's OKLCH lightness. The 0.7 threshold is the Apple HIG /
+     Material Design convention — biases toward white text so chromatic
+     brand colors (teal, navy, hot pink, indigo) read as confident
+     primary actions, while genuinely-light tints (yellow, lime, pastels)
+     still flip to black for readability.
+     Trade-off: borderline WCAG AA contrast (3.0:1) on very light brand
+     colors with small text; pure black flips for any l > 0.7.
+     Override --color-text-on-primary directly if you want a specific
+     color regardless of the math.
+     The hardcoded #FFFFFF below is a fallback for browsers without
+     oklch() relative-color-syntax (older Firefox ESR, some WebViews) —
+     supporting browsers use the OKLCH expression on the next line. */
+  --color-text-on-primary: #FFFFFF;
+  --color-text-on-primary: oklch(from var(--color-primary) calc((0.7 - l) * 1e9) 0 0);
+  /* No --color-text-on-error: error is always red, white text is the
+     convention. Buttons hardcode #FFFFFF directly. */
+
+  /* ----- Borders ----- */
   --color-border-light: #F1F5F9;
   --color-border-medium: #E2E8F0;
   --color-border-heavy: #CBD5E1;
-  --color-border-accent: #5B8A8A;
+  --color-border-accent: var(--color-primary);
 
-  /* Semantic colors */
+  /* ----- Semantic status ----- */
   --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-error: #EF4444;
-  --color-info: #5B8A8A;
-  
-  /* Overlay colors for transparency effects */
+  --color-info: var(--color-primary);
+
+  /* ----- Overlays + shadows (theme-neutral, physical lighting) ----- */
   --color-overlay-light: rgba(0, 0, 0, 0.02);
-  --color-overlay-medium: rgba(0, 0, 0, 0.1);
+  --color-overlay-medium: rgba(0, 0, 0, 0.10);
   --color-overlay-heavy: rgba(0, 0, 0, 0.15);
-  
-  /* Shadow definitions */
   --shadow-light: rgba(0, 0, 0, 0.06);
-  --shadow-medium: rgba(0, 0, 0, 0.1);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
-  
-  /* Background gradient colors - Teal */
-  --gradient-primary-rgb: 91, 138, 138; /* Teal RGB */
-  --gradient-secondary-rgb: 123, 163, 163; /* Teal-light RGB */
-  --gradient-accent-rgb: 197, 166, 143; /* Copper RGB */
-  
-  /* Spacing */
+  --shadow-medium: rgba(0, 0, 0, 0.10);
+
+  /* ----- Spacing ----- */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
@@ -122,31 +670,42 @@
   --spacing-xl: 32px;
   --spacing-xxl: 48px;
   --spacing-xxxl: 64px;
-  
-  /* Border radius */
+
+  /* ----- Border radius ----- */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-2xl: 24px;
   --radius-full: 9999px;
-  
-  /* Transitions */
+
+  /* ----- Transitions ----- */
   --transition-fast: 150ms ease;
   --transition-base: 200ms ease;
-  --transition-slow: 300ms ease;
-  
-  /* Typography variables */
+
+  /* ----- Typography -----
+     Three font slots. By default everything uses the same family
+     (--font-sans) — set --font-heading to a display font (e.g.
+     Bricolage Grotesque, Playfair) to specialize headings without
+     touching any component code.
+     The --font-geist-* vars come from next/font in src/app/layout.tsx;
+     swap them there to use a different family from Google Fonts. */
+  --font-sans: var(--font-geist-sans, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif);
+  --font-heading: var(--font-sans);
+  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace);
+
   --text-h1-size: 48px;
   --text-h1-line-height: 1.2;
   --text-h1-weight: 700;
   --text-h1-letter-spacing: -0.01em;
-  
+
   --text-h2-size: 36px;
   --text-h2-line-height: 1.3;
   --text-h2-weight: 700;
   --text-h2-letter-spacing: -0.01em;
-  
+
   --text-h3-size: 30px;
   --text-h3-line-height: 1.3;
   --text-h3-weight: 600;
@@ -155,18 +714,14 @@
   --text-h4-size: 24px;
   --text-h4-line-height: 1.4;
   --text-h4-weight: 600;
-  
+
   --text-h5-size: 20px;
   --text-h5-line-height: 1.4;
   --text-h5-weight: 600;
-  
+
   --text-h6-size: 18px;
   --text-h6-line-height: 1.5;
   --text-h6-weight: 600;
-  
-  --text-body1-size: 16px;
-  --text-body1-line-height: 1.6;
-  --text-body1-weight: 400;
 
   --text-body-lg-size: 18px;
   --text-body-lg-line-height: 1.6;
@@ -185,62 +740,61 @@
   --text-label-weight: 500;
   --text-label-letter-spacing: 0.02em;
   --text-label-text-transform: uppercase;
+
+  /* Input + feedback component tokens (--input-*, --fb-*) are declared
+     in their respective Tailwind presets:
+       src/components/ui/inputs/inputs.preset.js
+       src/components/ui/feedback/feedback.preset.js
+     Each preset uses a 3-tier fallback: per-component override → brand
+     token (--color-primary etc.) → hardcoded default. Editing brand
+     tokens above auto-cascades into every input and toast.
+     To override a single component token, declare it here:
+       :root { --input-border-focus: red; } */
 }
 
-/* Dark theme overrides */
+/* Dark theme — only the values that need to flip live here.
+   Everything else is inherited from :root. */
 [data-theme="dark"],
 .dark {
+  /* Brand color shifts lighter in dark mode for contrast */
   --color-primary: #7BA3A3;
   --color-primary-light: #A3C2C2;
   --color-primary-dark: #5B8A8A;
-  
-  /* Base colors - Premium SaaS dark */
-  --color-background: #000000; /* True black */
-  --color-surface: #0A0A0A; /* Barely lifted */
-  --color-surface-elevated: #141414; /* Cards/modals */
 
-  /* Text colors */
-  --color-text-primary: #ECECEC; /* Crisp but not harsh */
-  --color-text-secondary: #8B8B8B; /* Muted mid-gray */
-  --color-text-tertiary: #555555; /* Subtle */
-  --color-text-disabled: #333333; /* Disabled/muted elements */
-  --color-text-inverse: #000000; /* Dark text for light surfaces */
-  
-  /* Border colors */
-  --color-border-light: rgba(255, 255, 255, 0.1);
-  --color-border-medium: rgba(255, 255, 255, 0.2);
-  --color-border-heavy: rgba(255, 255, 255, 0.3);
-  --color-border-accent: #7BA3A3;
+  /* Surfaces — elevated bumped to #1F1F1F (~12% lightness) so cards,
+     drawers, and the scrolled header pill read as clearly lifted above
+     the #000 body. Matches the lift Vercel/Linear use on dark surfaces. */
+  --color-background: #000000;
+  --color-surface: #0A0A0A;
+  --color-surface-elevated: #1F1F1F;
 
-  /* Primary palette - Dark mode variants */
-  --color-primary-50: rgba(91, 138, 138, 0.1);
-  --color-primary-100: rgba(91, 138, 138, 0.2);
-  --color-primary-200: rgba(91, 138, 138, 0.3);
-  --color-primary-300: rgba(91, 138, 138, 0.4);
-  --color-primary-400: #7BA3A3;
-  --color-primary-500: #5B8A8A;
-  --color-primary-600: #4A7272;
-  --color-primary-700: #3A5A5A;
-  --color-primary-800: #2A4242;
-  --color-primary-900: #1A2A2A;
-  
-  /* Overlay colors - Dark mode */
+  /* Text */
+  --color-text-primary: #ECECEC;
+  --color-text-secondary: #8B8B8B;
+  --color-text-tertiary: #555555;
+  --color-text-disabled: #333333;
+  --color-text-inverse: #000000;
+
+  /* Borders — translucent white tuned to match the contrast of the light-mode
+     hex borders against their respective backgrounds. (Lower alphas because
+     pure black amplifies translucent white more than near-white amplifies
+     pale gray.) */
+  --color-border-light: rgba(255, 255, 255, 0.06);
+  --color-border-medium: rgba(255, 255, 255, 0.12);
+  --color-border-heavy: rgba(255, 255, 255, 0.22);
+
+  /* Primary 50–300 use alpha overlays in dark mode for tinting */
+  --color-primary-50: rgba(91, 138, 138, 0.10);
+  --color-primary-100: rgba(91, 138, 138, 0.20);
+  --color-primary-200: rgba(91, 138, 138, 0.30);
+  --color-primary-300: rgba(91, 138, 138, 0.40);
+
+  /* Overlays + shadows — heavier in dark mode for visibility */
   --color-overlay-light: rgba(255, 255, 255, 0.02);
-  --color-overlay-medium: rgba(255, 255, 255, 0.1);
+  --color-overlay-medium: rgba(255, 255, 255, 0.10);
   --color-overlay-heavy: rgba(255, 255, 255, 0.15);
-  
-  /* Shadow definitions - Dark mode */
-  --shadow-light: rgba(0, 0, 0, 0.2);
-  --shadow-medium: rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
-  
-  /* Dark theme gradient colors (slightly adjusted for dark mode) */
-  --gradient-primary-rgb: 91, 138, 138; /* Teal RGB */
-  --gradient-secondary-rgb: 123, 163, 163; /* Teal-light RGB */
-  --gradient-accent-rgb: 197, 166, 143; /* Copper RGB */
+  --shadow-light: rgba(0, 0, 0, 0.20);
+  --shadow-medium: rgba(0, 0, 0, 0.30);
 }
 
 /* Base styles */
@@ -272,63 +826,44 @@ html {
 }
 
 body {
-  /* Base background color - exactly like mobile app */
-  background-color: #FAFBFC; /* Light theme default */
+  background-color: var(--color-background);
   color: var(--color-text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.5;
-  transition: background-color var(--transition-base), color var(--transition-base);
-  /* Fallback for browsers that don't support dvh */
+  /* dvh fallback chain for iOS Safari URL-bar resize */
   min-height: 100vh;
-  /* Use dynamic viewport height for iOS Safari URL bar support */
   min-height: 100dvh;
   position: relative;
-  /* Extend background into safe areas on iOS */
   padding: 0;
   margin: 0;
 }
 
-/* Dark theme background color */
-[data-theme="dark"] body,
-.dark body {
-  background-color: #000000; /* Dark theme background */
-}
-
-/* Multi-layer background gradient - exactly matching mobile app LinearGradient */
+/* Atmospheric brand-tinted gradient behind every page */
 body::before {
   content: '';
   position: fixed;
-  /* Extend into safe areas on iOS */
   top: calc(-1 * var(--safe-area-inset-top));
   left: calc(-1 * var(--safe-area-inset-left));
   right: calc(-1 * var(--safe-area-inset-right));
   bottom: calc(-1 * var(--safe-area-inset-bottom));
-  /* Use dynamic viewport units with safe area padding */
   width: calc(100vw + var(--safe-area-inset-left) + var(--safe-area-inset-right));
-  /* Fallback for browsers that don't support dvh */
   height: calc(100vh + var(--safe-area-inset-top) + var(--safe-area-inset-bottom));
-  /* Use dynamic viewport height for iOS Safari URL bar support */
   height: calc(100dvh + var(--safe-area-inset-top) + var(--safe-area-inset-bottom));
-  /* Light theme gradient - using blue theme */
   background: linear-gradient(
     135deg,
-    rgba(var(--gradient-primary-rgb), 0.05) 0%,
-    rgba(var(--gradient-secondary-rgb), 0.03) 50%,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 0%,
+    color-mix(in srgb, var(--color-primary-light) 3%, transparent) 50%,
     transparent 100%
   );
   pointer-events: none;
   z-index: 0;
 }
-
-/* Dark theme gradient overlay */
 [data-theme="dark"] body::before,
 .dark body::before {
   background: linear-gradient(
     135deg,
-    rgba(var(--gradient-primary-rgb), 0.1) 0%,
-    rgba(var(--gradient-secondary-rgb), 0.05) 50%,
+    color-mix(in srgb, var(--color-primary) 10%, transparent) 0%,
+    color-mix(in srgb, var(--color-primary-light) 5%, transparent) 50%,
     transparent 100%
   );
 }
@@ -406,15 +941,6 @@ body > * {
   color: #FCD34D;
 }
 
-.badge-premium {
-  background: #F0FDFA;
-  color: #134E4A;
-}
-
-[data-theme="dark"] .badge-premium {
-  background: rgba(91, 138, 138, 0.2);
-  color: #7BA3A3;
-}
 
 /* Table Hover Effects */
 .hover-row {
@@ -477,245 +1003,75 @@ body > * {
   text-transform: var(--text-label-text-transform);
 }
 
-/* Utility class for multi-layer background on specific containers */
-.multi-layer-bg {
-  position: relative;
-  background: var(--color-background);
-}
-
-.multi-layer-bg::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(var(--gradient-primary-rgb), 0.15) 0%,
-    rgba(var(--gradient-secondary-rgb), 0.08) 50%,
-    rgba(var(--gradient-primary-rgb), 0.05) 100%
-  );
-  pointer-events: none;
-  z-index: -1;
-}
-
-[data-theme="dark"] .multi-layer-bg::before,
-.dark .multi-layer-bg::before {
-  background: linear-gradient(
-    135deg,
-    rgba(var(--gradient-primary-rgb), 0.25) 0%,
-    rgba(var(--gradient-secondary-rgb), 0.12) 50%,
-    rgba(var(--gradient-primary-rgb), 0.08) 100%
-  );
-}
-
-/* Additional fallback for older browsers */
-@supports not (background: linear-gradient(135deg, rgba(91, 138, 138, 0.15) 0%, rgba(123, 163, 163, 0.08) 50%, rgba(91, 138, 138, 0.05) 100%)) {
-  body::before {
-    background: rgba(var(--gradient-primary-rgb), 0.08);
-  }
-  
-  [data-theme="dark"] body::before,
-  .dark body::before {
-    background: rgba(var(--gradient-primary-rgb), 0.1);
-  }
-
-  .multi-layer-bg::before {
-    background: rgba(var(--gradient-primary-rgb), 0.08);
-  }
-
-  [data-theme="dark"] .multi-layer-bg::before,
-  .dark .multi-layer-bg::before {
-    background: rgba(var(--gradient-primary-rgb), 0.15);
-  }
-}
-
-/* Base heading styles */
-h1 {
-  font-size: var(--text-h1-size, 48px);
-  line-height: var(--text-h1-line-height, 1.2);
-  font-weight: var(--text-h1-weight, 700);
-  letter-spacing: var(--text-h1-letter-spacing, -0.01em);
+/* Base heading styles — all use --font-heading (defaults to --font-sans
+   for a single-font system; override --font-heading to specialize). */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
   color: var(--color-text-primary);
+}
+
+h1 {
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-line-height);
+  font-weight: var(--text-h1-weight);
+  letter-spacing: var(--text-h1-letter-spacing);
   margin-bottom: var(--spacing-md);
 }
 
 h2 {
-  font-size: var(--text-h2-size, 36px);
-  line-height: var(--text-h2-line-height, 1.3);
-  font-weight: var(--text-h2-weight, 700);
-  letter-spacing: var(--text-h2-letter-spacing, -0.01em);
-  color: var(--color-text-primary);
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-line-height);
+  font-weight: var(--text-h2-weight);
+  letter-spacing: var(--text-h2-letter-spacing);
   margin-bottom: var(--spacing-md);
 }
 
 h3 {
-  font-size: var(--text-h3-size, 30px);
-  line-height: var(--text-h3-line-height, 1.3);
-  font-weight: var(--text-h3-weight, 600);
-  color: var(--color-text-primary);
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-line-height);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-letter-spacing);
   margin-bottom: var(--spacing-sm);
 }
 
 h4 {
-  font-size: var(--text-h4-size, 24px);
-  line-height: var(--text-h4-line-height, 1.4);
-  font-weight: var(--text-h4-weight, 600);
-  color: var(--color-text-primary);
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-line-height);
+  font-weight: var(--text-h4-weight);
   margin-bottom: var(--spacing-sm);
 }
 
 h5 {
-  font-size: var(--text-h5-size, 20px);
-  line-height: var(--text-h5-line-height, 1.4);
-  font-weight: var(--text-h5-weight, 600);
-  color: var(--color-text-primary);
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-line-height);
+  font-weight: var(--text-h5-weight);
   margin-bottom: var(--spacing-sm);
 }
 
 h6 {
-  font-size: var(--text-h6-size, 18px);
-  line-height: var(--text-h6-line-height, 1.5);
-  font-weight: var(--text-h6-weight, 600);
-  color: var(--color-text-primary);
+  font-size: var(--text-h6-size);
+  line-height: var(--text-h6-line-height);
+  font-weight: var(--text-h6-weight);
   margin-bottom: var(--spacing-sm);
 }
 
 p {
-  font-size: var(--text-body1-size, 16px);
-  line-height: var(--text-body1-line-height, 1.6);
-  font-weight: var(--text-body1-weight, 400);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
+  font-weight: var(--text-body-weight);
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-md);
 }
 
-/* Typography classes matching mobile app */
-.text-display1 {
-  font-size: 72px;
-  line-height: 1.1;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.text-display2 {
-  font-size: 60px;
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.text-h1 {
-  font-size: 48px;
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.text-h2 {
-  font-size: 36px;
-  line-height: 1.3;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.text-h3 {
-  font-size: 30px;
-  line-height: 1.3;
-  font-weight: 600;
-}
-
-.text-h4 {
-  font-size: 24px;
-  line-height: 1.4;
-  font-weight: 600;
-}
-
-.text-h5 {
-  font-size: 20px;
-  line-height: 1.4;
-  font-weight: 600;
-}
-
-.text-h6 {
-  font-size: 18px;
-  line-height: 1.5;
-  font-weight: 600;
-}
-
-.text-body1 {
-  font-size: 16px;
-  line-height: 1.6;
-  font-weight: 400;
-}
-
-.text-body2 {
-  font-size: 14px;
-  line-height: 1.5;
-  font-weight: 400;
-}
-
-.text-body3 {
-  font-size: 12px;
-  line-height: 1.5;
-  font-weight: 400;
-}
-
-/* Utility classes for shadows */
-.shadow-sm {
-  box-shadow: 0 1px 2px 0 var(--shadow-light);
-}
-
-.shadow-md {
-  box-shadow: 0 4px 6px -1px var(--shadow-medium), 0 2px 4px -1px var(--shadow-light);
-}
-
-.shadow-lg {
-  box-shadow: 0 10px 15px -3px var(--shadow-medium), 0 4px 6px -2px var(--shadow-light);
-}
-
-.shadow-xl {
-  box-shadow: 0 20px 25px -5px var(--shadow-medium), 0 10px 10px -5px var(--shadow-light);
-}
-
-/* Responsive design utilities */
+/* Mobile-down step for h1–h3.
+   The token-driven base sizes target desktop; these compress to a
+   smaller scale on phones. Edit the values to retune mobile typography. */
 @media (max-width: 640px) {
-  .text-display1 {
-    font-size: 48px;
-  }
-  
-  .text-display2 {
-    font-size: 40px;
-  }
-  
-  .text-h1 {
-    font-size: 36px;
-  }
-  
-  .text-h2 {
-    font-size: 30px;
-  }
-  
-  .text-h3 {
-    font-size: 24px;
-  }
+  h1, .text-h1 { font-size: 36px; }
+  h2, .text-h2 { font-size: 30px; }
+  h3, .text-h3 { font-size: 24px; }
 }
 
-/* Transitions for theme switching */
-* {
-  transition: background-color var(--transition-base), 
-              color var(--transition-base),
-              border-color var(--transition-base);
-}
-
-/* Smooth transitions for theme switching */
-body,
-body::before {
-  transition: background-color var(--transition-base), 
-              color var(--transition-base);
-}
-
-/* Card styles - padding utility (base .card is defined in Design System section above) */
 
 /* Container */
 .container {
@@ -725,29 +1081,211 @@ body::before {
   padding: 0 var(--spacing-lg);
 }
 
-/* Gradients */
+/* ============================================================
+   Legal page (Privacy / Terms / Cookies) — editorial layout
+   with massive display headline, sticky table-of-contents at
+   desktop, and numbered section eyebrows. Used by
+   <LegalPage /> in src/components/legal/LegalPage.tsx.
+   ============================================================ */
+.legal-page {
+  /* Page-level vertical padding. The fixed header is already cleared
+     by <main>'s paddingTop (5rem); these clamps add breathing space
+     above the title and below the contact card. */
+  padding-top: clamp(16px, 5vh, 60px);
+  padding-bottom: clamp(56px, 8vh, 96px);
+}
+.legal-page__head {
+  border-bottom: 1px solid var(--color-border-medium);
+  padding-bottom: clamp(40px, 5vh, 64px);
+  margin-bottom: clamp(56px, 5vh, 88px);
+}
+.legal-page__title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(56px, 9vw, 132px);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  color: var(--color-text-primary);
+  margin: 0;
+  text-wrap: balance;
+}
+.legal-page__sub {
+  margin: clamp(20px, 3vh, 32px) 0 0;
+  max-width: 64ch;
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  letter-spacing: -0.005em;
+}
+
+.legal-page__article {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(40px, 5vh, 64px);
+  max-width: 72ch;
+  margin: 0 auto;
+}
+@media (min-width: 1100px) {
+  .legal-page__article {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: clamp(48px, 6vw, 96px);
+    max-width: none;
+  }
+}
+
+.legal-page__toc { display: none; }
+@media (min-width: 1100px) {
+  .legal-page__toc {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: sticky;
+    top: 110px;
+    align-self: start;
+    padding-top: 4px;
+  }
+}
+.legal-page__toc-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.legal-page__toc-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  line-height: 1.4;
+  padding: 4px 0;
+  transition: color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.legal-page__toc-link:hover { color: var(--color-text-primary); }
+.legal-page__toc-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.18em;
+  flex-shrink: 0;
+  width: 22px;
+}
+
+.legal-page__body {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 5vh, 56px);
+}
+.legal-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-margin-top: 120px;
+}
+.legal-page__section-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+}
+.legal-page__section-title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+  margin: 0;
+  text-wrap: balance;
+}
+.legal-page__section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  letter-spacing: -0.005em;
+}
+.legal-page__section-body p {
+  margin: 0;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: inherit;
+}
+.legal-page__section-body h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: clamp(17px, 1.4vw, 20px);
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
+  margin: 8px 0 -2px;
+}
+.legal-page__section-body ul {
+  list-style: none;
+  margin: 4px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.legal-page__section-body li {
+  position: relative;
+  padding-left: 22px;
+  color: inherit;
+}
+.legal-page__section-body li::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 0.5lh;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 1px;
+  background: var(--color-primary);
+}
+.legal-page__section-body strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.legal-page__section-body a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-border-medium);
+  transition: border-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.legal-page__section-body a:hover { border-color: var(--color-text-primary); }
+
+.legal-page__contact-card {
+  margin-top: 8px;
+  padding: clamp(20px, 3vw, 28px);
+  background: var(--color-primary-50);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  line-height: 1.55;
+}
+.legal-page__contact-card strong {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Brand gradient — used by hero accents, etc. */
 .gradient-primary {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
 }
-
-.gradient-premium {
-  background: linear-gradient(135deg, var(--color-premium) 0%, var(--color-premium-dark) 100%);
-}
-
-/* Specific styles */
-.text-score {
-  font-size: 48px;
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: -1px;
-}
-
-.text-handicap {
-  font-size: 32px;
-  line-height: 1.2;
-  font-weight: 600;
-}
-
 
 /* ============================================
    Admin Panel Enhancements

@@ -54,12 +54,18 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
       {/* Skip to main content link for keyboard accessibility */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:outline-none"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-text-on-primary focus:px-4 focus:py-2 focus:rounded-md focus:outline-none"
       >
         Skip to main content
       </a>
       <Header />
-      <main id="main-content" className="flex-1 w-full relative z-10" style={{ paddingTop: 'var(--header-height)' }}>
+      {/* flex-col lets page-level children use `flex-1` to fill the visible
+          area between header and footer (true visual centering). */}
+      <main
+        id="main-content"
+        className="flex-1 w-full relative z-10 flex flex-col"
+        style={{ paddingTop: 'var(--header-height)' }}
+      >
         {children}
       </main>
       <Footer />

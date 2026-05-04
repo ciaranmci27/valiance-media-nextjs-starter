@@ -16,11 +16,11 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="flex-1 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         <div className="mb-8">
           <svg
-            className="mx-auto h-24 w-24 text-gray-400"
+            className="mx-auto h-24 w-24 text-text-tertiary"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -44,17 +44,11 @@ export default function Error({
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={reset}
-            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-200 font-medium"
-          >
+          <button onClick={reset} className="btn-rect">
             Try again
           </button>
-          
-          <Link
-            href="/"
-            className="px-6 py-3 bg-surface border border-border-medium text-text-primary rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium"
-          >
+
+          <Link href="/" className="btn-rect-outline">
             Go to Home
           </Link>
         </div>
