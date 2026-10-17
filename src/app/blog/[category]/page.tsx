@@ -13,6 +13,10 @@ interface CategoryPageProps {
   }>;
 }
 
+// Only categories and posts that exist at build time; anything else is a
+// plain 404 instead of an attempted render
+export const dynamicParams = false;
+
 // Generate static params for all categories and single posts
 export async function generateStaticParams() {
   const categories = await cachedLoadCategories();
