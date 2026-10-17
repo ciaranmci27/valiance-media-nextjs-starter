@@ -4,6 +4,17 @@ import path from 'path';
 import { seoConfig } from './config';
 import { getLlmsSettingsSync } from './llms-settings';
 
+/**
+ * The site's X/Twitter handle from the social profile URL in seo config
+ * (https://x.com/name or https://twitter.com/name gives "@name"), or
+ * undefined when none is set, so no tag points at an account that may not exist.
+ */
+function twitterHandle(): string | undefined {
+  const url = (seoConfig as { social?: { twitter?: string } }).social?.twitter || '';
+  const match = url.match(/(?:^|\/\/|\.)(?:twitter|x)\.com\/@?([A-Za-z0-9_]{1,15})/);
+  return match ? `@${match[1]}` : undefined;
+}
+
 export function generateStaticMetadata(pagePath: string): Metadata {
   try {
     // Construct path to seo-config.json
@@ -117,7 +128,7 @@ export function generateStaticMetadata(pagePath: string): Metadata {
         card: 'summary_large_image',
         title: seo?.title || seoConfig.siteName,
         description: seo?.description || `Welcome to ${seoConfig.siteName}`,
-        site: `@${seoConfig.siteName.replace(/\s+/g, '')}`,
+        site: twitterHandle(),
         images: [fullOgImageUrl],
         creator: seo?.twitterCreator
       },
