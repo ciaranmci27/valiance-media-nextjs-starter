@@ -48,12 +48,9 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [userIP, setUserIP] = useState<string | null>(null);
   const [exclusionReason, setExclusionReason] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
   const hasLoggedRef = useRef(false);
 
   useEffect(() => {
-    setMounted(true);
-
     const checkExclusion = async () => {
       try {
         // Check session cache first (wrapped in try/catch for private browsing support)
@@ -134,11 +131,8 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
     checkExclusion();
   }, []);
 
-  // Prevent flash of content during initial load
-  if (!mounted) {
-    return null;
-  }
-
+  // Always render children, so pages are server-rendered with their content.
+  // Analytics scripts wait on isLoading instead, which starts true.
   return (
     <AnalyticsContext.Provider value={{ isExcluded, isLoading, userIP, exclusionReason }}>
       {children}
