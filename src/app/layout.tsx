@@ -72,7 +72,8 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={theme === "dark" ? "dark" : undefined}
+      // Font variables live on <html> so the :root tokens in globals.css can see them
+      className={`${geistSans.variable} ${geistMono.variable}${theme === "dark" ? " dark" : ""}`}
       data-theme={theme}
       suppressHydrationWarning
     >
@@ -81,7 +82,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="antialiased"
         suppressHydrationWarning
       >
         <ThemeProvider initialTheme={theme}>
