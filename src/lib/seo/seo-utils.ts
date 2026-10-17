@@ -1,5 +1,11 @@
 import { Metadata } from 'next';
 import { seoConfig } from './config';
+import {
+  NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  NEXT_PUBLIC_BING_SITE_VERIFICATION,
+  NEXT_PUBLIC_YANDEX_SITE_VERIFICATION,
+  NEXT_PUBLIC_PINTEREST_SITE_VERIFICATION,
+} from '@/lib/env';
 
 /**
  * Get a valid site URL with fallback
@@ -70,6 +76,23 @@ export function generateMetadata({
     description: metaDescription,
     keywords: metaKeywords,
   };
+
+  // Search console verification: env vars win, then codes saved in seo config
+  const savedCodes = configFull.verification || {};
+  const google = NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || savedCodes.google;
+  const yandex = NEXT_PUBLIC_YANDEX_SITE_VERIFICATION || savedCodes.yandex;
+  const bing = NEXT_PUBLIC_BING_SITE_VERIFICATION || savedCodes.bing;
+  const pinterest = NEXT_PUBLIC_PINTEREST_SITE_VERIFICATION || savedCodes.pinterest;
+  const other: Record<string, string> = {};
+  if (bing) other['msvalidate.01'] = bing;
+  if (pinterest) other['p:domain_verify'] = pinterest;
+  if (google || yandex || bing || pinterest) {
+    metadata.verification = {
+      ...(google ? { google } : {}),
+      ...(yandex ? { yandex } : {}),
+      ...(Object.keys(other).length ? { other } : {}),
+    };
+  }
 
   // Add company-related metadata only if company data exists and is not empty
   if (configFull.company?.name && configFull.company.name.trim()) {
