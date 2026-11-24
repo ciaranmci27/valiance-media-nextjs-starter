@@ -1,0 +1,5 @@
+# Gitignored files Claude Code copies into each worktree it makes (newchat.sh copies the same).
+.env
+.env.local
+*/.env
+*/.env.local
